@@ -1,24 +1,12 @@
-// assets/js/config.js
+// assets/js/config.js (API 영역 업데이트)
 const SYSTEM_CONFIG = {
-  BRAND: {
-    NAME: "Sinjeon Canada",
-    PORTAL_TITLE: "Sinjeon Canada Franchise Portal",
-    DOMAIN: "https://partner.sinjeoncanada.com",
-  },
+  // ... 기존 코드 유지 ...
   API: {
-    // 발급해주신 실제 GAS 백엔드 URL 적용
-    BASE_URL: "https://script.google.com/macros/s/AKfycbynnWXqi3qAZf6jHdd-vcnfCe-Xpm7bP4xHr2-1f5ElkZeCCsvnQ6V8vVxeF7elj4uVPg/exec",
+    BASE_URL: "https://script.google.com/macros/s/여기에_GAS_배포_키를_입력하세요/exec",
     ENDPOINTS: {
-      AUTH: "login"
+      AUTH: "login",
+      DASHBOARD: "get_dashboard", // 신규 추가됨
+      ITEMS: "get_items"         // 신규 추가됨
     }
   },
-  ROLES: {
-    MASTER: { id: "MASTER", redirectAfterLogin: "dashboard.html" },
-    FRANCHISEE: { id: "FRANCHISEE", redirectAfterLogin: "dashboard.html" }
-  },
-  STORAGE_KEYS: {
-    USER_TOKEN: "sinjeon_canada_session",
-    CLIENT_NAME: "sinjeon_client_name",
-    ROLE: "sinjeon_user_role"
-  }
-};
+  // ... 기존 코드 유지 ...
