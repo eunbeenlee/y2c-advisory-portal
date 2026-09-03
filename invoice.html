@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advisory Invoice - Y2C Holdings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 인쇄(PDF 저장) 시 좌측 컨트롤 패널 숨기고 A4 사이즈에 맞춤 */
+    @media print {
+      body { background-color: white; }
+      .no-print { display: none !important; }
+      .print-area { box-shadow: none !important; margin: 0 !important; width: 100% !important; padding: 0 !important; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+  
+  <nav class="bg-white shadow-md border-b-4 border-red-600 no-print">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center py-3">
+      <div class="flex items-center space-x-4">
+        <h1 class="text-xl font-extrabold text-gray-900">Partner Portal</h1>
+        <span class="text-xs text-gray-500 font-bold bg-gray-100 px-2 py-1 rounded">MASTER ADMIN</span>
+      </div>
+      <div class="flex space-x-6">
+        <a href="dashboard.html" class="text-gray-600 font-bold hover:text-red-600">Dashboard</a>
+        <a href="invoice.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-1">Advisory Invoice</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto mt-8 p-4 flex flex-col lg:flex-row gap-8">
+    
+    <div class="w-full lg:w-1/3 bg-white p-6 rounded-lg shadow-sm border border-gray-200 no-print">
+      <h2 class="text-lg font-bold border-b pb-3 mb-5 text-gray-800">⚙️ Invoice Generator</h2>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Select Client</label>
+          <select id="selClient" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:border-red-500 outline-none">
+            <option value="SINJEON FOOD SYS LOUGHEED">SINJEON FOOD SYS LOUGHEED</option>
+            <option value="SINJEON FINCH INC.">SINJEON FINCH INC.</option>
+            <option value="1000224977 INC. / Church">1000224977 INC. / Church</option>
+            <option value="1000800275 INC. / Christie">1000800275 INC. / Christie</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Target Year</label>
+            <input type="number" id="selYear" value="2026" class="w-full border-gray-300 rounded-md shadow-sm p-2 border text-center outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Advisory Rate (%)</label>
+            <input type="number" id="selRate" value="2" step="0.5" class="w-full border-gray-300 rounded-md shadow-sm p-2 border text-center outline-none">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Start Month</label>
+            <input type="number" id="selStart" value="1" min="1" max="12" class="w-full border-gray-300 rounded-md shadow-sm p-2 border text-center outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">End Month</label>
+            <input type="number" id="selEnd" value="4" min="1" max="12" class="w-full border-gray-300 rounded-md shadow-sm p-2 border text-center outline-none">
+          </div>
+        </div>
+        
+        <button onclick="generateInvoice()" class="w-full mt-6 bg-gray-800 text-white font-bold py-3 rounded hover:bg-gray-700 transition">
+          Generate Data
+        </button>
+        <button onclick="window.print()" class="w-full mt-2 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700 transition">
+          🖨️ Print / Save as PDF
+        </button>
+      </div>
+    </div>
+
+    <div class="w-full lg:w-2/3 bg-white p-12 rounded-lg shadow-lg print-area text-gray-800">
+      
+      <div class="flex justify-between items-start border-b-2 border-red-700 pb-6 mb-8">
+        <div>
+          <img src="assets/images/y2c_holdings_logo.png" alt="Y2C Holdings" class="h-14 mb-4 object-contain">
+          <h1 class="text-3xl font-light tracking-widest text-gray-900">STATEMENT OF ACCOUNT</h1>
+        </div>
+        <div class="text-right text-sm text-gray-500 mt-2">
+          <p><strong>Invoice Number:</strong> <span id="invNo" class="text-gray-800 font-bold">-</span></p>
+          <p><strong>Date of Issue:</strong> <span id="invDate" class="text-gray-800">-</span></p>
+          <p><strong>Due Date:</strong> <span id="invDue" class="text-gray-800">-</span></p>
+        </div>
+      </div>
+
+      <div class="flex justify-between mb-10 text-sm">
+        <div class="w-1/2 pr-4">
+          <h3 class="font-bold text-gray-400 mb-2 uppercase tracking-wide">Issued By</h3>
+          <p class="font-bold text-lg text-gray-800">Y2C Holdings Inc.</p>
+          <p>39, Gwangan-ro 62beon-gil, Unit 1605</p>
+          <p>Busan, Rep. of Korea</p>
+          <p class="mt-2"><strong>Contact:</strong> +82 10-5088-4494</p>
+          <p><strong>Registration No:</strong> 216-86-02475</p>
+        </div>
+        
+        <div class="w-1/2 pl-4 border-l border-gray-200">
+          <h3 class="font-bold text-gray-400 mb-2 uppercase tracking-wide">Prepared For</h3>
+          <p class="font-bold text-lg text-gray-800" id="clientName">CLIENT NAME</p>
+          <p id="clientAddress">Address Line 1</p>
+          <p id="clientCity">City, Province</p>
+          <p class="mt-2"><strong>ATTN:</strong> <span id="clientAttn">-</span></p>
+          <p><strong>Business ID:</strong> <span id="clientBizId">-</span></p>
+        </div>
+      </div>
+
+      <table class="w-full text-sm text-left mb-10">
+        <thead class="bg-gray-100 border-b border-gray-300">
+          <tr>
+            <th class="py-3 px-4 font-bold text-gray-600">Description of Services</th>
+            <th class="py-3 px-4 font-bold text-gray-600 text-center">Calculated Base</th>
+            <th class="py-3 px-4 font-bold text-gray-600 text-center">Rate</th>
+            <th class="py-3 px-4 font-bold text-gray-600 text-right">Total Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-100">
+            <td class="py-4 px-4 font-medium" id="descLine">Management Advisory Services</td>
+            <td class="py-4 px-4 text-center" id="baseLine">-</td>
+            <td class="py-4 px-4 text-center" id="rateLine">-</td>
+            <td class="py-4 px-4 text-right font-bold" id="amtLine">-</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="flex justify-between items-end">
+        <div class="text-xs text-gray-500 w-1/2">
+          <h4 class="font-bold text-gray-700 uppercase mb-1">Bank Details</h4>
+          <p>Global Exchange Bank</p>
+          <p>A/C: 123-456-789012</p>
+          <p>SWIFT: GEXBKRSE</p>
+          <p class="mt-4 italic">Please include Invoice Number in transfer notes.</p>
+        </div>
+        
+        <div class="w-1/3 bg-gray-50 p-4 rounded border border-gray-200 text-right">
+          <p class="text-sm text-gray-500 mb-1">Subtotal: <span class="font-bold text-gray-800" id="subTotal">-</span></p>
+          <p class="text-sm text-gray-500 mb-2 border-b pb-2">Tax (Estimated): <span class="font-bold text-gray-800" id="taxAmt">-</span></p>
+          <p class="text-lg text-red-700 font-black tracking-wide">TOTAL DUE: <br><span class="text-2xl" id="totalDue">$ 0.00</span></p>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script>
+    // 날짜 포맷팅 및 번호 생성 함수
+    const today = new Date();
+    document.getElementById('invDate').innerText = today.toISOString().split('T')[0];
+    
+    let due = new Date();
+    due.setDate(today.getDate() + 14); // 14일 뒤 청구
+    document.getElementById('invDue').innerText = due.toISOString().split('T')[0];
+    
+    const randomInvNo = Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('invNo').innerText = `INV-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}-${randomInvNo}`;
+
+    const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+
+    // 구글 서버(GAS)에 데이터 요청하여 인보이스 생성
+    async function generateInvoice() {
+      const client = document.getElementById('selClient').value;
+      const year = document.getElementById('selYear').value;
+      const startM = document.getElementById('selStart').value;
+      const endM = document.getElementById('selEnd').value;
+      const rate = parseFloat(document.getElementById('selRate').value) / 100; // 2% -> 0.02
+
+      try {
+        const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE,
+            clientName: client,
+            year: year,
+            startMonth: startM,
+            endMonth: endM
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          // 수신자 정보 세팅
+          const info = result.clientInfo;
+          document.getElementById('clientName').innerText = info.name || client;
+          document.getElementById('clientAddress').innerText = info.address || '-';
+          document.getElementById('clientCity').innerText = `${info.city || ''}, ${info.state || ''}`;
+          document.getElementById('clientAttn').innerText = `${info.attn || ''} | ${info.email || ''}`;
+          document.getElementById('clientBizId').innerText = info.bizId || '-';
+
+          // 금액 계산 및 세팅
+          const base = result.calculatedBase;
+          const fee = base * rate;
+          const tax = fee * 0.05; // 임시 기본 세율 5% 반영 (필요시 주별 차등 가능)
+          const total = fee + tax;
+
+          document.getElementById('descLine').innerText = `Management Advisory Services - M${startM} to M${endM}, ${year}`;
+          document.getElementById('baseLine').innerText = formatCurrency(base);
+          document.getElementById('rateLine').innerText = `${document.getElementById('selRate').value}%`;
+          document.getElementById('amtLine').innerText = formatCurrency(fee);
+          
+          document.getElementById('subTotal').innerText = formatCurrency(fee);
+          document.getElementById('taxAmt').innerText = formatCurrency(tax);
+          document.getElementById('totalDue').innerText = formatCurrency(total);
+          
+        } else {
+          alert("데이터 추출 오류: " + result.message);
+        }
+      } catch (err) {
+        alert("통신 오류가 발생했습니다.");
+      }
+    }
+  </script>
+</body>
+</html>
