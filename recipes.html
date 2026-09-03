@@ -1,0 +1,100 @@
+<!-- recipes.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Standard Recipe Center | Sinjeon Canada</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { 
+      --sinjeon-red: #D32F2F; 
+      --sinjeon-dark: #990000; 
+      --y2c-gold: #C5A059;
+    }
+    .bg-gradient-sinjeon { 
+      background: linear-gradient(135deg, var(--sinjeon-red) 0%, var(--sinjeon-dark) 100%); 
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body class="bg-gray-900 min-h-screen font-sans text-gray-800 antialiased selection:bg-red-500 selection:text-white">
+  
+  <!-- 상단 네비게이션 바 -->
+  <nav class="bg-white/95 backdrop-blur-md shadow-md border-b-4 border-red-600 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center py-3.5 gap-4 sm:gap-0">
+      
+      <div class="flex items-center space-x-4">
+        <img src="Sinjeon_Logo_Pink.png" 
+             onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
+             alt="Sinjeon Logo" class="h-9 sm:h-10 object-contain">
+        <div class="border-l-2 border-gray-200 pl-4">
+          <h1 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight leading-tight">Partner Portal</h1>
+          <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Operated by Y2C Holdings Inc.</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center flex-wrap gap-4 sm:gap-6 justify-end">
+        <a href="dashboard.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Dashboard</a>
+        <a href="items.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Item List</a>
+        <a href="recipes.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-0.5 text-sm">Recipe Center</a>
+        <a href="invoice.html" id="navInvoice" class="hidden text-gray-600 hover:text-red-600 font-bold transition text-sm">Advisory Invoice</a>
+        
+        <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-3 rounded-xl border border-gray-200 shadow-sm">
+          <span id="userNameDisplay" class="text-xs sm:text-sm font-bold text-gray-800 truncate max-w-[100px] sm:max-w-none"></span>
+          <button id="logoutBtn" class="text-xs bg-gray-900 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition cursor-pointer">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 메인 컨텐츠 영역 -->
+  <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8">
+    
+    <div id="errorBanner" class="hidden mb-6 bg-red-500 text-white p-4 rounded-2xl shadow-lg flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div>
+          <h4 class="font-bold text-sm">Recipe Synchronization Notice</h4>
+          <p id="errorBannerText" class="text-xs text-red-100">Failed to load standard recipes.</p>
+        </div>
+      </div>
+      <button onclick="fetchRecipes()" class="text-xs bg-white text-red-600 font-bold px-3 py-1.5 rounded-lg shadow hover:bg-red-50 transition">Retry</button>
+    </div>
+
+    <!-- 헤더 영역 -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <div>
+        <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          <span>📖</span> Standard Recipe & Preparation Center
+        </h2>
+        <p class="text-xs text-gray-400 mt-1">Official operational manuals and sauce formulations for Canadian franchise stores.</p>
+      </div>
+      <a href="dashboard.html" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition border border-white/10 shadow-sm flex items-center gap-2">
+        ← Back to Dashboard
+      </a>
+    </div>
+
+    <!-- 레시피 카드 그리드 렌더링 영역 -->
+    <div id="recipeContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- 로딩 스피너 -->
+      <div class="col-span-full glass-card p-16 rounded-3xl text-center shadow-2xl">
+        <div class="flex flex-col items-center justify-center space-y-3">
+          <svg class="animate-spin h-8 w-8 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-sm font-bold text-gray-500">Loading operational recipes from secure database...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/recipes.js"></script>
+</body>
+</html>
