@@ -1,1 +1,67 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Sinjeon Canada Partner Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 데이터 시각화를 위한 Chart.js 라이브러리 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .bg-sinjeon { background-color: #E53935; }
+    .text-sinjeon { color: #E53935; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  
+  <!-- 상단 네비게이션 바 -->
+  <nav class="bg-sinjeon text-white p-4 shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold" id="navTitle">Sinjeon Portal</h1>
+      <div class="flex space-x-4 items-center">
+        <!-- 현재 로그인한 가맹점 이름이 표시될 곳 -->
+        <span id="userNameDisplay" class="text-sm font-medium bg-red-800 px-3 py-1 rounded-full"></span>
+        <button id="logoutBtn" class="text-sm bg-white text-red-600 font-bold px-3 py-1 rounded hover:bg-gray-100 transition">Logout</button>
+      </div>
+    </div>
+  </nav>
 
+  <!-- 메인 컨텐츠 영역 -->
+  <main class="max-w-6xl mx-auto mt-8 p-4">
+    
+    <!-- 상단 요약 카드 3개 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-lg shadow border-l-4 border-red-500">
+        <h3 class="text-gray-500 text-sm font-semibold">Total Net Sales (YTD)</h3>
+        <p class="text-3xl font-bold mt-2" id="totalSales">Loading...</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
+        <h3 class="text-gray-500 text-sm font-semibold">POS Sales (YTD)</h3>
+        <p class="text-3xl font-bold mt-2" id="posSales">-</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
+        <h3 class="text-gray-500 text-sm font-semibold">Delivery Sales (YTD)</h3>
+        <p class="text-3xl font-bold mt-2" id="deliverySales">-</p>
+      </div>
+    </div>
+
+    <!-- 차트 영역 -->
+    <div class="bg-white p-6 rounded-lg shadow mb-8">
+      <h2 class="text-lg font-bold mb-4 text-gray-700">Monthly Revenue Trend (2026)</h2>
+      <canvas id="salesChart" height="100"></canvas>
+    </div>
+    
+    <!-- 품목 리스트 페이지로 넘어가는 버튼 -->
+    <div class="text-center">
+      <a href="items.html" class="inline-block bg-gray-800 text-white font-bold px-8 py-3 rounded-md hover:bg-gray-700 transition">
+        📦 View Franchise Item List
+      </a>
+    </div>
+
+  </main>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>
