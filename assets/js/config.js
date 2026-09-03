@@ -1,36 +1,42 @@
-// 시스템 전체를 통제하는 환경 설정(레지스트리) 객체
-const Y2C_REGISTRY = {
-  // 1. API 엔드포인트 설정 (백엔드 주소)
+// assets/js/config.js
+
+const SYSTEM_CONFIG = {
+  // 1. 브랜드 및 도메인 정보
+  BRAND: {
+    NAME: "Sinjeon Canada",
+    PORTAL_TITLE: "Sinjeon Canada Franchise Portal",
+    DOMAIN: "https://partner.sinjeoncanada.com",
+    SUPPORT_EMAIL: "support@sinjeoncanada.com" // 에러 발생 시 가맹점주에게 노출될 연락처
+  },
+
+  // 2. API 엔드포인트 (백엔드)
   API: {
-    // 구글 Apps Script를 배포하고 얻은 웹앱 URL을 여기에 입력
-    BASE_URL: "https://script.google.com/macros/s/여기에_키_입력/exec",
+    // 구글 Apps Script 웹앱 배포 URL
+    BASE_URL: "https://script.google.com/macros/s/여기에_GAS_배포_키를_입력하세요/exec",
     ENDPOINTS: {
-      LOGIN: "login",
-      GET_SALES: "get_sales_data",
-      GET_ITEMS: "get_items_list"
+      AUTH: "login",
+      SALES_REPORT: "get_sales",
+      ITEM_LIST: "get_items"
     }
   },
 
-  // 2. 권한(Role)별 접근 가능 메뉴 제어
+  // 3. 권한(Role) 및 라우팅 제어
   ROLES: {
     MASTER: {
-      level: 99,
-      accessiblePages: ["dashboard.html", "items.html", "admin.html"], // 마스터는 모든 메뉴 접근
-      homePage: "dashboard.html"
+      id: "MASTER",
+      accessiblePages: ["*"], // 모든 페이지 접근 가능
+      redirectAfterLogin: "dashboard_master.html" // 마스터 전용 대시보드
     },
-    FRANCHISE: {
-      level: 1,
-      accessiblePages: ["dashboard.html", "items.html"], // 가맹점은 본인 매장 메뉴만 접근
-      homePage: "dashboard.html"
+    FRANCHISEE: {
+      id: "FRANCHISEE",
+      accessiblePages: ["dashboard_franchise.html", "items.html"],
+      redirectAfterLogin: "dashboard_franchise.html" // 가맹점 전용 대시보드
     }
   },
 
-  // 3. 차트 기본 색상 테마 (신전 떡볶이 & Y2C 홀딩스 톤앤매너)
-  UI_THEME: {
-    colors: {
-      primary: "#E53935", // 신전 레드 포인트
-      secondary: "#1E88E5", // Y2C 블루
-      background: "#F5F5F6"
-    }
+  // 4. 세션 관리 키 (브라우저 LocalStorage에 저장될 키 이름)
+  STORAGE_KEYS: {
+    USER_TOKEN: "sinjeon_canada_session",
+    CLIENT_NAME: "sinjeon_client_name"
   }
 };
