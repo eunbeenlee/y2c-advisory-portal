@@ -1,3 +1,4 @@
+<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +10,11 @@
 </head>
 <body class="bg-gray-50 font-sans">
   
+  <!-- Y2C Holdings 마스터 프랜차이즈 전용 네비게이션 바 -->
   <nav class="bg-white shadow-md border-b-4 border-red-600">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center py-3">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center py-3 gap-4 sm:gap-0">
+      
+      <!-- 좌측 브랜드 아이덴티티 -->
       <div class="flex items-center space-x-4">
         <img src="assets/images/Sinjeon_Logo_Pink.png" alt="Sinjeon Logo" class="h-10 object-contain">
         <div class="border-l-2 border-gray-200 pl-4">
@@ -19,11 +23,28 @@
         </div>
       </div>
       
-      <div class="flex items-center space-x-8">
+      <!-- 우측 메뉴 및 연도 동적 셀렉트 박스 -->
+      <div class="flex items-center flex-wrap gap-4 justify-end">
         <a href="dashboard.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-1">Dashboard</a>
         <a href="items.html" class="text-gray-600 hover:text-red-600 font-bold transition">Item List</a>
         <a href="invoice.html" id="navInvoice" class="hidden text-gray-600 hover:text-red-600 font-bold transition">Advisory Invoice</a>
         
+        <!-- 🌟 동적 연도 선택 드롭다운 -->
+        <div class="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
+          <span class="text-xs font-bold text-gray-500 uppercase">Fiscal Year:</span>
+          <select id="yearSelector" class="bg-transparent text-sm font-bold text-gray-800 focus:outline-none cursor-pointer">
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+          </select>
+        </div>
+
         <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-3 rounded-lg border">
           <span id="userNameDisplay" class="text-sm font-bold text-gray-800"></span>
           <button id="logoutBtn" class="text-xs bg-gray-800 text-white font-bold px-3 py-1.5 rounded hover:bg-gray-700 transition">Logout</button>
@@ -32,6 +53,7 @@
     </div>
   </nav>
 
+  <!-- 메인 컨텐츠 영역 -->
   <main class="max-w-7xl mx-auto mt-8 p-4">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 border-l-4 border-l-red-500">
@@ -49,7 +71,7 @@
     </div>
 
     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
-      <h2 class="text-lg font-bold mb-4 text-gray-800">Monthly Revenue Trend</h2>
+      <h2 class="text-lg font-bold mb-4 text-gray-800" id="chartTitle">Monthly Revenue Trend</h2>
       <canvas id="salesChart" height="90"></canvas>
     </div>
   </main>
@@ -57,7 +79,6 @@
   <script src="assets/js/config.js"></script>
   <script src="assets/js/dashboard.js"></script>
   <script>
-    // 마스터 권한일 경우에만 인보이스 메뉴 노출
     if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
       document.getElementById('navInvoice').classList.remove('hidden');
     }
