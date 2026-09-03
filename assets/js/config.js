@@ -1,12 +1,15 @@
-// assets/js/config.js (API 영역 업데이트)
+// assets/js/config.js 
+
 const SYSTEM_CONFIG = {
-  // ... 기존 코드 유지 ...
+  // ... (브랜드 설정 유지) ...
   API: {
-    BASE_URL: "https://script.google.com/macros/s/여기에_GAS_배포_키를_입력하세요/exec",
+    // 💡 방금 주신 새로운 URL로 교체완료!
+    BASE_URL: "https://script.google.com/macros/s/AKfycbxECuPPrxlh8FT9L5JUhFPJzck57IEd6JTFlU68k7NvHUXceBnHS9loeIPO5UXjSeMRtw/exec",
     ENDPOINTS: {
       AUTH: "login",
-      DASHBOARD: "get_dashboard", // 신규 추가됨
-      ITEMS: "get_items"         // 신규 추가됨
+      DASHBOARD: "get_dashboard",
+      ITEMS: "get_items" 
     }
   },
-  // ... 기존 코드 유지 ...
+  // ... (나머지 코드 유지) ...
+};
