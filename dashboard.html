@@ -10,26 +10,22 @@
 </head>
 <body class="bg-gray-50 font-sans">
   
-  <!-- Y2C Holdings 마스터 프랜차이즈 전용 네비게이션 바 -->
   <nav class="bg-white shadow-md border-b-4 border-red-600">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center py-3 gap-4 sm:gap-0">
       
-      <!-- 좌측 브랜드 아이덴티티 -->
       <div class="flex items-center space-x-4">
-        <img src="assets/images/Sinjeon_Logo_Pink.png" alt="Sinjeon Logo" class="h-10 object-contain">
+        <img src="assets/Images/Sinjeon_Logo_Pink.png" onerror="this.src='assets/images/Sinjeon_Logo_Pink.png'" alt="Sinjeon Logo" class="h-10 object-contain">
         <div class="border-l-2 border-gray-200 pl-4">
           <h1 class="text-xl font-extrabold text-gray-900 leading-tight">Partner Portal</h1>
           <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Operated by Y2C Holdings Inc.</p>
         </div>
       </div>
       
-      <!-- 우측 메뉴 및 연도 동적 셀렉트 박스 -->
       <div class="flex items-center flex-wrap gap-4 justify-end">
         <a href="dashboard.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-1">Dashboard</a>
         <a href="items.html" class="text-gray-600 hover:text-red-600 font-bold transition">Item List</a>
         <a href="invoice.html" id="navInvoice" class="hidden text-gray-600 hover:text-red-600 font-bold transition">Advisory Invoice</a>
         
-        <!-- 🌟 동적 연도 선택 드롭다운 -->
         <div class="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
           <span class="text-xs font-bold text-gray-500 uppercase">Fiscal Year:</span>
           <select id="yearSelector" class="bg-transparent text-sm font-bold text-gray-800 focus:outline-none cursor-pointer">
@@ -53,7 +49,6 @@
     </div>
   </nav>
 
-  <!-- 메인 컨텐츠 영역 -->
   <main class="max-w-7xl mx-auto mt-8 p-4">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 border-l-4 border-l-red-500">
