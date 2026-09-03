@@ -4,61 +4,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Item List - Sinjeon Canada Partner Portal</title>
+  <title>Franchise Item List | Sinjeon Canada</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .bg-sinjeon { background-color: #E53935; }
-    .text-sinjeon { color: #E53935; }
+    :root { 
+      --sinjeon-red: #D32F2F; 
+      --sinjeon-dark: #990000; 
+      --y2c-gold: #C5A059;
+    }
+    .bg-gradient-sinjeon { 
+      background: linear-gradient(135deg, var(--sinjeon-red) 0%, var(--sinjeon-dark) 100%); 
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
   </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-900 min-h-screen font-sans text-gray-800 antialiased selection:bg-red-500 selection:text-white">
   
-  <!-- 상단 네비게이션 바 -->
-  <nav class="bg-sinjeon text-white p-4 shadow-md">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <h1 class="text-xl font-bold">Sinjeon Portal</h1>
-      <div class="flex space-x-4 items-center">
-        <span id="userNameDisplay" class="text-sm font-medium bg-red-800 px-3 py-1 rounded-full"></span>
-        <button id="logoutBtn" class="text-sm bg-white text-red-600 font-bold px-3 py-1 rounded hover:bg-gray-100 transition">Logout</button>
+  <!-- 💡 상단 프리미엄 네비게이션 바 -->
+  <nav class="bg-white/95 backdrop-blur-md shadow-md border-b-4 border-red-600 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center py-3.5 gap-4 sm:gap-0">
+      
+      <!-- 좌측 로고플레이 (이중 방어 적용) -->
+      <div class="flex items-center space-x-4">
+        <img src="Sinjeon_Logo_Pink.png" 
+             onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
+             alt="Sinjeon Logo" class="h-9 sm:h-10 object-contain">
+        <div class="border-l-2 border-gray-200 pl-4">
+          <h1 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight leading-tight">Partner Portal</h1>
+          <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Operated by Y2C Holdings Inc.</p>
+        </div>
+      </div>
+      
+      <!-- 우측 네비게이션 메뉴 -->
+      <div class="flex items-center flex-wrap gap-4 sm:gap-6 justify-end">
+        <a href="dashboard.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Dashboard</a>
+        <a href="items.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-0.5 text-sm">Item List</a>
+        <a href="invoice.html" id="navInvoice" class="hidden text-gray-600 hover:text-red-600 font-bold transition text-sm">Advisory Invoice</a>
+        
+        <!-- 유저 프로필 & 로그아웃 -->
+        <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-3 rounded-xl border border-gray-200 shadow-sm">
+          <span id="userNameDisplay" class="text-xs sm:text-sm font-bold text-gray-800 truncate max-w-[100px] sm:max-w-none"></span>
+          <button id="logoutBtn" class="text-xs bg-gray-900 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition cursor-pointer">Logout</button>
+        </div>
       </div>
     </div>
   </nav>
 
   <!-- 메인 컨텐츠 영역 -->
-  <main class="max-w-6xl mx-auto mt-8 p-4">
+  <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8">
     
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-gray-800">📦 Franchise Item List</h2>
-      <a href="dashboard.html" class="bg-gray-200 text-gray-700 px-4 py-2 rounded font-medium hover:bg-gray-300 transition">
+    <!-- 통신 에러 방어 배너 -->
+    <div id="errorBanner" class="hidden mb-6 bg-red-500 text-white p-4 rounded-2xl shadow-lg flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div>
+          <h4 class="font-bold text-sm">Item Data Synchronization Notice</h4>
+          <p id="errorBannerText" class="text-xs text-red-100">Failed to load supply catalog from database.</p>
+        </div>
+      </div>
+      <button onclick="fetchItems()" class="text-xs bg-white text-red-600 font-bold px-3 py-1.5 rounded-lg shadow hover:bg-red-50 transition">Retry</button>
+    </div>
+
+    <!-- 페이지 헤더 및 뒤로가기 -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div>
+        <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          <span>📦</span> Franchise Supply Item List
+        </h2>
+        <p class="text-xs text-gray-400 mt-1">Official master catalog managed by Y2C Holdings Inc.</p>
+      </div>
+      <a href="dashboard.html" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition border border-white/10 shadow-sm flex items-center gap-2">
         ← Back to Dashboard
       </a>
     </div>
 
-    <!-- 품목 리스트 테이블 박스 -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-100">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Item Code</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Item Name</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Category</th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Unit Price (CAD)</th>
-          </tr>
-        </thead>
-        <tbody id="itemTableBody" class="bg-white divide-y divide-gray-200">
-          <!-- 로딩 상태 표시 -->
-          <tr>
-            <td colspan="4" class="px-6 py-10 text-center text-gray-500 font-medium">
-              Loading items...
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- 품목 리스트 테이블 카드 -->
+    <div class="glass-card rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-100/80">
+            <tr>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Item Code</th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Item Name</th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-black text-gray-600 uppercase tracking-wider">Category</th>
+              <th scope="col" class="px-6 py-4 text-right text-xs font-black text-gray-600 uppercase tracking-wider">Unit Price (CAD)</th>
+            </tr>
+          </thead>
+          <tbody id="itemTableBody" class="bg-white divide-y divide-gray-100">
+            <!-- 초기 로딩 스피너 상태 -->
+            <tr>
+              <td colspan="4" class="px-6 py-16 text-center">
+                <div class="flex flex-col items-center justify-center space-y-3">
+                  <svg class="animate-spin h-8 w-8 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <p class="text-sm font-bold text-gray-500">Loading catalog from secure database...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </main>
 
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/items.js"></script>
+  <script>
+    // 1. 보안 세션 검증
+    const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
+    const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
+
+    if (!userRole || !clientName) {
+      alert("세션이 만료되었습니다. 다시 로그인 해 주세요.");
+      window.location.href = "index.html";
+    }
+
+    // 마스터 권한 여부 확인 후 인보이스 메뉴 노출
+    if(userRole === "MASTER") {
+      document.getElementById('navInvoice').classList.remove('hidden');
+    }
+
+    document.getElementById('userNameDisplay').innerText = clientName;
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+    };
+
+    // 2. 🌟 백엔드 통신 및 오류 방어 로직이 포함된 품목 리스트 호출 함수
+    async function fetchItems() {
+      const tableBody = document.getElementById('itemTableBody');
+      const errorBanner = document.getElementById('errorBanner');
+      
+      errorBanner.classList.add('hidden');
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="px-6 py-16 text-center">
+            <div class="flex flex-col items-center justify-center space-y-3">
+              <svg class="animate-spin h-8 w-8 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-sm font-bold text-gray-500">Loading catalog from secure database...</p>
+            </div>
+          </td>
+        </tr>
+      `;
+
+      try {
+        const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: SYSTEM_CONFIG.API.ENDPOINTS.ITEMS
+          })
+        });
+
+        const responseText = await response.text();
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error("Server Raw Response:", responseText);
+          throw new Error("서버에서 올바른 JSON 데이터를 반환하지 않았습니다.");
+        }
+
+        if (result.success) {
+          tableBody.innerHTML = ''; 
+          
+          if (!result.items || result.items.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500 font-medium">등록된 공급 품목이 없습니다.</td></tr>`;
+            return;
+          }
+
+          result.items.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = "hover:bg-red-50/40 transition-colors";
+            row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold text-gray-600">${item.code || '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-extrabold">${item.name || '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-red-100 text-red-800 border border-red-200">
+                  ${item.category || 'General'}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-black text-right">${formatCurrency(item.price || 0)}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+          
+        } else {
+          throw new Error(result.message || "데이터를 불러오지 못했습니다.");
+        }
+      } catch (error) {
+        console.error("Item Fetch Error:", error);
+        errorBanner.classList.remove('hidden');
+        document.getElementById('errorBannerText').innerText = error.message;
+        
+        tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-500 font-bold">Failed to load items. Please click retry.</td></tr>`;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchItems);
+  </script>
 </body>
 </html>
