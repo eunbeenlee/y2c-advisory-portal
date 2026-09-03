@@ -7,19 +7,16 @@
   <title>Partner Portal | Sinjeon Canada</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 신전 프리미엄 브랜드 컬러 및 가벼운 하드웨어 가속 설정 (렉 방지) */
     :root { --sinjeon-red: #D32F2F; --sinjeon-dark: #B71C1C; }
     .bg-gradient-sinjeon { background: linear-gradient(135deg, var(--sinjeon-red) 0%, var(--sinjeon-dark) 100%); }
     .text-sinjeon { color: var(--sinjeon-red); }
     
-    /* 플로팅 라벨 최적화 */
     .floating-input:focus ~ .floating-label,
     .floating-input:not(:placeholder-shown) ~ .floating-label {
       transform: translateY(-1.5rem) scale(0.85);
       color: var(--sinjeon-red);
     }
     
-    /* 에러 시 흔들리는 애니메이션 */
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-5px); }
@@ -32,17 +29,14 @@
 
   <!-- 좌측 (PC) / 상단 (모바일) : 브랜드 비주얼 및 로고플레이 영역 -->
   <div class="lg:w-1/2 bg-gradient-sinjeon flex flex-col justify-between p-6 sm:p-10 lg:p-12 text-white shadow-xl z-10 relative overflow-hidden">
-    <!-- 배경 장식용 블러 효과 (가볍게 처리하여 모바일 렉 원인 차단) -->
     <div class="absolute -top-24 -left-24 w-72 h-72 lg:w-96 lg:h-96 bg-white opacity-5 rounded-full blur-2xl"></div>
     <div class="absolute -bottom-24 -right-24 w-72 h-72 lg:w-96 lg:h-96 bg-black opacity-10 rounded-full blur-2xl"></div>
     
-    <!-- 로고플레이 배치 -->
+    <!-- 로고플레이 배치 (대소문자 및 폴더 경로 이중 방어) -->
     <div class="relative z-15 flex items-center justify-between lg:justify-start lg:space-x-6">
-      <!-- 신전 핑크/화이트 로고 -->
-      <img src="assets/images/Sinjeon_Logo_Pink.png" alt="Sinjeon Logo" class="h-10 sm:h-12 w-auto object-contain brightness-0 invert drop-shadow-md">
+      <img src="assets/Images/Sinjeon_Logo_Pink.png" onerror="this.src='assets/images/Sinjeon_Logo_Pink.png'" alt="Sinjeon Logo" class="h-10 sm:h-12 w-auto object-contain brightness-0 invert drop-shadow-md">
       <div class="hidden sm:block h-8 w-[1px] bg-red-400 opacity-40"></div>
-      <!-- Y2C Holdings 엠블럼 로고 -->
-      <img src="assets/images/y2c_holdings_logo.png" alt="Y2C Holdings" class="h-10 sm:h-11 w-auto object-contain rounded bg-white/10 p-1 backdrop-blur-sm">
+      <img src="assets/Images/y2c_holdings_logo.png" onerror="this.src='assets/images/y2c_holdings_logo.png'" alt="Y2C Holdings" class="h-10 sm:h-11 w-auto object-contain rounded bg-white/10 p-1 backdrop-blur-sm">
     </div>
 
     <div class="relative z-10 my-8 lg:my-0">
@@ -73,31 +67,26 @@
       </div>
 
       <form id="loginForm" class="space-y-6">
-        <!-- Partner ID 입력 필드 -->
         <div class="relative">
           <input type="text" id="userId" placeholder=" " required autocomplete="off"
                  class="floating-input block w-full px-4 py-3 text-gray-900 bg-transparent border-b-2 border-gray-300 appearance-none focus:outline-none focus:border-red-600 transition-colors peer">
           <label for="userId" class="floating-label absolute text-gray-500 text-sm duration-300 transform translate-y-3 scale-100 top-0 left-4 z-10 origin-[0] peer-focus:left-0 peer-focus:text-red-600">Partner ID</label>
         </div>
 
-        <!-- Password 입력 필드 -->
         <div class="relative mt-8">
           <input type="password" id="userPw" placeholder=" " required 
                  class="floating-input block w-full px-4 py-3 text-gray-900 bg-transparent border-b-2 border-gray-300 appearance-none focus:outline-none focus:border-red-600 transition-colors peer">
           <label for="userPw" class="floating-label absolute text-gray-500 text-sm duration-300 transform translate-y-3 scale-100 top-0 left-4 z-10 origin-[0] peer-focus:left-0 peer-focus:text-red-600">Password</label>
         </div>
 
-        <!-- 에러 메시지 알림창 -->
         <div id="errorMessage" class="hidden flex items-center text-red-600 text-sm font-medium bg-red-50 p-3 rounded-md border border-red-100">
           <svg class="w-5 h-5 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
           <span id="errorText">Invalid credentials.</span>
         </div>
 
-        <!-- 로그인 버튼 -->
         <button type="submit" id="loginBtn" 
                 class="relative w-full flex justify-center items-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-gradient-sinjeon hover:shadow-lg hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all active:scale-[0.99]">
           <span id="btnText">Sign In</span>
-          <!-- 로딩 스피너 -->
           <svg id="btnSpinner" class="hidden animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -105,7 +94,6 @@
         </button>
       </form>
       
-      <!-- 모바일 하단 푸터 크레딧 -->
       <div class="mt-12 text-center lg:hidden">
         <p class="text-xs text-gray-400">Sinjeon Canada Partner Portal</p>
         <p class="text-xs font-bold text-gray-600 mt-0.5">Operated by Y2C Holdings Inc.</p>
