@@ -7,86 +7,118 @@
   <title>Partner Portal | Sinjeon Canada</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root { --sinjeon-red: #D32F2F; --sinjeon-dark: #B71C1C; }
-    .bg-gradient-sinjeon { background: linear-gradient(135deg, var(--sinjeon-red) 0%, var(--sinjeon-dark) 100%); }
-    .text-sinjeon { color: var(--sinjeon-red); }
+    :root { 
+      --sinjeon-red: #D32F2F; 
+      --sinjeon-dark: #990000; 
+      --y2c-gold: #C5A059;
+    }
+    .bg-gradient-sinjeon { 
+      background: linear-gradient(135deg, var(--sinjeon-red) 0%, var(--sinjeon-dark) 100%); 
+    }
+    .text-gold { color: var(--y2c-gold); }
     
+    /* 플로팅 라벨 인터랙션 */
     .floating-input:focus ~ .floating-label,
     .floating-input:not(:placeholder-shown) ~ .floating-label {
       transform: translateY(-1.5rem) scale(0.85);
       color: var(--sinjeon-red);
     }
     
+    /* 흔들림 에러 애니메이션 */
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
     }
     .shake { animation: shake 0.4s ease-in-out; }
+
+    /* 글래스모피즘 효과 (모바일/PC 공통 럭셔리 질감) */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans flex flex-col lg:flex-row text-gray-800 antialiased">
+<body class="bg-gray-900 min-h-screen font-sans flex flex-col lg:flex-row text-gray-800 antialiased selection:bg-red-500 selection:text-white">
 
-  <!-- 좌측 (PC) / 상단 (모바일) : 브랜드 비주얼 및 로고플레이 영역 -->
-  <div class="lg:w-1/2 bg-gradient-sinjeon flex flex-col justify-between p-6 sm:p-10 lg:p-12 text-white shadow-xl z-10 relative overflow-hidden">
-    <div class="absolute -top-24 -left-24 w-72 h-72 lg:w-96 lg:h-96 bg-white opacity-5 rounded-full blur-2xl"></div>
-    <div class="absolute -bottom-24 -right-24 w-72 h-72 lg:w-96 lg:h-96 bg-black opacity-10 rounded-full blur-2xl"></div>
+  <!-- 좌측 (PC) / 상단 (모바일) : 신전 & Y2C 프리미엄 브랜드 존 -->
+  <div class="lg:w-1/2 bg-gradient-sinjeon flex flex-col justify-between p-6 sm:p-10 lg:p-14 text-white shadow-2xl z-10 relative overflow-hidden">
+    <!-- 배경 고급 패턴 블러 -->
+    <div class="absolute -top-32 -left-32 w-80 h-80 lg:w-[450px] lg:h-[450px] bg-white opacity-5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-80 h-80 lg:w-[450px] lg:h-[450px] bg-black opacity-20 rounded-full blur-3xl pointer-events-none"></div>
     
-    <!-- 로고플레이 배치 (대소문자 및 폴더 경로 이중 방어) -->
-    <div class="relative z-15 flex items-center justify-between lg:justify-start lg:space-x-6">
-      <img src="assets/Images/Sinjeon_Logo_Pink.png" onerror="this.src='assets/images/Sinjeon_Logo_Pink.png'" alt="Sinjeon Logo" class="h-10 sm:h-12 w-auto object-contain brightness-0 invert drop-shadow-md">
-      <div class="hidden sm:block h-8 w-[1px] bg-red-400 opacity-40"></div>
-      <img src="assets/Images/y2c_holdings_logo.png" onerror="this.src='assets/images/y2c_holdings_logo.png'" alt="Y2C Holdings" class="h-10 sm:h-11 w-auto object-contain rounded bg-white/10 p-1 backdrop-blur-sm">
+    <!-- 💡 로고플레이 (루트 경로 및 에셋 경로 이중 방어로 404 에러 원천 차단) -->
+    <div class="relative z-20 flex items-center justify-between lg:justify-start lg:space-x-6">
+      <img src="Sinjeon_Logo_Pink.png" 
+           onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
+           alt="Sinjeon Logo" 
+           class="h-10 sm:h-12 w-auto object-contain brightness-0 invert drop-shadow-lg">
+      <div class="hidden sm:block h-8 w-[1px] bg-red-300 opacity-30"></div>
+      <img src="y2c_holdings_logo.png" 
+           onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.onerror=function(){this.style.display='none';};" 
+           alt="Y2C Holdings" 
+           class="h-10 sm:h-11 w-auto object-contain rounded-lg bg-black/20 p-1.5 backdrop-blur-md border border-white/10 shadow-lg">
     </div>
 
-    <div class="relative z-10 my-8 lg:my-0">
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-3 lg:mb-4 leading-tight">
+    <!-- 브랜드 메시지 -->
+    <div class="relative z-10 my-10 lg:my-0">
+      <span class="inline-block px-3 py-1 mb-4 text-xs font-bold tracking-widest text-red-200 uppercase bg-black/30 rounded-full border border-red-400/30">
+        Canada Master Franchise Portal
+      </span>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-4 leading-tight">
         Partner<br>Advisory Portal
       </h1>
-      <p class="text-red-100 text-sm sm:text-base lg:text-lg max-w-md font-light leading-relaxed">
+      <p class="text-red-100 text-sm sm:text-base lg:text-lg max-w-lg font-light leading-relaxed opacity-90">
         Integrated management system for franchise sales, operations, and supply chain analytics.
       </p>
     </div>
     
-    <div class="relative z-10 pt-4 border-t border-red-500/30 flex justify-between items-end">
+    <!-- 하단 크레딧 -->
+    <div class="relative z-10 pt-6 border-t border-red-500/30 flex justify-between items-end">
       <div>
         <p class="text-[11px] sm:text-xs text-red-200 font-semibold tracking-widest uppercase">MANAGED & OPERATED BY</p>
-        <p class="text-base sm:text-lg lg:text-xl font-bold tracking-wide mt-0.5">Y2C HOLDINGS INC.</p>
+        <p class="text-base sm:text-lg lg:text-xl font-bold tracking-wide mt-0.5 text-white">Y2C HOLDINGS INC.</p>
       </div>
-      <span class="text-xs bg-black/20 px-2.5 py-1 rounded-full text-red-100 font-medium hidden sm:inline-block">Canada Master Franchise</span>
+      <span class="text-xs bg-black/30 px-3 py-1.5 rounded-full text-red-200 font-medium hidden sm:inline-block border border-white/5">
+        Secure Enterprise v2.6
+      </span>
     </div>
   </div>
 
-  <!-- 우측 (PC) / 하단 (모바일) : 로그인 폼 영역 -->
-  <div class="lg:w-1/2 flex items-center justify-center p-6 sm:p-10 lg:p-12 relative bg-white">
-    <div class="w-full max-w-md">
+  <!-- 우측 (PC) / 하단 (모바일) : 로그인 폼 존 -->
+  <div class="lg:w-1/2 flex items-center justify-center p-6 sm:p-10 lg:p-12 relative bg-gray-50">
+    <div class="w-full max-w-md glass-card p-8 sm:p-10 rounded-2xl shadow-xl border border-gray-100">
 
-      <div class="mb-8 lg:mb-10 text-center lg:text-left">
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
-        <p class="text-sm sm:text-base text-gray-500">Please enter your credentials to access your account.</p>
+      <div class="mb-8 text-center lg:text-left">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">Welcome Back</h2>
+        <p class="text-sm text-gray-500">Please enter your partner credentials to continue.</p>
       </div>
 
-      <form id="loginForm" class="space-y-6">
+      <form id="loginForm" class="space-y-6" autocomplete="off">
+        <!-- Partner ID -->
         <div class="relative">
           <input type="text" id="userId" placeholder=" " required autocomplete="off"
-                 class="floating-input block w-full px-4 py-3 text-gray-900 bg-transparent border-b-2 border-gray-300 appearance-none focus:outline-none focus:border-red-600 transition-colors peer">
-          <label for="userId" class="floating-label absolute text-gray-500 text-sm duration-300 transform translate-y-3 scale-100 top-0 left-4 z-10 origin-[0] peer-focus:left-0 peer-focus:text-red-600">Partner ID</label>
+                 class="floating-input block w-full px-4 py-3.5 text-gray-900 bg-white border-2 border-gray-200 rounded-xl appearance-none focus:outline-none focus:border-red-600 transition-all peer shadow-sm">
+          <label for="userId" class="floating-label absolute text-gray-400 text-sm duration-300 transform translate-y-3.5 scale-100 top-0 left-4 z-10 origin-[0] px-1 bg-white peer-focus:px-1 peer-focus:text-red-600 font-medium">Partner ID</label>
         </div>
 
-        <div class="relative mt-8">
-          <input type="password" id="userPw" placeholder=" " required 
-                 class="floating-input block w-full px-4 py-3 text-gray-900 bg-transparent border-b-2 border-gray-300 appearance-none focus:outline-none focus:border-red-600 transition-colors peer">
-          <label for="userPw" class="floating-label absolute text-gray-500 text-sm duration-300 transform translate-y-3 scale-100 top-0 left-4 z-10 origin-[0] peer-focus:left-0 peer-focus:text-red-600">Password</label>
+        <!-- Password -->
+        <div class="relative mt-6">
+          <input type="password" id="userPw" placeholder=" " required autocomplete="new-password"
+                 class="floating-input block w-full px-4 py-3.5 text-gray-900 bg-white border-2 border-gray-200 rounded-xl appearance-none focus:outline-none focus:border-red-600 transition-all peer shadow-sm">
+          <label for="userPw" class="floating-label absolute text-gray-400 text-sm duration-300 transform translate-y-3.5 scale-100 top-0 left-4 z-10 origin-[0] px-1 bg-white peer-focus:px-1 peer-focus:text-red-600 font-medium">Password</label>
         </div>
 
-        <div id="errorMessage" class="hidden flex items-center text-red-600 text-sm font-medium bg-red-50 p-3 rounded-md border border-red-100">
-          <svg class="w-5 h-5 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+        <!-- 에러 방어 메시지 박스 -->
+        <div id="errorMessage" class="hidden flex items-center text-red-600 text-sm font-semibold bg-red-50 p-4 rounded-xl border border-red-200 shadow-sm">
+          <svg class="w-5 h-5 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
           <span id="errorText">Invalid credentials.</span>
         </div>
 
+        <!-- 로그인 버튼 -->
         <button type="submit" id="loginBtn" 
-                class="relative w-full flex justify-center items-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-gradient-sinjeon hover:shadow-lg hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all active:scale-[0.99]">
-          <span id="btnText">Sign In</span>
+                class="relative w-full flex justify-center items-center py-4 px-4 text-sm font-bold rounded-xl text-white bg-gradient-sinjeon hover:shadow-lg hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-red-500/20 transition-all active:scale-[0.99] cursor-pointer">
+          <span id="btnText">Sign In to Portal</span>
           <svg id="btnSpinner" class="hidden animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -94,9 +126,10 @@
         </button>
       </form>
       
-      <div class="mt-12 text-center lg:hidden">
+      <!-- 모바일 하단 크레딧 -->
+      <div class="mt-8 text-center lg:hidden">
         <p class="text-xs text-gray-400">Sinjeon Canada Partner Portal</p>
-        <p class="text-xs font-bold text-gray-600 mt-0.5">Operated by Y2C Holdings Inc.</p>
+        <p class="text-xs font-bold text-gray-700 mt-0.5">Operated by Y2C Holdings Inc.</p>
       </div>
 
     </div>
