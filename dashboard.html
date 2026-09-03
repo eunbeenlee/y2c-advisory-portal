@@ -24,28 +24,25 @@
 </head>
 <body class="bg-gray-900 min-h-screen font-sans text-gray-800 antialiased selection:bg-red-500 selection:text-white">
   
-  <!-- 💡 상단 프리미엄 네비게이션 바 -->
+  <!-- 상단 네비게이션 바 -->
   <nav class="bg-white/95 backdrop-blur-md shadow-md border-b-4 border-red-600 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center py-3.5 gap-4 sm:gap-0">
       
-      <!-- 좌측 로고플레이 (루트 & 에셋 이중 방어) -->
       <div class="flex items-center space-x-4">
         <img src="Sinjeon_Logo_Pink.png" 
              onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
              alt="Sinjeon Logo" class="h-9 sm:h-10 object-contain">
         <div class="border-l-2 border-gray-200 pl-4">
-          <h1 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight leading-tight">Partner Portal</h1>
+          <h1 id="portalSubtitle" class="text-lg sm:text-xl font-black text-gray-900 tracking-tight leading-tight">Partner Portal</h1>
           <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Operated by Y2C Holdings Inc.</p>
         </div>
       </div>
       
-      <!-- 우측 네비게이션 메뉴 및 연도 셀렉터 -->
       <div class="flex items-center flex-wrap gap-3 sm:gap-6 justify-end">
         <a href="dashboard.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-0.5 text-sm">Dashboard</a>
         <a href="items.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Item List</a>
         <a href="invoice.html" id="navInvoice" class="hidden text-gray-600 hover:text-red-600 font-bold transition text-sm">Advisory Invoice</a>
         
-        <!-- 동적 연도 선택 드롭다운 -->
         <div class="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200 shadow-inner">
           <span class="text-xs font-bold text-gray-500 uppercase">Year:</span>
           <select id="yearSelector" class="bg-transparent text-sm font-bold text-gray-800 focus:outline-none cursor-pointer">
@@ -61,7 +58,6 @@
           </select>
         </div>
 
-        <!-- 유저 프로필 & 로그아웃 -->
         <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-3 rounded-xl border border-gray-200 shadow-sm">
           <span id="userNameDisplay" class="text-xs sm:text-sm font-bold text-gray-800 truncate max-w-[100px] sm:max-w-none"></span>
           <button id="logoutBtn" class="text-xs bg-gray-900 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition cursor-pointer">Logout</button>
@@ -73,46 +69,37 @@
   <!-- 메인 컨텐츠 영역 -->
   <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8">
     
-    <!-- 💡 에러 방어 알림 배너 (통신 실패 시 동적 노출) -->
     <div id="errorBanner" class="hidden mb-6 bg-red-500 text-white p-4 rounded-2xl shadow-lg flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         <div>
           <h4 class="font-bold text-sm">Data Synchronization Notice</h4>
-          <p id="errorBannerText" class="text-xs text-red-100">Server connection unstable. Showing cached or zeroed state.</p>
+          <p id="errorBannerText" class="text-xs text-red-100">Server connection unstable.</p>
         </div>
       </div>
       <button onclick="retryFetch()" class="text-xs bg-white text-red-600 font-bold px-3 py-1.5 rounded-lg shadow hover:bg-red-50 transition">Retry</button>
     </div>
 
-    <!-- 요약 카드 그리드 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <!-- Total Net Sales -->
       <div class="glass-card p-6 rounded-2xl shadow-xl border-l-8 border-l-red-600 relative overflow-hidden">
-        <div class="absolute right-4 top-4 text-red-100 opacity-50"><svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 100-2 1 1 0 000 2zm3-1a1 1 0 100-2 1 1 0 000 2z"/></svg></div>
         <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total Net Sales (YTD)</h3>
         <p class="text-3xl font-black text-gray-900 tracking-tight" id="totalSales">Loading...</p>
         <p class="text-[11px] text-gray-400 mt-2">Aggregated fiscal performance</p>
       </div>
 
-      <!-- POS Sales -->
       <div class="glass-card p-6 rounded-2xl shadow-xl border-l-8 border-l-blue-600 relative overflow-hidden">
-        <div class="absolute right-4 top-4 text-blue-100 opacity-50"><svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/></svg></div>
         <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">POS Sales (YTD)</h3>
         <p class="text-3xl font-black text-gray-900 tracking-tight" id="posSales">-</p>
         <p class="text-[11px] text-gray-400 mt-2">In-store terminal transactions</p>
       </div>
 
-      <!-- Delivery Sales -->
       <div class="glass-card p-6 rounded-2xl shadow-xl border-l-8 border-l-emerald-600 relative overflow-hidden sm:col-span-2 lg:col-span-1">
-        <div class="absolute right-4 top-4 text-emerald-100 opacity-50"><svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h3.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V15a1 1 0 01-1 1h-1.05a2.5 2.5 0 01-4.9 0H14V7z"/></svg></div>
         <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Delivery Sales (YTD)</h3>
         <p class="text-3xl font-black text-gray-900 tracking-tight" id="deliverySales">-</p>
         <p class="text-[11px] text-gray-400 mt-2">Online & delivery platform aggregation</p>
       </div>
     </div>
 
-    <!-- 차트 시각화 카드 영역 -->
     <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-2xl mb-8 border border-gray-100">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
         <div>
@@ -130,12 +117,6 @@
   <script src="assets/js/config.js"></script>
   <script src="assets/js/dashboard.js"></script>
   <script>
-    // 마스터 권한 여부 확인 후 인보이스 메뉴 노출
-    if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
-      document.getElementById('navInvoice').classList.remove('hidden');
-    }
-
-    // 에러 배너 재시도 버튼 전역 연결 함수
     function retryFetch() {
       const currentYear = document.getElementById('yearSelector').value;
       if(typeof fetchDashboardData === 'function') {
