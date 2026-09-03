@@ -13,13 +13,13 @@ const SYSTEM_CONFIG = {
   API: {
     // 💡 방금 주신 새로운 최신 URL로 교체되었습니다!
     BASE_URL: "https://script.google.com/macros/s/AKfycbw5wAD2o7DKamZ2o_FN4QsNp20O6wjI4qEu77JmRkVp99dTbKRVC_fe5tEOVJqpP_aQ/exec",
-    ENDPOINTS: {
+ENDPOINTS: {
       AUTH: "login",
       DASHBOARD: "get_dashboard",
-      ITEMS: "get_items"
+      ITEMS: "get_items",
+      INVOICE: "get_invoice" // 💡 새롭게 추가된 라우팅
     }
   },
-
   // 3. 권한(Role) 및 라우팅 제어
   ROLES: {
     MASTER: {
