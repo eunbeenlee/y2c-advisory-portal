@@ -11,8 +11,8 @@ const SYSTEM_CONFIG = {
 
   // 2. API 엔드포인트 (백엔드 통신 주소)
   API: {
-    // 💡 가장 중요한 부분: 웹페이지가 요청을 보낼 최신 GAS 서버 주소입니다.
-    BASE_URL: "https://script.google.com/macros/s/AKfycbxECuPPrxlh8FT9L5JUhFPJzck57IEd6JTFlU68k7NvHUXceBnHS9loeIPO5UXjSeMRtw/exec",
+    // 💡 방금 주신 새로운 최신 URL로 교체되었습니다!
+    BASE_URL: "https://script.google.com/macros/s/AKfycbw5wAD2o7DKamZ2o_FN4QsNp20O6wjI4qEu77JmRkVp99dTbKRVC_fe5tEOVJqpP_aQ/exec",
     ENDPOINTS: {
       AUTH: "login",
       DASHBOARD: "get_dashboard",
