@@ -1,173 +1,245 @@
+<!-- invoice.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advisory Invoice - Y2C Holdings</title>
+  <title>Advisory Statement of Account | Y2C Holdings</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 인쇄(PDF 저장) 시 좌측 컨트롤 패널 숨기고 A4 사이즈에 맞춤 */
+    :root { 
+      --sinjeon-red: #D32F2F; 
+      --sinjeon-dark: #990000; 
+      --y2c-gold: #C5A059;
+    }
+    .bg-gradient-sinjeon { 
+      background: linear-gradient(135deg, var(--sinjeon-red) 0%, var(--sinjeon-dark) 100%); 
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+    }
+    /* 인쇄(PDF 저장) 시 좌측 컨트롤 패널 숨기고 A4 출력 최적화 */
     @media print {
-      body { background-color: white; }
+      body { background-color: white !important; }
       .no-print { display: none !important; }
-      .print-area { box-shadow: none !important; margin: 0 !important; width: 100% !important; padding: 0 !important; }
+      .print-area { box-shadow: none !important; margin: 0 !important; width: 100% !important; padding: 10mm !important; border: none !important; }
+      nav { display: none !important; }
     }
   </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-900 min-h-screen font-sans text-gray-800 antialiased selection:bg-red-500 selection:text-white">
   
-  <nav class="bg-white shadow-md border-b-4 border-red-600 no-print">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center py-3">
+  <!-- 상단 프리미엄 네비게이션 바 (인쇄 시 자동 숨김) -->
+  <nav class="bg-white/95 backdrop-blur-md shadow-md border-b-4 border-red-600 sticky top-0 z-50 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center py-3.5 gap-4 sm:gap-0">
+      
       <div class="flex items-center space-x-4">
-        <h1 class="text-xl font-extrabold text-gray-900">Partner Portal</h1>
-        <span class="text-xs text-gray-500 font-bold bg-gray-100 px-2 py-1 rounded">MASTER ADMIN</span>
+        <img src="Sinjeon_Logo_Pink.png" 
+             onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
+             alt="Sinjeon Logo" class="h-9 sm:h-10 object-contain">
+        <div class="border-l-2 border-gray-200 pl-4">
+          <h1 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight leading-tight">Master Admin Portal</h1>
+          <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Operated by Y2C Holdings Inc.</p>
+        </div>
       </div>
-      <div class="flex space-x-6">
-        <a href="dashboard.html" class="text-gray-600 font-bold hover:text-red-600">Dashboard</a>
-        <a href="invoice.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-1">Advisory Invoice</a>
+      
+      <div class="flex items-center flex-wrap gap-4 sm:gap-6 justify-end">
+        <a href="dashboard.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Dashboard</a>
+        <a href="items.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Item List</a>
+        <a href="invoice.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-0.5 text-sm">Advisory Invoice</a>
+        
+        <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-3 rounded-xl border border-gray-200 shadow-sm">
+          <span id="userNameDisplay" class="text-xs sm:text-sm font-bold text-gray-800">MASTER</span>
+          <button id="logoutBtn" class="text-xs bg-gray-900 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition cursor-pointer">Logout</button>
+        </div>
       </div>
     </div>
   </nav>
 
-  <div class="max-w-7xl mx-auto mt-8 p-4 flex flex-col lg:flex-row gap-8">
+  <!-- 메인 컨텐츠 그리드 영역 -->
+  <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-start">
     
-    <div class="w-full lg:w-1/3 bg-white p-6 rounded-lg shadow-sm border border-gray-200 no-print">
-      <h2 class="text-lg font-bold border-b pb-3 mb-5 text-gray-800">⚙️ Invoice Generator</h2>
+    <!-- ⚙️ 좌측: 제어 패널 (Control Panel - 인쇄 시 숨김) -->
+    <div class="w-full lg:w-1/3 glass-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-gray-100 no-print sticky top-24">
+      <h2 class="text-lg font-black text-gray-900 border-b border-gray-200 pb-4 mb-6 flex items-center gap-2">
+        <span>⚙️</span> Invoice Control Panel
+      </h2>
       
-      <div class="space-y-4">
+      <div class="space-y-5">
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-1">Select Client</label>
-          <select id="selClient" class="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:border-red-500 outline-none">
+          <label class="block text-xs font-black text-gray-700 uppercase tracking-wider mb-2">Select Target Client</label>
+          <select id="selClient" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl shadow-sm p-3 text-sm font-bold text-gray-800 focus:border-red-600 focus:outline-none transition cursor-pointer">
             <option value="SINJEON FOOD SYS LOUGHEED">SINJEON FOOD SYS LOUGHEED</option>
             <option value="SINJEON FINCH INC.">SINJEON FINCH INC.</option>
             <option value="1000224977 INC. / Church">1000224977 INC. / Church</option>
             <option value="1000800275 INC. / Christie">1000800275 INC. / Christie</option>
           </select>
         </div>
+
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-1">Target Year</label>
-            <input type="number" id="selYear" value="2026" class="w-full border-gray-300 rounded-md shadow-sm p-2 border text-center outline-none">
+            <label class="block text-xs font-black text-gray-700 uppercase tracking-wider mb-2">Target Year</label>
+            <input type="number" id="selYear" value="2026" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl shadow-sm p-3 text-sm font-bold text-center text-gray-800 focus:border-red-600 focus:outline-none transition">
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-1">Advisory Rate (%)</label>
-            <input type="number" id="selRate" value="2" step="0.5" class="w-full border-gray-300 rounded-md shadow-sm p-2 border text-center outline-none">
+            <label class="block text-xs font-black text-gray-700 uppercase tracking-wider mb-2">Advisory Rate (%)</label>
+            <input type="number" id="selRate" value="2" step="0.5" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl shadow-sm p-3 text-sm font-bold text-center text-gray-800 focus:border-red-600 focus:outline-none transition">
           </div>
         </div>
+
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-1">Start Month</label>
-            <input type="number" id="selStart" value="1" min="1" max="12" class="w-full border-gray-300 rounded-md shadow-sm p-2 border text-center outline-none">
+            <label class="block text-xs font-black text-gray-700 uppercase tracking-wider mb-2">Start Month</label>
+            <input type="number" id="selStart" value="1" min="1" max="12" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl shadow-sm p-3 text-sm font-bold text-center text-gray-800 focus:border-red-600 focus:outline-none transition">
           </div>
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-1">End Month</label>
-            <input type="number" id="selEnd" value="4" min="1" max="12" class="w-full border-gray-300 rounded-md shadow-sm p-2 border text-center outline-none">
+            <label class="block text-xs font-black text-gray-700 uppercase tracking-wider mb-2">End Month</label>
+            <input type="number" id="selEnd" value="4" min="1" max="12" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl shadow-sm p-3 text-sm font-bold text-center text-gray-800 focus:border-red-600 focus:outline-none transition">
           </div>
         </div>
         
-        <button onclick="generateInvoice()" class="w-full mt-6 bg-gray-800 text-white font-bold py-3 rounded hover:bg-gray-700 transition">
-          Generate Data
-        </button>
-        <button onclick="window.print()" class="w-full mt-2 bg-red-600 text-white font-bold py-3 rounded hover:bg-red-700 transition">
-          🖨️ Print / Save as PDF
-        </button>
+        <div class="pt-2 space-y-3">
+          <button onclick="generateInvoice()" class="w-full bg-gray-900 text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-900/20 transition cursor-pointer flex items-center justify-center gap-2">
+            <span>🔄</span> Generate Statement Data
+          </button>
+          <button onclick="window.print()" class="w-full bg-gradient-sinjeon text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-red-500/20 transition cursor-pointer flex items-center justify-center gap-2">
+            <span>🖨️</span> Print / Save as PDF
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="w-full lg:w-2/3 bg-white p-12 rounded-lg shadow-lg print-area text-gray-800">
+    <!-- 🧾 우측: 실제 청구서 출력부 (A4 용지 프리미엄 스타일) -->
+    <div class="w-full lg:w-2/3 glass-card p-8 sm:p-12 rounded-3xl shadow-2xl print-area border border-gray-100 text-gray-800">
       
-      <div class="flex justify-between items-start border-b-2 border-red-700 pb-6 mb-8">
+      <!-- 인보이스 헤더 (Y2C Holdings & 신전 로고 이중 방어) -->
+      <div class="flex flex-col sm:flex-row justify-between items-start border-b-2 border-red-700 pb-6 mb-8 gap-6">
         <div>
-          <img src="assets/images/y2c_holdings_logo.png" alt="Y2C Holdings" class="h-14 mb-4 object-contain">
-          <h1 class="text-3xl font-light tracking-widest text-gray-900">STATEMENT OF ACCOUNT</h1>
+          <img src="y2c_holdings_logo.png" 
+               onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.onerror=function(){this.style.display='none';};" 
+               alt="Y2C Holdings Logo" class="h-12 mb-4 object-contain">
+          <h2 class="text-2xl sm:text-3xl font-black tracking-wider text-gray-900">STATEMENT OF ACCOUNT</h2>
         </div>
-        <div class="text-right text-sm text-gray-500 mt-2">
-          <p><strong>Invoice Number:</strong> <span id="invNo" class="text-gray-800 font-bold">-</span></p>
-          <p><strong>Date of Issue:</strong> <span id="invDate" class="text-gray-800">-</span></p>
-          <p><strong>Due Date:</strong> <span id="invDue" class="text-gray-800">-</span></p>
-        </div>
-      </div>
-
-      <div class="flex justify-between mb-10 text-sm">
-        <div class="w-1/2 pr-4">
-          <h3 class="font-bold text-gray-400 mb-2 uppercase tracking-wide">Issued By</h3>
-          <p class="font-bold text-lg text-gray-800">Y2C Holdings Inc.</p>
-          <p>39, Gwangan-ro 62beon-gil, Unit 1605</p>
-          <p>Busan, Rep. of Korea</p>
-          <p class="mt-2"><strong>Contact:</strong> +82 10-5088-4494</p>
-          <p><strong>Registration No:</strong> 216-86-02475</p>
-        </div>
-        
-        <div class="w-1/2 pl-4 border-l border-gray-200">
-          <h3 class="font-bold text-gray-400 mb-2 uppercase tracking-wide">Prepared For</h3>
-          <p class="font-bold text-lg text-gray-800" id="clientName">CLIENT NAME</p>
-          <p id="clientAddress">Address Line 1</p>
-          <p id="clientCity">City, Province</p>
-          <p class="mt-2"><strong>ATTN:</strong> <span id="clientAttn">-</span></p>
-          <p><strong>Business ID:</strong> <span id="clientBizId">-</span></p>
+        <div class="text-left sm:text-right text-xs sm:text-sm text-gray-500 space-y-1">
+          <p><strong>Invoice Number:</strong> <span id="invNo" class="text-gray-900 font-bold font-mono">-</span></p>
+          <p><strong>Date of Issue:</strong> <span id="invDate" class="text-gray-900 font-semibold">-</span></p>
+          <p><strong>Due Date:</strong> <span id="invDue" class="text-gray-900 font-semibold">-</span></p>
         </div>
       </div>
 
-      <table class="w-full text-sm text-left mb-10">
-        <thead class="bg-gray-100 border-b border-gray-300">
-          <tr>
-            <th class="py-3 px-4 font-bold text-gray-600">Description of Services</th>
-            <th class="py-3 px-4 font-bold text-gray-600 text-center">Calculated Base</th>
-            <th class="py-3 px-4 font-bold text-gray-600 text-center">Rate</th>
-            <th class="py-3 px-4 font-bold text-gray-600 text-right">Total Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-b border-gray-100">
-            <td class="py-4 px-4 font-medium" id="descLine">Management Advisory Services</td>
-            <td class="py-4 px-4 text-center" id="baseLine">-</td>
-            <td class="py-4 px-4 text-center" id="rateLine">-</td>
-            <td class="py-4 px-4 text-right font-bold" id="amtLine">-</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="flex justify-between items-end">
-        <div class="text-xs text-gray-500 w-1/2">
-          <h4 class="font-bold text-gray-700 uppercase mb-1">Bank Details</h4>
-          <p>Global Exchange Bank</p>
-          <p>A/C: 123-456-789012</p>
-          <p>SWIFT: GEXBKRSE</p>
-          <p class="mt-4 italic">Please include Invoice Number in transfer notes.</p>
+      <!-- 정보 발행자 및 수신자 그리드 -->
+      <div class="flex flex-col sm:flex-row justify-between mb-10 text-xs sm:text-sm gap-6">
+        <!-- 발행자 (Y2C Holdings Inc.) -->
+        <div class="w-full sm:w-1/2 pr-0 sm:pr-4">
+          <h3 class="font-black text-gray-400 mb-2 uppercase tracking-widest text-[11px]">Issued By (Master Operator)</h3>
+          <p class="font-extrabold text-base text-gray-900">Y2C Holdings Inc.</p>
+          <p class="text-gray-600">39, Gwangan-ro 62beon-gil, Unit 1605</p>
+          <p class="text-gray-600">Busan, Rep. of Korea</p>
+          <p class="mt-2 text-gray-600"><strong>Contact:</strong> +82 10-5088-4494</p>
+          <p class="text-gray-600"><strong>Registration No:</strong> 216-86-02475</p>
         </div>
         
-        <div class="w-1/3 bg-gray-50 p-4 rounded border border-gray-200 text-right">
-          <p class="text-sm text-gray-500 mb-1">Subtotal: <span class="font-bold text-gray-800" id="subTotal">-</span></p>
-          <p class="text-sm text-gray-500 mb-2 border-b pb-2">Tax (Estimated): <span class="font-bold text-gray-800" id="taxAmt">-</span></p>
-          <p class="text-lg text-red-700 font-black tracking-wide">TOTAL DUE: <br><span class="text-2xl" id="totalDue">$ 0.00</span></p>
+        <!-- 수신자 (가맹점) -->
+        <div class="w-full sm:w-1/2 pl-0 sm:pl-4 sm:border-l sm:border-gray-200 pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+          <h3 class="font-black text-gray-400 mb-2 uppercase tracking-widest text-[11px]">Prepared For (Franchisee)</h3>
+          <p class="font-extrabold text-base text-gray-900" id="clientName">SELECT CLIENT</p>
+          <p class="text-gray-600" id="clientAddress">-</p>
+          <p class="text-gray-600" id="clientCity">-</p>
+          <p class="mt-2 text-gray-600"><strong>ATTN:</strong> <span id="clientAttn">-</span></p>
+          <p class="text-gray-600"><strong>Business ID:</strong> <span id="clientBizId">-</span></p>
+        </div>
+      </div>
+
+      <!-- 청구 내역 테이블 -->
+      <div class="overflow-x-auto mb-8">
+        <table class="w-full text-xs sm:text-sm text-left">
+          <thead class="bg-gray-100/90 border-b border-gray-200">
+            <tr>
+              <th class="py-3 px-4 font-black text-gray-700 uppercase tracking-wider">Description of Services</th>
+              <th class="py-3 px-4 font-black text-gray-700 uppercase tracking-wider text-center">Calculated Base</th>
+              <th class="py-3 px-4 font-black text-gray-700 uppercase tracking-wider text-center">Rate</th>
+              <th class="py-3 px-4 font-black text-gray-700 uppercase tracking-wider text-right">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-gray-100">
+              <td class="py-4 px-4 font-bold text-gray-900" id="descLine">Management Advisory Services</td>
+              <td class="py-4 px-4 text-center text-gray-600 font-mono" id="baseLine">$0.00</td>
+              <td class="py-4 px-4 text-center text-gray-600 font-bold" id="rateLine">2%</td>
+              <td class="py-4 px-4 text-right font-black text-gray-900 font-mono" id="amtLine">$0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 결제 은행 정보 및 최종 요약 합계 -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 pt-4 border-t border-gray-200">
+        <div class="text-[11px] sm:text-xs text-gray-500 space-y-1 w-full sm:w-1/2">
+          <h4 class="font-black text-gray-700 uppercase tracking-wider mb-1">Global Bank Remittance Details</h4>
+          <p>Bank: Global Exchange Bank (Canada)</p>
+          <p>Account No: 123-456-789012 (Y2C Holdings)</p>
+          <p>SWIFT Code: GEXBKRSE</p>
+          <p class="mt-2 text-red-600 font-semibold italic">* Please include the Invoice Number in transfer memo.</p>
+        </div>
+        
+        <div class="w-full sm:w-1/2 bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-inner text-right space-y-1">
+          <p class="text-xs text-gray-500">Subtotal: <span class="font-bold text-gray-800 font-mono" id="subTotal">$0.00</span></p>
+          <p class="text-xs text-gray-500 pb-2 border-b border-gray-200">Estimated Tax (HST/GST): <span class="font-bold text-gray-800 font-mono" id="taxAmt">$0.00</span></p>
+          <div class="pt-2">
+            <span class="text-xs text-red-700 font-black uppercase tracking-wider">TOTAL AMOUNT DUE</span>
+            <p class="text-2xl sm:text-3xl font-black text-red-700 font-mono" id="totalDue">$ 0.00</p>
+          </div>
         </div>
       </div>
       
     </div>
-  </div>
+  </main>
 
   <script src="assets/js/config.js"></script>
   <script>
-    // 날짜 포맷팅 및 번호 생성 함수
+    // 1. 보안 세션 및 마스터 권한 검증
+    const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
+    const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
+
+    if (!userRole || !clientName) {
+      alert("세션이 만료되었습니다. 다시 로그인 해 주세요.");
+      window.location.href = "index.html";
+    }
+
+    if (userRole !== "MASTER") {
+      alert("접근 권한이 없습니다. 마스터 계정으로 로그인해주세요.");
+      window.location.href = "dashboard.html";
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    // 2. 인보이스 날짜 및 고유 번호 자동 생성
     const today = new Date();
     document.getElementById('invDate').innerText = today.toISOString().split('T')[0];
     
     let due = new Date();
-    due.setDate(today.getDate() + 14); // 14일 뒤 청구
+    due.setDate(today.getDate() + 14); // 14일 뒤 지불 기한
     document.getElementById('invDue').innerText = due.toISOString().split('T')[0];
     
     const randomInvNo = Math.floor(1000 + Math.random() * 9000);
     document.getElementById('invNo').innerText = `INV-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}-${randomInvNo}`;
 
-    const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+    };
 
-    // 구글 서버(GAS)에 데이터 요청하여 인보이스 생성
+    // 3. 🌟 서버(GAS)에 인보이스 데이터 요청 및 오류 방어 통신 함수
     async function generateInvoice() {
       const client = document.getElementById('selClient').value;
       const year = document.getElementById('selYear').value;
       const startM = document.getElementById('selStart').value;
       const endM = document.getElementById('selEnd').value;
-      const rate = parseFloat(document.getElementById('selRate').value) / 100; // 2% -> 0.02
+      const rateVal = parseFloat(document.getElementById('selRate').value) || 2;
+      const rate = rateVal / 100;
 
       try {
         const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -182,25 +254,31 @@
           })
         });
 
-        const result = await response.json();
-        if (result.success) {
-          // 수신자 정보 세팅
-          const info = result.clientInfo;
-          document.getElementById('clientName').innerText = info.name || client;
-          document.getElementById('clientAddress').innerText = info.address || '-';
-          document.getElementById('clientCity').innerText = `${info.city || ''}, ${info.state || ''}`;
-          document.getElementById('clientAttn').innerText = `${info.attn || ''} | ${info.email || ''}`;
-          document.getElementById('clientBizId').innerText = info.bizId || '-';
+        const responseText = await response.text();
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error("Server Raw Response:", responseText);
+          throw new Error("서버에서 올바른 JSON 데이터를 반환하지 않았습니다.");
+        }
 
-          // 금액 계산 및 세팅
-          const base = result.calculatedBase;
+        if (result.success) {
+          const info = result.clientInfo || {};
+          document.getElementById('clientName').innerText = info.name || client;
+          document.getElementById('clientAddress').innerText = info.address || 'Address not registered';
+          document.getElementById('clientCity').innerText = `${info.city || ''}, ${info.state || ''}`;
+          document.getElementById('clientAttn').innerText = `${info.attn || 'Management'} | ${info.email || ''}`;
+          document.getElementById('clientBizId').innerText = info.bizId || 'RC-XXXX';
+
+          const base = result.calculatedBase || 0;
           const fee = base * rate;
-          const tax = fee * 0.05; // 임시 기본 세율 5% 반영 (필요시 주별 차등 가능)
+          const tax = fee * 0.05; // 캐나다 기준 GST/HST 5% 추정 반영
           const total = fee + tax;
 
           document.getElementById('descLine').innerText = `Management Advisory Services - M${startM} to M${endM}, ${year}`;
           document.getElementById('baseLine').innerText = formatCurrency(base);
-          document.getElementById('rateLine').innerText = `${document.getElementById('selRate').value}%`;
+          document.getElementById('rateLine').innerText = `${rateVal}%`;
           document.getElementById('amtLine').innerText = formatCurrency(fee);
           
           document.getElementById('subTotal').innerText = formatCurrency(fee);
@@ -208,12 +286,18 @@
           document.getElementById('totalDue').innerText = formatCurrency(total);
           
         } else {
-          alert("데이터 추출 오류: " + result.message);
+          alert("데이터 추출 오류: " + (result.message || "알 수 없는 오류"));
         }
       } catch (err) {
-        alert("통신 오류가 발생했습니다.");
+        console.error("Invoice Generation Error:", err);
+        alert(err.message || "서버 통신 중 오류가 발생했습니다.");
       }
     }
+
+    // 페이지 진입 시 최초 인보이스 자동 생성 실행
+    window.addEventListener('DOMContentLoaded', () => {
+      generateInvoice();
+    });
   </script>
 </body>
 </html>
