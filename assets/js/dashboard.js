@@ -1,19 +1,34 @@
 // assets/js/dashboard.js
 
+// 1. 보안 세션 및 권한 검증
 const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 
 if (!userRole || !clientName) {
-  alert("세션이 만료되었습니다. 다시 로그인해 주세요.");
+  alert("세션이 만료되었습니다. 다시 로그인 해 주세요.");
   window.location.href = "index.html";
 }
 
-document.getElementById('userNameDisplay').innerText = clientName;
+// 2. UI 권한별 네비게이션 격리 (FRANCHISEE인 경우 마스터 전용 인보이스 메뉴 원천 차단)
+if (userRole === "MASTER") {
+  const navInvoice = document.getElementById('navInvoice');
+  if (navInvoice) navInvoice.classList.remove('hidden');
+} else {
+  // 가맹점주 계정인 경우 상단 타이틀을 매장 전용 뷰로 전환
+  const portalSubtitle = document.getElementById('portalSubtitle');
+  if (portalSubtitle) portalSubtitle.innerText = `Franchise Portal — ${clientName}`;
+}
 
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.clear();
-  window.location.href = "index.html";
-});
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.innerText = clientName;
+
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = "index.html";
+  });
+}
 
 let salesChart;
 
@@ -21,11 +36,14 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
 };
 
-// 🌟 선택된 연도를 파라미터로 받아 서버와 통신하는 함수
+// 3. 🌟 서버(GAS)에서 대시보드 데이터를 안전하게 불러오는 함수 (오류 방어 포함)
 async function fetchDashboardData(targetYear) {
   document.getElementById('totalSales').innerText = "Loading...";
   document.getElementById('posSales').innerText = "Loading...";
   document.getElementById('deliverySales').innerText = "Loading...";
+
+  const errorBanner = document.getElementById('errorBanner');
+  if (errorBanner) errorBanner.classList.add('hidden');
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -54,11 +72,15 @@ async function fetchDashboardData(targetYear) {
       
       renderChart(result.monthlySales, targetYear);
     } else {
-      alert("데이터를 불러오지 못했습니다: " + result.message);
+      throw new Error(result.message || "데이터를 불러오지 못했습니다.");
     }
   } catch (error) {
     console.error("Dashboard Fetch Error:", error);
-    alert(error.message || "서버 통신 중 오류가 발생했습니다.");
+    if (errorBanner) {
+      errorBanner.classList.remove('hidden');
+      const errorBannerText = document.getElementById('errorBannerText');
+      if (errorBannerText) errorBannerText.innerText = error.message;
+    }
     
     document.getElementById('totalSales').innerText = "$0.00";
     document.getElementById('posSales').innerText = "$0.00";
@@ -66,10 +88,16 @@ async function fetchDashboardData(targetYear) {
   }
 }
 
-// 🌟 차트 렌더링 함수
+// 4. 🌟 차트 렌더링 함수 (권한별 타이틀 및 라벨 분기)
 function renderChart(monthlyData, year) {
   const ctx = document.getElementById('salesChart').getContext('2d');
-  document.getElementById('chartTitle').innerText = `Monthly Revenue Trend (${year})`;
+  const chartTitle = document.getElementById('chartTitle');
+  
+  if (chartTitle) {
+    chartTitle.innerText = userRole === "MASTER" 
+      ? `Consolidated Monthly Revenue Trend (${year})` 
+      : `Store Performance Trend - ${clientName} (${year})`;
+  }
   
   if (salesChart) {
     salesChart.destroy();
@@ -80,7 +108,7 @@ function renderChart(monthlyData, year) {
     data: {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       datasets: [{
-        label: `Net Sales (${year}) - CAD`,
+        label: userRole === "MASTER" ? `Total Net Sales (${year}) - CAD` : `${clientName} Sales (${year}) - CAD`,
         data: monthlyData,
         borderColor: '#E53935',
         backgroundColor: 'rgba(229, 57, 53, 0.08)',
@@ -110,14 +138,16 @@ function renderChart(monthlyData, year) {
   });
 }
 
-// 🌟 연도 셀렉트 박스 이벤트 리스너 연결
-document.getElementById('yearSelector').addEventListener('change', (e) => {
-  const selectedYear = e.target.value;
-  fetchDashboardData(selectedYear);
-});
+// 연도 변경 셀렉트 박스 이벤트 리스너
+const yearSelector = document.getElementById('yearSelector');
+if (yearSelector) {
+  yearSelector.addEventListener('change', (e) => {
+    fetchDashboardData(e.target.value);
+  });
+}
 
-// 페이지 최초 진입 시 기본 2026년 데이터로 로드
+// 페이지 최초 진입 시 실행
 window.addEventListener('DOMContentLoaded', () => {
-  const initialYear = document.getElementById('yearSelector').value;
+  const initialYear = yearSelector ? yearSelector.value : "2026";
   fetchDashboardData(initialYear);
 });
