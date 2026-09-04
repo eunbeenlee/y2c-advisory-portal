@@ -7,61 +7,50 @@
   <title>Advisory Statement of Account | Y2C Holdings Premium</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 🌟 프리미엄 핑크 톤앤매너 컬러 팔레트 */
     :root { 
       --sinjeon-pink: #E84C60; 
       --sinjeon-pink-dark: #C23347; 
       --premium-charcoal: #1A1516; 
       --y2c-gold: #D4AF37; 
     }
-    .bg-gradient-pink { 
-      background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); 
-    }
-    
-    /* 고급스러운 글래스모피즘 텍스처 */
+    .bg-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); }
     .premium-glass {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255,255,255,0.8);
       box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
     }
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
-    /* 폰트 렌더링 최적화 */
-    body {
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* 🖨️ 인쇄(PDF 저장) 시 최적화: 좌측 패널/배경 숨기고 A4 규격에 맞게 화이트톤으로 출력 */
+    /* 🖨️ 인쇄(PDF) 픽셀 퍼펙트 최적화 */
     @media print {
-      body { background-color: white !important; }
+      @page { size: A4 portrait; margin: 12mm; }
+      body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       .no-print { display: none !important; }
       .print-area { 
         box-shadow: none !important; 
         margin: 0 !important; 
         width: 100% !important; 
-        padding: 10mm !important; 
+        max-width: 100% !important;
+        padding: 0 !important; 
         border: none !important; 
-        background: white !important;
-        backdrop-filter: none !important;
       }
-      nav { display: none !important; }
-      /* 프린트 시 폰트 컬러 강제 블랙 처리 (가독성 확보) */
-      .print-text-black { color: #000 !important; }
+      /* 인쇄 시 레이아웃 강제 고정 */
+      .print-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 2rem !important; }
+      .print-text-black { color: #111 !important; }
+      .print-border-black { border-color: #333 !important; }
+      .print-bg-gray { background-color: #f9fafb !important; }
     }
   </style>
 </head>
 <body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 selection:bg-[#E84C60] selection:text-white">
   
-  <!-- 🌟 상단 프리미엄 네비게이션 바 (인쇄 시 자동 숨김) -->
+  <!-- 🌟 상단 프리미엄 네비게이션 바 (인쇄 시 숨김) -->
   <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0">
       
       <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
-        <img src="Sinjeon_Logo_Pink.png" 
-             onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
-             alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm">
+        <img src="Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm">
         <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
           <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1">Master Admin Portal</h1>
           <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
@@ -72,9 +61,8 @@
         <a href="dashboard.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
         <a href="items.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
         <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
-        
         <a href="admin.html" id="navAdmin" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Master DB</a>
-        <!-- 💡 현재 페이지: Advisory Invoice 하이라이트 -->
+        
         <a href="invoice.html" id="navInvoice" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
         
         <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
@@ -87,26 +75,24 @@
     </div>
   </nav>
 
-  <!-- 메인 컨텐츠 그리드 영역 -->
+  <!-- 메인 컨텐츠 영역 -->
   <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-start">
     
-    <!-- ⚙️ 좌측: 제어 패널 (Control Panel - 인쇄 시 숨김) -->
+    <!-- ⚙️ 좌측: 제어 패널 (인쇄 시 숨김) -->
     <div class="w-full lg:w-1/3 premium-glass p-6 sm:p-8 rounded-[2rem] no-print sticky top-28">
       <h2 class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] border-b border-gray-200 pb-4 mb-6 flex items-center gap-2 tracking-wide">
         <span>⚙️</span> Invoice Control Panel
       </h2>
-      
       <div class="space-y-6">
         <div>
           <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Select Target Client</label>
-          <select id="selClient" class="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 text-sm font-bold text-gray-800 focus:border-[#E84C60] focus:ring-2 focus:ring-[#E84C60]/20 outline-none transition cursor-pointer">
+          <select id="selClient" class="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition cursor-pointer">
             <option value="SINJEON FOOD SYS LOUGHEED">SINJEON FOOD SYS LOUGHEED</option>
             <option value="SINJEON FINCH INC.">SINJEON FINCH INC.</option>
             <option value="1000224977 INC. / Church">1000224977 INC. / Church</option>
             <option value="1000800275 INC. / Christie">1000800275 INC. / Christie</option>
           </select>
         </div>
-
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Target Year</label>
@@ -117,7 +103,6 @@
             <input type="number" id="selRate" value="2" step="0.5" class="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 text-sm font-bold text-center text-gray-800 focus:border-[#E84C60] outline-none transition">
           </div>
         </div>
-
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Start Month</label>
@@ -128,7 +113,6 @@
             <input type="number" id="selEnd" value="4" min="1" max="12" class="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 text-sm font-bold text-center text-gray-800 focus:border-[#E84C60] outline-none transition">
           </div>
         </div>
-        
         <div class="pt-4 space-y-3 border-t border-gray-100">
           <button onclick="generateInvoice()" class="w-full bg-[var(--premium-charcoal)] hover:bg-black text-white font-black py-4 rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 text-sm tracking-widest">
             <span>🔄</span> GENERATE DATA
@@ -140,15 +124,13 @@
       </div>
     </div>
 
-    <!-- 🧾 우측: 실제 청구서 출력부 (A4 인쇄 영역 최적화) -->
+    <!-- 🧾 우측: 실제 청구서 출력부 -->
     <div class="w-full lg:w-2/3 premium-glass p-8 sm:p-12 lg:p-16 rounded-[2.5rem] print-area text-gray-800 bg-white">
       
-      <!-- 인보이스 헤더 -->
-      <div class="flex flex-col sm:flex-row justify-between items-start border-b-[3px] border-[var(--premium-charcoal)] pb-6 mb-8 gap-6">
+      <!-- 헤더 영역 -->
+      <div class="flex flex-col sm:flex-row justify-between items-start border-b-[3px] border-[var(--premium-charcoal)] print-border-black pb-6 mb-8 gap-6">
         <div>
-          <img src="y2c_holdings_logo.png" 
-               onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.onerror=function(){this.style.display='none';};" 
-               alt="Y2C Holdings Logo" class="h-10 sm:h-12 mb-5 object-contain">
+          <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.onerror=function(){this.style.display='none';};" alt="Y2C Holdings Logo" class="h-10 sm:h-12 mb-5 object-contain">
           <h2 class="text-2xl sm:text-3xl font-black tracking-widest text-[var(--premium-charcoal)] print-text-black">STATEMENT OF ACCOUNT</h2>
         </div>
         <div class="text-left sm:text-right text-[11px] sm:text-xs text-gray-500 space-y-1.5 pt-2">
@@ -158,65 +140,66 @@
         </div>
       </div>
 
-      <!-- 정보 발행자 및 수신자 그리드 -->
-      <div class="flex flex-col sm:flex-row justify-between mb-12 text-xs sm:text-sm gap-8">
-        <!-- 발행자 (Y2C Holdings Inc.) -->
-        <div class="w-full sm:w-1/2 pr-0 sm:pr-6">
-          <h3 class="font-black text-[#E84C60] mb-3 uppercase tracking-[0.2em] text-[10px]">Issued By</h3>
-          <p class="font-black text-base text-[var(--premium-charcoal)] mb-1 print-text-black">Y2C Holdings Inc.</p>
-          <p class="text-gray-600 font-medium leading-relaxed">39, Gwangan-ro 62beon-gil, Unit 1605<br>Busan, Rep. of Korea</p>
-          <p class="mt-3 text-gray-600 font-medium"><strong class="font-bold text-gray-800">Contact:</strong> +82 10-5088-4494</p>
-          <p class="text-gray-600 font-medium"><strong class="font-bold text-gray-800">Reg No:</strong> 216-86-02475</p>
+      <!-- 🌟 정보 발행자 및 수신자 (인쇄 시 강제 그리드로 틀어짐 방지) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 print-grid mb-12 text-xs sm:text-sm">
+        <!-- 발행자 (HQ Info) -->
+        <div class="pr-0 sm:pr-6 border-b sm:border-b-0 sm:border-r border-gray-200 print-border-black pb-6 sm:pb-0">
+          <h3 class="font-black text-[#E84C60] mb-3 uppercase tracking-[0.2em] text-[10px]">Issued By (Master)</h3>
+          <p class="font-black text-base text-[var(--premium-charcoal)] mb-1 print-text-black" id="hqName">Y2C Holdings Inc.</p>
+          <p class="text-gray-600 font-medium leading-relaxed whitespace-pre-line" id="hqAddress">-</p>
+          <p class="mt-3 text-gray-600 font-medium"><strong class="font-bold text-gray-800">Contact:</strong> <span id="hqContact">-</span></p>
+          <p class="text-gray-600 font-medium"><strong class="font-bold text-gray-800">Reg No:</strong> <span id="hqRegNo">-</span></p>
+          <p class="text-gray-600 font-medium"><strong class="font-bold text-gray-800">Rep:</strong> <span id="hqRep">-</span></p>
         </div>
         
         <!-- 수신자 (가맹점) -->
-        <div class="w-full sm:w-1/2 pl-0 sm:pl-6 sm:border-l border-gray-200 pt-6 sm:pt-0 border-t sm:border-t-0">
-          <h3 class="font-black text-[var(--y2c-gold)] mb-3 uppercase tracking-[0.2em] text-[10px]">Prepared For</h3>
+        <div class="pl-0 sm:pl-2">
+          <h3 class="font-black text-[var(--y2c-gold)] mb-3 uppercase tracking-[0.2em] text-[10px]">Prepared For (Franchisee)</h3>
           <p class="font-black text-base text-[var(--premium-charcoal)] mb-1 print-text-black" id="clientName">SELECT CLIENT</p>
           <p class="text-gray-600 font-medium leading-relaxed" id="clientAddress">-</p>
           <p class="text-gray-600 font-medium" id="clientCity">-</p>
-          <p class="mt-3 text-gray-600 font-medium"><strong class="font-bold text-gray-800">ATTN:</strong> <span id="clientAttn">-</span></p>
-          <p class="text-gray-600 font-medium"><strong class="font-bold text-gray-800">Biz ID:</strong> <span id="clientBizId">-</span></p>
+          <p class="mt-3 text-gray-600 font-medium"><strong class="font-bold text-gray-800 print-text-black">ATTN:</strong> <span id="clientAttn">-</span></p>
+          <p class="text-gray-600 font-medium"><strong class="font-bold text-gray-800 print-text-black">Biz ID:</strong> <span id="clientBizId">-</span></p>
         </div>
       </div>
 
       <!-- 청구 내역 테이블 -->
       <div class="overflow-x-auto mb-10">
-        <table class="w-full text-xs sm:text-sm text-left">
-          <thead class="bg-gray-50 border-y-2 border-gray-200">
+        <table class="w-full text-xs sm:text-sm text-left border-collapse">
+          <thead class="bg-gray-50 print-bg-gray border-y-2 border-gray-300 print-border-black">
             <tr>
-              <th class="py-4 px-4 font-black text-gray-500 uppercase tracking-widest text-[10px]">Description of Services</th>
-              <th class="py-4 px-4 font-black text-gray-500 uppercase tracking-widest text-[10px] text-center">Calculated Base</th>
-              <th class="py-4 px-4 font-black text-gray-500 uppercase tracking-widest text-[10px] text-center">Rate</th>
-              <th class="py-4 px-4 font-black text-gray-500 uppercase tracking-widest text-[10px] text-right">Amount</th>
+              <th class="py-4 px-4 font-black text-gray-600 uppercase tracking-widest text-[10px] print-text-black">Description of Services</th>
+              <th class="py-4 px-4 font-black text-gray-600 uppercase tracking-widest text-[10px] text-center print-text-black">Calculated Base</th>
+              <th class="py-4 px-4 font-black text-gray-600 uppercase tracking-widest text-[10px] text-center print-text-black">Rate</th>
+              <th class="py-4 px-4 font-black text-gray-600 uppercase tracking-widest text-[10px] text-right print-text-black">Amount</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="border-b border-gray-100">
+            <tr class="border-b border-gray-200 print-border-black">
               <td class="py-5 px-4 font-bold text-[var(--premium-charcoal)] print-text-black" id="descLine">Management Advisory Services</td>
-              <td class="py-5 px-4 text-center text-gray-600 font-mono font-medium" id="baseLine">$0.00</td>
-              <td class="py-5 px-4 text-center text-gray-600 font-bold" id="rateLine">2%</td>
+              <td class="py-5 px-4 text-center text-gray-700 font-mono font-medium print-text-black" id="baseLine">$0.00</td>
+              <td class="py-5 px-4 text-center text-gray-700 font-bold print-text-black" id="rateLine">2%</td>
               <td class="py-5 px-4 text-right font-black text-[var(--premium-charcoal)] font-mono print-text-black" id="amtLine">$0.00</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- 결제 은행 정보 및 최종 요약 합계 -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 pt-6">
-        <div class="text-[11px] sm:text-xs text-gray-500 space-y-1.5 w-full sm:w-1/2">
-          <h4 class="font-black text-gray-400 uppercase tracking-[0.2em] mb-2 text-[10px]">Remittance Details</h4>
-          <p><span class="font-bold text-gray-700">Bank:</span> Global Exchange Bank (Canada)</p>
-          <p><span class="font-bold text-gray-700">Account No:</span> 123-456-789012</p>
-          <p><span class="font-bold text-gray-700">SWIFT Code:</span> GEXBKRSE</p>
-          <p class="mt-3 text-[#E84C60] font-bold italic text-[10px] tracking-wide">* Please include the Invoice Number in transfer memo.</p>
+      <!-- 결제 정보 및 최종 합계 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 print-grid pt-6">
+        <div class="text-[11px] sm:text-xs text-gray-600 space-y-1.5 print-text-black">
+          <h4 class="font-black text-gray-500 uppercase tracking-[0.2em] mb-2 text-[10px] print-text-black">Remittance Details</h4>
+          <p><span class="font-bold text-gray-800 print-text-black">Bank:</span> Global Exchange Bank (Canada)</p>
+          <p><span class="font-bold text-gray-800 print-text-black">Account No:</span> 123-456-789012</p>
+          <p><span class="font-bold text-gray-800 print-text-black">SWIFT Code:</span> GEXBKRSE</p>
+          <p class="mt-3 text-[#E84C60] font-bold italic text-[10px] tracking-wide print-text-black">* Please include Invoice Number in transfer memo.</p>
         </div>
         
-        <div class="w-full sm:w-1/2 bg-gray-50 p-6 rounded-2xl border border-gray-100 text-right space-y-2">
-          <p class="text-xs text-gray-500 font-medium">Subtotal: <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black" id="subTotal">$0.00</span></p>
-          <p class="text-xs text-gray-500 font-medium pb-4 border-b border-gray-200">Estimated Tax (HST/GST): <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black" id="taxAmt">$0.00</span></p>
+        <div class="bg-gray-50 print-bg-gray p-6 rounded-2xl border border-gray-200 print-border-black text-right space-y-2">
+          <p class="text-xs text-gray-600 font-medium print-text-black">Subtotal: <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black" id="subTotal">$0.00</span></p>
+          <p class="text-xs text-gray-600 font-medium pb-4 border-b border-gray-300 print-border-black print-text-black">Estimated Tax (HST/GST): <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black" id="taxAmt">$0.00</span></p>
           <div class="pt-3">
-            <span class="text-[10px] text-[#E84C60] font-black uppercase tracking-[0.2em] block mb-1">TOTAL AMOUNT DUE</span>
+            <span class="text-[10px] text-[#E84C60] font-black uppercase tracking-[0.2em] block mb-1 print-text-black">TOTAL AMOUNT DUE</span>
             <p class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] font-mono print-text-black tracking-tighter" id="totalDue">$0.00</p>
           </div>
         </div>
@@ -227,14 +210,5 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/invoice.js"></script>
-  <script>
-    // 마스터 계정 전용 페이지이므로 헤더 메뉴 제어
-    if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
-      const navAdmin = document.getElementById('navAdmin');
-      const navInvoice = document.getElementById('navInvoice');
-      if (navAdmin) navAdmin.classList.remove('hidden');
-      if (navInvoice) navInvoice.classList.remove('hidden');
-    }
-  </script>
 </body>
 </html>
