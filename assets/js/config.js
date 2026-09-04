@@ -12,15 +12,15 @@ const SYSTEM_CONFIG = {
 
   // 2. API 엔드포인트 (백엔드 구글 Apps Script 통신 주소)
   API: {
-    BASE_URL: "https://script.google.com/macros/s/AKfycbw5wAD2o7DKamZ2o_FN4QsNp20O6wjI4qEu77JmRkVp99dTbKRVC_fe5tEOVJqpP_aQ/exec",
+    BASE_URL: "https://script.google.com/macros/s/.../exec", // 본인 URL
     ENDPOINTS: {
       AUTH: "login",
       DASHBOARD: "get_dashboard",
       ITEMS: "get_items",
-      INVOICE: "get_invoice",
+      INVOICE: "get_invoice", // 👈 이 줄이 정확히 있는지 확인
       RECIPES: "get_recipes",
-      GET_MASTER: "get_master_data",       // 마스터 데이터 조회 엔드포인트
-      UPDATE_MASTER: "update_master_data"  // 마스터 데이터 수정 엔드포인트
+      GET_MASTER: "get_master_data",
+      UPDATE_MASTER: "update_master_data"
     }
   },
 
