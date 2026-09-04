@@ -9,6 +9,9 @@ if (!userRole || userRole !== "MASTER") {
   window.location.href = "dashboard.html";
 }
 
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.innerText = clientName;
+
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
@@ -17,12 +20,27 @@ if (logoutBtn) {
   });
 }
 
-// 2. 🌟 구글 스프레드시트 Master_Data 불러오기
+// 2. 🌟 구글 스프레드시트 Master_Data 불러오기 (프리미엄 UI 렌더링)
 async function fetchMasterData() {
   const tableBody = document.getElementById('masterTableBody');
+  const errorBanner = document.getElementById('errorBanner');
+  
   if (!tableBody) return;
+  if (errorBanner) errorBanner.classList.add('hidden');
 
-  tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-16 text-center text-gray-500 font-bold">Loading Master_Data from Google Sheets...</td></tr>`;
+  tableBody.innerHTML = `
+    <tr>
+      <td colspan="8" class="px-6 py-24 text-center">
+        <div class="flex flex-col items-center justify-center space-y-4">
+          <svg class="animate-spin h-10 w-10 text-[var(--premium-charcoal)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-[13px] font-bold text-gray-400 tracking-wide">Syncing Master_Data from secure database...</p>
+        </div>
+      </td>
+    </tr>
+  `;
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -39,24 +57,27 @@ async function fetchMasterData() {
       const clients = result.clients || [];
 
       if (clients.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500">등록된 가맹점 정보가 없습니다.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 가맹점 정보가 없습니다.</td></tr>`;
         return;
       }
 
+      // 공통 인풋 스타일 클래스
+      const inputClass = "w-full bg-white/70 border border-gray-200 rounded-xl px-3 py-2 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:border-[#E84C60] focus:ring-2 focus:ring-[#E84C60]/20 focus:bg-white outline-none transition-all shadow-sm";
+
       clients.forEach(c => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-red-50/30 transition";
+        tr.className = "hover:bg-gray-50/50 transition-colors duration-200";
         tr.innerHTML = `
-          <td class="px-4 py-3 font-extrabold text-gray-900 whitespace-nowrap">${c.name}</td>
-          <td class="px-4 py-3 text-center"><input type="text" id="state_${c.rowIdx}" value="${c.state || ''}" class="w-16 border rounded px-2 py-1 text-center font-bold"></td>
-          <td class="px-4 py-3"><input type="text" id="city_${c.rowIdx}" value="${c.city || ''}" class="w-24 border rounded px-2 py-1"></td>
-          <td class="px-4 py-3"><input type="text" id="addr_${c.rowIdx}" value="${c.address || ''}" class="w-48 border rounded px-2 py-1"></td>
-          <td class="px-4 py-3"><input type="text" id="attn_${c.rowIdx}" value="${c.attn || ''}" class="w-28 border rounded px-2 py-1"></td>
-          <td class="px-4 py-3"><input type="text" id="email_${c.rowIdx}" value="${c.email || ''}" class="w-40 border rounded px-2 py-1"></td>
-          <td class="px-4 py-3"><input type="text" id="biz_${c.rowIdx}" value="${c.bizId || ''}" class="w-24 border rounded px-2 py-1 font-mono"></td>
-          <td class="px-4 py-3 text-center whitespace-nowrap">
-            <button onclick="saveClientData(${c.rowIdx})" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded shadow text-xs transition cursor-pointer">
-              Save
+          <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${c.name}</td>
+          <td class="px-3 py-4 text-center"><input type="text" id="state_${c.rowIdx}" value="${c.state || ''}" class="${inputClass} text-center" placeholder="e.g. BC"></td>
+          <td class="px-3 py-4"><input type="text" id="city_${c.rowIdx}" value="${c.city || ''}" class="${inputClass}"></td>
+          <td class="px-3 py-4"><input type="text" id="addr_${c.rowIdx}" value="${c.address || ''}" class="${inputClass}"></td>
+          <td class="px-3 py-4"><input type="text" id="attn_${c.rowIdx}" value="${c.attn || ''}" class="${inputClass}"></td>
+          <td class="px-3 py-4"><input type="text" id="email_${c.rowIdx}" value="${c.email || ''}" class="${inputClass}"></td>
+          <td class="px-3 py-4"><input type="text" id="biz_${c.rowIdx}" value="${c.bizId || ''}" class="${inputClass} font-mono"></td>
+          <td class="px-5 py-4 text-center whitespace-nowrap bg-[#E84C60]/5 border-l border-[#E84C60]/10">
+            <button onclick="saveClientData(${c.rowIdx})" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider cursor-pointer w-full">
+              SAVE
             </button>
           </td>
         `;
@@ -68,11 +89,14 @@ async function fetchMasterData() {
     }
   } catch (err) {
     console.error("Master Data Fetch Error:", err);
-    tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-red-500 font-bold">Failed to load Master_Data.</td></tr>`;
+    if (errorBanner) {
+      errorBanner.classList.remove('hidden');
+    }
+    tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">Failed to load Master_Data.</td></tr>`;
   }
 }
 
-// 3. 🌟 수정된 가맹점 정보를 구글 스프레드시트에 실시간 저장
+// 3. 수정된 가맹점 정보를 구글 스프레드시트에 실시간 저장
 async function saveClientData(rowIdx) {
   const payload = {
     rowIdx: rowIdx,
@@ -84,7 +108,7 @@ async function saveClientData(rowIdx) {
     bizId: document.getElementById(`biz_${rowIdx}`).value
   };
 
-  if (!confirm(`Row #${rowIdx} 가맹점 정보를 구글 스프레드시트에 반영하시겠습니까?`)) return;
+  if (!confirm(`Row #${rowIdx} 가맹점 정보를 업데이트하시겠습니까?`)) return;
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -111,5 +135,6 @@ async function saveClientData(rowIdx) {
   }
 }
 
+window.fetchMasterData = fetchMasterData;
 window.saveClientData = saveClientData;
 window.addEventListener('DOMContentLoaded', fetchMasterData);
