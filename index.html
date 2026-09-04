@@ -3,11 +3,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 🌟 [엔터프라이즈 업그레이드] 모바일에서 화면 확대 방지 및 네이티브 앱 같은 사용성 제공 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Sinjeon Canada Premium Partner Portal operated by Y2C Holdings Inc.">
+  <meta name="theme-color" content="#1A1516"> <!-- 모바일 브라우저 상단 바 색상 -->
+  
   <title>Premium Partner Portal | Sinjeon Canada</title>
   
-  <!-- 🌟 Favicon 404 에러 방지용 임시 파비콘 (콘솔 에러 해결) -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💎</text></svg>">
+  <!-- 🌟 [파비콘 적용] 메인 폴더에 업로드한 정식 파비콘 연결 -->
+  <link rel="icon" type="image/png" href="favicon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -29,7 +33,7 @@
       border: 1px solid rgba(255, 255, 255, 0.6);
     }
 
-    /* 오류 발생 시 흔들림 효과 */
+    /* 오류 발생 시 흔들림 효과 (UX) */
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-4px); }
@@ -42,21 +46,18 @@
 </head>
 <body class="bg-[#F8F6F6] min-h-screen font-sans flex flex-col lg:flex-row text-gray-800 selection:bg-[#E84C60] selection:text-white">
 
-  <!-- 🌟 좌측 (PC) / 상단 (모바일) : 럭셔리 브랜드 비주얼 존 -->
+  <!-- 좌측 (PC) / 상단 (모바일) : 브랜드 비주얼 존 -->
   <div class="lg:w-1/2 bg-[var(--premium-charcoal)] flex flex-col justify-between p-8 sm:p-12 lg:p-16 text-white shadow-2xl z-10 relative overflow-hidden">
     
-    <!-- 배경 고급 핑크 아우라 효과 -->
     <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-[#E84C60] opacity-[0.15] rounded-full blur-[100px] pointer-events-none"></div>
     <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[var(--y2c-gold)] opacity-10 rounded-full blur-[80px] pointer-events-none"></div>
     
-    <!-- 로고 영역 -->
     <div class="relative z-20 flex items-center justify-between lg:justify-start lg:space-x-8">
-      <img src="Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" alt="Sinjeon Logo" class="h-12 sm:h-14 lg:h-16 w-auto object-contain drop-shadow-[0_4px_12px_rgba(232,76,96,0.3)] transition-transform hover:scale-105 duration-500">
+      <img src="assets/images/Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="h-12 sm:h-14 lg:h-16 w-auto object-contain drop-shadow-[0_4px_12px_rgba(232,76,96,0.3)] transition-transform hover:scale-105 duration-500">
       <div class="hidden sm:block h-10 w-[1px] bg-white/10"></div>
-      <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.onerror=function(){this.style.display='none';};" alt="Y2C Holdings" class="h-10 sm:h-12 w-auto object-contain rounded-xl bg-white/5 p-2 backdrop-blur-sm border border-white/10 drop-shadow-xl transition-transform hover:scale-105 duration-500">
+      <img src="assets/images/y2c_holdings_logo.png" onerror="this.onerror=null; this.src='y2c_holdings_logo.png';" alt="Y2C Holdings" class="h-10 sm:h-12 w-auto object-contain rounded-xl bg-white/5 p-2 backdrop-blur-sm border border-white/10 drop-shadow-xl transition-transform hover:scale-105 duration-500">
     </div>
 
-    <!-- 타이포그래피 메시지 -->
     <div class="relative z-10 my-12 lg:my-0 mt-16 lg:mt-0">
       <span class="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-[0.25em] text-[#E84C60] uppercase bg-[#E84C60]/10 rounded-full border border-[#E84C60]/30 backdrop-blur-md">
         Premium Franchise Portal
@@ -69,7 +70,6 @@
       </p>
     </div>
     
-    <!-- 하단 크레딧 -->
     <div class="relative z-10 pt-8 border-t border-white/10 flex justify-between items-end">
       <div>
         <p class="text-[10px] sm:text-[11px] text-gray-500 font-bold tracking-[0.2em] uppercase mb-1">Managed & Operated By</p>
@@ -81,9 +81,8 @@
     </div>
   </div>
 
-  <!-- 🌟 우측 (PC) / 하단 (모바일) : 럭셔리 로그인 폼 존 -->
+  <!-- 우측 (PC) / 하단 (모바일) : 로그인 폼 존 -->
   <div class="lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 relative bg-[#F8F6F6] w-full">
-    
     <div class="w-full max-w-md premium-glass p-8 sm:p-12 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] relative z-20">
 
       <div class="mb-10 text-center lg:text-left">
@@ -92,8 +91,6 @@
       </div>
 
       <form id="loginForm" class="space-y-6" autocomplete="off">
-        
-        <!-- 💡 개선된 Partner ID 입력창 (아이콘 포함) -->
         <div>
           <label for="userId" class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] mb-2 pl-1">Partner ID</label>
           <div class="relative">
@@ -105,7 +102,6 @@
           </div>
         </div>
 
-        <!-- 💡 개선된 Password 입력창 (아이콘 포함) -->
         <div>
           <label for="userPw" class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] mb-2 pl-1">Password</label>
           <div class="relative">
@@ -117,13 +113,12 @@
           </div>
         </div>
 
-        <!-- 에러 방어 메시지 박스 -->
+        <!-- 에러 방어 메시지 -->
         <div id="errorMessage" class="hidden flex items-center text-[#C23347] text-[13px] font-bold bg-[#E84C60]/10 p-4 rounded-xl border border-[#E84C60]/20 shadow-sm mt-2">
           <svg class="w-5 h-5 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
           <span id="errorText">Invalid credentials.</span>
         </div>
 
-        <!-- 로그인 버튼 -->
         <button type="submit" id="loginBtn" 
                 class="relative w-full flex justify-center items-center py-4 px-4 mt-8 text-[14px] sm:text-[15px] font-black tracking-widest rounded-2xl text-white bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] focus:outline-none focus:ring-4 focus:ring-[#E84C60]/30 transition-all duration-300 active:scale-[0.98] cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
           <span id="btnText">SIGN IN TO PORTAL</span>
@@ -134,15 +129,14 @@
         </button>
       </form>
       
-      <!-- 모바일 하단 크레딧 (PC에선 숨김) -->
       <div class="mt-12 text-center lg:hidden">
         <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">Managed By</p>
         <p class="text-xs font-black text-gray-700 mt-1 tracking-widest">Y2C HOLDINGS INC.</p>
       </div>
-
     </div>
   </div>
 
+  <!-- 통신 스크립트 연결부 유지 -->
   <script src="assets/js/config.js"></script>
   <script src="assets/js/auth.js"></script>
 </body>
