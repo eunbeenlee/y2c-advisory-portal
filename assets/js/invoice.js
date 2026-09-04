@@ -4,15 +4,13 @@
 const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 
-if (!userRole || !clientName) {
-  alert("세션이 만료되었습니다. 다시 로그인 해 주세요.");
-  window.location.href = "index.html";
-}
-
-if (userRole !== "MASTER") {
+if (!userRole || userRole !== "MASTER") {
   alert("접근 권한이 없습니다. 마스터 계정으로 로그인해주세요.");
   window.location.href = "dashboard.html";
 }
+
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.innerText = "MASTER";
 
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
@@ -28,21 +26,15 @@ const invDateEl = document.getElementById('invDate');
 if (invDateEl) invDateEl.innerText = today.toISOString().split('T')[0];
 
 let due = new Date();
-due.setDate(today.getDate() + 14); // 14일 뒤 지불 기한
+due.setDate(today.getDate() + 14); 
 const invDueEl = document.getElementById('invDue');
 if (invDueEl) invDueEl.innerText = due.toISOString().split('T')[0];
-
-const randomInvNo = Math.floor(1000 + Math.random() * 9000);
-const invNoEl = document.getElementById('invNo');
-if (invNoEl) {
-  invNoEl.innerText = `INV-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}-${randomInvNo}`;
-}
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
 };
 
-// 3. 🌟 서버(GAS)에 인보이스 데이터 요청 및 오류 방어 통신 함수
+// 3. 🌟 인보이스 데이터 요청 및 렌더링
 async function generateInvoice() {
   const selClient = document.getElementById('selClient');
   const selYear = document.getElementById('selYear');
@@ -59,10 +51,18 @@ async function generateInvoice() {
   const rateVal = selRate ? (parseFloat(selRate.value) || 2) : 2;
   const rate = rateVal / 100;
 
+  // Invoice Number (연도-월-랜덤)
+  const randomInvNo = Math.floor(1000 + Math.random() * 9000);
+  const invNoEl = document.getElementById('invNo');
+  if (invNoEl) {
+    invNoEl.innerText = `INV-${year}${(startM).toString().padStart(2,'0')}-${randomInvNo}`;
+  }
+
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
+      redirect: "follow",
       body: JSON.stringify({
         action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE,
         clientName: client,
@@ -73,26 +73,30 @@ async function generateInvoice() {
     });
 
     const responseText = await response.text();
-    let result;
-    try {
-      result = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("Server Raw Response:", responseText);
-      throw new Error("서버에서 올바른 JSON 데이터를 반환하지 않았습니다.");
-    }
+    let result = JSON.parse(responseText);
 
     if (result.success) {
-      const info = result.clientInfo || {};
       
+      // 🌟 본사(HQ) 정보 렌더링 (스프레드시트 연동)
+      const hq = result.hqInfo || {};
+      document.getElementById('hqName').innerText = hq.name || 'Y2C Holdings Inc.';
+      document.getElementById('hqAddress').innerText = hq.address || '-';
+      document.getElementById('hqContact').innerText = hq.contact || '-';
+      document.getElementById('hqRegNo').innerText = hq.regNo || '-';
+      document.getElementById('hqRep').innerText = hq.rep || '-';
+
+      // 가맹점 정보 렌더링
+      const info = result.clientInfo || {};
       document.getElementById('clientName').innerText = info.name || client;
       document.getElementById('clientAddress').innerText = info.address || 'Address not registered';
-      document.getElementById('clientCity').innerText = `${info.city || ''}, ${info.state || ''}`;
+      document.getElementById('clientCity').innerText = `${info.city || ''} ${info.state || ''}`.trim() || '-';
       document.getElementById('clientAttn').innerText = `${info.attn || 'Management'} | ${info.email || ''}`;
       document.getElementById('clientBizId').innerText = info.bizId || 'RC-XXXX';
 
+      // 금액 계산 렌더링
       const base = result.calculatedBase || 0;
       const fee = base * rate;
-      const tax = fee * 0.05; // 캐나다 기준 GST/HST 5% 추정 반영
+      const tax = fee * 0.05; // HST/GST 5%
       const total = fee + tax;
 
       document.getElementById('descLine').innerText = `Management Advisory Services - M${startM} to M${endM}, ${year}`;
@@ -109,14 +113,9 @@ async function generateInvoice() {
     }
   } catch (err) {
     console.error("Invoice Generation Error:", err);
-    alert(err.message || "서버 통신 중 오류가 발생했습니다.");
+    alert("서버 통신 중 오류가 발생했습니다. 권한 및 배포 상태를 확인하세요.");
   }
 }
 
-// 전역 함수로 등록하여 HTML 내 onclick에서 호출 가능하도록 처리
 window.generateInvoice = generateInvoice;
-
-// 페이지 진입 시 최초 인보이스 자동 생성 실행
-window.addEventListener('DOMContentLoaded', () => {
-  generateInvoice();
-});
+window.addEventListener('DOMContentLoaded', generateInvoice);
