@@ -1,6 +1,5 @@
 // assets/js/admin.js
 
-// 1. 보안 검증
 const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 
@@ -20,7 +19,6 @@ if (logoutBtn) {
   });
 }
 
-// 2. 🌟 스프레드시트 데이터 불러오기 (CORS 및 리다이렉트 방어 로직 강화)
 async function fetchMasterData() {
   const tableBody = document.getElementById('masterTableBody');
   const errorBanner = document.getElementById('errorBanner');
@@ -44,24 +42,13 @@ async function fetchMasterData() {
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      redirect: "follow", // GAS 리다이렉트 필수 추적
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_MASTER })
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const responseText = await response.text();
-    let result;
-    try {
-      result = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("Server Raw Response:", responseText);
-      throw new Error("서버 응답 파싱 실패. 배포 권한이나 스프레드시트 탭 이름을 확인하세요.");
-    }
+    let result = JSON.parse(responseText);
 
     if (result.success) {
       tableBody.innerHTML = '';
@@ -77,6 +64,7 @@ async function fetchMasterData() {
       clients.forEach(c => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-gray-50/50 transition-colors duration-200";
+        // 🌟 버튼에 고유 ID(saveBtn_번호) 부여
         tr.innerHTML = `
           <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${c.name}</td>
           <td class="px-3 py-4 text-center"><input type="text" id="state_${c.rowIdx}" value="${c.state || ''}" class="${inputClass} text-center" placeholder="e.g. BC"></td>
@@ -86,7 +74,7 @@ async function fetchMasterData() {
           <td class="px-3 py-4"><input type="text" id="email_${c.rowIdx}" value="${c.email || ''}" class="${inputClass}"></td>
           <td class="px-3 py-4"><input type="text" id="biz_${c.rowIdx}" value="${c.bizId || ''}" class="${inputClass} font-mono"></td>
           <td class="px-5 py-4 text-center whitespace-nowrap bg-[#E84C60]/5 border-l border-[#E84C60]/10">
-            <button onclick="saveClientData(${c.rowIdx})" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider cursor-pointer w-full">
+            <button id="saveBtn_${c.rowIdx}" onclick="saveClientData(${c.rowIdx})" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider cursor-pointer w-full disabled:opacity-50 disabled:cursor-not-allowed">
               SAVE
             </button>
           </td>
@@ -108,8 +96,15 @@ async function fetchMasterData() {
   }
 }
 
-// 3. 🌟 스프레드시트 데이터 수정 저장 로직
 async function saveClientData(rowIdx) {
+  // 🌟 [2번 방어 로직] 버튼 비활성화 (Double Submit 방지)
+  const saveBtn = document.getElementById(`saveBtn_${rowIdx}`);
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerText = "⏳ SAVING...";
+    saveBtn.classList.add('animate-pulse');
+  }
+
   const payload = {
     rowIdx: rowIdx,
     state: document.getElementById(`state_${rowIdx}`).value,
@@ -120,36 +115,38 @@ async function saveClientData(rowIdx) {
     bizId: document.getElementById(`biz_${rowIdx}`).value
   };
 
-  if (!confirm(`Row #${rowIdx} 가맹점 정보를 업데이트하시겠습니까?`)) return;
-
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      redirect: "follow",
-      body: JSON.stringify({
-        action: SYSTEM_CONFIG.API.ENDPOINTS.UPDATE_MASTER,
-        client: payload
-      })
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.UPDATE_MASTER, client: payload })
     });
 
     const responseText = await response.text();
     let result;
-    try {
-      result = JSON.parse(responseText);
-    } catch(e) {
-      throw new Error("서버 응답 오류 (CORS/권한 확인)");
-    }
+    try { result = JSON.parse(responseText); } 
+    catch(e) { throw new Error("서버 응답 파싱 오류"); }
 
     if (result.success) {
-      alert("✅ 성공적으로 스프레드시트에 반영되었습니다!");
-      fetchMasterData();
+      // 팝업 없이 부드럽게 UI 상에서 성공 인지 후 새로고침 (사용성 극대화)
+      if(saveBtn) {
+        saveBtn.innerText = "✅ SAVED";
+        saveBtn.classList.remove('animate-pulse');
+        saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600');
+      }
+      setTimeout(() => fetchMasterData(), 1500);
     } else {
       alert("저장 실패: " + result.message);
     }
   } catch (err) {
     console.error("Save Error:", err);
-    alert("서버 통신 중 오류가 발생했습니다. (CORS/권한 오류)");
+    alert("서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+  } finally {
+    // 통신이 완전히 종료되면(성공이든 실패든) 버튼 복구
+    if (saveBtn && saveBtn.innerText !== "✅ SAVED") {
+      saveBtn.disabled = false;
+      saveBtn.innerText = "SAVE";
+      saveBtn.classList.remove('animate-pulse');
+    }
   }
 }
 
