@@ -1,4 +1,3 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,64 +26,59 @@
       border: 1px solid rgba(255,255,255,0.8);
       box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
     }
+
+    /* 폰트 렌더링 최적화 (안티앨리어싱) */
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
   </style>
 </head>
-<body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 antialiased selection:bg-[#E84C60] selection:text-white">
+<body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 selection:bg-[#E84C60] selection:text-white">
   
-  <!-- 🌟 상단 프리미엄 네비게이션 바 -->
-  <nav class="bg-white/90 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center py-3 sm:py-4 gap-4 sm:gap-0">
+  <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0">
       
-      <!-- 좌측 로고플레이 (핑크 로고 오리지널 컬러 유지 및 404 이중 방어) -->
-      <div class="flex items-center space-x-4 w-full sm:w-auto justify-center sm:justify-start">
+      <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
         <img src="Sinjeon_Logo_Pink.png" 
              onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
-             alt="Sinjeon Logo" class="h-9 sm:h-11 object-contain drop-shadow-sm">
-        <div class="border-l-[1.5px] border-gray-200 pl-4">
-          <h1 id="portalSubtitle" class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-tight">Partner Portal</h1>
-          <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase mt-0.5">Operated by Y2C Holdings</p>
+             alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm">
+        <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
+          <h1 id="portalSubtitle" class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1">Partner Portal</h1>
+          <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
         </div>
       </div>
       
-      <!-- 우측 네비게이션 메뉴 및 제어부 -->
-      <div class="flex items-center flex-wrap gap-3 sm:gap-6 justify-center sm:justify-end w-full sm:w-auto">
-        <a href="dashboard.html" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-sm tracking-wide">Dashboard</a>
-        <a href="items.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-sm tracking-wide">Item List</a>
-        <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-sm tracking-wide">Recipe Center</a>
+      <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
+        <a href="dashboard.html" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
+        <a href="items.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
+        <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
         
-        <!-- 마스터 전용 메뉴 (JS에서 권한 체크 후 block 처리) -->
-        <a href="admin.html" id="navAdmin" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-sm tracking-wide">Master DB</a>
-        <a href="invoice.html" id="navInvoice" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-sm tracking-wide">Advisory Invoice</a>
+        <a href="admin.html" id="navAdmin" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Master DB</a>
+        <a href="invoice.html" id="navInvoice" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
         
-        <!-- 동적 연도 선택 드롭다운 (프리미엄 스타일링) -->
-        <div class="flex items-center space-x-2 bg-[#F8F6F6] px-3 py-2 rounded-xl border border-gray-200 shadow-inner">
-          <span class="text-[11px] font-black text-gray-400 uppercase tracking-wider">Year:</span>
-          <select id="yearSelector" class="bg-transparent text-sm font-black text-[var(--premium-charcoal)] focus:outline-none cursor-pointer">
-            <option value="2022">2022</option>
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026" selected>2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-            <option value="2029">2029</option>
-            <option value="2030">2030</option>
-          </select>
-        </div>
+        <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
+          <div class="flex items-center space-x-1.5 bg-[#F8F6F6] px-3 py-1.5 rounded-xl border border-gray-200 shadow-inner">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Year:</span>
+            <select id="yearSelector" class="bg-transparent text-xs sm:text-sm font-black text-[var(--premium-charcoal)] focus:outline-none cursor-pointer">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
 
-        <!-- 유저 프로필 & 로그아웃 -->
-        <div class="flex items-center space-x-3 bg-white py-1.5 px-3 rounded-xl border border-gray-100 shadow-sm">
-          <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px] sm:max-w-[150px]"></span>
-          <button id="logoutBtn" class="text-[11px] bg-[var(--premium-charcoal)] text-white font-bold px-3 py-1.5 rounded-lg hover:bg-black transition-colors shadow-md cursor-pointer tracking-wider">LOGOUT</button>
+          <div class="flex items-center space-x-3 bg-white py-1 px-3 rounded-xl border border-gray-100 shadow-sm">
+            <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]"></span>
+            <button id="logoutBtn" class="text-[10px] sm:text-[11px] bg-[var(--premium-charcoal)] text-white font-bold px-3 py-1.5 rounded-lg hover:bg-black transition-colors shadow-md cursor-pointer tracking-widest">LOGOUT</button>
+          </div>
         </div>
       </div>
     </div>
   </nav>
 
-  <!-- 메인 컨텐츠 영역 -->
   <main class="max-w-7xl mx-auto mt-6 sm:mt-10 p-4 sm:p-6 lg:p-8">
     
-    <!-- 💡 에러 방어 알림 배너 (통신 실패 시 동적 노출) -->
     <div id="errorBanner" class="hidden mb-8 bg-gradient-pink text-white p-5 rounded-2xl shadow-[0_10px_20px_-10px_rgba(232,76,96,0.5)] flex items-center justify-between">
       <div class="flex items-center space-x-4">
         <div class="bg-white/20 p-2 rounded-full">
@@ -92,77 +86,68 @@
         </div>
         <div>
           <h4 class="font-black text-sm tracking-wide">Data Synchronization Notice</h4>
-          <p id="errorBannerText" class="text-xs text-white/80 mt-0.5">Server connection unstable. Showing cached or zeroed state.</p>
+          <p id="errorBannerText" class="text-xs text-white/80 mt-0.5">Server connection unstable. Showing cached state.</p>
         </div>
       </div>
       <button onclick="retryFetch()" class="text-xs bg-white text-[#E84C60] font-black px-4 py-2 rounded-xl shadow-lg hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RETRY</button>
     </div>
 
-    <!-- 요약 카드 그리드 (프리미엄 둥글기 및 컬러 적용) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-10">
       
-      <!-- Total Net Sales (Pink Accent) -->
-      <div class="premium-glass p-8 rounded-[2rem] border-l-[6px] border-l-[#E84C60] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+      <div class="premium-glass p-6 sm:p-8 rounded-[2rem] border-l-[6px] border-l-[#E84C60] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 flex flex-col justify-center">
         <div class="absolute -right-4 -top-4 text-[#E84C60] opacity-[0.03] group-hover:opacity-10 transition-opacity duration-300">
           <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 100-2 1 1 0 000 2zm3-1a1 1 0 100-2 1 1 0 000 2z"/></svg>
         </div>
-        <h3 class="text-gray-400 text-xs font-black uppercase tracking-[0.15em] mb-2">Total Net Sales (YTD)</h3>
-        <p class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight" id="totalSales">Loading...</p>
-        <p class="text-[11px] text-gray-400 mt-3 font-medium">Aggregated fiscal performance</p>
+        <h3 class="text-gray-400 text-[11px] sm:text-xs font-black uppercase tracking-[0.15em] mb-2">Total Net Sales (YTD)</h3>
+        <p class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none" id="totalSales">Loading...</p>
+        <p class="text-[10px] sm:text-[11px] text-gray-400 mt-3 font-medium">Aggregated fiscal performance</p>
       </div>
 
-      <!-- POS Sales (Charcoal Accent) -->
-      <div class="premium-glass p-8 rounded-[2rem] border-l-[6px] border-l-[var(--premium-charcoal)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+      <div class="premium-glass p-6 sm:p-8 rounded-[2rem] border-l-[6px] border-l-[var(--premium-charcoal)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 flex flex-col justify-center">
         <div class="absolute -right-4 -top-4 text-[var(--premium-charcoal)] opacity-[0.03] group-hover:opacity-10 transition-opacity duration-300">
           <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/></svg>
         </div>
-        <h3 class="text-gray-400 text-xs font-black uppercase tracking-[0.15em] mb-2">POS Sales (YTD)</h3>
-        <p class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight" id="posSales">-</p>
-        <p class="text-[11px] text-gray-400 mt-3 font-medium">In-store terminal transactions</p>
+        <h3 class="text-gray-400 text-[11px] sm:text-xs font-black uppercase tracking-[0.15em] mb-2">POS Sales (YTD)</h3>
+        <p class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none" id="posSales">-</p>
+        <p class="text-[10px] sm:text-[11px] text-gray-400 mt-3 font-medium">In-store terminal transactions</p>
       </div>
 
-      <!-- Delivery Sales (Gold Accent) -->
-      <div class="premium-glass p-8 rounded-[2rem] border-l-[6px] border-l-[var(--y2c-gold)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 sm:col-span-2 lg:col-span-1">
+      <div class="premium-glass p-6 sm:p-8 rounded-[2rem] border-l-[6px] border-l-[var(--y2c-gold)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 md:col-span-2 lg:col-span-1 flex flex-col justify-center">
         <div class="absolute -right-4 -top-4 text-[var(--y2c-gold)] opacity-[0.05] group-hover:opacity-15 transition-opacity duration-300">
           <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h3.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V15a1 1 0 01-1 1h-1.05a2.5 2.5 0 01-4.9 0H14V7z"/></svg>
         </div>
-        <h3 class="text-gray-400 text-xs font-black uppercase tracking-[0.15em] mb-2">Delivery Sales (YTD)</h3>
-        <p class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight" id="deliverySales">-</p>
-        <p class="text-[11px] text-gray-400 mt-3 font-medium">Online & delivery platform aggregation</p>
+        <h3 class="text-gray-400 text-[11px] sm:text-xs font-black uppercase tracking-[0.15em] mb-2">Delivery Sales (YTD)</h3>
+        <p class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none" id="deliverySales">-</p>
+        <p class="text-[10px] sm:text-[11px] text-gray-400 mt-3 font-medium">Online & delivery platform aggregation</p>
       </div>
     </div>
 
-    <!-- 차트 시각화 영역 (프리미엄 곡선 라운딩 적용) -->
-    <div class="premium-glass p-8 sm:p-10 rounded-[2.5rem] mb-10">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+    <div class="premium-glass p-6 sm:p-10 rounded-[2.5rem] mb-10">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
         <div>
-          <h2 class="text-2xl font-black text-[var(--premium-charcoal)] tracking-tight" id="chartTitle">Monthly Revenue Trend</h2>
-          <p class="text-xs text-gray-400 font-medium mt-1 tracking-wide">Real-time audited financial analytics by Y2C Holdings</p>
+          <h2 class="text-xl sm:text-2xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none" id="chartTitle">Monthly Revenue Trend</h2>
+          <p class="text-[11px] sm:text-xs text-gray-400 font-medium mt-2 tracking-wide">Real-time audited financial analytics by Y2C Holdings</p>
         </div>
-        <span class="text-[10px] bg-[#E84C60]/10 text-[#E84C60] font-black px-4 py-1.5 rounded-full border border-[#E84C60]/20 tracking-widest uppercase shadow-sm">
+        <span class="text-[9px] sm:text-[10px] bg-[#E84C60]/10 text-[#E84C60] font-black px-4 py-1.5 rounded-full border border-[#E84C60]/20 tracking-widest uppercase shadow-sm whitespace-nowrap">
           CAD Currency
         </span>
       </div>
-      <div class="relative w-full h-[320px] sm:h-[420px]">
+      <div class="relative w-full h-[280px] sm:h-[400px]">
         <canvas id="salesChart"></canvas>
       </div>
     </div>
     
   </main>
 
-  <!-- 하단 스크립트 모음 -->
   <script src="assets/js/config.js"></script>
   <script src="assets/js/dashboard.js"></script>
   <script>
-    // 마스터 권한 여부 확인 후 관리자 메뉴 노출 (dashboard.js 내부 처리와 병행 보완)
     if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
       const navAdmin = document.getElementById('navAdmin');
       const navInvoice = document.getElementById('navInvoice');
       if (navAdmin) navAdmin.classList.remove('hidden');
       if (navInvoice) navInvoice.classList.remove('hidden');
     }
-
-    // 에러 배너 재시도 버튼 전역 연결 함수
     function retryFetch() {
       const currentYear = document.getElementById('yearSelector').value;
       if(typeof fetchDashboardData === 'function') {
