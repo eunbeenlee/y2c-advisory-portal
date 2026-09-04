@@ -1,6 +1,5 @@
 // assets/js/invoice.js
 
-// 1. 보안 세션 및 마스터 권한 검증
 const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 
@@ -15,18 +14,15 @@ if (userNameDisplay) userNameDisplay.innerText = "MASTER";
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
-    localStorage.clear();
-    window.location.href = "index.html";
+    localStorage.clear(); window.location.href = "index.html";
   });
 }
 
-// 2. 인보이스 날짜 및 고유 번호 자동 생성
 const today = new Date();
 const invDateEl = document.getElementById('invDate');
 if (invDateEl) invDateEl.innerText = today.toISOString().split('T')[0];
 
-let due = new Date();
-due.setDate(today.getDate() + 14); 
+let due = new Date(); due.setDate(today.getDate() + 14); 
 const invDueEl = document.getElementById('invDue');
 if (invDueEl) invDueEl.innerText = due.toISOString().split('T')[0];
 
@@ -34,7 +30,6 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
 };
 
-// 3. 🌟 인보이스 데이터 요청 및 렌더링
 async function generateInvoice() {
   const selClient = document.getElementById('selClient');
   const selYear = document.getElementById('selYear');
@@ -51,24 +46,15 @@ async function generateInvoice() {
   const rateVal = selRate ? (parseFloat(selRate.value) || 2) : 2;
   const rate = rateVal / 100;
 
-  // Invoice Number (연도-월-랜덤)
   const randomInvNo = Math.floor(1000 + Math.random() * 9000);
   const invNoEl = document.getElementById('invNo');
-  if (invNoEl) {
-    invNoEl.innerText = `INV-${year}${(startM).toString().padStart(2,'0')}-${randomInvNo}`;
-  }
+  if (invNoEl) invNoEl.innerText = `INV-${year}${(startM).toString().padStart(2,'0')}-${randomInvNo}`;
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      redirect: "follow",
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
       body: JSON.stringify({
-        action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE,
-        clientName: client,
-        year: year,
-        startMonth: startM,
-        endMonth: endM
+        action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE, clientName: client, year: year, startMonth: startM, endMonth: endM
       })
     });
 
@@ -76,14 +62,17 @@ async function generateInvoice() {
     let result = JSON.parse(responseText);
 
     if (result.success) {
-      
-      // 🌟 본사(HQ) 정보 렌더링 (스프레드시트 연동)
+      // 본사 및 은행 정보 렌더링
       const hq = result.hqInfo || {};
       document.getElementById('hqName').innerText = hq.name || 'Y2C Holdings Inc.';
       document.getElementById('hqAddress').innerText = hq.address || '-';
       document.getElementById('hqContact').innerText = hq.contact || '-';
       document.getElementById('hqRegNo').innerText = hq.regNo || '-';
       document.getElementById('hqRep').innerText = hq.rep || '-';
+      
+      document.getElementById('hqBank').innerText = hq.bank || '-';
+      document.getElementById('hqAccount').innerText = hq.account || '-';
+      document.getElementById('hqSwift').innerText = hq.swift || '-';
 
       // 가맹점 정보 렌더링
       const info = result.clientInfo || {};
@@ -96,7 +85,7 @@ async function generateInvoice() {
       // 금액 계산 렌더링
       const base = result.calculatedBase || 0;
       const fee = base * rate;
-      const tax = fee * 0.05; // HST/GST 5%
+      const tax = fee * 0.05;
       const total = fee + tax;
 
       document.getElementById('descLine').innerText = `Management Advisory Services - M${startM} to M${endM}, ${year}`;
