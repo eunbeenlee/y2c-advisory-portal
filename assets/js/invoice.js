@@ -2,10 +2,11 @@
 
 const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
+const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
-if (!userRole || userRole !== "MASTER") {
+if (!sessionToken || userRole !== "MASTER") {
   alert("접근 권한이 없습니다. 마스터 계정으로 로그인해주세요.");
-  window.location.href = "dashboard.html";
+  window.location.href = "index.html";
 }
 
 const userNameDisplay = document.getElementById('userNameDisplay');
@@ -29,6 +30,15 @@ if (invDueEl) invDueEl.innerText = due.toISOString().split('T')[0];
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
 };
+
+// 🌟 [Fix 2] 문서 로드 시 현재 연도로 자동 세팅
+window.addEventListener('DOMContentLoaded', () => {
+  const currentYear = new Date().getFullYear();
+  const yearSelect = document.getElementById('selYear');
+  if (yearSelect) yearSelect.value = currentYear;
+  
+  generateInvoice();
+});
 
 async function generateInvoice() {
   const selClient = document.getElementById('selClient');
@@ -54,15 +64,21 @@ async function generateInvoice() {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
       body: JSON.stringify({
-        action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE, clientName: client, year: year, startMonth: startM, endMonth: endM
+        action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE, 
+        token: sessionToken, // 🌟 필수 보안 토큰
+        clientName: client, 
+        year: year, 
+        startMonth: startM, 
+        endMonth: endM
       })
     });
 
     const responseText = await response.text();
-    let result = JSON.parse(responseText);
+    let result;
+    try { result = JSON.parse(responseText); } 
+    catch(err) { throw new Error("서버 응답 파싱 오류. 백엔드 배포 상태를 확인하세요."); }
 
     if (result.success) {
-      // 본사 및 은행 정보 렌더링
       const hq = result.hqInfo || {};
       document.getElementById('hqName').innerText = hq.name || 'Y2C Holdings Inc.';
       document.getElementById('hqAddress').innerText = hq.address || '-';
@@ -74,7 +90,6 @@ async function generateInvoice() {
       document.getElementById('hqAccount').innerText = hq.account || '-';
       document.getElementById('hqSwift').innerText = hq.swift || '-';
 
-      // 가맹점 정보 렌더링
       const info = result.clientInfo || {};
       document.getElementById('clientName').innerText = info.name || client;
       document.getElementById('clientAddress').innerText = info.address || 'Address not registered';
@@ -82,7 +97,6 @@ async function generateInvoice() {
       document.getElementById('clientAttn').innerText = `${info.attn || 'Management'} | ${info.email || ''}`;
       document.getElementById('clientBizId').innerText = info.bizId || 'RC-XXXX';
 
-      // 금액 계산 렌더링
       const base = result.calculatedBase || 0;
       const fee = base * rate;
       const tax = fee * 0.05;
@@ -98,13 +112,19 @@ async function generateInvoice() {
       document.getElementById('totalDue').innerText = formatCurrency(total);
       
     } else {
+      // 🌟 [Fix 1] 토큰 만료 등 보안 에러 시 강제 로그아웃
+      if (result.message.includes("만료") || result.message.includes("로그인") || result.message.includes("세션")) {
+        alert("보안 세션이 종료되었습니다. 다시 로그인해 주세요.");
+        localStorage.clear();
+        window.location.href = "index.html";
+        return;
+      }
       alert("데이터 추출 오류: " + (result.message || "알 수 없는 오류"));
     }
   } catch (err) {
     console.error("Invoice Generation Error:", err);
-    alert("서버 통신 중 오류가 발생했습니다. 권한 및 배포 상태를 확인하세요.");
+    alert("서버 통신 중 오류가 발생했습니다: " + err.message);
   }
 }
 
 window.generateInvoice = generateInvoice;
-window.addEventListener('DOMContentLoaded', generateInvoice);
