@@ -1,0 +1,95 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Database Management | Y2C Holdings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { 
+      --sinjeon-red: #D32F2F; 
+      --sinjeon-dark: #990000; 
+      --y2c-gold: #C5A059;
+    }
+    .bg-gradient-sinjeon { 
+      background: linear-gradient(135deg, var(--sinjeon-red) 0%, var(--sinjeon-dark) 100%); 
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body class="bg-gray-900 min-h-screen font-sans text-gray-800 antialiased selection:bg-red-500 selection:text-white">
+  
+  <nav class="bg-white/95 backdrop-blur-md shadow-md border-b-4 border-red-600 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center py-3.5 gap-4 sm:gap-0">
+      <div class="flex items-center space-x-4">
+        <img src="Sinjeon_Logo_Pink.png" 
+             onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
+             alt="Sinjeon Logo" class="h-9 sm:h-10 object-contain">
+        <div class="border-l-2 border-gray-200 pl-4">
+          <h1 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight leading-tight">Master Admin Portal</h1>
+          <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">Operated by Y2C Holdings Inc.</p>
+        </div>
+      </div>
+      <div class="flex items-center flex-wrap gap-4 sm:gap-6 justify-end">
+        <a href="dashboard.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Dashboard</a>
+        <a href="items.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Item List</a>
+        <a href="recipes.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Recipe Center</a>
+        <a href="admin.html" class="text-red-600 font-bold border-b-2 border-red-600 pb-0.5 text-sm">Master DB</a>
+        <a href="invoice.html" class="text-gray-600 hover:text-red-600 font-bold transition text-sm">Advisory Invoice</a>
+        <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-3 rounded-xl border border-gray-200 shadow-sm">
+          <span class="text-xs sm:text-sm font-bold text-gray-800">MASTER</span>
+          <button id="logoutBtn" class="text-xs bg-gray-900 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-gray-800 transition cursor-pointer">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8">
+    
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div>
+        <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          <span>⚙️</span> Master Database Management (Master_Data)
+        </h2>
+        <p class="text-xs text-gray-400 mt-1">Directly view and update franchise profile data synced with Google Sheets.</p>
+      </div>
+      <a href="dashboard.html" class="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition border border-white/10 shadow-sm flex items-center gap-2">
+        ← Dashboard
+      </a>
+    </div>
+
+    <!-- 가맹점 마스터 데이터 테이블 -->
+    <div class="glass-card rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+          <thead class="bg-gray-100/90">
+            <tr>
+              <th class="px-4 py-4 text-left font-black text-gray-700 uppercase">Franchise Client Name</th>
+              <th class="px-4 py-4 text-center font-black text-gray-700 uppercase">State</th>
+              <th class="px-4 py-4 text-left font-black text-gray-700 uppercase">City</th>
+              <th class="px-4 py-4 text-left font-black text-gray-700 uppercase">Address</th>
+              <th class="px-4 py-4 text-left font-black text-gray-700 uppercase">Attn / Owner</th>
+              <th class="px-4 py-4 text-left font-black text-gray-700 uppercase">Email</th>
+              <th class="px-4 py-4 text-left font-black text-gray-700 uppercase">Business ID</th>
+              <th class="px-4 py-4 text-center font-black text-gray-700 uppercase">Action</th>
+            </tr>
+          </thead>
+          <tbody id="masterTableBody" class="bg-white divide-y divide-gray-100">
+            <tr>
+              <td colspan="8" class="px-6 py-16 text-center text-gray-500 font-bold">Loading Master_Data from Google Sheets...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
