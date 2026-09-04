@@ -1,3 +1,4 @@
+<!-- items.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,46 +27,62 @@
       box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
     }
 
-    /* 테이블 스크롤바 커스텀 (모바일/PC 디테일) */
+    /* 폰트 렌더링 최적화 */
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* 모바일 가로 스크롤바 고급화 */
     .custom-scrollbar::-webkit-scrollbar { height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f8f6f6; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #E84C60; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--sinjeon-pink); }
   </style>
 </head>
-<body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 antialiased selection:bg-[#E84C60] selection:text-white">
+<body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 selection:bg-[#E84C60] selection:text-white">
   
-  <nav class="bg-white/90 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center py-3 sm:py-4 gap-4 sm:gap-0">
+  <!-- 🌟 상단 프리미엄 네비게이션 바 (대시보드와 100% 동일한 무결점 프레임) -->
+  <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0">
       
-      <div class="flex items-center space-x-4 w-full sm:w-auto justify-center sm:justify-start">
+      <!-- 좌측: 로고플레이 및 타이틀 -->
+      <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
         <img src="Sinjeon_Logo_Pink.png" 
              onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" 
-             alt="Sinjeon Logo" class="h-9 sm:h-11 object-contain drop-shadow-sm">
-        <div class="border-l-[1.5px] border-gray-200 pl-4">
-          <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-tight">Partner Portal</h1>
-          <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase mt-0.5">Operated by Y2C Holdings</p>
+             alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm">
+        <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
+          <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1">Partner Portal</h1>
+          <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
         </div>
       </div>
       
-      <div class="flex items-center flex-wrap gap-3 sm:gap-6 justify-center sm:justify-end w-full sm:w-auto">
-        <a href="dashboard.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-sm tracking-wide">Dashboard</a>
-        <a href="items.html" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-sm tracking-wide">Item Catalog</a>
-        <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-sm tracking-wide">Recipe Center</a>
+      <!-- 우측: 네비게이션 메뉴 및 제어부 -->
+      <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
+        <!-- 💡 카테고리명 글로벌 통일 (현재 페이지: Item Catalog 하이라이트) -->
+        <a href="dashboard.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
+        <a href="items.html" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
+        <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
         
-        <a href="admin.html" id="navAdmin" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-sm tracking-wide">Master DB</a>
-        <a href="invoice.html" id="navInvoice" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-sm tracking-wide">Advisory Invoice</a>
+        <!-- 마스터 전용 메뉴 -->
+        <a href="admin.html" id="navAdmin" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Master DB</a>
+        <a href="invoice.html" id="navInvoice" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
         
-        <div class="flex items-center space-x-3 bg-white py-1.5 px-3 rounded-xl border border-gray-100 shadow-sm">
-          <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px] sm:max-w-[150px]"></span>
-          <button id="logoutBtn" class="text-[11px] bg-[var(--premium-charcoal)] text-white font-bold px-3 py-1.5 rounded-lg hover:bg-black transition-colors shadow-md cursor-pointer tracking-wider">LOGOUT</button>
+        <!-- 컨트롤 그룹 -->
+        <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
+          <div class="flex items-center space-x-3 bg-white py-1 px-3 rounded-xl border border-gray-100 shadow-sm">
+            <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]"></span>
+            <button id="logoutBtn" class="text-[10px] sm:text-[11px] bg-[var(--premium-charcoal)] text-white font-bold px-3 py-1.5 rounded-lg hover:bg-black transition-colors shadow-md cursor-pointer tracking-widest">LOGOUT</button>
+          </div>
         </div>
       </div>
     </div>
   </nav>
 
+  <!-- 메인 컨텐츠 영역 -->
   <main class="max-w-7xl mx-auto mt-6 sm:mt-10 p-4 sm:p-6 lg:p-8">
     
+    <!-- 에러 배너 -->
     <div id="errorBanner" class="hidden mb-8 bg-gradient-pink text-white p-5 rounded-2xl shadow-[0_10px_20px_-10px_rgba(232,76,96,0.5)] flex items-center justify-between">
       <div class="flex items-center space-x-4">
         <div class="bg-white/20 p-2 rounded-full">
@@ -79,44 +96,47 @@
       <button onclick="fetchItems()" class="text-xs bg-white text-[#E84C60] font-black px-4 py-2 rounded-xl shadow-lg hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RETRY</button>
     </div>
 
+    <!-- 페이지 헤더 및 발주 제출 버튼 바 -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-5">
       <div>
-        <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
+        <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
           <span class="text-2xl">📦</span> Supply Catalog & Order
         </h2>
-        <p class="text-xs sm:text-sm text-gray-500 font-medium mt-2 tracking-wide">Select quantities below and submit your franchise purchase order to Y2C HQ.</p>
+        <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Select quantities below and submit your franchise purchase order to Y2C HQ.</p>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <a href="dashboard.html" class="flex-1 sm:flex-none bg-white text-gray-600 hover:text-[var(--premium-charcoal)] text-xs font-black px-5 py-3.5 rounded-2xl transition-all border border-gray-200 shadow-sm flex items-center justify-center gap-2 hover:bg-gray-50">
-          ← Dashboard
+        <a href="dashboard.html" class="flex-1 sm:flex-none bg-white text-gray-500 hover:text-[var(--premium-charcoal)] text-[11px] sm:text-xs font-black px-5 py-3.5 rounded-[1rem] transition-all border border-gray-200 shadow-sm flex items-center justify-center gap-2 hover:bg-gray-50 tracking-wider">
+          ← BACK
         </a>
-        <button onclick="submitOrder()" class="flex-[2] sm:flex-none bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.5)] text-white text-[13px] font-black px-6 py-3.5 rounded-2xl transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 cursor-pointer tracking-wide">
-          <span>🚀</span> Submit Order
+        <button onclick="submitOrder()" class="flex-[2] sm:flex-none bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.5)] text-white text-[12px] sm:text-[13px] font-black px-6 py-3.5 rounded-[1rem] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 cursor-pointer tracking-wide border border-[#E84C60]/50">
+          <span>🚀</span> SUBMIT ORDER
         </button>
       </div>
     </div>
 
+    <!-- 품목 리스트 및 발주 수량 테이블 (프리미엄 라운딩) -->
     <div class="premium-glass rounded-[2rem] overflow-hidden">
       <div class="overflow-x-auto custom-scrollbar">
         <table class="min-w-full divide-y divide-gray-100">
           <thead class="bg-gray-50/80">
             <tr>
-              <th scope="col" class="px-6 py-5 text-left text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">Item Code</th>
-              <th scope="col" class="px-6 py-5 text-left text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">Item Name</th>
-              <th scope="col" class="px-6 py-5 text-left text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">Category</th>
-              <th scope="col" class="px-6 py-5 text-right text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">Unit Price (CAD)</th>
-              <th scope="col" class="px-6 py-5 text-center text-[11px] font-black text-[#E84C60] bg-[#E84C60]/5 uppercase tracking-[0.15em]">Order Qty</th>
+              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap">Item Code</th>
+              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[150px]">Item Name</th>
+              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">Category</th>
+              <th scope="col" class="px-5 sm:px-6 py-5 text-right text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap">Unit Price (CAD)</th>
+              <th scope="col" class="px-5 sm:px-6 py-5 text-center text-[10px] sm:text-[11px] font-black text-[#E84C60] bg-[#E84C60]/5 uppercase tracking-[0.15em] border-l border-[#E84C60]/10 whitespace-nowrap">Order Qty</th>
             </tr>
           </thead>
-          <tbody id="itemTableBody" class="bg-white/50 divide-y divide-gray-100/50 backdrop-blur-sm">
+          <tbody id="itemTableBody" class="bg-white/60 divide-y divide-gray-100/50 backdrop-blur-md">
+            <!-- 초기 로딩 뷰 -->
             <tr>
-              <td colspan="5" class="px-6 py-20 text-center">
+              <td colspan="5" class="px-6 py-24 text-center">
                 <div class="flex flex-col items-center justify-center space-y-4">
                   <svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <p class="text-sm font-bold text-gray-400 tracking-wide">Syncing catalog from secure database...</p>
+                  <p class="text-[13px] font-bold text-gray-400 tracking-wide">Syncing catalog from secure database...</p>
                 </div>
               </td>
             </tr>
@@ -127,6 +147,7 @@
 
   </main>
 
+  <!-- 하단 스크립트 모음 -->
   <script src="assets/js/config.js"></script>
   <script src="assets/js/items.js"></script>
   <script>
