@@ -5,19 +5,11 @@ const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
 if (!sessionToken || userRole !== "MASTER") {
-  alert("접근 권한이 없습니다. 마스터 계정으로 로그인해주세요.");
   window.location.href = "index.html";
 }
 
-const userNameDisplay = document.getElementById('userNameDisplay');
-if (userNameDisplay) userNameDisplay.innerText = "MASTER";
-
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', () => {
-    localStorage.clear(); window.location.href = "index.html";
-  });
-}
+document.getElementById('userNameDisplay').innerText = "MASTER";
+document.getElementById('logoutBtn')?.addEventListener('click', () => { localStorage.clear(); window.location.href = "index.html"; });
 
 const today = new Date();
 const invDateEl = document.getElementById('invDate');
@@ -27,16 +19,31 @@ let due = new Date(); due.setDate(today.getDate() + 14);
 const invDueEl = document.getElementById('invDue');
 if (invDueEl) invDueEl.innerText = due.toISOString().split('T')[0];
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
-};
+const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
 
-// 🌟 [Fix 2] 문서 로드 시 현재 연도로 자동 세팅
+// 🌟 대기업식 자동 주입 토스트 알림
+function showToast(message, type = 'success') {
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
+  const icon = type === 'success' ? '✅' : '⚠️';
+  toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+  toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
+  setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   const currentYear = new Date().getFullYear();
   const yearSelect = document.getElementById('selYear');
   if (yearSelect) yearSelect.value = currentYear;
-  
   generateInvoice();
 });
 
@@ -56,6 +63,10 @@ async function generateInvoice() {
   const rateVal = selRate ? (parseFloat(selRate.value) || 2) : 2;
   const rate = rateVal / 100;
 
+  const genBtn = document.querySelector('button[onclick="generateInvoice()"]');
+  const originalHTML = genBtn ? genBtn.innerHTML : "GENERATE DATA";
+  if (genBtn) { genBtn.disabled = true; genBtn.innerHTML = "<span>⏳</span> LOADING..."; genBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
+
   const randomInvNo = Math.floor(1000 + Math.random() * 9000);
   const invNoEl = document.getElementById('invNo');
   if (invNoEl) invNoEl.innerText = `INV-${year}${(startM).toString().padStart(2,'0')}-${randomInvNo}`;
@@ -63,20 +74,10 @@ async function generateInvoice() {
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({
-        action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE, 
-        token: sessionToken, // 🌟 필수 보안 토큰
-        clientName: client, 
-        year: year, 
-        startMonth: startM, 
-        endMonth: endM
-      })
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE, token: sessionToken, clientName: client, year: year, startMonth: startM, endMonth: endM })
     });
-
-    const responseText = await response.text();
-    let result;
-    try { result = JSON.parse(responseText); } 
-    catch(err) { throw new Error("서버 응답 파싱 오류. 백엔드 배포 상태를 확인하세요."); }
+    
+    const result = JSON.parse(await response.text());
 
     if (result.success) {
       const hq = result.hqInfo || {};
@@ -111,20 +112,17 @@ async function generateInvoice() {
       document.getElementById('taxAmt').innerText = formatCurrency(tax);
       document.getElementById('totalDue').innerText = formatCurrency(total);
       
+      showToast("인보이스 데이터 렌더링 완료", "success");
     } else {
-      // 🌟 [Fix 1] 토큰 만료 등 보안 에러 시 강제 로그아웃
       if (result.message.includes("만료") || result.message.includes("로그인") || result.message.includes("세션")) {
-        alert("보안 세션이 종료되었습니다. 다시 로그인해 주세요.");
-        localStorage.clear();
-        window.location.href = "index.html";
-        return;
+        alert("보안 세션이 종료되었습니다. 다시 로그인해 주세요."); localStorage.clear(); window.location.href = "index.html"; return;
       }
-      alert("데이터 추출 오류: " + (result.message || "알 수 없는 오류"));
+      showToast("오류: " + result.message, "error");
     }
   } catch (err) {
-    console.error("Invoice Generation Error:", err);
-    alert("서버 통신 중 오류가 발생했습니다: " + err.message);
+    showToast("서버 통신 중 오류가 발생했습니다.", "error");
+  } finally {
+    if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = originalHTML; genBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
   }
 }
-
 window.generateInvoice = generateInvoice;
