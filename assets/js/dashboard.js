@@ -1,22 +1,12 @@
 // assets/js/dashboard.js
 
-// 1. 보안 세션 및 권한 검증
 const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
+const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); // 🌟 보안 토큰
 
-if (!userRole || !clientName) {
-  alert("세션이 만료되었습니다. 다시 로그인 해 주세요.");
+if (!sessionToken || !clientName) {
+  alert("보안 세션이 만료되었습니다. 다시 로그인 해 주세요.");
   window.location.href = "index.html";
-}
-
-// 2. UI 권한별 네비게이션 격리 (FRANCHISEE인 경우 마스터 전용 인보이스 메뉴 원천 차단)
-if (userRole === "MASTER") {
-  const navInvoice = document.getElementById('navInvoice');
-  if (navInvoice) navInvoice.classList.remove('hidden');
-} else {
-  // 가맹점주 계정인 경우 상단 타이틀을 매장 전용 뷰로 전환
-  const portalSubtitle = document.getElementById('portalSubtitle');
-  if (portalSubtitle) portalSubtitle.innerText = `Franchise Portal — ${clientName}`;
 }
 
 const userNameDisplay = document.getElementById('userNameDisplay');
@@ -30,124 +20,81 @@ if (logoutBtn) {
   });
 }
 
-let salesChart;
+let salesChartInstance = null;
+const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
-};
-
-// 3. 🌟 서버(GAS)에서 대시보드 데이터를 안전하게 불러오는 함수 (오류 방어 포함)
 async function fetchDashboardData(targetYear) {
-  document.getElementById('totalSales').innerText = "Loading...";
-  document.getElementById('posSales').innerText = "Loading...";
-  document.getElementById('deliverySales').innerText = "Loading...";
-
   const errorBanner = document.getElementById('errorBanner');
   if (errorBanner) errorBanner.classList.add('hidden');
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: SYSTEM_CONFIG.API.ENDPOINTS.DASHBOARD,
-        clientName: clientName,
-        year: targetYear
-      })
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+      // 🌟 토큰 동봉
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.DASHBOARD, token: sessionToken, clientName: clientName, year: targetYear })
     });
 
     const responseText = await response.text();
-    let result;
-    try {
-      result = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("Server Raw Response:", responseText);
-      throw new Error("서버에서 올바른 JSON 데이터를 반환하지 않았습니다.");
-    }
+    let result = JSON.parse(responseText);
 
     if (result.success) {
-      document.getElementById('totalSales').innerText = formatCurrency(result.ytdTotal);
-      document.getElementById('posSales').innerText = formatCurrency(result.ytdPos);
-      document.getElementById('deliverySales').innerText = formatCurrency(result.ytdDelivery);
-      
-      renderChart(result.monthlySales, targetYear);
-    } else {
-      throw new Error(result.message || "데이터를 불러오지 못했습니다.");
-    }
+      document.getElementById('totalSales').innerText = formatCurrency(result.ytdTotal || 0);
+      document.getElementById('posSales').innerText = formatCurrency(result.ytdPos || 0);
+      document.getElementById('deliverySales').innerText = formatCurrency(result.ytdDelivery || 0);
+      renderChart(result.monthlySales || [0,0,0,0,0,0,0,0,0,0,0,0], targetYear);
+    } else { throw new Error(result.message); }
   } catch (error) {
     console.error("Dashboard Fetch Error:", error);
     if (errorBanner) {
       errorBanner.classList.remove('hidden');
-      const errorBannerText = document.getElementById('errorBannerText');
-      if (errorBannerText) errorBannerText.innerText = error.message;
+      const errText = document.getElementById('errorBannerText');
+      if (errText) errText.innerText = error.message;
     }
-    
-    document.getElementById('totalSales').innerText = "$0.00";
-    document.getElementById('posSales').innerText = "$0.00";
-    document.getElementById('deliverySales').innerText = "$0.00";
   }
 }
 
-// 4. 🌟 차트 렌더링 함수 (권한별 타이틀 및 라벨 분기)
-function renderChart(monthlyData, year) {
-  const ctx = document.getElementById('salesChart').getContext('2d');
-  const chartTitle = document.getElementById('chartTitle');
-  
-  if (chartTitle) {
-    chartTitle.innerText = userRole === "MASTER" 
-      ? `Consolidated Monthly Revenue Trend (${year})` 
-      : `Store Performance Trend - ${clientName} (${year})`;
-  }
-  
-  if (salesChart) {
-    salesChart.destroy();
-  }
-  
-  salesChart = new Chart(ctx, {
+function renderChart(dataArr, year) {
+  const ctx = document.getElementById('salesChart');
+  if (!ctx) return;
+  if (salesChartInstance) salesChartInstance.destroy();
+
+  salesChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
       datasets: [{
-        label: userRole === "MASTER" ? `Total Net Sales (${year}) - CAD` : `${clientName} Sales (${year}) - CAD`,
-        data: monthlyData,
-        borderColor: '#E53935',
-        backgroundColor: 'rgba(229, 57, 53, 0.08)',
+        label: `Monthly Net Sales (${year})`,
+        data: dataArr,
+        borderColor: '#E84C60',
+        backgroundColor: 'rgba(232, 76, 96, 0.1)',
         borderWidth: 3,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#E84C60',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
         fill: true,
-        tension: 0.35,
-        pointBackgroundColor: '#B71C1C',
-        pointRadius: 5,
-        pointHoverRadius: 7
+        tension: 0.4
       }]
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: { position: 'top', labels: { font: { weight: 'bold' } } },
-        tooltip: {
-          callbacks: {
-            label: function(context) { return ` Sales: ${formatCurrency(context.raw)}`; }
-          }
-        }
-      },
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1A1516', titleFont: { size: 13 }, bodyFont: { size: 14, weight: 'bold' }, padding: 12, displayColors: false, callbacks: { label: function(context) { return formatCurrency(context.parsed.y); } } } },
       scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.04)' } },
-        x: { grid: { display: false } }
-      }
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { family: "'Inter', sans-serif", size: 11, weight: '600' }, color: '#9ca3af', callback: function(value) { return '$' + (value/1000) + 'k'; } } },
+        x: { grid: { display: false, drawBorder: false }, ticks: { font: { family: "'Inter', sans-serif", size: 11, weight: 'bold' }, color: '#9ca3af' } }
+      },
+      interaction: { intersect: false, mode: 'index' },
     }
   });
 }
 
-// 연도 변경 셀렉트 박스 이벤트 리스너
-const yearSelector = document.getElementById('yearSelector');
-if (yearSelector) {
-  yearSelector.addEventListener('change', (e) => {
-    fetchDashboardData(e.target.value);
-  });
-}
-
-// 페이지 최초 진입 시 실행
 window.addEventListener('DOMContentLoaded', () => {
-  const initialYear = yearSelector ? yearSelector.value : "2026";
-  fetchDashboardData(initialYear);
+  const currentYear = document.getElementById('yearSelector') ? document.getElementById('yearSelector').value : '2026';
+  fetchDashboardData(currentYear);
+});
+
+document.getElementById('yearSelector')?.addEventListener('change', (e) => {
+  fetchDashboardData(e.target.value);
 });
