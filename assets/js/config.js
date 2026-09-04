@@ -17,7 +17,10 @@ const SYSTEM_CONFIG = {
       AUTH: "login",
       DASHBOARD: "get_dashboard",
       ITEMS: "get_items",
-      INVOICE: "get_invoice"
+      INVOICE: "get_invoice",
+      RECIPES: "get_recipes",
+      GET_MASTER: "get_master_data",       // 마스터 데이터 조회 엔드포인트
+      UPDATE_MASTER: "update_master_data"  // 마스터 데이터 수정 엔드포인트
     }
   },
 
@@ -30,7 +33,7 @@ const SYSTEM_CONFIG = {
     },
     FRANCHISEE: {
       id: "FRANCHISEE",
-      accessiblePages: ["dashboard.html", "items.html"],
+      accessiblePages: ["dashboard.html", "items.html", "recipes.html"],
       redirectAfterLogin: "dashboard.html"
     }
   },
