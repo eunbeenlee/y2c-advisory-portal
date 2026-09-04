@@ -1,16 +1,16 @@
 // assets/js/admin.js
 
-// 1. 마스터 권한 보안 검증
+// 1. 보안 검증
 const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 
 if (!userRole || userRole !== "MASTER") {
   alert("접근 권한이 없습니다. 마스터 계정으로 로그인해주세요.");
-  window.location.href = "dashboard.html";
+  window.location.href = "index.html";
 }
 
 const userNameDisplay = document.getElementById('userNameDisplay');
-if (userNameDisplay) userNameDisplay.innerText = clientName;
+if (userNameDisplay) userNameDisplay.innerText = clientName || "MASTER";
 
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
@@ -20,7 +20,7 @@ if (logoutBtn) {
   });
 }
 
-// 2. 🌟 구글 스프레드시트 Master_Data 불러오기 (프리미엄 UI 렌더링)
+// 2. 🌟 스프레드시트 데이터 불러오기 (CORS 및 리다이렉트 방어 로직 강화)
 async function fetchMasterData() {
   const tableBody = document.getElementById('masterTableBody');
   const errorBanner = document.getElementById('errorBanner');
@@ -46,11 +46,22 @@ async function fetchMasterData() {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
+      redirect: "follow", // GAS 리다이렉트 필수 추적
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_MASTER })
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const responseText = await response.text();
-    let result = JSON.parse(responseText);
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("Server Raw Response:", responseText);
+      throw new Error("서버 응답 파싱 실패. 배포 권한이나 스프레드시트 탭 이름을 확인하세요.");
+    }
 
     if (result.success) {
       tableBody.innerHTML = '';
@@ -61,7 +72,6 @@ async function fetchMasterData() {
         return;
       }
 
-      // 공통 인풋 스타일 클래스
       const inputClass = "w-full bg-white/70 border border-gray-200 rounded-xl px-3 py-2 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:border-[#E84C60] focus:ring-2 focus:ring-[#E84C60]/20 focus:bg-white outline-none transition-all shadow-sm";
 
       clients.forEach(c => {
@@ -91,12 +101,14 @@ async function fetchMasterData() {
     console.error("Master Data Fetch Error:", err);
     if (errorBanner) {
       errorBanner.classList.remove('hidden');
+      const errText = document.getElementById('errorBannerText');
+      if (errText) errText.innerText = err.message;
     }
     tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">Failed to load Master_Data.</td></tr>`;
   }
 }
 
-// 3. 수정된 가맹점 정보를 구글 스프레드시트에 실시간 저장
+// 3. 🌟 스프레드시트 데이터 수정 저장 로직
 async function saveClientData(rowIdx) {
   const payload = {
     rowIdx: rowIdx,
@@ -114,6 +126,7 @@ async function saveClientData(rowIdx) {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
+      redirect: "follow",
       body: JSON.stringify({
         action: SYSTEM_CONFIG.API.ENDPOINTS.UPDATE_MASTER,
         client: payload
@@ -121,7 +134,12 @@ async function saveClientData(rowIdx) {
     });
 
     const responseText = await response.text();
-    let result = JSON.parse(responseText);
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch(e) {
+      throw new Error("서버 응답 오류 (CORS/권한 확인)");
+    }
 
     if (result.success) {
       alert("✅ 성공적으로 스프레드시트에 반영되었습니다!");
@@ -131,7 +149,7 @@ async function saveClientData(rowIdx) {
     }
   } catch (err) {
     console.error("Save Error:", err);
-    alert("서버 통신 중 오류가 발생했습니다.");
+    alert("서버 통신 중 오류가 발생했습니다. (CORS/권한 오류)");
   }
 }
 
