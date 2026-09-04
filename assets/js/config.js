@@ -13,7 +13,7 @@ const SYSTEM_CONFIG = {
   // 2. API 엔드포인트 설정 (구글 Apps Script Web App URL)
   API: {
     // 💡 주의: 이 URL은 반드시 구글 앱스 스크립트에서 '새 버전'으로 배포된 최신 URL이어야 합니다.
-    BASE_URL: "https://script.google.com/macros/s/AKfycbw5wAD2o7DKamZ2o_FN4QsNp20O6wjI4qEu77JmRkVp99dTbKRVC_fe5tEOVJqpP_aQ/exec",
+    BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec",
     
     // 백엔드의 action 파라미터와 정확히 1:1로 매칭되는 라우팅 키
     ENDPOINTS: {
