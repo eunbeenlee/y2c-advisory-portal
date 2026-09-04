@@ -1,6 +1,8 @@
+// assets/js/admin.js
+
 const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); // 🌟
+const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
 if (!sessionToken || userRole !== "MASTER") {
   alert("접근 권한이 없습니다. 마스터 계정으로 로그인해주세요.");
@@ -9,6 +11,25 @@ if (!sessionToken || userRole !== "MASTER") {
 
 document.getElementById('userNameDisplay').innerText = clientName || "MASTER";
 document.getElementById('logoutBtn')?.addEventListener('click', () => { localStorage.clear(); window.location.href = "index.html"; });
+
+// 🌟 대기업식 토스트 알림 UI 함수 생성
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
+  const icon = type === 'success' ? '✅' : '⚠️';
+  
+  toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+  toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
+  container.appendChild(toast);
+  
+  setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
+  setTimeout(() => {
+    toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000); // 3초 후 사라짐
+}
 
 async function fetchMasterData() {
   const tableBody = document.getElementById('masterTableBody');
@@ -19,7 +40,7 @@ async function fetchMasterData() {
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_MASTER, token: sessionToken }) // 🌟
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_MASTER, token: sessionToken }) 
     });
     const result = JSON.parse(await response.text());
 
@@ -28,7 +49,7 @@ async function fetchMasterData() {
       const clients = result.clients || [];
       if (clients.length === 0) return tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 가맹점 정보가 없습니다.</td></tr>`;
 
-      const inputClass = "w-full bg-white/70 border border-gray-200 rounded-xl px-3 py-2 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm";
+      const inputClass = "w-full bg-white/70 border border-gray-200 rounded-xl px-3 py-2 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm transition-all";
 
       clients.forEach(c => {
         const tr = document.createElement('tr');
@@ -47,7 +68,12 @@ async function fetchMasterData() {
         `;
         tableBody.appendChild(tr);
       });
-    } else { throw new Error(result.message); }
+    } else { 
+      if (result.message.includes("만료") || result.message.includes("로그인")) {
+        alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return;
+      }
+      throw new Error(result.message); 
+    }
   } catch (err) {
     if (errorBanner) { errorBanner.classList.remove('hidden'); document.getElementById('errorBannerText').innerText = err.message; }
     tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-[#E84C60] font-black tracking-wide py-12">Failed to load data.</td></tr>`;
@@ -55,13 +81,9 @@ async function fetchMasterData() {
 }
 
 async function saveClientData(rowIdx) {
-  // 🌟 [2번 방어] 더블 서밋 방지
+  // 기존 브라우저 confirm 대신 처리 (직접 저장 로직 실행)
   const saveBtn = document.getElementById(`saveBtn_${rowIdx}`);
-  if (saveBtn) {
-    saveBtn.disabled = true;
-    saveBtn.innerText = "⏳ SAVING...";
-    saveBtn.classList.add('animate-pulse');
-  }
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.innerText = "⏳ SAVING..."; saveBtn.classList.add('animate-pulse'); }
 
   const payload = {
     rowIdx: rowIdx, state: document.getElementById(`state_${rowIdx}`).value, city: document.getElementById(`city_${rowIdx}`).value,
@@ -72,16 +94,20 @@ async function saveClientData(rowIdx) {
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      // 🌟 토큰 동봉
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.UPDATE_MASTER, token: sessionToken, client: payload }) 
     });
     const result = JSON.parse(await response.text());
 
     if (result.success) {
       if(saveBtn) { saveBtn.innerText = "✅ SAVED"; saveBtn.classList.remove('animate-pulse'); saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
+      // 🌟 투박한 alert 창 대신 세련된 우측 상단 토스트 알림 실행
+      showToast("마스터 데이터가 안전하게 저장되었습니다.", "success");
       setTimeout(() => fetchMasterData(), 1500);
-    } else { alert("저장 실패: " + result.message); }
-  } catch (err) { alert("통신 중 오류가 발생했습니다.");
+    } else { 
+      showToast("저장 실패: " + result.message, "error"); 
+    }
+  } catch (err) { 
+    showToast("서버 통신 중 오류가 발생했습니다.", "error");
   } finally {
     if (saveBtn && saveBtn.innerText !== "✅ SAVED") { saveBtn.disabled = false; saveBtn.innerText = "SAVE"; saveBtn.classList.remove('animate-pulse'); }
   }
