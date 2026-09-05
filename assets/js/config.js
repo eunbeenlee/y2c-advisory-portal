@@ -2,7 +2,7 @@
 
 const SYSTEM_CONFIG = {
   API: {
-    // ⚠️ 최신 Google Apps Script Web App URL
+    // ⚠️ 반드시 새로 발급받은 Google Apps Script Web App URL로 적용해 주세요!
     BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec",
     ENDPOINTS: {
       LOGIN: "login",
@@ -21,7 +21,7 @@ const SYSTEM_CONFIG = {
     ROLE: "y2c_premium_role",
     CLIENT_NAME: "y2c_premium_client"
   },
-  // 🌟 [엔터프라이즈] 캐나다 주별 세금 자동 계산 엔진 데이터 (Regional Tax Engine)
+  // 🌟 [엔터프라이즈] 캐나다 주별 복합 세금 자동 계산 엔진
   TAX_RATES: {
     "ON": { name: "HST (13%)", rate: 0.13 },
     "BC": { name: "GST 5% + PST 7%", rate: 0.12 },
@@ -37,7 +37,7 @@ const SYSTEM_CONFIG = {
   }
 };
 
-// 🌟 [엔터프라이즈] 글로벌 브라우저 세션 매니저 (30분 타임아웃)
+// 🌟 [엔터프라이즈] 브라우저 세션 30분 자동 로그아웃 관제
 (function() {
   if (window.location.pathname.indexOf('index.html') === -1 && window.location.pathname !== "/") {
     const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
