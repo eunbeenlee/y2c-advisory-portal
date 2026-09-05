@@ -4,93 +4,123 @@ const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN);
 
-if (!sessionToken || !clientName) { window.location.href = "index.html"; }
-document.getElementById('userNameDisplay').innerText = clientName;
-document.getElementById('logoutBtn')?.addEventListener('click', () => { localStorage.clear(); window.location.href = "index.html"; });
-
-// 🌟 대기업식 자동 주입 토스트 알림
-function showToast(message, type = 'success') {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none';
-    document.body.appendChild(container);
-  }
-  const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
-  const icon = type === 'success' ? '✅' : '⚠️';
-  toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
-  toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
-  setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+if (!sessionToken || !clientName) {
+  window.location.href = "index.html";
 }
 
+document.getElementById('userNameDisplay').innerText = clientName;
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  localStorage.clear();
+  window.location.href = "index.html";
+});
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+};
+
 let salesChartInstance = null;
-const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+let currentChartData = []; // 엑셀 추출용 메모리 보관
 
-async function fetchDashboardData(targetYear) {
-  const errorBanner = document.getElementById('errorBanner');
-  if (errorBanner) errorBanner.classList.add('hidden');
-
+async function fetchDashboardData(year) {
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.DASHBOARD, token: sessionToken, clientName: clientName, year: targetYear })
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      redirect: "follow",
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.DASHBOARD, token: sessionToken, year: year })
     });
     const result = JSON.parse(await response.text());
 
     if (result.success) {
-      document.getElementById('totalSales').innerText = formatCurrency(result.ytdTotal || 0);
-      document.getElementById('posSales').innerText = formatCurrency(result.ytdPos || 0);
-      document.getElementById('deliverySales').innerText = formatCurrency(result.ytdDelivery || 0);
-      renderChart(result.monthlySales || [0,0,0,0,0,0,0,0,0,0,0,0], targetYear);
-    } else { 
+      document.getElementById('totalSales').innerText = formatCurrency(result.ytdTotal);
+      document.getElementById('posSales').innerText = formatCurrency(result.ytdPos);
+      document.getElementById('deliverySales').innerText = formatCurrency(result.ytdDelivery);
+      
+      currentChartData = result.monthlySales; // CSV 내보내기용 저장
+      renderChart(result.monthlySales);
+    } else {
       if (result.message.includes("만료") || result.message.includes("로그인")) {
         alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return;
       }
-      throw new Error(result.message); 
+      throw new Error(result.message);
     }
   } catch (error) {
-    showToast("대시보드 데이터를 가져오지 못했습니다.", "error");
-    if (errorBanner) { errorBanner.classList.remove('hidden'); document.getElementById('errorBannerText').innerText = error.message; }
+    const banner = document.getElementById('errorBanner');
+    if(banner) {
+      banner.classList.remove('hidden');
+      document.getElementById('errorBannerText').innerText = "데이터를 불러오지 못했습니다. " + error.message;
+    }
   }
 }
 
-function renderChart(dataArr, year) {
-  const ctx = document.getElementById('salesChart');
-  if (!ctx) return;
+function renderChart(data) {
+  const ctx = document.getElementById('salesChart').getContext('2d');
   if (salesChartInstance) salesChartInstance.destroy();
   salesChartInstance = new Chart(ctx, {
-    type: 'line',
+    type: 'bar',
     data: {
-      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-      datasets: [{ label: `Monthly Net Sales (${year})`, data: dataArr, borderColor: '#E84C60', backgroundColor: 'rgba(232, 76, 96, 0.1)', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#E84C60', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4 }]
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Net Sales (CAD)',
+        data: data,
+        backgroundColor: 'rgba(232, 76, 96, 0.85)',
+        hoverBackgroundColor: '#C23347',
+        borderRadius: 8,
+        barPercentage: 0.6
+      }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1A1516', titleFont: { size: 13 }, bodyFont: { size: 14, weight: 'bold' }, padding: 12, displayColors: false, callbacks: { label: function(context) { return formatCurrency(context.parsed.y); } } } },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1A1516', titleFont: { size: 13 }, bodyFont: { size: 14, weight: 'bold' }, padding: 12, callbacks: { label: function(context) { return formatCurrency(context.raw); } } } },
       scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { family: "'Inter', sans-serif", size: 11, weight: '600' }, color: '#9ca3af', callback: function(value) { return '$' + (value/1000) + 'k'; } } },
-        x: { grid: { display: false, drawBorder: false }, ticks: { font: { family: "'Inter', sans-serif", size: 11, weight: 'bold' }, color: '#9ca3af' } }
-      },
-      interaction: { intersect: false, mode: 'index' },
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11, weight: 'bold' }, color: '#9CA3AF', callback: function(value) { return '$' + (value / 1000) + 'k'; } } },
+        x: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 12, weight: 'bold' }, color: '#6B7280' } }
+      }
     }
   });
 }
 
-// 🌟 현재 연도 자동 추출 및 드롭다운 주입 로직
-window.addEventListener('DOMContentLoaded', () => {
-  const currentYear = new Date().getFullYear();
-  const yearSelect = document.getElementById('yearSelector');
+// 🌟 [엔터프라이즈 기능] CSV 데이터 내보내기 (Export)
+function exportDashboardCSV() {
+  const year = document.getElementById('yearSelector').value;
+  if (!currentChartData || currentChartData.length === 0) return alert("내보낼 데이터가 없습니다.");
+
+  let csvContent = "\uFEFF"; // 한글 깨짐 방지 BOM
+  csvContent += `Sinjeon Canada Performance Report - ${year}\n\n`;
+  csvContent += "Month,Net Sales (CAD)\n";
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  let total = 0;
   
-  if (yearSelect) {
-    let hasYear = Array.from(yearSelect.options).some(opt => opt.value == currentYear);
-    if (!hasYear) yearSelect.add(new Option(currentYear, currentYear), yearSelect.options[0]);
-    yearSelect.value = currentYear;
+  for (let i = 0; i < 12; i++) {
+    let sales = Number(currentChartData[i]) || 0;
+    total += sales;
+    csvContent += `${months[i]},"${sales.toFixed(2)}"\n`;
   }
+  
+  csvContent += `\nTotal YTD,"${total.toFixed(2)}"\n`;
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `Y2C_Dashboard_Export_${year}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+window.exportDashboardCSV = exportDashboardCSV;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const yearSelector = document.getElementById('yearSelector');
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= currentYear - 3; y--) {
+    const option = document.createElement('option');
+    option.value = y; option.innerText = `${y} Fiscal Year`;
+    yearSelector.appendChild(option);
+  }
+  yearSelector.addEventListener('change', (e) => fetchDashboardData(e.target.value));
   fetchDashboardData(currentYear);
 });
-
-document.getElementById('yearSelector')?.addEventListener('change', (e) => fetchDashboardData(e.target.value));
