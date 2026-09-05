@@ -4,7 +4,6 @@ const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
-// 마스터 권한 확인
 if (!sessionToken || userRole !== "MASTER") {
   window.location.href = "index.html";
 }
@@ -45,7 +44,7 @@ function getFormattedDate(offsetDays = 0) {
   return `${year}-${month}-${day}`;
 }
 
-let currentInvoiceData = null; // 엑셀 추출용 메모리 저장소
+let currentInvoiceData = null; 
 
 async function generateInvoice() {
   const targetClient = document.getElementById('selClient').value;
@@ -84,6 +83,7 @@ async function generateInvoice() {
       document.getElementById('hqRegNo').innerText = result.hqInfo.regNo || "-";
       document.getElementById('hqRep').innerText = result.hqInfo.rep || "-";
       
+      // 🌟 대소문자 무시로 파싱된 은행 정보 맵핑
       document.getElementById('hqBank').innerText = result.hqInfo.bank || "-";
       document.getElementById('hqBankAddress').innerText = result.hqInfo.bankAddress || "-";
       document.getElementById('hqAccount').innerText = result.hqInfo.account || "-";
@@ -97,8 +97,12 @@ async function generateInvoice() {
 
       const baseSales = Number(result.calculatedBase) || 0;
       const calculatedFee = baseSales * (rate / 100);
-      const taxRate = 0.13; 
-      const taxAmt = calculatedFee * taxRate;
+      
+      // 🌟 [엔터프라이즈] config.js의 주별 복합 세금 엔진 자동 적용
+      const clientProvince = String(result.clientInfo.state || "DEFAULT").trim().toUpperCase();
+      const taxConfig = SYSTEM_CONFIG.TAX_RATES[clientProvince] || SYSTEM_CONFIG.TAX_RATES["DEFAULT"];
+      
+      const taxAmt = calculatedFee * taxConfig.rate;
       const totalDue = calculatedFee + taxAmt;
 
       document.getElementById('descLine').innerText = `Management Advisory Services (${startMonth}/${targetYear} - ${endMonth}/${targetYear})`;
@@ -107,10 +111,11 @@ async function generateInvoice() {
       document.getElementById('amtLine').innerText = formatCurrency(calculatedFee);
       
       document.getElementById('subTotal').innerText = formatCurrency(calculatedFee);
-      document.getElementById('taxAmt').innerText = formatCurrency(taxAmt);
+      // 세금 항목명 동적 변경 (예: Estimated Tax (HST 13%):)
+      document.querySelector('p.pb-4.border-b').innerHTML = `Estimated Tax (${taxConfig.name}): <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black" id="taxAmt">${formatCurrency(taxAmt)}</span>`;
+      
       document.getElementById('totalDue').innerText = formatCurrency(totalDue);
 
-      // 🌟 내보내기용 데이터 캡처
       currentInvoiceData = {
         invNo: invNumber,
         date: getFormattedDate(0),
@@ -139,7 +144,6 @@ async function generateInvoice() {
   }
 }
 
-// 🌟 [엔터프라이즈 기능] 인보이스 정산 내역 CSV 일괄 내보내기
 function exportInvoiceCSV() {
   if (!currentInvoiceData) return showToast("먼저 인보이스 데이터를 생성(GENERATE DATA)해 주세요.", "error");
 
