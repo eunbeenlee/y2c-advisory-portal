@@ -4,125 +4,140 @@ const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
+// 마스터 권한 확인
 if (!sessionToken || userRole !== "MASTER") {
   window.location.href = "index.html";
 }
 
 document.getElementById('userNameDisplay').innerText = "MASTER";
-document.getElementById('logoutBtn')?.addEventListener('click', () => { localStorage.clear(); window.location.href = "index.html"; });
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  localStorage.clear();
+  window.location.href = "index.html";
+});
 
-const today = new Date();
-const invDateEl = document.getElementById('invDate');
-if (invDateEl) invDateEl.innerText = today.toISOString().split('T')[0];
-
-let due = new Date(); due.setDate(today.getDate() + 14); 
-const invDueEl = document.getElementById('invDue');
-if (invDueEl) invDueEl.innerText = due.toISOString().split('T')[0];
-
-const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
-
-// 🌟 대기업식 자동 주입 토스트 알림
+// 토스트 알림 함수
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) {
     container = document.createElement('div');
     container.id = 'toastContainer';
-    container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none';
+    container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print';
     document.body.appendChild(container);
   }
   const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#C23347]';
   const icon = type === 'success' ? '✅' : '⚠️';
   toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
   toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
   container.appendChild(toast);
+  
   setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
   setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const currentYear = new Date().getFullYear();
-  const yearSelect = document.getElementById('selYear');
-  if (yearSelect) yearSelect.value = currentYear;
-  generateInvoice();
-});
+// 통화 포맷팅
+const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+
+// 오늘 날짜 및 만기일 포맷팅 (YYYY-MM-DD)
+function getFormattedDate(offsetDays = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 async function generateInvoice() {
-  const selClient = document.getElementById('selClient');
-  const selYear = document.getElementById('selYear');
-  const selStart = document.getElementById('selStart');
-  const selEnd = document.getElementById('selEnd');
-  const selRate = document.getElementById('selRate');
+  const targetClient = document.getElementById('selClient').value;
+  const targetYear = document.getElementById('selYear').value;
+  const startMonth = document.getElementById('selStart').value;
+  const endMonth = document.getElementById('selEnd').value;
+  const rate = parseFloat(document.getElementById('selRate').value) || 2;
 
-  if (!selClient || !selYear) return;
+  if (parseInt(startMonth) > parseInt(endMonth)) {
+    showToast("시작 월이 종료 월보다 클 수 없습니다.", "error");
+    return;
+  }
 
-  const client = selClient.value;
-  const year = selYear.value;
-  const startM = selStart ? selStart.value : 1;
-  const endM = selEnd ? selEnd.value : 12;
-  const rateVal = selRate ? (parseFloat(selRate.value) || 2) : 2;
-  const rate = rateVal / 100;
-
-  const genBtn = document.querySelector('button[onclick="generateInvoice()"]');
-  const originalHTML = genBtn ? genBtn.innerHTML : "GENERATE DATA";
-  if (genBtn) { genBtn.disabled = true; genBtn.innerHTML = "<span>⏳</span> LOADING..."; genBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
-
-  const randomInvNo = Math.floor(1000 + Math.random() * 9000);
-  const invNoEl = document.getElementById('invNo');
-  if (invNoEl) invNoEl.innerText = `INV-${year}${(startM).toString().padStart(2,'0')}-${randomInvNo}`;
+  const btn = document.querySelector('button[onclick="generateInvoice()"]');
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = "<span>⏳</span> FETCHING...";
+  btn.classList.add('animate-pulse');
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.INVOICE, token: sessionToken, clientName: client, year: year, startMonth: startM, endMonth: endM })
+      body: JSON.stringify({ 
+        action: SYSTEM_CONFIG.API.ENDPOINTS.GET_INVOICE, 
+        token: sessionToken, 
+        clientName: targetClient, 
+        year: targetYear, 
+        startMonth: startMonth, 
+        endMonth: endMonth 
+      })
     });
-    
     const result = JSON.parse(await response.text());
 
     if (result.success) {
-      const hq = result.hqInfo || {};
-      document.getElementById('hqName').innerText = hq.name || 'Y2C Holdings Inc.';
-      document.getElementById('hqAddress').innerText = hq.address || '-';
-      document.getElementById('hqContact').innerText = hq.contact || '-';
-      document.getElementById('hqRegNo').innerText = hq.regNo || '-';
-      document.getElementById('hqRep').innerText = hq.rep || '-';
-      
-      document.getElementById('hqBank').innerText = hq.bank || '-';
-      document.getElementById('hqAccount').innerText = hq.account || '-';
-      document.getElementById('hqSwift').innerText = hq.swift || '-';
+      // 1. 헤더 정보 세팅
+      const invNumber = `INV-${targetYear}${startMonth.padStart(2,'0')}-${Math.floor(Math.random()*9000+1000)}`;
+      document.getElementById('invNo').innerText = invNumber;
+      document.getElementById('invDate').innerText = getFormattedDate(0);
+      document.getElementById('invDue').innerText = getFormattedDate(14); // 14일 뒤 만기
 
-      const info = result.clientInfo || {};
-      document.getElementById('clientName').innerText = info.name || client;
-      document.getElementById('clientAddress').innerText = info.address || 'Address not registered';
-      document.getElementById('clientCity').innerText = `${info.city || ''} ${info.state || ''}`.trim() || '-';
-      document.getElementById('clientAttn').innerText = `${info.attn || 'Management'} | ${info.email || ''}`;
-      document.getElementById('clientBizId').innerText = info.bizId || 'RC-XXXX';
-
-      const base = result.calculatedBase || 0;
-      const fee = base * rate;
-      const tax = fee * 0.05;
-      const total = fee + tax;
-
-      document.getElementById('descLine').innerText = `Management Advisory Services - M${startM} to M${endM}, ${year}`;
-      document.getElementById('baseLine').innerText = formatCurrency(base);
-      document.getElementById('rateLine').innerText = `${rateVal}%`;
-      document.getElementById('amtLine').innerText = formatCurrency(fee);
+      // 2. 발신자 (HQ_Info) 정보 맵핑
+      document.getElementById('hqName').innerText = result.hqInfo.name || "Y2C Holdings Inc.";
+      document.getElementById('hqAddress').innerText = result.hqInfo.address || "-";
+      document.getElementById('hqContact').innerText = result.hqInfo.contact || "-";
+      document.getElementById('hqRegNo').innerText = result.hqInfo.regNo || "-";
+      document.getElementById('hqRep').innerText = result.hqInfo.rep || "-";
       
-      document.getElementById('subTotal').innerText = formatCurrency(fee);
-      document.getElementById('taxAmt').innerText = formatCurrency(tax);
-      document.getElementById('totalDue').innerText = formatCurrency(total);
+      // 🌟 은행 및 은행 주소 맵핑
+      document.getElementById('hqBank').innerText = result.hqInfo.bank || "-";
+      document.getElementById('hqBankAddress').innerText = result.hqInfo.bankAddress || "-";
+      document.getElementById('hqAccount').innerText = result.hqInfo.account || "-";
+      document.getElementById('hqSwift').innerText = result.hqInfo.swift || "-";
+
+      // 3. 수신자 (Client Info) 정보 맵핑
+      document.getElementById('clientName').innerText = result.clientInfo.name || targetClient;
+      document.getElementById('clientAddress').innerText = result.clientInfo.address || "-";
+      document.getElementById('clientCity').innerText = `${result.clientInfo.city || ""}, ${result.clientInfo.state || ""}`;
+      document.getElementById('clientAttn').innerText = result.clientInfo.attn || "-";
+      document.getElementById('clientBizId').innerText = result.clientInfo.bizId || "-";
+
+      // 4. 금액 계산 맵핑
+      const baseSales = Number(result.calculatedBase) || 0;
+      const calculatedFee = baseSales * (rate / 100);
+      const taxRate = 0.13; // 예: 온타리오 HST 13% 적용 (필요시 변경 가능)
+      const taxAmt = calculatedFee * taxRate;
+      const totalDue = calculatedFee + taxAmt;
+
+      document.getElementById('descLine').innerText = `Management Advisory Services (${startMonth}/${targetYear} - ${endMonth}/${targetYear})`;
+      document.getElementById('baseLine').innerText = formatCurrency(baseSales);
+      document.getElementById('rateLine').innerText = `${rate}%`;
+      document.getElementById('amtLine').innerText = formatCurrency(calculatedFee);
       
-      showToast("인보이스 데이터 렌더링 완료", "success");
+      document.getElementById('subTotal').innerText = formatCurrency(calculatedFee);
+      document.getElementById('taxAmt').innerText = formatCurrency(taxAmt);
+      document.getElementById('totalDue').innerText = formatCurrency(totalDue);
+
+      showToast("인보이스 데이터가 성공적으로 생성되었습니다.", "success");
     } else {
-      if (result.message.includes("만료") || result.message.includes("로그인") || result.message.includes("세션")) {
-        alert("보안 세션이 종료되었습니다. 다시 로그인해 주세요."); localStorage.clear(); window.location.href = "index.html"; return;
+      if (result.message.includes("만료") || result.message.includes("로그인")) {
+        alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return;
       }
-      showToast("오류: " + result.message, "error");
+      throw new Error(result.message);
     }
-  } catch (err) {
-    showToast("서버 통신 중 오류가 발생했습니다.", "error");
+  } catch (error) {
+    showToast("데이터 연동 실패: " + error.message, "error");
   } finally {
-    if (genBtn) { genBtn.disabled = false; genBtn.innerHTML = originalHTML; genBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+    btn.classList.remove('animate-pulse');
   }
 }
-window.generateInvoice = generateInvoice;
+
+// 최초 렌더링 시 초기화 실행 (선택적)
+// window.addEventListener('DOMContentLoaded', generateInvoice);
