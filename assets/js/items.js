@@ -11,13 +11,17 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => { localSto
 
 const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
 
+// 🌟 예쁘게 날짜를 포맷팅하는 유틸리티
+function formatTimestamp(isoString) {
+  if (!isoString) return "Never";
+  const d = new Date(isoString);
+  return d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' });
+}
+
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none';
-    document.body.appendChild(container);
+    container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none'; document.body.appendChild(container);
   }
   const toast = document.createElement('div');
   const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#C23347]';
@@ -31,12 +35,13 @@ function showToast(message, type = 'success') {
 
 let cachedItems = [];
 let isStockEditMode = false; 
-let currentClientState = "Default"; // 🌟 전역으로 상태 보유
+let currentClientState = "Default"; 
+let masterViewRegion = "ALL"; // 마스터가 현재 보고 있는 필터 지역
 
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody');
   if (!tableBody) return;
-  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Syncing catalog from secure database...</p></div></td></tr>`;
+  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Syncing SCM data...</p></div></td></tr>`;
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -52,19 +57,20 @@ async function fetchItems() {
       const regionInfo = result.appliedState === "Default" || !result.appliedState ? "Standard" : result.appliedState;
       const headerTitle = document.getElementById('catalogHeaderTitle');
       if (headerTitle) {
-        headerTitle.innerHTML = `<span class="text-2xl">📦</span> Supply Item Catalog 
+        headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog 
           <span class="ml-3 text-[10px] sm:text-[11px] bg-[var(--y2c-gold)]/10 text-[var(--y2c-gold)] px-3 py-1.5 rounded-lg border border-[var(--y2c-gold)]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">
             ${regionInfo} Pricing
           </span>`;
       }
       
-      // 🌟 동적 테이블 헤더 (마스터: 캐나다 전체 / 점주: 로컬 허브)
-      const sLabel = document.getElementById('stockHeaderLabel');
-      if (sLabel) {
-        sLabel.innerText = userRole === "MASTER" ? "Canada Total Stock" : `Local Hub (${regionInfo})`;
-      }
+      // 🌟 KPI 위젯 및 마스터 전용 필터 세팅
+      document.getElementById('kpiDashboard')?.classList.remove('hidden');
+      document.getElementById('kpiLastUpdated').innerText = formatTimestamp(result.lastUpdated);
 
-      if (userRole === "MASTER") document.getElementById('masterInventoryControls')?.classList.remove('hidden');
+      if (userRole === "MASTER") {
+        document.getElementById('masterInventoryControls')?.classList.remove('hidden');
+        populateRegionFilter();
+      }
 
       renderTableItems(); 
       attachImageHoverEffect(); 
@@ -80,14 +86,43 @@ async function fetchItems() {
   }
 }
 
+// 🌟 필터 드롭다운 옵션 주입
+function populateRegionFilter() {
+  const filter = document.getElementById('regionFilter');
+  if (!filter || cachedItems.length === 0) return;
+  
+  const regions = Object.keys(cachedItems[0].stockBreakdown || {});
+  filter.innerHTML = `<option value="ALL">Canada Total</option>`;
+  regions.forEach(reg => {
+    filter.innerHTML += `<option value="${reg}">Hub: ${reg}</option>`;
+  });
+  filter.value = masterViewRegion;
+}
+
+// 🌟 필터 변경 시 호출
+function applyRegionFilter() {
+  masterViewRegion = document.getElementById('regionFilter').value;
+  renderTableItems(); // 즉시 리렌더링
+}
+
 function renderTableItems() {
   const tableBody = document.getElementById('itemTableBody');
-  if (cachedItems.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 공급 품목이 없습니다.</td></tr>`;
-    return;
+  if (cachedItems.length === 0) return;
+  tableBody.innerHTML = '';
+
+  let totalValue = 0;
+  let lowStockCount = 0;
+
+  // 🌟 헤더 상태 변경
+  const sLabel = document.getElementById('stockHeaderLabel');
+  if (sLabel) {
+    if (userRole === "MASTER") {
+      sLabel.innerText = masterViewRegion === "ALL" ? "Canada Total Stock" : `Hub Stock (${masterViewRegion})`;
+    } else {
+      sLabel.innerText = `Local Hub (${currentClientState})`;
+    }
   }
 
-  tableBody.innerHTML = '';
   cachedItems.forEach((item, index) => {
     const row = document.createElement('tr');
     row.className = "hover:bg-gray-50/50 transition-colors duration-200";
@@ -99,34 +134,49 @@ function renderTableItems() {
     let stockDisplayHTML = '';
     let orderInputHTML = '';
     
-    // 🌟 역할에 따른 UI 분기
+    // 🌟 렌더링할 타겟 재고 결정 (마스터 필터 vs 점주 로컬)
+    let displayStock = 0;
+    if (userRole === "MASTER") {
+      displayStock = masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown[masterViewRegion] || 0);
+    } else {
+      displayStock = item.regionalStock;
+    }
+
+    // 🌟 KPI 산출
+    totalValue += (Number(item.price) * displayStock);
+    if (displayStock <= 10) lowStockCount++;
+
+    const isLowStock = displayStock > 0 && displayStock <= 10;
+    const isSoldOut = displayStock <= 0;
+    
+    // Low Stock UI (대기업식 위험 경고 뱃지)
+    let stockBadgeClass = "text-[var(--premium-charcoal)]";
+    if (isSoldOut) stockBadgeClass = "text-[#C23347] bg-[#E84C60]/10 px-2 py-0.5 rounded shadow-sm border border-[#E84C60]/20 low-stock-pulse";
+    else if (isLowStock) stockBadgeClass = "text-[#E84C60] font-extrabold";
+
     if (isStockEditMode && userRole === "MASTER") {
-      // 마스터 - 다중 지역 편집 모드
       let editInputs = '';
       for (const reg in item.stockBreakdown) {
         editInputs += `
-          <div class="flex items-center justify-between gap-2 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100">
+          <div class="flex items-center justify-between gap-2 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 mb-1">
             <span class="text-[9px] font-black text-emerald-800">${reg}</span>
             <input type="number" min="0" data-code="${item.code}" data-region="${reg}" value="${item.stockBreakdown[reg]}" class="stock-region-input w-12 bg-white border border-emerald-400 rounded px-1 text-center text-[11px] font-bold focus:outline-none">
           </div>`;
       }
-      stockDisplayHTML = `<div class="flex flex-col gap-1.5 w-full">${editInputs}</div>`;
+      stockDisplayHTML = `<div class="flex flex-col w-full">${editInputs}</div>`;
       orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
     } 
     else if (userRole === "MASTER" && !isStockEditMode) {
-      // 마스터 - 조회 모드 (캐나다 총합 표시)
-      stockDisplayHTML = `<span class="text-[13px] sm:text-sm font-black text-[var(--premium-charcoal)] font-mono">${item.totalStock}</span> <span class="text-[9px] text-gray-400 block mt-0.5">Total</span>`;
+      stockDisplayHTML = `<span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>`;
       orderInputHTML = `<input type="number" disabled placeholder="MASTER" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[10px] font-black text-gray-400 opacity-50 cursor-not-allowed uppercase">`;
     } 
     else {
-      // 가맹점주 모드 (자신의 지역 재고만 노출 및 주문)
-      const isSoldOut = item.regionalStock <= 0;
       if (isSoldOut) {
-        stockDisplayHTML = `<span class="text-[10px] font-black text-[#C23347] bg-[#E84C60]/10 px-2 py-1.5 rounded-lg uppercase tracking-wider shadow-sm border border-[#E84C60]/20 whitespace-nowrap">Sold Out</span>`;
+        stockDisplayHTML = `<span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap">Sold Out</span>`;
         orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
       } else {
-        stockDisplayHTML = `<span class="text-[13px] sm:text-sm font-black text-[var(--premium-charcoal)] font-mono">${item.regionalStock}</span>`;
-        orderInputHTML = `<input type="number" min="0" max="${item.regionalStock}" value="0" data-index="${index}" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all">`;
+        stockDisplayHTML = `<span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>`;
+        orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all">`;
       }
     }
 
@@ -147,18 +197,24 @@ function renderTableItems() {
     `;
     tableBody.appendChild(row);
   });
+
+  // 🌟 KPI 위젯 업데이트
+  document.getElementById('kpiTotalSkus').innerText = cachedItems.length;
+  document.getElementById('kpiTotalValue').innerText = formatCurrency(totalValue);
+  document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
 }
 
-// 🌟 다중 지역 재고 동시 저장
 async function toggleStockEditMode() {
   const btn = document.getElementById('toggleStockBtn');
+  const filter = document.getElementById('regionFilter');
   const orderContainer = document.getElementById('orderActionContainer');
   
   if (!isStockEditMode) {
     isStockEditMode = true;
-    btn.innerHTML = "💾 SAVE ALL INVENTORY";
+    btn.innerHTML = "💾 SAVE ALL";
     btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600');
     btn.classList.replace('hover:bg-black', 'hover:bg-emerald-700');
+    if (filter) filter.disabled = true; // 수정 중에는 필터 잠금
     if (orderContainer) orderContainer.classList.add('hidden');
     renderTableItems(); 
   } else {
@@ -166,7 +222,6 @@ async function toggleStockEditMode() {
     btn.innerHTML = "⏳ SAVING...";
     btn.classList.add('animate-pulse');
     
-    // 지역별 인풋 데이터를 하나로 합치기
     const inputs = document.querySelectorAll('.stock-region-input');
     const updateMap = {};
     inputs.forEach(input => {
@@ -188,23 +243,23 @@ async function toggleStockEditMode() {
 
       if (result.success) {
         showToast("캐나다 전역 재고가 안전하게 동기화되었습니다.", "success");
-        setTimeout(() => fetchItems(), 1000); // UI 갱신을 위해 통째로 다시 불러옴
+        setTimeout(() => fetchItems(), 1000); 
       } else throw new Error(result.message);
     } catch (err) {
       showToast("재고 업데이트 실패: " + err.message, "error");
     } finally {
       isStockEditMode = false;
       btn.disabled = false;
-      btn.innerHTML = "⚙️ MANAGE INVENTORY";
+      btn.innerHTML = "⚙️ MANAGE";
       btn.classList.remove('animate-pulse');
       btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]');
       btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black');
+      if (filter) filter.disabled = false;
       if (orderContainer) orderContainer.classList.remove('hidden');
     }
   }
 }
 
-// 돋보기 로직 (기존과 동일)
 function attachImageHoverEffect() {
   const tableBody = document.getElementById('itemTableBody');
   const previewContainer = document.getElementById('imagePreviewContainer');
@@ -215,7 +270,6 @@ function attachImageHoverEffect() {
   tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
 }
 
-// 🌟 발주 시 소속 State도 함께 전송하여 정확한 차감 유도
 async function submitOrder() {
   const qtyInputs = document.querySelectorAll('.order-qty');
   const orderItems = [];
@@ -235,7 +289,6 @@ async function submitOrder() {
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      // 🌟 clientState 정보 추가 전송
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.ORDER, token: sessionToken, clientName: clientName, clientState: currentClientState, items: orderItems })
     });
     const result = JSON.parse(await response.text());
@@ -247,5 +300,5 @@ async function submitOrder() {
   finally { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
 }
 
-window.submitOrder = submitOrder; window.fetchItems = fetchItems; window.toggleStockEditMode = toggleStockEditMode;
+window.submitOrder = submitOrder; window.fetchItems = fetchItems; window.toggleStockEditMode = toggleStockEditMode; window.applyRegionFilter = applyRegionFilter;
 window.addEventListener('DOMContentLoaded', fetchItems);
