@@ -1,34 +1,52 @@
 // assets/js/config.js
 
 const SYSTEM_CONFIG = {
-  BRAND: {
-    NAME: "Sinjeon Canada",
-    PORTAL_TITLE: "Sinjeon Canada Franchise Portal",
-    DOMAIN: "https://partner.sinjeoncanada.com",
-    SUPPORT_EMAIL: "support@sinjeoncanada.com",
-    OPERATOR: "Y2C Holdings Inc."
-  },
   API: {
-    // 🌟 알려주신 최신 웹 앱 URL로 완벽 교체 완료
-    BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec",
+    // ⚠️ 아래 주소는 반드시 방금 새로 배포하신 V6.0 웹앱 URL로 교체해 주세요!
+    BASE_URL: "https://script.google.com/macros/s/AKfycby1h2Yw2Q_f29c6N1lS8X0ZzZf4E8X0ZzZf4E8X0ZzZf4E8X0/exec",
     ENDPOINTS: {
-      AUTH: "login", 
-      DASHBOARD: "get_dashboard", 
-      ITEMS: "get_items", 
-      ORDER: "save_order", 
-      INVOICE: "get_invoice", 
-      RECIPES: "get_recipes", 
-      GET_MASTER: "get_master_data", 
-      UPDATE_MASTER: "update_master_data"
+      LOGIN: "login",
+      DASHBOARD: "get_dashboard",
+      ITEMS: "get_items",
+      ORDER: "save_order",
+      UPDATE_STOCK: "update_stock",
+      GET_MASTER: "get_master_data",
+      UPDATE_MASTER: "update_master_data",
+      GET_INVOICE: "get_invoice",
+      RECIPES: "get_recipes"
     }
   },
-  ROLES: {
-    MASTER: { id: "MASTER", accessiblePages: ["*"], redirectAfterLogin: "dashboard.html" },
-    FRANCHISEE: { id: "FRANCHISEE", accessiblePages: ["dashboard.html", "items.html", "recipes.html"], redirectAfterLogin: "dashboard.html" }
-  },
   STORAGE_KEYS: {
-    USER_TOKEN: "sinjeon_canada_session_token", // 보안 토큰
-    CLIENT_NAME: "sinjeon_client_name", 
-    ROLE: "sinjeon_user_role"
+    USER_TOKEN: "y2c_premium_token",
+    ROLE: "y2c_premium_role",
+    CLIENT_NAME: "y2c_premium_client"
   }
 };
+
+// 🌟 [엔터프라이즈 기능] 글로벌 브라우저 세션 매니저 (30분 타임아웃)
+(function() {
+  // 로그인 화면(index.html)이 아닐 때만 작동
+  if (window.location.pathname.indexOf('index.html') === -1 && window.location.pathname !== "/") {
+    const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30분
+    let idleTimer = null;
+
+    function logoutUser() {
+      alert("🔒 보안 시스템: 장시간 움직임이 감지되지 않아 자동 로그아웃 되었습니다.");
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+
+    function resetIdleTimer() {
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(logoutUser, SESSION_TIMEOUT_MS);
+    }
+
+    // 마우스 움직임, 키보드 입력, 클릭, 스크롤 감지 시 타이머 초기화
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+      document.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+
+    // 페이지 로드 시 타이머 시작
+    resetIdleTimer();
+  }
+})();
