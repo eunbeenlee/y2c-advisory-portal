@@ -3,55 +3,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- 🌟 모바일 앱 수준의 뷰포트 고정 및 테마 컬러 설정 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#1A1516">
   
   <title>Item Catalog & Order | Sinjeon Canada Premium</title>
-  
-  <!-- 🌟 정식 파비콘 연결 -->
   <link rel="icon" type="image/png" href="favicon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 🌟 프리미엄 브랜드 컬러 팔레트 */
-    :root { 
-      --sinjeon-pink: #E84C60; 
-      --sinjeon-pink-dark: #C23347; 
-      --premium-charcoal: #1A1516; 
-      --y2c-gold: #D4AF37; 
-    }
-    
+    :root { --sinjeon-pink: #E84C60; --sinjeon-pink-dark: #C23347; --premium-charcoal: #1A1516; --y2c-gold: #D4AF37; }
     .bg-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); }
-    
-    .premium-glass {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.8);
-      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
-    }
-    
+    .premium-glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
     body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    
-    /* 🌟 모바일 환경 최적화: 커스텀 스크롤바 */
     .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f8f6f6; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--premium-charcoal); }
-
-    /* Number Input 화살표 숨김 (깔끔한 UI) */
-    input[type="number"]::-webkit-inner-spin-button, 
-    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; }
   </style>
 </head>
 <body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 selection:bg-[#E84C60] selection:text-white">
   
-  <!-- 🌟 상단 프리미엄 네비게이션 바 -->
+  <!-- 상단 네비게이션 바 -->
   <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0">
-      
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
       <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
         <img src="Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm">
         <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
@@ -59,19 +35,12 @@
           <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
         </div>
       </div>
-      
       <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
         <a href="dashboard.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
-        
-        <!-- 현재 페이지 하이라이트 -->
         <a href="items.html" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
-        
         <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
-        
-        <!-- 마스터 권한 전용 메뉴 -->
         <a href="admin.html" id="navAdmin" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Master DB</a>
         <a href="invoice.html" id="navInvoice" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
-        
         <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
           <div class="flex items-center space-x-3 bg-white py-1 px-3 rounded-xl border border-gray-100 shadow-sm">
             <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">USER</span>
@@ -82,10 +51,7 @@
     </div>
   </nav>
 
-  <!-- 메인 컨텐츠 영역 -->
   <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8">
-    
-    <!-- 에러 방어 배너 -->
     <div id="errorBanner" class="hidden mb-8 bg-[#C23347] text-white p-5 rounded-2xl shadow-lg flex items-center justify-between">
       <div class="flex items-center space-x-4">
         <span class="text-2xl">⚠️</span>
@@ -97,32 +63,30 @@
       <button onclick="fetchItems()" class="text-xs bg-white text-[#C23347] font-black px-4 py-2 rounded-xl shadow-md hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RETRY</button>
     </div>
 
-    <!-- 🌟 페이지 헤더 영역 -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
       <div>
-<h2 id="catalogHeaderTitle" class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
+        <!-- JS에서 지역 맞춤 뱃지가 여기에 동적 주입됩니다 -->
+        <h2 id="catalogHeaderTitle" class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
           <span class="text-2xl">📦</span> Supply Item Catalog
         </h2>
         <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Browse and order standard ingredients for your franchise.</p>
       </div>
     </div>
 
-    <!-- 🌟 카탈로그 테이블 (프리미엄 UI/UX 적용) -->
+    <!-- 🌟 카탈로그 테이블 (이미지 영역 최적화 적용) -->
     <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm mb-8 border border-gray-200/80">
       <div class="overflow-x-auto custom-scrollbar pb-2">
         <table class="min-w-full divide-y divide-gray-100">
           <thead class="bg-gray-50/90 border-b-2 border-gray-200">
             <tr>
-              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap">Item Code</th>
-              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap min-w-[200px]">Description</th>
+              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap min-w-[100px]">Item Code</th>
+              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap min-w-[280px]">Product Info</th>
               <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap">Category</th>
               <th scope="col" class="px-5 sm:px-6 py-5 text-right text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap">Unit Price</th>
               <th scope="col" class="px-5 sm:px-6 py-5 text-center text-[10px] sm:text-[11px] font-black text-[#E84C60] uppercase tracking-[0.15em] whitespace-nowrap border-l border-gray-200 bg-[#E84C60]/5">Order Qty</th>
             </tr>
           </thead>
-          <!-- JS에서 데이터가 삽입되는 공간 -->
           <tbody id="itemTableBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md">
-            <!-- Loading 상태 디자인 -->
             <tr>
               <td colspan="5" class="px-6 py-24 text-center">
                 <div class="flex flex-col items-center justify-center space-y-4">
@@ -136,21 +100,16 @@
       </div>
     </div>
 
-    <!-- 🌟 액션 바 (발주 버튼) -->
     <div class="flex justify-end pt-4 mb-16">
       <button onclick="submitOrder()" 
               class="w-full sm:w-auto bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-3 text-sm tracking-widest disabled:opacity-70 disabled:cursor-not-allowed border border-white/20">
         <span>📤</span> SUBMIT ORDER
       </button>
     </div>
-
   </main>
 
-  <!-- 기능 통신 스크립트 연결 -->
   <script src="assets/js/config.js"></script>
   <script src="assets/js/items.js"></script>
-  
-  <!-- 마스터 권한 UI 언락 로직 -->
   <script>
     if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
       const navAdmin = document.getElementById('navAdmin');
