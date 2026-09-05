@@ -3,140 +3,112 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- 🌟 [엔터프라이즈 업그레이드] 모바일에서 화면 확대 방지 및 네이티브 앱 같은 사용성 제공 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Sinjeon Canada Premium Partner Portal operated by Y2C Holdings Inc.">
-  <meta name="theme-color" content="#1A1516"> <!-- 모바일 브라우저 상단 바 색상 -->
-  
-  <title>Premium Partner Portal | Sinjeon Canada</title>
-  
-  <!-- 🌟 [파비콘 적용] 메인 폴더에 업로드한 정식 파비콘 연결 -->
+  <meta name="theme-color" content="#1A1516">
+  <title>Login | Advisory Master System</title>
   <link rel="icon" type="image/png" href="favicon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root { 
-      --sinjeon-pink: #E84C60; 
-      --sinjeon-pink-dark: #C23347; 
-      --premium-charcoal: #1A1516; 
-      --y2c-gold: #D4AF37; 
-    }
-    
-    .bg-gradient-pink { 
-      background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); 
-    }
-
-    .premium-glass {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-    }
-
-    /* 오류 발생 시 흔들림 효과 (UX) */
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      75% { transform: translateX(4px); }
-    }
-    .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-
+    :root { --sinjeon-pink: #E84C60; --premium-charcoal: #1A1516; }
     body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    /* 자동완성 배경색 커스텀 */
+    input:-webkit-autofill { -webkit-box-shadow: 0 0 0 30px white inset !important; -webkit-text-fill-color: #1A1516 !important; }
   </style>
 </head>
-<body class="bg-[#F8F6F6] min-h-screen font-sans flex flex-col lg:flex-row text-gray-800 selection:bg-[#E84C60] selection:text-white">
-
-  <!-- 좌측 (PC) / 상단 (모바일) : 브랜드 비주얼 존 -->
-  <div class="lg:w-1/2 bg-[var(--premium-charcoal)] flex flex-col justify-between p-8 sm:p-12 lg:p-16 text-white shadow-2xl z-10 relative overflow-hidden">
-    
-    <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-[#E84C60] opacity-[0.15] rounded-full blur-[100px] pointer-events-none"></div>
-    <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[var(--y2c-gold)] opacity-10 rounded-full blur-[80px] pointer-events-none"></div>
-    
-    <div class="relative z-20 flex items-center justify-between lg:justify-start lg:space-x-8">
-      <img src="assets/images/Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="h-12 sm:h-14 lg:h-16 w-auto object-contain drop-shadow-[0_4px_12px_rgba(232,76,96,0.3)] transition-transform hover:scale-105 duration-500">
-      <div class="hidden sm:block h-10 w-[1px] bg-white/10"></div>
-      <img src="assets/images/y2c_holdings_logo.png" onerror="this.onerror=null; this.src='y2c_holdings_logo.png';" alt="Y2C Holdings" class="h-10 sm:h-12 w-auto object-contain rounded-xl bg-white/5 p-2 backdrop-blur-sm border border-white/10 drop-shadow-xl transition-transform hover:scale-105 duration-500">
+<body class="bg-[#F8F6F6] min-h-screen flex selection:bg-[#E84C60] selection:text-white overflow-hidden">
+  
+  <!-- 좌측: 브랜드 비주얼 영역 -->
+  <div class="hidden lg:flex lg:w-1/2 bg-[var(--premium-charcoal)] relative flex-col justify-center px-16 xl:px-24">
+    <!-- 배경 장식 -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-40 -left-40 w-96 h-96 bg-[#E84C60] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+      <div class="absolute top-40 -right-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
     </div>
-
-    <div class="relative z-10 my-12 lg:my-0 mt-16 lg:mt-0">
-      <span class="inline-block px-4 py-1.5 mb-6 text-[10px] font-black tracking-[0.25em] text-[#E84C60] uppercase bg-[#E84C60]/10 rounded-full border border-[#E84C60]/30 backdrop-blur-md">
+    
+    <div class="relative z-10 w-full max-w-lg">
+      <div class="flex items-center gap-6 mb-16">
+        <!-- 🌟 404 에러 방어: 이미지가 없을 경우 대체 경로 시도 -->
+        <img src="assets/images/Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="h-14 object-contain">
+        <div class="h-10 w-px bg-white/20"></div>
+        <img src="assets/images/y2c_holdings_logo.png" onerror="this.onerror=null; this.src='y2c_holdings_logo.png';" alt="Y2C Logo" class="h-10 object-contain bg-white rounded-lg p-1.5">
+      </div>
+      
+      <span class="inline-block border border-white/20 text-white/70 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full mb-6 bg-white/5 backdrop-blur-sm">
         Premium Franchise Portal
       </span>
-      <h1 class="text-4xl sm:text-5xl lg:text-[4rem] font-black tracking-tight mb-6 leading-[1.1] text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+      
+      <h1 class="text-5xl xl:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6">
         Advisory<br>Master System
       </h1>
-      <p class="text-gray-400 text-sm sm:text-base lg:text-lg max-w-lg font-medium leading-relaxed tracking-wide">
+      
+      <p class="text-base text-gray-400 font-medium leading-relaxed max-w-sm tracking-wide">
         Integrated operational intelligence and supply chain management for exclusive Canadian partners.
       </p>
     </div>
-    
-    <div class="relative z-10 pt-8 border-t border-white/10 flex justify-between items-end">
-      <div>
-        <p class="text-[10px] sm:text-[11px] text-gray-500 font-bold tracking-[0.2em] uppercase mb-1">Managed & Operated By</p>
-        <p class="text-base sm:text-lg lg:text-xl font-black tracking-widest text-white">Y2C HOLDINGS INC.</p>
-      </div>
-      <span class="text-[10px] bg-white/5 px-4 py-2 rounded-full text-gray-400 font-bold hidden sm:inline-block border border-white/5 tracking-widest">
-        SECURE ENTERPRISE
-      </span>
-    </div>
   </div>
 
-  <!-- 우측 (PC) / 하단 (모바일) : 로그인 폼 존 -->
-  <div class="lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 relative bg-[#F8F6F6] w-full">
-    <div class="w-full max-w-md premium-glass p-8 sm:p-12 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] relative z-20">
-
+  <!-- 우측: 로그인 폼 영역 -->
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
+    <div class="w-full max-w-md bg-white p-10 sm:p-14 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-gray-100">
+      
       <div class="mb-10 text-center lg:text-left">
-        <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] mb-3 tracking-tight">Welcome Back</h2>
-        <p class="text-xs sm:text-sm text-gray-500 font-bold tracking-wide">Please enter your master or partner credentials.</p>
+        <h2 class="text-3xl font-black text-[var(--premium-charcoal)] mb-3 tracking-tight">Welcome Back</h2>
+        <p class="text-sm font-bold text-gray-400 tracking-wide">Please enter your master or partner credentials.</p>
       </div>
 
-      <form id="loginForm" class="space-y-6" autocomplete="off">
-        <div>
-          <label for="userId" class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] mb-2 pl-1">Partner ID</label>
+      <!-- 🌟 정확한 ID 체계가 부여된 로그인 폼 -->
+      <form id="loginForm" class="space-y-6">
+        
+        <div class="space-y-2">
+          <label for="userId" class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Partner ID</label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </div>
-            <input type="text" id="userId" placeholder="Enter your ID" required autocomplete="off" spellcheck="false"
-                   class="block w-full pl-11 pr-5 py-4 text-gray-900 bg-white border-2 border-gray-100 rounded-2xl appearance-none focus:outline-none focus:border-[#E84C60] focus:ring-4 focus:ring-[#E84C60]/10 transition-all font-bold placeholder-gray-300 shadow-sm text-sm">
+            <input type="text" id="userId" required autocomplete="username"
+              class="block w-full pl-11 pr-4 py-4 bg-gray-50/50 border-2 border-gray-100 rounded-2xl text-[14px] font-bold text-[var(--premium-charcoal)] placeholder-gray-300 focus:bg-white focus:border-[#E84C60] focus:ring-4 focus:ring-[#E84C60]/10 transition-all outline-none" 
+              placeholder="admin">
           </div>
         </div>
 
-        <div>
-          <label for="userPw" class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] mb-2 pl-1">Password</label>
+        <div class="space-y-2">
+          <label for="userPw" class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Password</label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </div>
-            <input type="password" id="userPw" placeholder="Enter your password" required autocomplete="new-password"
-                   class="block w-full pl-11 pr-5 py-4 text-gray-900 bg-white border-2 border-gray-100 rounded-2xl appearance-none focus:outline-none focus:border-[#E84C60] focus:ring-4 focus:ring-[#E84C60]/10 transition-all font-bold placeholder-gray-300 shadow-sm text-sm">
+            <input type="password" id="userPw" required autocomplete="current-password"
+              class="block w-full pl-11 pr-4 py-4 bg-gray-50/50 border-2 border-gray-100 rounded-2xl text-[14px] font-bold text-[var(--premium-charcoal)] placeholder-gray-300 focus:bg-white focus:border-[#E84C60] focus:ring-4 focus:ring-[#E84C60]/10 transition-all outline-none" 
+              placeholder="••••••••">
           </div>
         </div>
 
-        <!-- 에러 방어 메시지 -->
-        <div id="errorMessage" class="hidden flex items-center text-[#C23347] text-[13px] font-bold bg-[#E84C60]/10 p-4 rounded-xl border border-[#E84C60]/20 shadow-sm mt-2">
-          <svg class="w-5 h-5 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-          <span id="errorText">Invalid credentials.</span>
+        <!-- 🌟 자바스크립트가 컨트롤할 에러 메시지 영역 -->
+        <div id="errorMessage" class="hidden bg-[#C23347]/10 border border-[#C23347]/20 text-[#C23347] text-[12px] font-bold px-4 py-3.5 rounded-xl text-center flex items-center justify-center gap-2 tracking-wide">
+          <span>⚠️</span> <span id="errorText">Connection failed. Please try again.</span>
         </div>
 
-        <button type="submit" id="loginBtn" 
-                class="relative w-full flex justify-center items-center py-4 px-4 mt-8 text-[14px] sm:text-[15px] font-black tracking-widest rounded-2xl text-white bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] focus:outline-none focus:ring-4 focus:ring-[#E84C60]/30 transition-all duration-300 active:scale-[0.98] cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
-          <span id="btnText">SIGN IN TO PORTAL</span>
-          <svg id="btnSpinner" class="hidden animate-spin ml-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+        <button type="submit" id="submitBtn" 
+          class="w-full bg-[#E84C60] hover:bg-[#C23347] text-white font-black py-4.5 rounded-2xl shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] transition-all active:scale-[0.98] mt-2 text-[13px] tracking-[0.1em] uppercase h-[56px]">
+          Sign In to Portal
         </button>
       </form>
       
-      <div class="mt-12 text-center lg:hidden">
-        <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">Managed By</p>
-        <p class="text-xs font-black text-gray-700 mt-1 tracking-widest">Y2C HOLDINGS INC.</p>
+      <!-- Footer Info -->
+      <div class="mt-12 text-center">
+        <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+          Y2C Holdings Inc. &copy; 2026
+        </p>
       </div>
+
     </div>
   </div>
 
-  <!-- 통신 스크립트 연결부 유지 -->
   <script src="assets/js/config.js"></script>
   <script src="assets/js/auth.js"></script>
 </body>
