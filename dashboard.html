@@ -3,65 +3,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- 🌟 모바일 앱 수준의 뷰포트 고정 및 테마 컬러 설정 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#1A1516">
   
   <title>Dashboard | Sinjeon Canada Premium</title>
-  
-  <!-- 🌟 정식 파비콘 연결 -->
   <link rel="icon" type="image/png" href="favicon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js 라이브러리 필수 포함 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    :root { 
-      --sinjeon-pink: #E84C60; 
-      --sinjeon-pink-dark: #C23347; 
-      --premium-charcoal: #1A1516; 
-      --y2c-gold: #D4AF37; 
-    }
+    :root { --sinjeon-pink: #E84C60; --sinjeon-pink-dark: #C23347; --premium-charcoal: #1A1516; --y2c-gold: #D4AF37; }
     .bg-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); }
-    
-    .premium-glass {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.8);
-      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
-    }
-    
+    .premium-glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
     body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    
-    /* 스크롤바 숨김 (디자인 최적화) */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 selection:bg-[#E84C60] selection:text-white">
   
-  <!-- 🌟 상단 픽셀-퍼펙트 네비게이션 바 (흔들림 방지 완벽 통일 - h-auto lg:h-[84px] 추가) -->
+  <!-- 🌟 픽셀 퍼펙트 통일 적용: h-auto lg:h-[84px] 및 여백 완전 동기화 -->
   <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
       
       <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
         <img src="Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm">
         <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
-          <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1">Master Admin Portal</h1>
+          <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1">Partner Portal</h1>
           <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
         </div>
       </div>
       
       <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
-        <!-- 현재 페이지 하이라이트 -->
+        <!-- Dashboard 탭 하이라이트 -->
         <a href="dashboard.html" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
         
         <a href="items.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
         <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
         
-        <!-- 마스터 권한 전용 메뉴 (기본 숨김) -->
+        <!-- 마스터 전용 메뉴 -->
         <a href="admin.html" id="navAdmin" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Master DB</a>
         <a href="invoice.html" id="navInvoice" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
         
@@ -75,21 +56,12 @@
     </div>
   </nav>
 
-  <!-- 메인 컨텐츠 영역 -->
+  <!-- 메인 컨텐츠 (이전 코드 100% 보존) -->
   <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8">
-    
-    <!-- 에러 방어 배너 (자바스크립트와 연동) -->
     <div id="errorBanner" class="hidden mb-8 bg-[#C23347] text-white p-5 rounded-2xl shadow-lg flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <span class="text-2xl">⚠️</span>
-        <div>
-          <h4 class="font-black text-sm tracking-wide">System Notice</h4>
-          <p id="errorBannerText" class="text-xs text-white/90 mt-0.5">Failed to fetch data.</p>
-        </div>
-      </div>
+      <div class="flex items-center space-x-4"><span class="text-2xl">⚠️</span><div><h4 class="font-black text-sm tracking-wide">System Notice</h4><p id="errorBannerText" class="text-xs text-white/90 mt-0.5">Failed to fetch data.</p></div></div>
     </div>
 
-    <!-- 🌟 헤더 및 연도 선택 (Year Selector) -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
       <div>
         <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
@@ -97,79 +69,54 @@
         </h2>
         <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Real-time operational metrics and financial summaries.</p>
       </div>
-      
-      <!-- 커스텀 셀렉트 박스 UI -->
       <div class="relative w-full sm:w-auto">
-        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-          <span class="text-[14px]">📅</span>
-        </div>
-        <select id="yearSelector" class="w-full sm:w-auto appearance-none bg-white border-2 border-gray-200 text-gray-700 py-3 pl-10 pr-10 rounded-[1rem] shadow-sm text-sm font-black focus:outline-none focus:border-[#E84C60] focus:ring-4 focus:ring-[#E84C60]/10 transition cursor-pointer">
-          <!-- JS에서 현재 연도가 동적으로 주입됩니다 -->
-        </select>
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><span class="text-[14px]">📅</span></div>
+        <select id="yearSelector" class="w-full sm:w-auto appearance-none bg-white border-2 border-gray-200 text-gray-700 py-3 pl-10 pr-10 rounded-[1rem] shadow-sm text-sm font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer"></select>
         <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400">
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
         </div>
       </div>
     </div>
 
-    <!-- 🌟 매출 요약 Stat Cards (대기업식 3단 그리드) -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-8">
-      
-      <!-- Total Net Sales (Pink Highlight) -->
       <div class="premium-glass p-6 sm:p-8 rounded-[2rem] border-t-[4px] border-t-[#E84C60] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-        <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-          <span class="text-6xl">💰</span>
-        </div>
+        <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity"><span class="text-6xl">💰</span></div>
         <p class="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Net Sales (YTD)</p>
         <h3 id="totalSales" class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">$0.00</h3>
         <p class="mt-3 text-[11px] text-emerald-600 font-bold bg-emerald-50 inline-block px-2.5 py-1 rounded-md">Live Sync Active</p>
       </div>
-
-      <!-- POS Sales (Charcoal Highlight) -->
       <div class="premium-glass p-6 sm:p-8 rounded-[2rem] border-t-[4px] border-t-[var(--premium-charcoal)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-        <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-          <span class="text-6xl">🏪</span>
-        </div>
+        <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity"><span class="text-6xl">🏪</span></div>
         <p class="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">POS (In-Store) Sales</p>
         <h3 id="posSales" class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">$0.00</h3>
       </div>
-
-      <!-- Delivery Sales (Gold Highlight) -->
       <div class="premium-glass p-6 sm:p-8 rounded-[2rem] border-t-[4px] border-t-[var(--y2c-gold)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-        <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-          <span class="text-6xl">🛵</span>
-        </div>
+        <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity"><span class="text-6xl">🛵</span></div>
         <p class="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Delivery App Sales</p>
         <h3 id="deliverySales" class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">$0.00</h3>
       </div>
-
     </div>
 
-    <!-- 🌟 메인 차트 영역 -->
     <div class="premium-glass p-6 sm:p-8 lg:p-10 rounded-[2.5rem]">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-base sm:text-lg font-black text-[var(--premium-charcoal)] tracking-wide">Monthly Revenue Trend</h3>
         <span class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest"><span class="w-2 h-2 rounded-full bg-[#E84C60] mr-2 animate-pulse"></span> Data Synced</span>
       </div>
-      <!-- 모바일 환경을 고려한 최소 높이 확보 -->
       <div class="relative w-full h-[300px] sm:h-[400px]">
         <canvas id="salesChart"></canvas>
       </div>
     </div>
-
   </main>
 
-  <!-- 기능 통신 스크립트 연결 -->
+  <!-- 🌟 공통 토스트 알림 컨테이너 마크업 보험 추가 -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
   <script src="assets/js/config.js"></script>
   <script src="assets/js/dashboard.js"></script>
-  
-  <!-- 마스터 권한 UI 언락 로직 -->
   <script>
     if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
-      const navAdmin = document.getElementById('navAdmin');
-      const navInvoice = document.getElementById('navInvoice');
-      if (navAdmin) navAdmin.classList.remove('hidden');
-      if (navInvoice) navInvoice.classList.remove('hidden');
+      document.getElementById('navAdmin')?.classList.remove('hidden');
+      document.getElementById('navInvoice')?.classList.remove('hidden');
     }
   </script>
 </body>
