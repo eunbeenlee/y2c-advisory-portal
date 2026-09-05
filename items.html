@@ -19,7 +19,6 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--premium-charcoal); }
     input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; }
-    /* 재고 부족 경고 애니메이션 */
     .low-stock-pulse { animation: lowStock 2s infinite; }
     @keyframes lowStock { 0% { box-shadow: 0 0 0 0 rgba(194, 51, 71, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(194, 51, 71, 0); } 100% { box-shadow: 0 0 0 0 rgba(194, 51, 71, 0); } }
   </style>
@@ -57,7 +56,7 @@
       <button onclick="fetchItems()" class="text-xs bg-white text-[#C23347] font-black px-4 py-2 rounded-xl shadow-md hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RETRY</button>
     </div>
 
-    <!-- 🌟 [엔터프라이즈] SCM KPI 대시보드 위젯 -->
+    <!-- SCM KPI 대시보드 위젯 -->
     <div id="kpiDashboard" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 hidden">
       <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-[var(--premium-charcoal)]">
         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total SKUs</p>
@@ -85,16 +84,16 @@
         <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Real-time SCM module for logistics and procurement.</p>
       </div>
       
-      <!-- 🌟 [엔터프라이즈] 마스터 전용 지역 필터 및 컨트롤 -->
-      <div id="masterInventoryControls" class="hidden flex flex-col sm:flex-row w-full md:w-auto gap-3">
-        <!-- 💡 실시간 지역 재고 필터링 -->
-        <select id="regionFilter" onchange="applyRegionFilter()" class="w-full sm:w-40 bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-xl shadow-sm text-xs font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer appearance-none">
-          <option value="ALL">Canada Total</option>
-          <!-- JS에서 동적 주입 -->
-        </select>
-        <button id="toggleStockBtn" onclick="toggleStockEditMode()" class="w-full sm:w-auto bg-[var(--premium-charcoal)] text-white text-[11px] sm:text-xs tracking-widest font-black px-6 py-3 rounded-xl shadow-md hover:bg-black transition-all border border-gray-700 cursor-pointer flex items-center justify-center gap-2">
-          ⚙️ MANAGE
-        </button>
+      <!-- 마스터 컨트롤 탭 -->
+      <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3">
+        <div id="masterInventoryControls" class="hidden flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+          <select id="regionFilter" onchange="applyRegionFilter()" class="w-full sm:w-40 bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-xl shadow-sm text-xs font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer appearance-none">
+            <option value="ALL">Canada Total</option>
+          </select>
+          <button id="toggleStockBtn" onclick="toggleStockEditMode()" class="w-full sm:w-auto bg-[var(--premium-charcoal)] text-white text-[11px] sm:text-xs tracking-widest font-black px-6 py-3 rounded-xl shadow-md hover:bg-black transition-all border border-gray-700 cursor-pointer flex items-center justify-center gap-2">
+            ⚙️ MANAGE
+          </button>
+        </div>
       </div>
     </div>
 
@@ -112,14 +111,36 @@
             </tr>
           </thead>
           <tbody id="itemTableBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md">
-            <!-- JS 동적 렌더링 -->
+            <tr>
+              <td colspan="6" class="px-6 py-24 text-center">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                  <svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  <p class="text-[13px] font-bold text-gray-400 tracking-wide">Syncing catalog from secure database...</p>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <div id="orderActionContainer" class="flex justify-end pt-4 mb-16">
-      <button onclick="submitOrder()" class="w-full sm:w-auto bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] text-white font-black py-4 px-10 rounded-2xl transition-all duration-300 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-3 text-sm tracking-widest disabled:opacity-70 border border-white/20">
+    <!-- 🌟 [엔터프라이즈] 실시간 세금 계산 및 영수증 UI -->
+    <div id="orderActionContainer" class="flex flex-col sm:flex-row justify-end items-end gap-5 pt-4 mb-16">
+      <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm min-w-[280px] w-full sm:w-auto text-right">
+        <div class="flex justify-between items-center text-sm font-bold text-gray-500 mb-2">
+          <span>Subtotal:</span>
+          <span id="orderSubtotal" class="font-mono text-[var(--premium-charcoal)]">$0.00</span>
+        </div>
+        <div class="flex justify-between items-center text-xs font-bold text-gray-400 mb-4 pb-4 border-b border-gray-100">
+          <span id="orderTaxLabel">Estimated Tax (0%):</span>
+          <span id="orderTaxAmt" class="font-mono text-gray-500">$0.00</span>
+        </div>
+        <div class="flex justify-between items-end">
+          <span class="text-[10px] font-black text-[#E84C60] uppercase tracking-[0.2em]">Total Amount Due</span>
+          <span id="orderGrandTotal" class="text-3xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">$0.00</span>
+        </div>
+      </div>
+      <button onclick="submitOrder()" class="w-full sm:w-auto bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] text-white font-black py-5 px-12 rounded-2xl transition-all duration-300 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-3 text-sm tracking-widest disabled:opacity-70 border border-white/20 h-full">
         <span>📤</span> SUBMIT ORDER
       </button>
     </div>
@@ -129,6 +150,8 @@
   <div id="imagePreviewContainer" class="fixed hidden z-[9999] pointer-events-none rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-white bg-white overflow-hidden transform scale-95 opacity-0 transition-all duration-200 ease-out">
     <img id="imagePreview" src="" class="w-64 h-64 sm:w-80 sm:h-80 object-cover">
   </div>
+  
+  <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/items.js"></script>
