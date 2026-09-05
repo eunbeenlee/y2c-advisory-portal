@@ -61,7 +61,6 @@
 
   <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-start">
     
-    <!-- 좌측 제어 패널 (Export CSV 버튼 추가됨) -->
     <div class="w-full lg:w-1/3 premium-glass p-6 sm:p-8 rounded-[2rem] no-print sticky top-28">
       <h2 class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] border-b border-gray-200 pb-4 mb-6 flex items-center gap-2 tracking-wide">
         <span>⚙️</span> Invoice Control Panel
@@ -112,7 +111,7 @@
       </div>
     </div>
 
-    <!-- 우측 출력부 (기존과 동일, Bank Address 보존) -->
+    <!-- 우측 출력부 -->
     <div class="w-full lg:w-2/3 premium-glass p-8 sm:p-12 lg:p-16 rounded-[2.5rem] print-area text-gray-800 bg-white">
       <div class="flex flex-col sm:flex-row justify-between items-start border-b-[3px] border-[var(--premium-charcoal)] print-border-black pb-6 mb-8 gap-6">
         <div>
@@ -190,8 +189,9 @@
 
   <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/invoice.js"></script>
+  <!-- 🌟 브라우저 캐시 무시 강제 로드 (?v=7.2) -->
+  <script src="assets/js/config.js?v=7.2"></script>
+  <script src="assets/js/invoice.js?v=7.2"></script>
   <script>
     if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
       document.getElementById('navAdmin')?.classList.remove('hidden');
