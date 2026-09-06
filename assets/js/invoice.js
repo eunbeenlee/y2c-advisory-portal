@@ -46,41 +46,57 @@ function getFormattedDate(offsetDays = 0) {
 
 let currentInvoiceData = null; 
 
-async function fetchClientList() {
+// 🌟 [엔터프라이즈] 오류 자율 복구(Auto-Retry) 기능이 탑재된 지점 로딩
+async function fetchClientList(retryCount = 3) {
   const selClient = document.getElementById('selClient');
+  if (!selClient) return; // HTML을 못 찾으면 스톱
+
   selClient.innerHTML = `<option value="">🔄 동기화 중...</option>`;
   selClient.disabled = true;
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+      method: "POST", 
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+      redirect: "follow",
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_MASTER, token: sessionToken })
     });
-    const result = JSON.parse(await response.text());
+    
+    const textResponse = await response.text();
+    const result = JSON.parse(textResponse);
 
     if (result.success && result.clients && result.clients.length > 0) {
       selClient.innerHTML = '';
       result.clients.forEach(c => {
         const option = document.createElement('option');
-        // 🌟 Value에 "지점명 (State)" 형태로 담지 않고 "순수 지점명"만 담아 전송 오류 원천 차단!
         option.value = c.name;
         option.innerText = `${c.name} (${c.state || 'N/A'})`;
         selClient.appendChild(option);
       });
       selClient.disabled = false;
+      // 첫 번째 클라이언트가 로드되면 초기 설정 연도에 맞춰 인보이스 임시 생성 (미리보기 용도)
+      // generateInvoice(); 
     } else {
       selClient.innerHTML = `<option value="">등록된 가맹점이 없습니다</option>`;
+      showToast("불러올 수 있는 가맹점 정보가 없습니다.", "error");
     }
   } catch (error) {
-    selClient.innerHTML = `<option value="">데이터 동기화 실패</option>`;
-    showToast("가맹점 목록을 불러오지 못했습니다.", "error");
+    if (retryCount > 0) {
+      console.warn(`가맹점 목록 동기화 실패. 재시도 중... 남은 횟수: ${retryCount}`);
+      setTimeout(() => fetchClientList(retryCount - 1), 1000); // 1초 뒤 재시도
+    } else {
+      selClient.innerHTML = `<option value="">❌ 데이터 로딩 실패 (클릭하여 재시도)</option>`;
+      selClient.disabled = false;
+      selClient.onclick = () => { if (selClient.value === "") fetchClientList(3); };
+      showToast("서버와 통신할 수 없습니다. 페이지를 새로고침 해보세요.", "error");
+    }
   }
 }
 
 async function generateInvoice() {
   const targetClient = document.getElementById('selClient').value;
   if (!targetClient) {
-    showToast("조회할 가맹점을 선택해 주세요.", "error");
+    showToast("먼저 조회할 가맹점이 로딩되어야 합니다.", "error");
     return;
   }
 
@@ -97,8 +113,8 @@ async function generateInvoice() {
   const btn = document.querySelector('button[onclick="generateInvoice()"]');
   const originalHtml = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = "<span>⏳</span> FETCHING...";
-  btn.classList.add('animate-pulse');
+  btn.innerHTML = `<span class="animate-pulse flex items-center justify-center gap-2">⏳ FETCHING...</span>`;
+  btn.classList.add('opacity-80', 'cursor-not-allowed');
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -108,33 +124,28 @@ async function generateInvoice() {
     const result = JSON.parse(await response.text());
 
     if (result.success) {
-      // 인보이스 번호 & 날짜
       const invNumber = `INV-${targetYear}${startMonth.padStart(2,'0')}-${Math.floor(Math.random()*9000+1000)}`;
       document.getElementById('invNo').innerText = invNumber;
       document.getElementById('invDate').innerText = getFormattedDate(0);
       document.getElementById('invDue').innerText = getFormattedDate(14);
 
-      // HQ Info
       document.getElementById('hqName').innerText = result.hqInfo.name || "Y2C Holdings Inc.";
       document.getElementById('hqAddress').innerText = result.hqInfo.address || "-";
       document.getElementById('hqContact').innerText = result.hqInfo.contact || "-";
       document.getElementById('hqRegNo').innerText = result.hqInfo.regNo || "-";
       document.getElementById('hqRep').innerText = result.hqInfo.rep || "-";
       
-      // HQ Remittance (Bank Info)
       document.getElementById('hqBank').innerText = result.hqInfo.bank || "-";
       document.getElementById('hqBankAddress').innerText = result.hqInfo.bankAddress || "-";
       document.getElementById('hqAccount').innerText = result.hqInfo.account || "-";
       document.getElementById('hqSwift').innerText = result.hqInfo.swift || "-";
 
-      // Client Info
       document.getElementById('clientName').innerText = result.clientInfo.name || targetClient;
       document.getElementById('clientAddress').innerText = result.clientInfo.address || "-";
       document.getElementById('clientCity').innerText = `${result.clientInfo.city || ""}, ${result.clientInfo.state || ""}`;
       document.getElementById('clientAttn').innerText = result.clientInfo.attn || "-";
       document.getElementById('clientBizId').innerText = result.clientInfo.bizId || "-";
 
-      // Finance Math
       const baseSales = Number(result.calculatedBase) || 0;
       const calculatedFee = baseSales * (rate / 100);
       const clientProvince = String(result.clientInfo.state || "DEFAULT").trim().toUpperCase();
@@ -143,13 +154,11 @@ async function generateInvoice() {
       const taxAmt = calculatedFee * taxConfig.rate;
       const totalDue = calculatedFee + taxAmt;
 
-      // Table mapping
       document.getElementById('descLine').innerText = `Management Advisory Services (${startMonth}/${targetYear} - ${endMonth}/${targetYear})`;
       document.getElementById('baseLine').innerText = formatCurrency(baseSales);
       document.getElementById('rateLine').innerText = `${rate}%`;
       document.getElementById('amtLine').innerText = formatCurrency(calculatedFee);
       
-      // Bottom mapping
       document.getElementById('subTotal').innerText = formatCurrency(calculatedFee);
       
       const taxLineElem = document.querySelector('p.pb-4.border-b');
@@ -173,11 +182,11 @@ async function generateInvoice() {
       throw new Error(result.message);
     }
   } catch (error) {
-    showToast("데이터 연동 실패: " + error.message, "error");
+    showToast("데이터 연동 실패: 서버로부터 올바른 응답을 받지 못했습니다.", "error");
   } finally {
     btn.disabled = false;
     btn.innerHTML = originalHtml;
-    btn.classList.remove('animate-pulse');
+    btn.classList.remove('opacity-80', 'cursor-not-allowed', 'animate-pulse');
   }
 }
 
@@ -205,4 +214,9 @@ function exportInvoiceCSV() {
 
 window.generateInvoice = generateInvoice;
 window.exportInvoiceCSV = exportInvoiceCSV;
-window.addEventListener('DOMContentLoaded', fetchClientList);
+window.fetchClientList = fetchClientList; // 강제 트리거 허용
+
+// 🌟 HTML이 100% 로드된 직후에만 통신을 시작하여 무한 멈춤 현상 원천 차단
+document.addEventListener('DOMContentLoaded', () => {
+  fetchClientList(3);
+});
