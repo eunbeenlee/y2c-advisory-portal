@@ -68,7 +68,6 @@
       <div class="space-y-6">
         <div>
           <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Select Target Client</label>
-          <!-- 🌟 [엔터프라이즈] 하드코딩 제거: 자바스크립트가 알아서 서버에서 긁어와 채워넣음 -->
           <select id="selClient" class="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition cursor-pointer">
             <option value="">Loading franchise list...</option>
           </select>
@@ -187,9 +186,9 @@
 
   <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-  <!-- 🌟 브라우저 캐시 무시 강제 로드 (?v=7.3) -->
-  <script src="assets/js/config.js?v=7.3"></script>
-  <script src="assets/js/invoice.js?v=7.3"></script>
+  <!-- 🌟 브라우저 캐시 무시 강제 로드 (?v=8.1) -->
+  <script src="assets/js/config.js?v=8.1"></script>
+  <script src="assets/js/invoice.js?v=8.1"></script>
   <script>
     if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
       document.getElementById('navAdmin')?.classList.remove('hidden');
