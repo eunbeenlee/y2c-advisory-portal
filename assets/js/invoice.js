@@ -46,7 +46,6 @@ function getFormattedDate(offsetDays = 0) {
 
 let currentInvoiceData = null; 
 
-// 🌟 [엔터프라이즈] 지점 목록 다이나믹 오토-싱크 (하드코딩 방어)
 async function fetchClientList() {
   const selClient = document.getElementById('selClient');
   selClient.innerHTML = `<option value="">🔄 동기화 중...</option>`;
@@ -63,6 +62,7 @@ async function fetchClientList() {
       selClient.innerHTML = '';
       result.clients.forEach(c => {
         const option = document.createElement('option');
+        // 🌟 Value에 "지점명 (State)" 형태로 담지 않고 "순수 지점명"만 담아 전송 오류 원천 차단!
         option.value = c.name;
         option.innerText = `${c.name} (${c.state || 'N/A'})`;
         selClient.appendChild(option);
@@ -108,45 +108,50 @@ async function generateInvoice() {
     const result = JSON.parse(await response.text());
 
     if (result.success) {
+      // 인보이스 번호 & 날짜
       const invNumber = `INV-${targetYear}${startMonth.padStart(2,'0')}-${Math.floor(Math.random()*9000+1000)}`;
       document.getElementById('invNo').innerText = invNumber;
       document.getElementById('invDate').innerText = getFormattedDate(0);
       document.getElementById('invDue').innerText = getFormattedDate(14);
 
+      // HQ Info
       document.getElementById('hqName').innerText = result.hqInfo.name || "Y2C Holdings Inc.";
       document.getElementById('hqAddress').innerText = result.hqInfo.address || "-";
       document.getElementById('hqContact').innerText = result.hqInfo.contact || "-";
       document.getElementById('hqRegNo').innerText = result.hqInfo.regNo || "-";
       document.getElementById('hqRep').innerText = result.hqInfo.rep || "-";
       
+      // HQ Remittance (Bank Info)
       document.getElementById('hqBank').innerText = result.hqInfo.bank || "-";
       document.getElementById('hqBankAddress').innerText = result.hqInfo.bankAddress || "-";
       document.getElementById('hqAccount').innerText = result.hqInfo.account || "-";
       document.getElementById('hqSwift').innerText = result.hqInfo.swift || "-";
 
+      // Client Info
       document.getElementById('clientName').innerText = result.clientInfo.name || targetClient;
       document.getElementById('clientAddress').innerText = result.clientInfo.address || "-";
       document.getElementById('clientCity').innerText = `${result.clientInfo.city || ""}, ${result.clientInfo.state || ""}`;
       document.getElementById('clientAttn').innerText = result.clientInfo.attn || "-";
       document.getElementById('clientBizId').innerText = result.clientInfo.bizId || "-";
 
+      // Finance Math
       const baseSales = Number(result.calculatedBase) || 0;
       const calculatedFee = baseSales * (rate / 100);
-      
       const clientProvince = String(result.clientInfo.state || "DEFAULT").trim().toUpperCase();
       const taxConfig = SYSTEM_CONFIG.TAX_RATES[clientProvince] || SYSTEM_CONFIG.TAX_RATES["DEFAULT"];
       
       const taxAmt = calculatedFee * taxConfig.rate;
       const totalDue = calculatedFee + taxAmt;
 
+      // Table mapping
       document.getElementById('descLine').innerText = `Management Advisory Services (${startMonth}/${targetYear} - ${endMonth}/${targetYear})`;
       document.getElementById('baseLine').innerText = formatCurrency(baseSales);
       document.getElementById('rateLine').innerText = `${rate}%`;
       document.getElementById('amtLine').innerText = formatCurrency(calculatedFee);
       
+      // Bottom mapping
       document.getElementById('subTotal').innerText = formatCurrency(calculatedFee);
       
-      // 세금 퍼센트 명칭 자동 연동 방어
       const taxLineElem = document.querySelector('p.pb-4.border-b');
       if(taxLineElem) {
         taxLineElem.innerHTML = `Estimated Tax (${taxConfig.name}): <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black" id="taxAmt">${formatCurrency(taxAmt)}</span>`;
@@ -155,15 +160,9 @@ async function generateInvoice() {
       document.getElementById('totalDue').innerText = formatCurrency(totalDue);
 
       currentInvoiceData = {
-        invNo: invNumber,
-        date: getFormattedDate(0),
-        client: result.clientInfo.name || targetClient,
+        invNo: invNumber, date: getFormattedDate(0), client: result.clientInfo.name || targetClient,
         description: `Advisory Services (${startMonth}/${targetYear} - ${endMonth}/${targetYear})`,
-        baseSales: baseSales,
-        rate: rate,
-        subTotal: calculatedFee,
-        tax: taxAmt,
-        totalDue: totalDue
+        baseSales: baseSales, rate: rate, subTotal: calculatedFee, tax: taxAmt, totalDue: totalDue
       };
 
       showToast("인보이스 데이터가 성공적으로 동기화되었습니다.", "success");
@@ -206,6 +205,4 @@ function exportInvoiceCSV() {
 
 window.generateInvoice = generateInvoice;
 window.exportInvoiceCSV = exportInvoiceCSV;
-
-// 🌟 화면 진입 시 가맹점 목록 자동 동기화
 window.addEventListener('DOMContentLoaded', fetchClientList);
