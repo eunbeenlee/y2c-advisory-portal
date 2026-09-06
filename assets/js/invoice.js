@@ -46,8 +46,44 @@ function getFormattedDate(offsetDays = 0) {
 
 let currentInvoiceData = null; 
 
+// 🌟 [엔터프라이즈] 지점 목록 다이나믹 오토-싱크 (하드코딩 방어)
+async function fetchClientList() {
+  const selClient = document.getElementById('selClient');
+  selClient.innerHTML = `<option value="">🔄 동기화 중...</option>`;
+  selClient.disabled = true;
+
+  try {
+    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_MASTER, token: sessionToken })
+    });
+    const result = JSON.parse(await response.text());
+
+    if (result.success && result.clients && result.clients.length > 0) {
+      selClient.innerHTML = '';
+      result.clients.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.name;
+        option.innerText = `${c.name} (${c.state || 'N/A'})`;
+        selClient.appendChild(option);
+      });
+      selClient.disabled = false;
+    } else {
+      selClient.innerHTML = `<option value="">등록된 가맹점이 없습니다</option>`;
+    }
+  } catch (error) {
+    selClient.innerHTML = `<option value="">데이터 동기화 실패</option>`;
+    showToast("가맹점 목록을 불러오지 못했습니다.", "error");
+  }
+}
+
 async function generateInvoice() {
   const targetClient = document.getElementById('selClient').value;
+  if (!targetClient) {
+    showToast("조회할 가맹점을 선택해 주세요.", "error");
+    return;
+  }
+
   const targetYear = document.getElementById('selYear').value;
   const startMonth = document.getElementById('selStart').value;
   const endMonth = document.getElementById('selEnd').value;
@@ -83,7 +119,6 @@ async function generateInvoice() {
       document.getElementById('hqRegNo').innerText = result.hqInfo.regNo || "-";
       document.getElementById('hqRep').innerText = result.hqInfo.rep || "-";
       
-      // 🌟 대소문자 무시로 파싱된 은행 정보 맵핑
       document.getElementById('hqBank').innerText = result.hqInfo.bank || "-";
       document.getElementById('hqBankAddress').innerText = result.hqInfo.bankAddress || "-";
       document.getElementById('hqAccount').innerText = result.hqInfo.account || "-";
@@ -98,7 +133,6 @@ async function generateInvoice() {
       const baseSales = Number(result.calculatedBase) || 0;
       const calculatedFee = baseSales * (rate / 100);
       
-      // 🌟 [엔터프라이즈] config.js의 주별 복합 세금 엔진 자동 적용
       const clientProvince = String(result.clientInfo.state || "DEFAULT").trim().toUpperCase();
       const taxConfig = SYSTEM_CONFIG.TAX_RATES[clientProvince] || SYSTEM_CONFIG.TAX_RATES["DEFAULT"];
       
@@ -111,8 +145,12 @@ async function generateInvoice() {
       document.getElementById('amtLine').innerText = formatCurrency(calculatedFee);
       
       document.getElementById('subTotal').innerText = formatCurrency(calculatedFee);
-      // 세금 항목명 동적 변경 (예: Estimated Tax (HST 13%):)
-      document.querySelector('p.pb-4.border-b').innerHTML = `Estimated Tax (${taxConfig.name}): <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black" id="taxAmt">${formatCurrency(taxAmt)}</span>`;
+      
+      // 세금 퍼센트 명칭 자동 연동 방어
+      const taxLineElem = document.querySelector('p.pb-4.border-b');
+      if(taxLineElem) {
+        taxLineElem.innerHTML = `Estimated Tax (${taxConfig.name}): <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black" id="taxAmt">${formatCurrency(taxAmt)}</span>`;
+      }
       
       document.getElementById('totalDue').innerText = formatCurrency(totalDue);
 
@@ -128,7 +166,7 @@ async function generateInvoice() {
         totalDue: totalDue
       };
 
-      showToast("인보이스 데이터가 성공적으로 생성되었습니다.", "success");
+      showToast("인보이스 데이터가 성공적으로 동기화되었습니다.", "success");
     } else {
       if (result.message.includes("만료") || result.message.includes("로그인")) {
         alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return;
@@ -168,3 +206,6 @@ function exportInvoiceCSV() {
 
 window.generateInvoice = generateInvoice;
 window.exportInvoiceCSV = exportInvoiceCSV;
+
+// 🌟 화면 진입 시 가맹점 목록 자동 동기화
+window.addEventListener('DOMContentLoaded', fetchClientList);
