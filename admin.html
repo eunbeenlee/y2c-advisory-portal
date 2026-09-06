@@ -3,13 +3,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- 🌟 모바일 앱 수준의 뷰포트 고정 및 테마 컬러 설정 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#1A1516">
   
   <title>Master Database | Sinjeon Canada Premium</title>
-  
-  <!-- 🌟 정식 파비콘 연결 -->
   <link rel="icon" type="image/png" href="favicon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -23,17 +20,17 @@
     .bg-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); }
     .premium-glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
     body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    
-    /* 🌟 가로 스크롤바 디자인 최적화 */
     .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f8f6f6; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--premium-charcoal); }
+    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; }
   </style>
 </head>
 <body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 selection:bg-[#E84C60] selection:text-white">
   
-  <!-- 🌟 상단 픽셀-퍼펙트 네비게이션 바 (흔들림 완벽 방지) -->
+  <!-- 상단 네비게이션 (픽셀 퍼펙트 고정) -->
   <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
       
@@ -49,8 +46,6 @@
         <a href="dashboard.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
         <a href="items.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
         <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
-        
-        <!-- 현재 페이지 하이라이트 -->
         <a href="admin.html" id="navAdmin" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-[13px] sm:text-sm tracking-wide">Master DB</a>
         <a href="invoice.html" id="navInvoice" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
         
@@ -64,65 +59,144 @@
     </div>
   </nav>
 
-  <!-- 메인 컨텐츠 영역 -->
-  <main class="max-w-7xl mx-auto mt-6 sm:mt-10 p-4 sm:p-6 lg:p-8">
+  <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8">
     
-    <div id="errorBanner" class="hidden mb-8 bg-[#C23347] text-white p-5 rounded-2xl shadow-lg flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <span class="text-2xl">⚠️</span>
+    <div id="errorBanner" class="hidden mb-6 bg-[#C23347] text-white p-5 rounded-2xl shadow-lg flex items-center justify-between">
+      <div class="flex items-center space-x-4"><span class="text-2xl">⚠️</span><div><h4 class="font-black text-sm tracking-wide">System Notice</h4><p id="errorBannerText" class="text-xs text-white/90 mt-0.5">Failed to fetch data.</p></div></div>
+      <button onclick="location.reload()" class="text-xs bg-white text-[#C23347] font-black px-4 py-2 rounded-xl shadow-md hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RELOAD</button>
+    </div>
+
+    <!-- 🌟 [엔터프라이즈] 탭 스위처: 가맹점 정보 vs 세일즈 데이터베이스 -->
+    <div class="flex justify-center sm:justify-start mb-8">
+      <div class="bg-gray-200/70 p-1.5 rounded-2xl flex gap-2 border border-gray-300/40 shadow-inner">
+        <button id="tabBtnProfiles" onclick="switchAdminTab('profiles')" class="px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-white text-[var(--premium-charcoal)] shadow-sm">
+          🏢 Franchise Profiles
+        </button>
+        <button id="tabBtnSales" onclick="switchAdminTab('sales')" class="px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900">
+          📊 Sales Database Manager
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SECTION 1: 가맹점 프로필 마스터 DB (기존 기능 100% 보존) -->
+    <!-- ======================================================== -->
+    <section id="sectionProfiles">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-          <h4 class="font-black text-sm tracking-wide">Synchronization Notice</h4>
-          <p id="errorBannerText" class="text-xs text-white/90 mt-0.5">Failed to fetch Master_Data.</p>
+          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
+            <span class="text-2xl">⚙️</span> Franchise Profiles
+          </h2>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Manage Canadian franchise locations, legal business IDs, and tax provinces.</p>
         </div>
       </div>
-      <button onclick="fetchMasterData()" class="text-xs bg-white text-[#C23347] font-black px-4 py-2 rounded-xl shadow-md hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RETRY</button>
-    </div>
 
-    <!-- 페이지 헤더 영역 -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-5">
-      <div>
-        <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
-          <span class="text-2xl">⚙️</span> Master Database
-        </h2>
-        <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Directly view and update franchise profile data synced with Google Sheets.</p>
+      <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80">
+        <div class="overflow-x-auto custom-scrollbar pb-2">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50/90 border-b-2 border-gray-200">
+              <tr>
+                <th scope="col" class="px-5 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap min-w-[180px]">Client Name</th>
+                <th scope="col" class="px-3 py-5 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[80px]">State</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[120px]">City</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[200px]">Address</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[150px]">Attn / Owner</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[180px]">Email</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[120px]">Business ID</th>
+                <th scope="col" class="px-5 py-5 text-center text-[10px] sm:text-[11px] font-black text-[#E84C60] bg-[#E84C60]/5 uppercase tracking-[0.15em] border-l border-[#E84C60]/10 min-w-[100px]">Action</th>
+              </tr>
+            </thead>
+            <tbody id="masterTableBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md">
+              <!-- JS 동적 렌더링 -->
+            </tbody>
+          </table>
+        </div>
       </div>
-      <a href="dashboard.html" class="w-full sm:w-auto bg-white text-gray-500 hover:text-[var(--premium-charcoal)] text-[11px] sm:text-xs font-black px-5 py-3.5 rounded-2xl transition-all border border-gray-200 shadow-sm flex items-center justify-center gap-2 hover:bg-gray-50 tracking-wider">
-        ← BACK TO DASHBOARD
-      </a>
-    </div>
+    </section>
 
-    <!-- 마스터 DB 테이블 -->
-    <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80">
-      <div class="overflow-x-auto custom-scrollbar pb-2">
-        <table class="min-w-full divide-y divide-gray-100">
-          <thead class="bg-gray-50/90 border-b-2 border-gray-200">
-            <tr>
-              <th scope="col" class="px-5 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap min-w-[180px]">Franchise Client Name</th>
-              <th scope="col" class="px-3 py-5 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[80px]">State</th>
-              <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[120px]">City</th>
-              <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[200px]">Address</th>
-              <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[150px]">Attn / Owner</th>
-              <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[180px]">Email</th>
-              <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[120px]">Business ID</th>
-              <th scope="col" class="px-5 py-5 text-center text-[10px] sm:text-[11px] font-black text-[#E84C60] bg-[#E84C60]/5 uppercase tracking-[0.15em] border-l border-[#E84C60]/10 min-w-[100px]">Action</th>
-            </tr>
-          </thead>
-          <tbody id="masterTableBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md">
-            <tr>
-              <td colspan="8" class="px-6 py-24 text-center">
-                <div class="flex flex-col items-center justify-center space-y-4">
-                  <svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                  <p class="text-[13px] font-bold text-gray-400 tracking-wide">Syncing Master_Data from secure database...</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- ======================================================== -->
+    <!-- SECTION 2: 🌟 [신규] 세일즈 데이터베이스 매니저 (2022~ 확장형) -->
+    <!-- ======================================================== -->
+    <section id="sectionSales" class="hidden">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-6 gap-4 border-b border-gray-200/60 pb-6">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
+            <span class="text-2xl">📊</span> Monthly Sales Database Manager
+          </h2>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Enter and synchronize historical & live POS/Delivery revenues directly into Google Sheets.</p>
+        </div>
+
+        <!-- 필터 셀렉터: 연도(2022~) 및 지점 선택 -->
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+          <div class="relative w-full sm:w-44">
+            <select id="salesYearSelector" onchange="loadSalesGrid()" class="w-full appearance-none bg-white border-2 border-gray-200 text-gray-700 py-3 pl-4 pr-10 rounded-xl shadow-sm text-xs font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer">
+              <!-- 2022부터 자동 주입 -->
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
+
+          <div class="relative w-full sm:w-64">
+            <select id="salesClientSelector" onchange="loadSalesGrid()" class="w-full appearance-none bg-white border-2 border-gray-200 text-gray-700 py-3 pl-4 pr-10 rounded-xl shadow-sm text-xs font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer">
+              <option value="">Loading stores...</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- 요약 KPI 카드 -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-[var(--premium-charcoal)]">
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Annual Total (YTD)</p>
+          <h3 id="salesKpiTotal" class="text-2xl font-black text-[var(--premium-charcoal)] font-mono">$0.00</h3>
+        </div>
+        <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-emerald-500">
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Annual POS Revenue</p>
+          <h3 id="salesKpiPos" class="text-2xl font-black text-emerald-600 font-mono">$0.00</h3>
+        </div>
+        <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-[var(--y2c-gold)]">
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Annual Delivery Revenue</p>
+          <h3 id="salesKpiDelivery" class="text-2xl font-black text-[var(--y2c-gold)] font-mono">$0.00</h3>
+        </div>
+      </div>
+
+      <!-- 12개월 분량 매출 입력 테이블 -->
+      <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80 mb-8">
+        <div class="overflow-x-auto custom-scrollbar pb-2">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50/90 border-b-2 border-gray-200">
+              <tr>
+                <th scope="col" class="px-6 py-4 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[80px]">Month</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[180px]">POS Sales (CAD)</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[180px]">Delivery Sales (CAD)</th>
+                <th scope="col" class="px-6 py-4 text-right text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[150px]">Net Monthly Total</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[100px]">DB Status</th>
+              </tr>
+            </thead>
+            <tbody id="salesGridBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md">
+              <!-- JS 동적 렌더링 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 저장 버튼 -->
+      <div class="flex justify-end pb-10">
+        <button id="saveAllSalesBtn" onclick="saveSalesGridData()" class="w-full sm:w-auto bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] text-white font-black py-4 px-12 rounded-2xl transition-all duration-300 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-3 text-sm tracking-widest">
+          <span>💾</span> SAVE ALL 12-MONTH SALES
+        </button>
+      </div>
+    </section>
+
   </main>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/admin.js"></script>
+  <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
+  <script src="assets/js/config.js?v=7.4"></script>
+  <script src="assets/js/admin.js?v=7.4"></script>
 </body>
 </html>
