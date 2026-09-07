@@ -12,7 +12,6 @@
   <style>
     :root { --sinjeon-pink: #E84C60; --premium-charcoal: #1A1516; }
     body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    /* 자동완성 배경색 커스텀 */
     input:-webkit-autofill { -webkit-box-shadow: 0 0 0 30px white inset !important; -webkit-text-fill-color: #1A1516 !important; }
   </style>
 </head>
@@ -20,7 +19,6 @@
   
   <!-- 좌측: 브랜드 비주얼 영역 -->
   <div class="hidden lg:flex lg:w-1/2 bg-[var(--premium-charcoal)] relative flex-col justify-center px-16 xl:px-24">
-    <!-- 배경 장식 -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute -top-40 -left-40 w-96 h-96 bg-[#E84C60] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
       <div class="absolute top-40 -right-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
@@ -28,7 +26,7 @@
     
     <div class="relative z-10 w-full max-w-lg">
       <div class="flex items-center gap-6 mb-16">
-        <!-- 🌟 404 에러 방어: 이미지가 없을 경우 대체 경로 시도 -->
+        <!-- 이미지 에러 시 대체 경로 시도 -->
         <img src="assets/images/Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="h-14 object-contain">
         <div class="h-10 w-px bg-white/20"></div>
         <img src="assets/images/y2c_holdings_logo.png" onerror="this.onerror=null; this.src='y2c_holdings_logo.png';" alt="Y2C Logo" class="h-10 object-contain bg-white rounded-lg p-1.5">
@@ -57,9 +55,7 @@
         <p class="text-sm font-bold text-gray-400 tracking-wide">Please enter your master or partner credentials.</p>
       </div>
 
-      <!-- 🌟 정확한 ID 체계가 부여된 로그인 폼 -->
       <form id="loginForm" class="space-y-6">
-        
         <div class="space-y-2">
           <label for="userId" class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Partner ID</label>
           <div class="relative">
@@ -88,7 +84,7 @@
           </div>
         </div>
 
-        <!-- 🌟 자바스크립트가 컨트롤할 에러 메시지 영역 -->
+        <!-- 스크립트가 인식할 에러 메시지 영역 -->
         <div id="errorMessage" class="hidden bg-[#C23347]/10 border border-[#C23347]/20 text-[#C23347] text-[12px] font-bold px-4 py-3.5 rounded-xl text-center flex items-center justify-center gap-2 tracking-wide">
           <span>⚠️</span> <span id="errorText">Connection failed. Please try again.</span>
         </div>
@@ -99,7 +95,6 @@
         </button>
       </form>
       
-      <!-- Footer Info -->
       <div class="mt-12 text-center">
         <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
           Y2C Holdings Inc. &copy; 2026
@@ -109,7 +104,8 @@
     </div>
   </div>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/auth.js"></script>
+  <!-- 강제 최신 버전 로딩 v=9.1 -->
+  <script src="assets/js/config.js?v=9.1"></script>
+  <script src="assets/js/auth.js?v=9.1"></script>
 </body>
 </html>
