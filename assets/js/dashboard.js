@@ -1,6 +1,6 @@
 // assets/js/dashboard.js
 
-const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
+const userRole = (localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN);
 
@@ -8,7 +8,18 @@ if (!sessionToken || !clientName) {
   window.location.href = "index.html";
 }
 
+// 🌟 [엔터프라이즈 방화벽] VENDOR 권한이 URL을 치고 들어오면 강제 추방
+if (userRole === "VENDOR") {
+  window.location.href = "items.html";
+}
+
 document.getElementById('userNameDisplay').innerText = clientName;
+const badge = document.getElementById('userRoleBadge');
+if (badge) {
+  badge.classList.remove('hidden');
+  badge.innerText = userRole;
+}
+
 document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear();
   window.location.href = "index.html";
@@ -22,6 +33,9 @@ let salesChartInstance = null;
 let currentChartData = []; // 엑셀 추출용 메모리 보관
 
 async function fetchDashboardData(year) {
+  const errorBanner = document.getElementById('errorBanner');
+  if(errorBanner) errorBanner.classList.add('hidden');
+
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST",
@@ -45,10 +59,9 @@ async function fetchDashboardData(year) {
       throw new Error(result.message);
     }
   } catch (error) {
-    const banner = document.getElementById('errorBanner');
-    if(banner) {
-      banner.classList.remove('hidden');
-      document.getElementById('errorBannerText').innerText = "데이터를 불러오지 못했습니다. " + error.message;
+    if(errorBanner) {
+      errorBanner.classList.remove('hidden');
+      document.getElementById('errorBannerText').innerText = "데이터 통신 중 오류가 발생했습니다: " + error.message;
     }
   }
 }
@@ -71,16 +84,28 @@ function renderChart(data) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1A1516', titleFont: { size: 13 }, bodyFont: { size: 14, weight: 'bold' }, padding: 12, callbacks: { label: function(context) { return formatCurrency(context.raw); } } } },
+      plugins: { 
+        legend: { display: false }, 
+        tooltip: { 
+          backgroundColor: '#1A1516', titleFont: { size: 13 }, bodyFont: { size: 14, weight: 'bold' }, padding: 12, 
+          callbacks: { label: function(context) { return formatCurrency(context.raw); } } 
+        } 
+      },
       scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11, weight: 'bold' }, color: '#9CA3AF', callback: function(value) { return '$' + (value / 1000) + 'k'; } } },
-        x: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 12, weight: 'bold' }, color: '#6B7280' } }
+        y: { 
+          beginAtZero: true, 
+          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, 
+          ticks: { font: { size: 11, weight: 'bold' }, color: '#9CA3AF', callback: function(value) { return '$' + (value / 1000) + 'k'; } } 
+        },
+        x: { 
+          grid: { display: false, drawBorder: false }, 
+          ticks: { font: { size: 12, weight: 'bold' }, color: '#6B7280' } 
+        }
       }
     }
   });
 }
 
-// 🌟 [엔터프라이즈 기능] CSV 데이터 내보내기 (Export)
 function exportDashboardCSV() {
   const year = document.getElementById('yearSelector').value;
   if (!currentChartData || currentChartData.length === 0) return alert("내보낼 데이터가 없습니다.");
@@ -116,11 +141,14 @@ window.exportDashboardCSV = exportDashboardCSV;
 document.addEventListener('DOMContentLoaded', () => {
   const yearSelector = document.getElementById('yearSelector');
   const currentYear = new Date().getFullYear();
+  
+  // 현재 연도를 기준으로 과거 3년까지 선택지 제공
   for (let y = currentYear; y >= currentYear - 3; y--) {
     const option = document.createElement('option');
     option.value = y; option.innerText = `${y} Fiscal Year`;
     yearSelector.appendChild(option);
   }
+  
   yearSelector.addEventListener('change', (e) => fetchDashboardData(e.target.value));
   fetchDashboardData(currentYear);
 });
