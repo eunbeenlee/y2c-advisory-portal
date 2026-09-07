@@ -2,7 +2,7 @@
 
 const SYSTEM_CONFIG = {
   API: {
-    // ⚠️ 새로 배포하신 최신 Google Apps Script Web App URL
+    // ⚠️ 구글 스크립트에서 [새 버전] 배포 후 발급받은 주소를 아래에 넣어주세요.
     BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec",
     ENDPOINTS: {
       LOGIN: "login",
@@ -14,8 +14,8 @@ const SYSTEM_CONFIG = {
       UPDATE_MASTER: "update_master_data",
       GET_INVOICE: "get_invoice",
       RECIPES: "get_recipes",
-      GET_SALES: "get_sales_records",       // 🌟 [신규] 세일즈 DB 조회
-      SAVE_SALES: "save_sales_records"      // 🌟 [신규] 세일즈 DB 저장(Upsert)
+      GET_SALES: "get_sales_records",
+      SAVE_SALES: "save_sales_records"
     }
   },
   STORAGE_KEYS: {
@@ -23,6 +23,7 @@ const SYSTEM_CONFIG = {
     ROLE: "y2c_premium_role",
     CLIENT_NAME: "y2c_premium_client"
   },
+  // 🌟 [엔터프라이즈] 캐나다 주별 세금 복합 계산 엔진
   TAX_RATES: {
     "ON": { name: "HST (13%)", rate: 0.13 },
     "BC": { name: "GST 5% + PST 7%", rate: 0.12 },
@@ -38,10 +39,10 @@ const SYSTEM_CONFIG = {
   }
 };
 
-// 🌟 [엔터프라이즈] 브라우저 세션 30분 자동 로그아웃
+// 🌟 [엔터프라이즈] 글로벌 브라우저 세션 30분 자동 로그아웃 매니저
 (function() {
   if (window.location.pathname.indexOf('index.html') === -1 && window.location.pathname !== "/") {
-    const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+    const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
     let idleTimer = null;
 
     function logoutUser() {
@@ -58,6 +59,7 @@ const SYSTEM_CONFIG = {
     ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
       document.addEventListener(evt, resetIdleTimer, { passive: true });
     });
+    
     resetIdleTimer();
   }
 })();
