@@ -10,11 +10,17 @@
   <link rel="icon" type="image/png" href="favicon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 🌟 [엔터프라이즈] 엑셀 파싱 코어 라이브러리 탑재 -->
+  <!-- 🌟 [엔터프라이즈] 엑셀 파싱 및 AI Vision OCR 코어 라이브러리 탑재 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   
   <style>
-    :root { --sinjeon-pink: #E84C60; --sinjeon-pink-dark: #C23347; --premium-charcoal: #1A1516; --y2c-gold: #D4AF37; }
+    :root { 
+      --sinjeon-pink: #E84C60; 
+      --sinjeon-pink-dark: #C23347; 
+      --premium-charcoal: #1A1516; 
+      --y2c-gold: #D4AF37; 
+    }
     .bg-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); }
     .premium-glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
     body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -24,6 +30,8 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--premium-charcoal); }
     input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 selection:bg-[#E84C60] selection:text-white">
@@ -61,22 +69,22 @@
       <button onclick="location.reload()" class="text-xs bg-white text-[#C23347] font-black px-4 py-2 rounded-xl shadow-md hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RELOAD</button>
     </div>
 
-    <!-- 🌟 4구역 탭 스위처 확장 -->
+    <!-- 🌟 4구역 탭 스위처 -->
     <div class="flex flex-col sm:flex-row justify-center sm:justify-start mb-8 overflow-x-auto no-scrollbar">
       <div class="bg-gray-200/70 p-1.5 rounded-2xl flex gap-2 border border-gray-300/40 shadow-inner w-max">
         <button id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-white text-[var(--premium-charcoal)] shadow-sm whitespace-nowrap">🏢 Profiles</button>
         <button id="tabBtn_sales" onclick="switchAdminTab('sales')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap">📊 Sales DB</button>
-        <button id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap">📤 Excel Inbound</button>
+        <button id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap">📤 AI Inbound</button>
         <button id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap">🚢 HQ Procurement</button>
       </div>
     </div>
 
-    <!-- SECTION 1: 가맹점 프로필 -->
+    <!-- SECTION 1: 가맹점 프로필 관리 -->
     <section id="section_profiles">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
           <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">⚙️</span> Franchise Profiles</h2>
-          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Manage Canadian locations and tax provinces.</p>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Manage Canadian franchise locations, legal business IDs, and tax provinces.</p>
         </div>
       </div>
       <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80">
@@ -88,9 +96,9 @@
                 <th scope="col" class="px-3 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[80px]">State</th>
                 <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[120px]">City</th>
                 <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[200px]">Address</th>
-                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[150px]">Attn</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[150px]">Attn / Owner</th>
                 <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[180px]">Email</th>
-                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[120px]">Biz ID</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[120px]">Business ID</th>
                 <th scope="col" class="px-5 py-5 text-center text-[10px] font-black text-[#E84C60] bg-[#E84C60]/5 uppercase tracking-widest border-l border-[#E84C60]/10 min-w-[100px]">Action</th>
               </tr>
             </thead>
@@ -100,12 +108,12 @@
       </div>
     </section>
 
-    <!-- SECTION 2: 세일즈 데이터베이스 매니저 -->
+    <!-- SECTION 2: 세일즈 데이터베이스 매니저 (ERP) -->
     <section id="section_sales" class="hidden">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-6 gap-4 border-b border-gray-200/60 pb-6">
         <div>
-          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">📊</span> Monthly Sales ERP</h2>
-          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Enter POS/Delivery revenues directly into Google Sheets.</p>
+          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">📊</span> Sales Database ERP</h2>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Enter and synchronize historical & live revenues directly into Google Sheets.</p>
         </div>
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
           <div class="relative w-full sm:w-44">
@@ -118,6 +126,7 @@
           </div>
         </div>
       </div>
+      
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-[var(--premium-charcoal)]">
           <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Annual Total (YTD)</p>
@@ -132,16 +141,17 @@
           <h3 id="salesKpiDelivery" class="text-2xl font-black text-[var(--y2c-gold)] font-mono">$0.00</h3>
         </div>
       </div>
+
       <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80 mb-8">
         <div class="overflow-x-auto custom-scrollbar pb-2">
           <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/90 border-b-2 border-gray-200">
               <tr>
-                <th scope="col" class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Month</th>
-                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">POS (CAD)</th>
-                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Delivery (CAD)</th>
-                <th scope="col" class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Net Total</th>
-                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">DB Status</th>
+                <th scope="col" class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[80px]">Month</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[180px]">POS Sales (CAD)</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[180px]">Delivery Sales (CAD)</th>
+                <th scope="col" class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[150px]">Net Monthly Total</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[100px]">DB Status</th>
               </tr>
             </thead>
             <tbody id="salesGridBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md"></tbody>
@@ -155,18 +165,17 @@
       </div>
     </section>
 
-    <!-- 🌟 SECTION 3: 엑셀 파일 인바운드 파서 존 -->
+    <!-- 🌟 SECTION 3: 마스터 다중 벤더 AI 비전 엑셀/이미지 파서 -->
     <section id="section_inbound" class="hidden">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-gray-200/60 pb-6">
         <div>
-          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">📤</span> Multi-Vendor Excel Inbound</h2>
-          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Drag & Drop vendor inventory files. Auto-matches SKUs using Vendor_Mapping DB.</p>
+          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">📤</span> AI Vision OCR Inbound</h2>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Drag vendor excel files or invoice images. Auto-extracts SKU, Qty, and Exp.Date.</p>
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-        <!-- 엑셀 드롭존 -->
-        <div class="premium-glass p-8 rounded-[2.5rem] border border-gray-200 shadow-sm flex flex-col justify-center">
+        <div class="premium-glass p-8 rounded-[2.5rem] border border-gray-200 shadow-sm flex flex-col justify-center bg-gradient-to-br from-white to-gray-50/30">
           <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-4">Step 1. Select Target Hub Region</label>
           <select id="inboundRegionSelector" class="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-4 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition mb-6">
             <option value="">-- 입고될 지역(Hub)을 선택하세요 --</option>
@@ -175,27 +184,27 @@
             <option value="AB">AB (Alberta Hub)</option>
           </select>
 
-          <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-4">Step 2. Upload Vendor Excel</label>
-          <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-all min-h-[200px]" onclick="document.getElementById('excelFileInput').click()">
-            <span class="text-4xl mb-4">📑</span>
-            <p id="uploadStatusText" class="text-sm font-bold text-gray-500 tracking-wide">Drag & Drop vendor excel file here<br><span class="text-xs text-gray-400 font-medium">or click to browse (.xlsx, .xls)</span></p>
-            <input type="file" id="excelFileInput" class="hidden" accept=".xlsx, .xls, .csv">
+          <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-4">Step 2. Drop Document or Image</label>
+          <div id="dropZone" class="border-2 border-dashed border-gray-300 bg-white rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 hover:border-[#E84C60] transition-all min-h-[200px]" onclick="document.getElementById('excelFileInput').click()">
+            <span class="text-4xl mb-4">📸</span>
+            <p id="uploadStatusText" class="text-sm font-bold text-gray-500 tracking-wide">Drag & Drop vendor document here<br><span class="text-xs text-gray-400 font-medium">Supports .xlsx, .xls, .jpg, .png</span></p>
+            <input type="file" id="excelFileInput" class="hidden" accept=".xlsx, .xls, .csv, .png, .jpg, .jpeg">
           </div>
         </div>
 
         <div class="premium-glass p-8 rounded-[2.5rem] border border-gray-200 shadow-sm bg-gray-50/50">
-          <h3 class="text-sm font-black text-[var(--premium-charcoal)] tracking-widest uppercase mb-4 border-b border-gray-200 pb-3 flex items-center gap-2"><span>🛡️</span> Security & Rules</h3>
+          <h3 class="text-sm font-black text-[var(--premium-charcoal)] tracking-widest uppercase mb-4 border-b border-gray-200 pb-3 flex items-center gap-2"><span>🤖</span> AI Recognition Rules</h3>
           <ul class="space-y-4 text-xs text-gray-600 font-medium leading-relaxed">
-            <li class="flex items-start gap-2"><span class="text-[#E84C60] mt-0.5">●</span> 파일 내에 <strong>Item#, Item Code, 품번, Barcode</strong> 중 하나의 열이 반드시 존재해야 합니다.</li>
-            <li class="flex items-start gap-2"><span class="text-[#E84C60] mt-0.5">●</span> 재고 수량은 <strong>Qty, Quantity, 수량, Stock</strong> 열에서 자동으로 파싱됩니다.</li>
-            <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">●</span> 시스템 내의 <code>Vendor_Mapping</code> DB를 조회하여 해당 벤더의 고유 품번을 Y2C 본사 표준 코드로 1초 만에 스마트 치환합니다.</li>
-            <li class="flex items-start gap-2"><span class="text-purple-500 mt-0.5">●</span> 입고 처리 내역은 Audit Logs에 영구 기록되어 책임 소재를 보호합니다.</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-500 mt-0.5">●</span> <strong>[Vision OCR]</strong> 텍스트가 명확히 보이는 모니터 화면 캡처나 송장 이미지를 올리면 Tesseract AI가 한/영 문자를 추출합니다.</li>
+            <li class="flex items-start gap-2"><span class="text-[#E84C60] mt-0.5">●</span> 파일 내에 <strong>Item#, Item Code, 품번, Barcode</strong> 등을 통해 매핑 DB와 1초 만에 스마트 치환을 수행합니다.</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">●</span> 재고 수량은 <strong>Qty, 수량, Stock</strong>에서 파싱하며, 유통기한은 <strong>Exp.Date, 유통기한</strong> 또는 이미지 속 <code>YYYY-MM-DD</code> 패턴을 스캔합니다.</li>
+            <li class="flex items-start gap-2"><span class="text-purple-500 mt-0.5">●</span> 입고 수량 및 만료일자 갱신 이력은 Audit Logs에 영구 박제됩니다.</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <!-- 🌟 SECTION 4: 본사 발주 관제 타임라인 -->
+    <!-- SECTION 4: 본사 발주 관제 타임라인 -->
     <section id="section_hqorders" class="hidden">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-gray-200/60 pb-6">
         <div>
@@ -204,7 +213,6 @@
         </div>
       </div>
 
-      <!-- 신규 발주서 등록 폼 -->
       <div class="premium-glass p-6 sm:p-8 rounded-[2rem] border border-gray-200/80 mb-8 bg-gradient-to-br from-white to-gray-50">
         <h3 class="text-sm font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-5">Create HQ Order Record</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
@@ -228,7 +236,6 @@
         </div>
       </div>
 
-      <!-- 관제 타임라인 그리드 -->
       <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80 pb-6">
         <div class="overflow-x-auto custom-scrollbar">
           <table class="min-w-full divide-y divide-gray-100">
@@ -255,8 +262,8 @@
 
   <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-  <!-- 🌟 강력 캐시 무력화 버전 태그 (?v=10.3) -->
-  <script src="assets/js/config.js?v=10.3"></script>
-  <script src="assets/js/admin.js?v=10.3"></script>
+  <!-- 강제 캐시 무시 태그 (?v=11.1) -->
+  <script src="assets/js/config.js?v=11.1"></script>
+  <script src="assets/js/admin.js?v=11.1"></script>
 </body>
 </html>
