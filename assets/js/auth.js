@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
 
       try {
-        // 🌟 CORS 원천 차단 방어를 위한 특수 fetch 세팅 (text/plain + follow)
+        // 🌟 CORS 원천 차단 방어 (text/plain)
         const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
           method: 'POST',
           headers: {
@@ -75,11 +75,14 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE, result.role);
           localStorage.setItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME, result.clientName);
           
+          // 🌟 [로딩 최적화] 로그인 시점에 서버가 알려준 State를 저장해둠
+          localStorage.setItem("y2c_premium_state", result.clientState || "DEFAULT");
+          
           submitBtn.innerHTML = "✅ Access Granted";
           submitBtn.classList.remove('bg-[#E84C60]');
           submitBtn.classList.add('bg-emerald-600'); 
           
-          // 🌟 RBAC: VENDOR는 대시보드를 못 보게 강제 분리 라우팅
+          // RBAC: VENDOR는 대시보드를 못 보게 강제 분리 라우팅
           setTimeout(() => {
             if (result.role === "VENDOR") {
               window.location.href = 'items.html';
