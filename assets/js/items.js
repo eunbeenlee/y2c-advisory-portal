@@ -66,14 +66,14 @@ function showToast(message, type = 'success') {
 }
 
 let cachedItems = [];
-let cachedMappings = []; // 엑셀 매핑용 DB 보관
+let cachedMappings = []; 
 let isStockEditMode = false; 
 let currentClientState = cachedClientState; 
 let masterViewRegion = "ALL"; 
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// 🌟 [신규 추가] 엑셀 파싱을 위한 벤더 매핑 DB 로드 (마스터 및 벤더 전용)
+// 매핑 DB 로드
 async function fetchMappings() {
   if (userRole !== "MASTER" && userRole !== "VENDOR") return;
   try {
@@ -123,9 +123,9 @@ async function fetchItems() {
 
       if (userRole === "MASTER" || userRole === "VENDOR") {
         const masterControls = document.getElementById('masterInventoryControls');
-        const excelZone = document.getElementById('vendorExcelUploadZone');
+        const uploadZone = document.getElementById('vendorExcelUploadZone');
         if (masterControls) masterControls.classList.remove('hidden');
-        if (excelZone) excelZone.classList.remove('hidden'); // 벤더 다이렉트 업로드 UI 활성화
+        if (uploadZone) uploadZone.classList.remove('hidden');
         populateRegionFilter();
       } else {
         const aiBtn = document.getElementById('aiSuggestBtn');
@@ -155,10 +155,9 @@ function populateRegionFilter() {
   regions.forEach(reg => { filter.innerHTML += `<option value="${reg}">Hub: ${reg}</option>`; });
   filter.value = masterViewRegion;
   
-  // 엑셀 업로드 지역 셀렉터도 동기화
   const inboundFilter = document.getElementById('inboundRegionSelector');
   if (inboundFilter) {
-    inboundFilter.innerHTML = `<option value="">-- Select Hub Region for Excel --</option>`;
+    inboundFilter.innerHTML = `<option value="">-- Select Hub Region for Inbound --</option>`;
     regions.forEach(reg => { inboundFilter.innerHTML += `<option value="${reg}">Hub: ${reg}</option>`; });
   }
 }
@@ -166,6 +165,16 @@ function populateRegionFilter() {
 function applyRegionFilter() {
   masterViewRegion = document.getElementById('regionFilter').value;
   renderTableItems(); 
+}
+
+// 🌟 유통기한(Exp Date) 판단 로직 (임박 여부)
+function checkExpWarning(expDateStr) {
+  if (!expDateStr || expDateStr === "-") return false;
+  const expDate = new Date(expDateStr);
+  const today = new Date();
+  const diffTime = expDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return (diffDays <= 30); // 30일 이내면 임박(Warning)으로 간주
 }
 
 function renderTableItems() {
@@ -209,30 +218,54 @@ function renderTableItems() {
       aiBadgeHTML = `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${item.aiSuggestedQty}</span></div>`;
     }
 
+    // 🌟 [유통기한 렌더링 로직]
+    let expDisplayHTML = '';
+    let expDateVal = "";
+    if (isMasterOrVendor && masterViewRegion !== "ALL") {
+      expDateVal = item.expBreakdown && item.expBreakdown[masterViewRegion] ? item.expBreakdown[masterViewRegion] : "";
+    } else if (!isMasterOrVendor) {
+      expDateVal = item.expBreakdown && item.expBreakdown[currentClientState] ? item.expBreakdown[currentClientState] : "";
+    }
+    
+    if (expDateVal) {
+      const isExpWarn = checkExpWarning(expDateVal);
+      const expColorClass = isExpWarn ? "text-[#E84C60] bg-[#E84C60]/10 border-[#E84C60]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
+      const expIcon = isExpWarn ? "⚠️" : "🕒";
+      expDisplayHTML = `<div class="mt-1.5 inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border shadow-sm ${expColorClass}"><span>${expIcon}</span> EXP: ${expDateVal}</div>`;
+    }
+
     let stockDisplayHTML = '', orderInputHTML = '';
     
     if (isStockEditMode && isMasterOrVendor) {
       let editInputs = '';
       for (const reg in item.stockBreakdown) {
         const currentRegStock = item.stockBreakdown[reg];
-        editInputs += `<div class="flex items-center justify-between gap-2 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 mb-1">
-          <span class="text-[9px] font-black text-emerald-800">${reg}</span>
-          <input type="number" min="0" data-code="${item.code}" data-region="${reg}" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-12 bg-white border border-emerald-400 rounded px-1 text-center text-[11px] font-bold focus:outline-none">
+        const currentRegExp = item.expBreakdown && item.expBreakdown[reg] ? item.expBreakdown[reg] : "";
+        
+        editInputs += `<div class="flex flex-col gap-1 bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-100 mb-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[9px] font-black text-emerald-800">${reg} STOCK</span>
+            <input type="number" min="0" data-code="${item.code}" data-region="${reg}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-14 bg-white border border-emerald-400 rounded px-1 text-center text-[11px] font-bold focus:outline-none">
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[9px] font-black text-emerald-800">${reg} EXP</span>
+            <input type="text" placeholder="YYYY-MM-DD" data-code="${item.code}" data-region="${reg}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp}" class="exp-region-input w-20 bg-white border border-emerald-400 rounded px-1 text-center text-[10px] font-bold focus:outline-none placeholder-emerald-200">
+          </div>
         </div>`;
       }
       stockDisplayHTML = `<div class="flex flex-col w-full">${editInputs}</div>`;
       orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
     } 
     else if (isMasterOrVendor && !isStockEditMode) {
-      stockDisplayHTML = `<span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>`;
+      stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
       orderInputHTML = `<input type="number" disabled placeholder="${userRole}" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[10px] font-black text-gray-400 opacity-50 cursor-not-allowed uppercase">`;
     } 
     else {
       if (isSoldOut) {
-        stockDisplayHTML = `<span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap">Sold Out</span>`;
+        stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap">Sold Out</span>${expDisplayHTML}</div>`;
         orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
       } else {
-        stockDisplayHTML = `<span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>`;
+        stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
         orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" oninput="calculateOrderTotal()" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all">`;
       }
     }
@@ -315,9 +348,9 @@ function calculateOrderTotal() {
   if(eleGrand) eleGrand.innerText = formatCurrency(grandTotal);
 }
 
-// 🌟 [최적화] 스마트 Diff 방화벽 로직 유지
+// 🌟 [최적화] 스마트 Diff 방화벽 로직 + 유통기한 데이터 병합
 async function toggleStockEditMode() {
-  if (isSubmitting) return; // 광클 방어
+  if (isSubmitting) return; 
   const btn = document.getElementById('toggleStockBtn');
   const filter = document.getElementById('regionFilter');
   const orderContainer = document.getElementById('orderActionContainer');
@@ -329,18 +362,31 @@ async function toggleStockEditMode() {
     if (orderContainer) orderContainer.classList.add('hidden');
     renderTableItems(); 
   } else {
-    const inputs = document.querySelectorAll('.stock-region-input');
+    const stockInputs = document.querySelectorAll('.stock-region-input');
+    const expInputs = document.querySelectorAll('.exp-region-input');
     const updateMap = {};
     let hasChanges = false;
     
-    inputs.forEach(input => {
+    // 수량 변경 감지
+    stockInputs.forEach(input => {
       const c = input.getAttribute('data-code'), r = input.getAttribute('data-region');
       const v = parseInt(input.value) || 0;
       const original = parseInt(input.getAttribute('data-original')) || 0;
-      
       if (v !== original) {
-        if(!updateMap[c]) updateMap[c] = {};
-        updateMap[c][r] = v;
+        if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} };
+        updateMap[c].stockBreakdown[r] = v;
+        hasChanges = true;
+      }
+    });
+
+    // 유통기한 변경 감지
+    expInputs.forEach(input => {
+      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region');
+      const v = String(input.value).trim();
+      const original = String(input.getAttribute('data-original')).trim();
+      if (v !== original) {
+        if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} };
+        updateMap[c].expBreakdown[r] = v;
         hasChanges = true;
       }
     });
@@ -356,7 +402,12 @@ async function toggleStockEditMode() {
 
     isSubmitting = true;
     if(btn) { btn.disabled = true; btn.innerHTML = "⏳ SAVING..."; btn.classList.add('animate-pulse'); }
-    const updates = Object.keys(updateMap).map(c => ({ code: c, stockBreakdown: updateMap[c] }));
+    
+    const updates = Object.keys(updateMap).map(c => ({ 
+      code: c, 
+      stockBreakdown: updateMap[c].stockBreakdown,
+      expBreakdown: updateMap[c].expBreakdown
+    }));
 
     try {
       const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -366,7 +417,7 @@ async function toggleStockEditMode() {
       const result = JSON.parse(await response.text());
 
       if (result.success) {
-        showToast("재고가 안전하게 동기화되었습니다.", "success");
+        showToast("재고 및 유통기한이 안전하게 동기화되었습니다.", "success");
         setTimeout(() => fetchItems(), 1000); 
       } else throw new Error(result.message);
     } catch (err) { 
@@ -426,48 +477,124 @@ async function submitOrder() {
   }
 }
 
-// 🌟 [신규 통합] 벤더 다이렉트 엑셀 업로드 엔진 (SheetJS 활용)
-function handleExcelUpload(event) {
+// 🌟 [V11.1 통합] AI 비전 (Tesseract OCR) + SheetJS 엑셀 멀티 업로드 엔진
+async function handleExcelUpload(event) {
   event.preventDefault();
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
   if (!file) return;
 
-  const validExts = [".xlsx", ".xls", ".csv"];
+  const validExcelExts = [".xlsx", ".xls", ".csv"];
+  const validImgExts = [".png", ".jpg", ".jpeg"];
   const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-  if (!validExts.includes(fileExt)) return showToast("지원하지 않는 엑셀 포맷입니다 (.xlsx, .xls)", "error");
-
+  
   const statusText = document.getElementById('uploadStatusText');
-  if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Scanning Document...</span>`;
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
+  // 1. 엑셀 파일 처리
+  if (validExcelExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+        processExcelData(jsonData, file.name);
+      } catch(err) {
+        showToast("엑셀 파일 파싱 중 오류가 발생했습니다.", "error");
+        if(statusText) statusText.innerHTML = "Drag & Drop vendor excel/image here";
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } 
+  // 2. 🌟 이미지 파일 (OCR) 처리
+  else if (validImgExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
+    
+    // Tesseract OCR 라이브러리 비동기 로드 및 실행
     try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, {type: 'array'});
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+      if (typeof Tesseract === 'undefined') {
+        throw new Error("Tesseract.js 라이브러리가 로드되지 않았습니다.");
+      }
       
-      processExcelData(jsonData, file.name);
+      const result = await Tesseract.recognize(file, 'eng+kor', {
+        logger: m => {
+          if (m.status === 'recognizing text' && statusText) {
+            const pct = Math.floor(m.progress * 100);
+            statusText.innerHTML = `<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`;
+          }
+        }
+      });
       
+      const extractedText = result.data.text;
+      processOCRText(extractedText, file.name);
+
     } catch(err) {
-      showToast("파일 파싱 중 오류가 발생했습니다.", "error");
-      if(statusText) statusText.innerHTML = "Drag & Drop vendor excel file here";
+      showToast("이미지 인식 실패: " + err.message, "error");
+      if(statusText) statusText.innerHTML = "Drag & Drop vendor excel/image here";
     }
-  };
-  reader.readAsArrayBuffer(file);
+  } else {
+    return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error");
+  }
 }
 
+// 🌟 OCR로 추출된 생 텍스트를 구조화된 JSON 데이터로 변환 (스마트 Regex)
+function processOCRText(text, filename) {
+  const lines = text.split('\n');
+  const jsonData = [];
+  
+  lines.forEach(line => {
+    // 1. 유통기한 추출 (YYYY-MM-DD 패턴)
+    const dateMatch = line.match(/\d{4}-\d{2}-\d{2}/);
+    const expDate = dateMatch ? dateMatch[0] : "";
+    
+    // 2. 품번(Barcode/Item#) 추출 (알파벳+숫자 조합의 5~15자리 패턴 가정)
+    // 예: 70808SJ, F60134SJ, 16289020601348 등
+    const codeMatch = line.match(/[A-Z0-9]{5,15}/); 
+    const itemCode = codeMatch ? codeMatch[0] : "";
+
+    // 3. 수량 추출 (연속된 숫자들 중 날짜, 바코드를 제외한 나머지 중 마지막 값 등을 추정)
+    // 안전한 맵핑을 위해 라인 내의 독립된 숫자를 찾음
+    const nums = line.match(/\b\d+\b/g);
+    let qty = 0;
+    if (nums && nums.length > 0) {
+      // 바코드나 품번으로 인식된 숫자는 제외하고 가장 그럴듯한 수량 픽업 (주로 마지막 숫자)
+      for(let i = nums.length - 1; i >= 0; i--) {
+        if(nums[i] !== itemCode && nums[i].length < 5) {
+          qty = parseInt(nums[i]);
+          break;
+        }
+      }
+    }
+
+    if(itemCode && qty > 0) {
+      jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
+    }
+  });
+
+  if (jsonData.length === 0) {
+    showToast("이미지에서 품번 및 수량 패턴을 찾지 못했습니다.", "error");
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
+    return;
+  }
+  
+  // 생성된 가상 JSON을 엑셀 파싱 엔진으로 전송
+  processExcelData(jsonData, filename + " (OCR)");
+}
+
+// 🌟 통합 엑셀/OCR 데이터 데이터베이스 맵핑 및 업서트 엔진
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
     showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
-    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
     return;
   }
 
   if (cachedMappings.length === 0) {
     showToast("벤더 매핑 DB가 아직 로드되지 않았습니다. 잠시 후 다시 시도하세요.", "error");
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
     return;
   }
 
@@ -476,16 +603,18 @@ async function processExcelData(jsonData, filename) {
   let failCount = 0;
 
   jsonData.forEach(row => {
-    // 벤더사마다 다른 헤더명을 스마트하게 파악
     const vItemCode = String(row["Item#"] || row["Item Code"] || row["품번"] || row["Barcode"] || "").trim();
     const vQty = row["Qty"] || row["Quantity"] || row["수량"] || row["Stock"] || 0;
+    const vExp = String(row["Exp.Date"] || row["유통기한"] || "").trim();
     const parsedQty = parseInt(vQty);
 
     if (vItemCode !== "" && !isNaN(parsedQty)) {
-      const mapObj = cachedMappings.find(m => m.vendorCode.toLowerCase() === vItemCode.toLowerCase());
+      // 본사 코드와 벤더 코드 양쪽 모두 교차 매칭 지원
+      const mapObj = cachedMappings.find(m => m.vendorCode.toLowerCase() === vItemCode.toLowerCase() || m.hqCode.toLowerCase() === vItemCode.toLowerCase());
       if (mapObj) {
-        if(!mappedUpdates[mapObj.hqCode]) mappedUpdates[mapObj.hqCode] = {};
-        mappedUpdates[mapObj.hqCode][targetRegion] = parsedQty;
+        if(!mappedUpdates[mapObj.hqCode]) mappedUpdates[mapObj.hqCode] = { stock: {}, exp: {} };
+        mappedUpdates[mapObj.hqCode].stock[targetRegion] = parsedQty;
+        if (vExp) mappedUpdates[mapObj.hqCode].exp[targetRegion] = vExp;
         successCount++;
       } else {
         failCount++;
@@ -494,14 +623,15 @@ async function processExcelData(jsonData, filename) {
   });
 
   if (successCount === 0) {
-    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
     showToast("매칭되는 품목이 0건입니다. Vendor_Mapping DB를 확인하세요.", "error");
     return;
   }
 
   const finalStockUpdates = Object.keys(mappedUpdates).map(hqCode => ({
     code: hqCode,
-    stockBreakdown: mappedUpdates[hqCode]
+    stockBreakdown: mappedUpdates[hqCode].stock,
+    expBreakdown: mappedUpdates[hqCode].exp
   }));
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Items...</span>`;
@@ -514,13 +644,13 @@ async function processExcelData(jsonData, filename) {
     const result = JSON.parse(await response.text());
 
     if (result.success) {
-      showToast(`엑셀 처리 완료: ${successCount}건 성공 (실패: ${failCount}건)`, "success");
+      showToast(`입고 처리 완료: ${successCount}건 매칭 (실패: ${failCount}건)`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
-      setTimeout(() => fetchItems(), 1500); // UI 갱신
+      setTimeout(() => fetchItems(), 1500); 
     } else throw new Error(result.message);
   } catch (err) {
-    showToast("엑셀 동기화 실패: " + err.message, "error");
-    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
+    showToast("동기화 실패: " + err.message, "error");
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
   }
 }
 
@@ -535,7 +665,6 @@ function setupDragAndDrop() {
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
 }
 
-// 윈도우 객체 바인딩 (HTML에서 인라인 함수 호출 방어용)
 window.submitOrder = submitOrder; 
 window.fetchItems = fetchItems; 
 window.toggleStockEditMode = toggleStockEditMode; 
@@ -544,7 +673,6 @@ window.applyAiSuggestion = applyAiSuggestion;
 window.calculateOrderTotal = calculateOrderTotal;
 window.handleExcelUpload = handleExcelUpload;
 
-// 🌟 시작 시 매핑 DB 로드 후 카탈로그 렌더링 (병렬 처리)
 document.addEventListener('DOMContentLoaded', () => {
   setupDragAndDrop();
   if (userRole === "MASTER" || userRole === "VENDOR") {
