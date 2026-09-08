@@ -15,7 +15,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear(); window.location.href = "index.html"; 
 });
 
-// 🌟 [방화벽] VENDOR 권한 접속 시 불필요 UI 차단
 if (userRole === "VENDOR") {
   const navDash = document.getElementById('navDashboard');
   const navRec = document.getElementById('navRecipes');
@@ -240,7 +239,7 @@ function calculateOrderTotal() {
   if(document.getElementById('orderGrandTotal')) document.getElementById('orderGrandTotal').innerText = formatCurrency(subtotal + taxAmt);
 }
 
-// 스마트 에디터
+// 스마트 디프 로직
 async function toggleStockEditMode() {
   if (isSubmitting) return; 
   const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
@@ -320,7 +319,7 @@ async function submitOrder() {
   finally { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
 }
 
-// 🌟 [최종 통합] 엑셀(SheetJS) + 이미지 OCR + 철통 매핑 방어
+// 🌟 [통합] 엑셀/이미지 업로드 엔진 & Tesseract OCR 핸들러
 async function handleExcelUpload(event) {
   event.preventDefault();
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
@@ -340,7 +339,7 @@ async function handleExcelUpload(event) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         processExcelData(jsonData, file.name);
       } catch(err) {
-        showToast("파일 파싱 중 오류 발생", "error"); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+        showToast("엑셀 파싱 중 오류 발생", "error"); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
       }
     };
     reader.readAsArrayBuffer(file);
@@ -348,7 +347,7 @@ async function handleExcelUpload(event) {
   else if (validImgExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
     try {
-      if (typeof Tesseract === 'undefined') throw new Error("Tesseract 라이브러리 없음");
+      if (typeof Tesseract === 'undefined') throw new Error("Tesseract.js 라이브러리가 로드되지 않았습니다.");
       const result = await Tesseract.recognize(file, 'eng+kor', {
         logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`; } }
       });
@@ -359,17 +358,26 @@ async function handleExcelUpload(event) {
   } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
 }
 
+// 🌟 [V11.4 업그레이드] OCR 텍스트 구조화 (박스 규격 크기 제외 필터 도입)
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
+  
   lines.forEach(line => {
+    // 1. 유통기한 추출
     const dateMatch = line.match(/\d{4}-\d{2}-\d{2}/);
     const expDate = dateMatch ? dateMatch[0] : "";
+    
+    // 2. 바코드 또는 혼합품번 추출
     const barcodeMatch = line.match(/\b\d{13,14}\b/);
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
-    const nums = line.match(/\b\d+\b/g); let qty = 0;
+    // 🌟 3. 규격 컬럼(1KG*10, 2KG*6 등) 필터링 (수량 오인 방지)
+    let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGg]+\*\d+\b/g, ''); 
+    const nums = cleanLine.match(/\b\d+\b/g);
+    
+    let qty = 0;
     if (nums && nums.length > 0) {
       for(let i = nums.length - 1; i >= 0; i--) {
         const n = parseInt(nums[i]);
@@ -380,13 +388,13 @@ function processOCRText(text, filename) {
   });
 
   if (jsonData.length === 0) {
-    showToast("이미지에서 품번 및 수량을 찾지 못했습니다.", "error");
+    showToast("이미지에서 품번 및 수량 패턴을 찾지 못했습니다.", "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here"; return;
   }
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심] 엑셀 헤더 공백 무시 파싱 & Vendor_Mapping 완벽 연동 & 재고 누적(+)
+// 🌟 [핵심] 공백 무시 파싱, 매핑 테이블, 덧셈 누적 병합
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -404,9 +412,9 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 [파싱 방어] 엑셀 헤더의 모든 띄어쓰기, 대소문자, 기호를 무시하고 핵심 키워드 추적
+    // 🌟 [V11.4 업그레이드] 투명 유니코드 공백 완벽 제거
     Object.keys(row).forEach(k => {
-      let cleanK = k.replace(/\s+/g, '').toLowerCase();
+      let cleanK = k.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = String(row[k]).trim();
       if (!vItemCode && cleanK === 'barcode') vItemCode = String(row[k]).trim();
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = parseInt(row[k]) || 0;
@@ -419,34 +427,31 @@ async function processExcelData(jsonData, filename) {
     if (vItemCode !== "" && vQty > 0) {
       let hqCode = null;
 
-      // 🌟 [통역 엔진] 1. Vendor_Mapping 에서 변환 시도
+      // 1. Vendor_Mapping 변환 시도
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
         hqCode = mapObj.hqCode;
       } else {
-        // 🌟 [스마트 패스] 2. 매핑에 없으면 마스터 카탈로그(Item_List) 품번과 1:1 다이렉트 비교
+        // 2. 스마트 패스 (직접 매칭)
         const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
         if (directMatch) hqCode = directMatch.code;
       }
 
-      // 일치된 마스터 품번(hqCode)이 존재할 경우에만 맵에 병합
       if (hqCode) {
         if (!inboundMap[hqCode]) inboundMap[hqCode] = { totalQty: 0, batches: {} };
         inboundMap[hqCode].totalQty += vQty;
         if (vExp) { inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty; }
         successCount++;
-      } else { 
-        failCount++; 
-      }
+      } else { failCount++; }
     }
   });
 
   if (successCount === 0) {
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
-    showToast("마스터 DB와 일치하는 데이터가 없습니다. (품번 또는 매핑 DB 확인)", "error"); return;
+    showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
-  // 🌟 기존 DB 재고 및 유통기한에 안전하게 덧셈(+) 병합
+  // 기존 DB 재고 및 유통기한에 안전하게 덧셈(+)
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
     const existingStock = existingItem ? (existingItem.stockBreakdown[targetRegion] || 0) : 0;
@@ -457,7 +462,8 @@ async function processExcelData(jsonData, filename) {
       existingExpStr.split('|').forEach(p => {
         if (p.includes(':')) {
           let parts = p.split(':');
-          if (parts[0] && parseInt(parts[1]) > 0) mergedBatches[parts[0].trim()] = parseInt(parts[1]);
+          let q = parseInt(parts[1]);
+          if (parts[0] && !isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
         } else if (p.trim() !== "") {
           mergedBatches[p.trim()] = 99999;
         }
@@ -471,8 +477,9 @@ async function processExcelData(jsonData, filename) {
     let sortedDates = Object.keys(mergedBatches).sort();
     let newExpArr = [];
     sortedDates.forEach(d => {
-      if (mergedBatches[d] > 0 && mergedBatches[d] !== 99999) newExpArr.push(`${d}:${mergedBatches[d]}`);
-      else if (mergedBatches[d] === 99999) newExpArr.push(d);
+      let q = mergedBatches[d];
+      if (!isNaN(q) && q > 0 && q !== 99999) newExpArr.push(`${d}:${q}`);
+      else if (q === 99999) newExpArr.push(d);
     });
 
     const finalExpStr = newExpArr.join(' | ');
@@ -491,7 +498,7 @@ async function processExcelData(jsonData, filename) {
     const result = JSON.parse(await response.text());
 
     if (result.success) {
-      showToast(`입고 완료: ${successCount}건 누적 성공 (실패: ${failCount}건)`, "success");
+      showToast(`입고 완료: ${successCount}건 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
       setTimeout(() => location.reload(), 1500); 
     } else throw new Error(result.message);
@@ -517,7 +524,6 @@ window.applyRegionFilter = applyRegionFilter; window.applyAiSuggestion = applyAi
 
 document.addEventListener('DOMContentLoaded', () => {
   setupDragAndDrop();
-  // 🌟 시스템 구동 시 벤더 매핑 DB(fetchMappings)를 먼저 로드하여 번역 준비를 마친 뒤 카탈로그 로드
   if (userRole === "MASTER" || userRole === "VENDOR") {
     fetchMappings().then(() => fetchItems());
   } else { fetchItems(); }
