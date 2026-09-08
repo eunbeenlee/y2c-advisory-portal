@@ -40,7 +40,6 @@ function showToast(message, type = 'success') {
   setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-// 🌟 [UI 전환 로직] 4개의 탭 라우팅 통합
 function switchAdminTab(tab) {
   const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
   tabs.forEach(t => {
@@ -62,7 +61,7 @@ let cachedHqOrders = [];
 let isSubmitting = false; 
 
 // ========================================================
-// [1] 마스터 DB (가맹점 프로필) 관리 로직
+// [1] 마스터 DB 관리 로직
 // ========================================================
 async function fetchMasterData(retryCount = 3) {
   const tableBody = document.getElementById('masterTableBody');
@@ -104,13 +103,9 @@ async function fetchMasterData(retryCount = 3) {
         `;
         tableBody.appendChild(tr);
       });
-
       populateSalesClientSelector(); 
-
     } else { 
-      if (result.message.includes("만료") || result.message.includes("로그인")) {
-        alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return;
-      }
+      if (result.message.includes("만료") || result.message.includes("로그인")) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
       throw new Error(result.message); 
     }
   } catch (err) {
@@ -177,7 +172,6 @@ function populateSalesYearSelector() {
 function populateSalesClientSelector() {
   const clientSelect = document.getElementById('salesClientSelector');
   if (!clientSelect || cachedClients.length === 0) return;
-  
   const previousSelection = clientSelect.value;
   clientSelect.innerHTML = '';
   cachedClients.forEach(c => { const opt = document.createElement('option'); opt.value = c.name; opt.innerText = c.name; clientSelect.appendChild(opt); });
@@ -258,7 +252,6 @@ async function saveSalesGridData() {
   isSubmitting = true;
   const btn = document.getElementById('saveAllSalesBtn');
   const recordsToSave = [];
-  
   for (let m = 1; m <= 12; m++) {
     const pStr = document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value;
     const dStr = document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value;
@@ -281,7 +274,7 @@ async function saveSalesGridData() {
 }
 
 // ========================================================
-// [3] V10.0 조달 관제 데이터 연동 (HQ Procurement & Excel Mapping)
+// [3] V11.1 조달 관제 및 엑셀/이미지 매핑 (OCR) 연동
 // ========================================================
 async function fetchProcurementData(retryCount = 3) {
   try {
@@ -300,49 +293,100 @@ async function fetchProcurementData(retryCount = 3) {
   }
 }
 
-// ========================================================
-// [4] V10.0 엑셀 인바운드 파서 (SheetJS 연동)
-// ========================================================
-function handleExcelUpload(event) {
+// 🌟 [엔터프라이즈] AI Vision & SheetJS 통합 핸들러
+async function handleExcelUpload(event) {
   event.preventDefault();
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
   if (!file) return;
 
-  const validExts = [".xlsx", ".xls", ".csv"];
+  const validExcelExts = [".xlsx", ".xls", ".csv"];
+  const validImgExts = [".png", ".jpg", ".jpeg"];
   const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-  if (!validExts.includes(fileExt)) return showToast("지원하지 않는 엑셀 포맷입니다 (.xlsx, .xls, .csv 가능)", "error");
-
+  
   const statusText = document.getElementById('uploadStatusText');
-  if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Scanning Document...</span>`;
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
+  // 1. 엑셀 파일 처리
+  if (validExcelExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+        processExcelData(jsonData, file.name);
+      } catch(err) {
+        showToast("파일 파싱 중 오류가 발생했습니다.", "error");
+        if(statusText) statusText.innerHTML = "Drag & Drop vendor excel/image here";
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } 
+  // 2. 🌟 이미지 OCR 처리
+  else if (validImgExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
     try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, {type: 'array'});
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+      if (typeof Tesseract === 'undefined') throw new Error("Tesseract.js 로드 실패");
       
-      processExcelData(jsonData, file.name);
-      
+      const result = await Tesseract.recognize(file, 'eng+kor', {
+        logger: m => {
+          if (m.status === 'recognizing text' && statusText) {
+            const pct = Math.floor(m.progress * 100);
+            statusText.innerHTML = `<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`;
+          }
+        }
+      });
+      processOCRText(result.data.text, file.name);
     } catch(err) {
-      showToast("파일을 파싱하는 중 오류가 발생했습니다.", "error");
-      if(statusText) statusText.innerHTML = "Drag & Drop vendor excel file here";
+      showToast("이미지 인식 실패: " + err.message, "error");
+      if(statusText) statusText.innerHTML = "Drag & Drop vendor excel/image here";
     }
-  };
-  reader.readAsArrayBuffer(file);
+  } else {
+    return showToast("지원하지 않는 포맷입니다 (.xlsx, .jpg, .png)", "error");
+  }
 }
 
-// 🌟 [엔터프라이즈] 엑셀 데이터 매핑 알고리즘
+// OCR 텍스트 정규화 (유통기한 + 수량 + 품번)
+function processOCRText(text, filename) {
+  const lines = text.split('\n');
+  const jsonData = [];
+  
+  lines.forEach(line => {
+    const dateMatch = line.match(/\d{4}-\d{2}-\d{2}/);
+    const expDate = dateMatch ? dateMatch[0] : "";
+    const codeMatch = line.match(/[A-Z0-9]{5,15}/); 
+    const itemCode = codeMatch ? codeMatch[0] : "";
+
+    const nums = line.match(/\b\d+\b/g);
+    let qty = 0;
+    if (nums && nums.length > 0) {
+      for(let i = nums.length - 1; i >= 0; i--) {
+        if(nums[i] !== itemCode && nums[i].length < 5) {
+          qty = parseInt(nums[i]); break;
+        }
+      }
+    }
+    if(itemCode && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
+  });
+
+  if (jsonData.length === 0) {
+    showToast("이미지에서 품번 및 수량 패턴을 찾지 못했습니다.", "error");
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
+    return;
+  }
+  processExcelData(jsonData, filename + " (OCR)");
+}
+
+// 공통 데이터 연산 및 서버 통신 (유통기한 포함)
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
     showToast("입고될 기준 허브(Region)를 먼저 선택해 주세요.", "error");
-    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
     return;
   }
-
   if (cachedMappings.length === 0) {
     showToast("벤더 매핑 DB를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.", "error");
     return;
@@ -353,34 +397,30 @@ async function processExcelData(jsonData, filename) {
   let failCount = 0;
 
   jsonData.forEach(row => {
-    // 벤더사마다 다른 헤더명 스마트 인식
     const vItemCode = String(row["Item#"] || row["Item Code"] || row["품번"] || row["Barcode"] || "").trim();
     const vQty = row["Qty"] || row["Quantity"] || row["수량"] || row["Stock"] || 0;
+    const vExp = String(row["Exp.Date"] || row["유통기한"] || "").trim();
     const parsedQty = parseInt(vQty);
 
     if (vItemCode !== "" && !isNaN(parsedQty)) {
-      // 매핑 테이블에서 해당 벤더 코드 탐색
-      const mapObj = cachedMappings.find(m => m.vendorCode.toLowerCase() === vItemCode.toLowerCase());
+      const mapObj = cachedMappings.find(m => m.vendorCode.toLowerCase() === vItemCode.toLowerCase() || m.hqCode.toLowerCase() === vItemCode.toLowerCase());
       if (mapObj) {
-        if(!mappedUpdates[mapObj.hqCode]) mappedUpdates[mapObj.hqCode] = {};
-        mappedUpdates[mapObj.hqCode][targetRegion] = parsedQty;
+        if(!mappedUpdates[mapObj.hqCode]) mappedUpdates[mapObj.hqCode] = { stock: {}, exp: {} };
+        mappedUpdates[mapObj.hqCode].stock[targetRegion] = parsedQty;
+        if (vExp) mappedUpdates[mapObj.hqCode].exp[targetRegion] = vExp;
         successCount++;
-      } else {
-        failCount++;
-      }
+      } else { failCount++; }
     }
   });
 
   if (successCount === 0) {
-    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
-    showToast("매칭되는 품목이 없습니다. 벤더 매핑 DB를 확인하세요.", "error");
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
+    showToast("매칭되는 품목이 없습니다. Vendor_Mapping DB를 확인하세요.", "error");
     return;
   }
 
-  // 백엔드로 전송할 최종 배열 구성
   const finalStockUpdates = Object.keys(mappedUpdates).map(hqCode => ({
-    code: hqCode,
-    stockBreakdown: mappedUpdates[hqCode]
+    code: hqCode, stockBreakdown: mappedUpdates[hqCode].stock, expBreakdown: mappedUpdates[hqCode].exp
   }));
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Items...</span>`;
@@ -393,16 +433,15 @@ async function processExcelData(jsonData, filename) {
     const result = JSON.parse(await response.text());
 
     if (result.success) {
-      showToast(`엑셀 입고 완료: ${successCount}건 매칭 성공 (실패: ${failCount}건)`, "success");
+      showToast(`입고 완료: ${successCount}건 매칭 (실패: ${failCount}건)`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Upload Complete: ${filename}</span>`;
     } else throw new Error(result.message);
   } catch (err) {
-    showToast("엑셀 동기화 실패: " + err.message, "error");
-    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
+    showToast("동기화 실패: " + err.message, "error");
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
   }
 }
 
-// 드래그앤드롭 이벤트 리스너 바인딩 보조 함수
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone');
   if(!dropZone) return;
@@ -414,24 +453,16 @@ function setupDragAndDrop() {
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
 }
 
-// ========================================================
-// [5] V10.0 본사 발주 관제 타임라인 로직
-// ========================================================
+// 본사 발주 관제 타임라인 렌더링
 function renderHqOrders() {
   const tbody = document.getElementById('hqOrdersGridBody');
   if(!tbody) return;
   tbody.innerHTML = '';
+  if(cachedHqOrders.length === 0) return tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">본사 발주 관제 내역이 없습니다.</td></tr>`;
 
-  if(cachedHqOrders.length === 0) {
-    return tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">본사 발주 관제 내역이 없습니다.</td></tr>`;
-  }
-
-  // 최신 날짜 순 정렬
   const sortedOrders = cachedHqOrders.sort((a,b) => new Date(b.date) - new Date(a.date));
-
   sortedOrders.forEach(o => {
-    let statusClass = "bg-gray-100 text-gray-500";
-    let statusText = o.status;
+    let statusClass = "bg-gray-100 text-gray-500", statusText = o.status;
     if(o.status === "HQ_PENDING") { statusClass = "bg-purple-100 text-purple-700"; statusText = "접수 대기"; }
     else if(o.status === "SHIPPED") { statusClass = "bg-blue-100 text-blue-700"; statusText = "선적 완료"; }
     else if(o.status === "ARRIVED") { statusClass = "bg-emerald-100 text-emerald-700"; statusText = "캐나다 입항"; }
@@ -456,40 +487,26 @@ async function saveHqOrder() {
   const vendorName = document.getElementById('hqVendorInput').value.trim();
   const region = document.getElementById('hqRegionInput').value.toUpperCase().trim();
   const items = document.getElementById('hqItemsInput').value.trim();
-  
-  if(!vendorName || !region || !items) return showToast("필수 발주 내역을 모두 입력해 주세요.", "error");
+  if(!vendorName || !region || !items) return showToast("필수 내역을 모두 입력해 주세요.", "error");
 
   isSubmitting = true;
   const btn = document.getElementById('btnSubmitHqOrder');
   const originalHtml = btn.innerHTML;
   btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`;
 
-  const payload = {
-    id: "NEW", // 백엔드에서 생성됨
-    date: new Date().toISOString().split('T')[0],
-    vendor: vendorName,
-    region: region,
-    items: items,
-    status: "HQ_PENDING",
-    eta: "-"
-  };
-
+  const payload = { id: "NEW", date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.UPSERT_HQ_ORDER, token: sessionToken, order: payload })
     });
     const result = JSON.parse(await response.text());
-    if (result.success) { 
-      showToast("본사 발주 관제 시스템에 등록되었습니다.", "success"); 
-      document.getElementById('hqItemsInput').value = ''; // 폼 초기화
-      fetchProcurementData(); // 리스트 갱신
-    } else throw new Error(result.message);
-  } catch (err) { showToast("발주 등록 실패: " + err.message, "error"); } 
+    if (result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchProcurementData(); } 
+    else throw new Error(result.message);
+  } catch (err) { showToast("등록 실패: " + err.message, "error"); } 
   finally { btn.disabled = false; btn.innerHTML = originalHtml; isSubmitting = false; }
 }
 
-// 바인딩
 window.switchAdminTab = switchAdminTab; 
 window.saveClientData = saveClientData; 
 window.loadSalesGrid = loadSalesGrid; 
@@ -502,5 +519,5 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSalesYearSelector();
   setupDragAndDrop();
   fetchMasterData(3); 
-  fetchProcurementData(3); // 🌟 신규 매핑/관제 데이터 동시 로드
+  fetchProcurementData(3); 
 });
