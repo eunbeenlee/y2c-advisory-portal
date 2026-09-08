@@ -21,7 +21,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   window.location.href = "index.html"; 
 });
 
-// 🌟 [방화벽] VENDOR 권한 접속 시 불필요 UI 차단
+// 🌟 [방화벽] VENDOR 권한 접속 시 불필요/민감 UI 차단
 if (userRole === "VENDOR") {
   const navDash = document.getElementById('navDashboard');
   const navRec = document.getElementById('navRecipes');
@@ -66,11 +66,25 @@ function showToast(message, type = 'success') {
 }
 
 let cachedItems = [];
+let cachedMappings = []; // 🌟 벤더 품번 변환을 위한 매핑 DB 캐시
 let isStockEditMode = false; 
 let currentClientState = cachedClientState; 
 let masterViewRegion = "ALL"; 
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
+
+// 🌟 [핵심 연동] 벤더 매핑 DB 로드 함수 복구
+async function fetchMappings() {
+  if (userRole !== "MASTER" && userRole !== "VENDOR") return;
+  try {
+    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_PROCUREMENT, token: sessionToken })
+    });
+    const result = JSON.parse(await response.text());
+    if (result.success) cachedMappings = result.mappings || [];
+  } catch (error) { console.error("Mapping DB Load Error:", error); }
+}
 
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody');
@@ -149,15 +163,14 @@ function applyRegionFilter() {
   renderTableItems(); 
 }
 
-// 🌟 [신규] 다중 유통기한 임박 판단 (가장 첫 번째 날짜 기준 판별)
+// 🌟 [유통기한 다중 배치] 임박 경고 로직 (가장 빠른 날짜 기준 판별)
 function checkExpWarning(expDateStr) {
   if (!expDateStr || expDateStr === "-") return false;
-  // 문자열 예: "2026-10-13:42 | 2026-12-08:6" -> 첫 번째 날짜 추출
   const firstDateStr = expDateStr.split('|')[0].split(':')[0].trim();
   const dateMatch = firstDateStr.match(/\d{4}-\d{2}-\d{2}/);
   if (!dateMatch) return false;
   
-  const expDate = new Date(dateMatch[0] + "T00:00:00"); // 시간 영향 배제
+  const expDate = new Date(dateMatch[0] + "T00:00:00");
   const today = new Date();
   const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
   return (diffDays <= 30); 
@@ -289,11 +302,18 @@ function applyAiSuggestion() {
     if (cachedItems[idx] && cachedItems[idx].aiSuggestedQty > 0) {
       const maxQty = parseInt(input.getAttribute('max')) || 0;
       const targetQty = Math.min(cachedItems[idx].aiSuggestedQty, maxQty);
-      if (targetQty > 0) { input.value = targetQty; appliedCount++; }
+      if (targetQty > 0) {
+        input.value = targetQty;
+        appliedCount++;
+      }
     }
   });
-  if (appliedCount > 0) { showToast(`AI 분석: ${appliedCount}개 품목 세팅 완료`, "success"); calculateOrderTotal(); } 
-  else { showToast("적용할 AI 추천 데이터가 없습니다.", "error"); }
+  if (appliedCount > 0) {
+    showToast(`AI 분석: ${appliedCount}개 품목 세팅 완료`, "success");
+    calculateOrderTotal();
+  } else {
+    showToast("적용할 AI 추천 데이터가 없습니다.", "error");
+  }
 }
 
 function calculateOrderTotal() {
@@ -307,12 +327,17 @@ function calculateOrderTotal() {
     if (qty > 0) { const idx = input.getAttribute('data-index'); if (cachedItems[idx]) subtotal += (qty * Number(cachedItems[idx].price)); }
   });
   const taxAmt = subtotal * taxRateObj.rate;
-  if(document.getElementById('orderSubtotal')) document.getElementById('orderSubtotal').innerText = formatCurrency(subtotal);
-  if(document.getElementById('orderTaxAmt')) document.getElementById('orderTaxAmt').innerText = formatCurrency(taxAmt);
-  if(document.getElementById('orderGrandTotal')) document.getElementById('orderGrandTotal').innerText = formatCurrency(subtotal + taxAmt);
+  const grandTotal = subtotal + taxAmt;
+  
+  const eleSub = document.getElementById('orderSubtotal');
+  const eleTax = document.getElementById('orderTaxAmt');
+  const eleGrand = document.getElementById('orderGrandTotal');
+  if(eleSub) eleSub.innerText = formatCurrency(subtotal);
+  if(eleTax) eleTax.innerText = formatCurrency(taxAmt);
+  if(eleGrand) eleGrand.innerText = formatCurrency(grandTotal);
 }
 
-// 스마트 Diff 관리 에디터
+// 스마트 Diff 에디터 (수동 편집 기능)
 async function toggleStockEditMode() {
   if (isSubmitting) return; 
   const btn = document.getElementById('toggleStockBtn');
@@ -337,7 +362,8 @@ async function toggleStockEditMode() {
       const original = parseInt(input.getAttribute('data-original')) || 0;
       if (v !== original) {
         if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} };
-        updateMap[c].stockBreakdown[r] = v; hasChanges = true;
+        updateMap[c].stockBreakdown[r] = v;
+        hasChanges = true;
       }
     });
 
@@ -347,7 +373,8 @@ async function toggleStockEditMode() {
       const original = String(input.getAttribute('data-original')).trim();
       if (v !== original) {
         if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} };
-        updateMap[c].expBreakdown[r] = v; hasChanges = true;
+        updateMap[c].expBreakdown[r] = v;
+        hasChanges = true;
       }
     });
 
@@ -364,7 +391,9 @@ async function toggleStockEditMode() {
     if(btn) { btn.disabled = true; btn.innerHTML = "⏳ SAVING..."; btn.classList.add('animate-pulse'); }
     
     const updates = Object.keys(updateMap).map(c => ({ 
-      code: c, stockBreakdown: updateMap[c].stockBreakdown, expBreakdown: updateMap[c].expBreakdown
+      code: c, 
+      stockBreakdown: updateMap[c].stockBreakdown,
+      expBreakdown: updateMap[c].expBreakdown
     }));
 
     try {
@@ -375,11 +404,12 @@ async function toggleStockEditMode() {
       const result = JSON.parse(await response.text());
 
       if (result.success) {
-        showToast("재고 및 유통기한이 동기화되었습니다.", "success");
+        showToast("수동 갱신이 안전하게 저장되었습니다.", "success");
         setTimeout(() => fetchItems(), 1000); 
       } else throw new Error(result.message);
-    } catch (err) { showToast("업데이트 실패: " + err.message, "error"); } 
-    finally {
+    } catch (err) { 
+      showToast("업데이트 실패: " + err.message, "error"); 
+    } finally {
       isStockEditMode = false; isSubmitting = false;
       if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; 
@@ -422,13 +452,18 @@ async function submitOrder() {
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.ORDER, token: sessionToken, clientName: clientName, clientState: currentClientState, items: orderItems })
     });
     const result = JSON.parse(await response.text());
-    if (result.success) { showToast(`발주가 완료되었습니다! (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
-    else showToast("접수 실패: " + result.message, "error"); 
-  } catch (error) { showToast("통신 오류 발생.", "error"); } 
-  finally { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
+    if (result.success) {
+      showToast(`발주가 완료되었습니다! (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); 
+    } else showToast("접수 실패: " + result.message, "error"); 
+  } catch (error) { 
+    showToast("통신 오류 발생.", "error"); 
+  } finally { 
+    isSubmitting = false;
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } 
+  }
 }
 
-// 🌟 [엔터프라이즈] AI Vision & SheetJS 통합 핸들러
+// 🌟 [통합] 엑셀/이미지 업로드 엔진 & Tesseract OCR 핸들러
 async function handleExcelUpload(event) {
   event.preventDefault();
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
@@ -440,7 +475,7 @@ async function handleExcelUpload(event) {
   
   const statusText = document.getElementById('uploadStatusText');
 
-  // 1. 엑셀 파싱
+  // 1. 엑셀 파일 처리
   if (validExcelExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
     const reader = new FileReader();
@@ -453,17 +488,17 @@ async function handleExcelUpload(event) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         processExcelData(jsonData, file.name);
       } catch(err) {
-        showToast("파일 파싱 중 오류가 발생했습니다.", "error");
+        showToast("엑셀 파일 파싱 중 오류가 발생했습니다.", "error");
         if(statusText) statusText.innerHTML = "Drag & Drop vendor excel/image here";
       }
     };
     reader.readAsArrayBuffer(file);
   } 
-  // 2. 🌟 이미지 OCR 처리
+  // 2. 이미지 파일 (OCR) 처리
   else if (validImgExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
     try {
-      if (typeof Tesseract === 'undefined') throw new Error("Tesseract.js 로드 실패");
+      if (typeof Tesseract === 'undefined') throw new Error("Tesseract.js 라이브러리가 로드되지 않았습니다.");
       const result = await Tesseract.recognize(file, 'eng+kor', {
         logger: m => {
           if (m.status === 'recognizing text' && statusText) {
@@ -478,31 +513,40 @@ async function handleExcelUpload(event) {
       if(statusText) statusText.innerHTML = "Drag & Drop vendor excel/image here";
     }
   } else {
-    return showToast("지원하지 않는 포맷입니다 (.xlsx, .jpg, .png)", "error");
+    return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error");
   }
 }
 
-// OCR 텍스트 정규화
+// 🌟 OCR 텍스트 구조화 (이미지의 텍스트에서 정규식으로 데이터만 채굴)
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
   
   lines.forEach(line => {
-    // 날짜에서 시간 정보가 딸려오더라도 순수 날짜만 분리 (\d{4}-\d{2}-\d{2})
+    // 1. 유통기한 추출 (YYYY-MM-DD 패턴)
     const dateMatch = line.match(/\d{4}-\d{2}-\d{2}/);
     const expDate = dateMatch ? dateMatch[0] : "";
     
-    // 바코드 13자리 혹은 영문숫자 조합 5자리 이상
+    // 2. 바코드(13자리) 또는 영문/숫자 혼합품번 탐색
     const barcodeMatch = line.match(/\b\d{13,14}\b/);
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
+    // 3. 수량 추출 (바코드와 혼동되지 않는 숫자 탐색)
     const nums = line.match(/\b\d+\b/g);
     let qty = 0;
     if (nums && nums.length > 0) {
-      qty = parseInt(nums[nums.length - 1]);
+      for (let i = nums.length - 1; i >= 0; i--) {
+        const n = parseInt(nums[i]);
+        if (n < 10000 && String(n) !== itemCode) {
+          qty = n; break;
+        }
+      }
     }
-    if(itemCode && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
+
+    if(itemCode && qty > 0) {
+      jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
+    }
   });
 
   if (jsonData.length === 0) {
@@ -513,7 +557,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심 보호 로직] 기존 재고 깎아먹지 않고 "더하기(+)" 및 유통기한 다중 병합
+// 🌟 [핵심] 기존 재고 삭제 방어 (+) 연산 및 유통기한 다중 병합, 매핑 DB 연동
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -521,8 +565,12 @@ async function processExcelData(jsonData, filename) {
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
     return;
   }
+  if (cachedItems.length === 0) {
+    showToast("카탈로그 데이터를 불러오는 중입니다. 잠시 후 시도하세요.", "error");
+    return;
+  }
 
-  // 1단계: 업로드된 데이터 내에서 동일 품번, 동일 날짜끼리 병합 (임시 맵)
+  // 1단계: 업로드된 파일 내에서 병합을 위한 임시 Map 생성
   let inboundMap = {};
   let successCount = 0;
   let failCount = 0;
@@ -537,10 +585,19 @@ async function processExcelData(jsonData, filename) {
     vExp = dateMatch ? dateMatch[0] : "";
 
     if (vItemCode !== "" && vQty > 0) {
-      const matchedItem = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
-      
-      if (matchedItem) {
-        const hqCode = matchedItem.code;
+      let hqCode = null;
+
+      // 🌟 [통역 로직] 1. Vendor_Mapping 테이블에서 변환 시도
+      const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
+      if (mapObj) {
+        hqCode = mapObj.hqCode;
+      } else {
+        // 🌟 [스마트 패스] 2. 매핑 DB에 없으면 마스터 카탈로그 품번과 1:1 다이렉트 비교
+        const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
+        if (directMatch) hqCode = directMatch.code;
+      }
+
+      if (hqCode) {
         if (!inboundMap[hqCode]) inboundMap[hqCode] = { totalQty: 0, batches: {} };
         
         inboundMap[hqCode].totalQty += vQty;
@@ -548,25 +605,26 @@ async function processExcelData(jsonData, filename) {
           inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty;
         }
         successCount++;
-      } else { failCount++; }
+      } else {
+        failCount++;
+      }
     }
   });
 
   if (successCount === 0) {
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel/image here";
-    showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error");
+    showToast("마스터 DB와 매칭되는 품목이 0건입니다. 품번을 확인하세요.", "error");
     return;
   }
 
-  // 2단계: 기존 DB 재고 및 유통기한에 새로 들어온 데이터를 "안전하게 더하기(+)"
+  // 2단계: 서버(기존 DB) 데이터에 새로 들어온 데이터를 "안전하게 더하기(+)"
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
     
-    // 기존 총 재고 및 기존 유통기한 문자열 로드
+    // 기존 총 재고 및 기존 다중 유통기한 문자열 로드
     const existingStock = existingItem ? (existingItem.stockBreakdown[targetRegion] || 0) : 0;
     const existingExpStr = existingItem ? (existingItem.expBreakdown[targetRegion] || "") : "";
 
-    // 🌟 1. 기존 유통기한 파싱하여 맵(Map)으로 만듦
     let mergedBatches = {};
     if (existingExpStr && existingExpStr !== "-") {
       existingExpStr.split('|').forEach(p => {
@@ -581,12 +639,12 @@ async function processExcelData(jsonData, filename) {
       });
     }
 
-    // 🌟 2. 새로 업로드된 날짜별 수량을 더함
+    // 새로 들어온 날짜와 수량을 맵에 병합
     for (let d in inboundMap[hqCode].batches) {
       mergedBatches[d] = (mergedBatches[d] || 0) + inboundMap[hqCode].batches[d];
     }
 
-    // 🌟 3. 날짜가 빠른 순서대로 정렬하여 문자열 재조립
+    // 날짜 오름차순(오래된 순) 정렬 후 문자열 재조립
     let sortedDates = Object.keys(mergedBatches).sort();
     let newExpArr = [];
     sortedDates.forEach(d => {
@@ -595,7 +653,7 @@ async function processExcelData(jsonData, filename) {
     });
 
     const finalExpStr = newExpArr.join(' | ');
-    const finalStock = existingStock + inboundMap[hqCode].totalQty; // 기존 데이터 손실 방지 덧셈 연산!
+    const finalStock = existingStock + inboundMap[hqCode].totalQty; // 🌟 기존 재고 손상 방어 핵심 로직
 
     return {
       code: hqCode,
@@ -614,9 +672,9 @@ async function processExcelData(jsonData, filename) {
     const result = JSON.parse(await response.text());
 
     if (result.success) {
-      showToast(`입고 완료: 엑셀/이미지 ${successCount}줄 누적 성공`, "success");
+      showToast(`입고 처리 성공: ${successCount}줄 반영 (매칭 실패: ${failCount}줄)`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
-      setTimeout(() => fetchItems(), 1500); 
+      setTimeout(() => location.reload(), 1500); 
     } else throw new Error(result.message);
   } catch (err) {
     showToast("동기화 실패: " + err.message, "error");
@@ -645,5 +703,10 @@ window.handleExcelUpload = handleExcelUpload;
 
 document.addEventListener('DOMContentLoaded', () => {
   setupDragAndDrop();
-  fetchItems(); 
+  // 🌟 시스템 구동 시 매핑 DB(fetchMappings)를 메모리에 먼저 올린 뒤 카탈로그 로드
+  if (userRole === "MASTER" || userRole === "VENDOR") {
+    fetchMappings().then(() => fetchItems());
+  } else {
+    fetchItems();
+  }
 });
