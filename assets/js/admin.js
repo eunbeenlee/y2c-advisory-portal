@@ -61,6 +61,26 @@ let cachedItems = [];
 let cachedMappings = []; 
 let isSubmitting = false; 
 
+// 🌟 [최강 방어막] Failed to fetch 오류 원천 차단 API 모듈
+async function executeApi(action, payload = {}) {
+  try {
+    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+      body: JSON.stringify({ action: action, token: sessionToken, ...payload })
+    });
+    const rawText = await response.text();
+    try {
+      return JSON.parse(rawText);
+    } catch(e) {
+      console.error("GAS 500 Error Response:", rawText);
+      throw new Error("구글 서버 충돌. 잠시 후 다시 시도해 주세요.");
+    }
+  } catch (err) {
+    console.error("Fetch Network Error:", err);
+    throw new Error("통신 실패 (Failed to fetch). 네트워크 지연 또는 서버 병목 현상입니다.");
+  }
+}
+
 // ========================================================
 // [1] 마스터 DB (가맹점 프로필) 관리 로직
 // ========================================================
@@ -71,11 +91,7 @@ async function fetchMasterData(retryCount = 3) {
   if (errorBanner) errorBanner.classList.add('hidden');
 
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_master_data", token: sessionToken }) 
-    });
-    const result = JSON.parse(await response.text());
+    const result = await executeApi("get_master_data");
 
     if (result.success) {
       tableBody.innerHTML = '';
@@ -127,11 +143,7 @@ async function saveClientData(rowIdx) {
   };
 
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "update_master_data", token: sessionToken, client: payload }) 
-    });
-    const result = JSON.parse(await response.text());
+    const result = await executeApi("update_master_data", { client: payload });
     if (result.success) {
       if(saveBtn) { saveBtn.innerText = "✅ SAVED"; saveBtn.classList.remove('animate-pulse'); saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
       showToast("마스터 데이터가 저장되었습니다.", "success"); setTimeout(() => fetchMasterData(1), 1500); 
@@ -173,11 +185,7 @@ async function loadSalesGrid() {
   tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><span class="animate-pulse">🔄 ${targetYear}년 ${targetClient} 매출 동기화 중...</span></td></tr>`;
 
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_sales_records", token: sessionToken, year: targetYear, clientName: targetClient })
-    });
-    const result = JSON.parse(await response.text());
+    const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
     if (result.success) renderSalesGrid(result.records); else throw new Error(result.message);
   } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E84C60] font-black py-8">Failed to load sales data.</td></tr>`; }
 }
@@ -242,11 +250,7 @@ async function saveSalesGridData() {
   btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING BATCH...</span>`;
   
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "save_sales_records", token: sessionToken, year: targetYear, clientName: targetClient, records: recordsToSave })
-    });
-    const result = JSON.parse(await response.text());
+    const result = await executeApi("save_sales_records", { year: targetYear, clientName: targetClient, records: recordsToSave });
     if (result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
     else throw new Error(result.message);
   } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } 
@@ -257,14 +261,9 @@ async function saveSalesGridData() {
 // [3] 본사 조달 관제(HQ Orders) 및 매핑/카탈로그 로드
 // ========================================================
 
-// 🌟 백그라운드 벤더 매핑 DB 로드 (API 명령어 하드코딩)
 async function fetchMappings() {
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_procurement_data", token: sessionToken })
-    });
-    const result = JSON.parse(await response.text());
+    const result = await executeApi("get_procurement_data");
     if (result.success) {
       cachedMappings = result.mappings || [];
       cachedHqOrders = result.hqOrders || [];
@@ -273,14 +272,9 @@ async function fetchMappings() {
   } catch (err) { console.error("Mapping DB Load Error:", err); }
 }
 
-// 🌟 병합을 위한 카탈로그(Item_List) 백그라운드 로드
 async function fetchCatalogForInbound() {
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_items", token: sessionToken, clientState: "DEFAULT" })
-    });
-    const result = JSON.parse(await response.text());
+    const result = await executeApi("get_items", { clientState: "DEFAULT" });
     if (result.success) cachedItems = result.items || [];
   } catch (e) { console.error("Catalog load failed", e); }
 }
@@ -323,11 +317,7 @@ async function saveHqOrder() {
 
   const payload = { id: "NEW", date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "upsert_hq_order", token: sessionToken, order: payload })
-    });
-    const result = JSON.parse(await response.text());
+    const result = await executeApi("upsert_hq_order", { order: payload });
     if (result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchMappings(); } 
     else throw new Error(result.message);
   } catch (err) { showToast("등록 실패: " + err.message, "error"); } 
@@ -335,7 +325,7 @@ async function saveHqOrder() {
 }
 
 // ========================================================
-// [4] 통합 엑셀/OCR & 철통 방어 매핑 엔진 (마스터 전용)
+// [4] V11.4 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -375,6 +365,7 @@ async function handleExcelUpload(event) {
   } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
 }
 
+// 🌟 [V11.4] OCR 박스 규격 필터링 엔진
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -385,7 +376,11 @@ function processOCRText(text, filename) {
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
-    const nums = line.match(/\b\d+\b/g); let qty = 0;
+    // 🌟 규격 텍스트(예: 1KG*10)를 삭제하여 수량 오인 방지
+    let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGg]+\*\d+\b/g, ''); 
+    const nums = cleanLine.match(/\b\d+\b/g); 
+    let qty = 0;
+
     if (nums && nums.length > 0) {
       for(let i = nums.length - 1; i >= 0; i--) {
         const n = parseInt(nums[i]);
@@ -402,7 +397,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심] 공백 무시 정규화 파싱 & 매핑 DB(Translation) 완벽 연동
+// 🌟 [핵심] 공백 무시 파싱, 매핑 연동, NaN 안전 덧셈(+)
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -420,9 +415,9 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 [파싱 방어] 엑셀 헤더의 모든 띄어쓰기, 대소문자, 기호를 무시하고 핵심 키워드 추적
+    // 🌟 [V11.4] 투명 유니코드 공백 완벽 제거 필터
     Object.keys(row).forEach(k => {
-      let cleanK = k.replace(/\s+/g, '').toLowerCase();
+      let cleanK = k.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = String(row[k]).trim();
       if (!vItemCode && cleanK === 'barcode') vItemCode = String(row[k]).trim();
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = parseInt(row[k]) || 0;
@@ -432,37 +427,34 @@ async function processExcelData(jsonData, filename) {
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
-    if (vItemCode !== "" && vQty > 0) {
+    if (vItemCode !== "" && !isNaN(vQty) && vQty > 0) {
       let hqCode = null;
 
-      // 🌟 1. Vendor_Mapping 테이블에서 마스터 코드로 번역 시도
+      // 1. 매핑 테이블 번역
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
-        hqCode = mapObj.hqCode; // 예: 70808SJ -> FD-002
+        hqCode = mapObj.hqCode;
       } else {
-        // 🌟 2. 매핑에 없으면 마스터 카탈로그(Item_List) 품번과 1:1 다이렉트 비교
+        // 2. 스마트 패스 직접 비교
         const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
         if (directMatch) hqCode = directMatch.code;
       }
 
-      // 일치된 마스터 품번(hqCode)이 존재할 경우에만 맵에 병합
       if (hqCode) {
         if (!inboundMap[hqCode]) inboundMap[hqCode] = { totalQty: 0, batches: {} };
         inboundMap[hqCode].totalQty += vQty;
         if (vExp) { inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty; }
         successCount++;
-      } else { 
-        failCount++; 
-      }
+      } else { failCount++; }
     }
   });
 
   if (successCount === 0) {
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
-    showToast("마스터 DB와 매칭되는 품목이 0건입니다. Vendor_Mapping 시트와 품번을 확인하세요.", "error"); return;
+    showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
-  // 🌟 기존 DB 재고 및 유통기한에 안전하게 덧셈(+) 병합
+  // 🌟 기존 DB 재고 및 유통기한 안전 덧셈(+) 병합
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
     const existingStock = existingItem ? (existingItem.stockBreakdown[targetRegion] || 0) : 0;
@@ -473,24 +465,25 @@ async function processExcelData(jsonData, filename) {
       existingExpStr.split('|').forEach(p => {
         if (p.includes(':')) {
           let parts = p.split(':');
-          if (parts[0] && parseInt(parts[1]) > 0) mergedBatches[parts[0].trim()] = parseInt(parts[1]);
+          let q = parseInt(parts[1]);
+          if (parts[0] && !isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
         } else if (p.trim() !== "") {
           mergedBatches[p.trim()] = 99999;
         }
       });
     }
 
-    // 새 데이터 덧셈 연산
+    // 새 데이터 덧셈
     for (let d in inboundMap[hqCode].batches) {
       mergedBatches[d] = (mergedBatches[d] || 0) + inboundMap[hqCode].batches[d];
     }
 
-    // 날짜 순 정렬 및 조립
     let sortedDates = Object.keys(mergedBatches).sort();
     let newExpArr = [];
     sortedDates.forEach(d => {
-      if (mergedBatches[d] > 0 && mergedBatches[d] !== 99999) newExpArr.push(`${d}:${mergedBatches[d]}`);
-      else if (mergedBatches[d] === 99999) newExpArr.push(d);
+      let q = mergedBatches[d];
+      if (!isNaN(q) && q > 0 && q !== 99999) newExpArr.push(`${d}:${q}`);
+      else if (q === 99999) newExpArr.push(d);
     });
 
     const finalExpStr = newExpArr.join(' | ');
@@ -502,19 +495,14 @@ async function processExcelData(jsonData, filename) {
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows...</span>`;
   
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "update_stock", token: sessionToken, stockUpdates: finalStockUpdates })
-    });
-    const result = JSON.parse(await response.text());
-
+    const result = await executeApi("update_stock", { stockUpdates: finalStockUpdates });
     if (result.success) {
-      showToast(`입고 완료: ${successCount}건 누적 성공 (실패: ${failCount}건)`, "success");
+      showToast(`입고 완료: 엑셀/이미지 ${successCount}줄 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
       setTimeout(() => { fetchCatalogForInbound(); location.reload(); }, 1500); 
     } else throw new Error(result.message);
   } catch (err) {
-    showToast("동기화 실패: " + err.message, "error");
+    showToast(err.message, "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
   }
 }
