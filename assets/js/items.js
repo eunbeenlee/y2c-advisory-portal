@@ -1,34 +1,46 @@
-// assets/js/admin.js
+// assets/js/items.js
 
 const userRole = (localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
+const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN);
+const cachedClientState = localStorage.getItem("y2c_premium_state") || "DEFAULT";
 
-// 🌟 [방화벽] 마스터 권한이 아니면 즉시 강제 추방
-if (!sessionToken || userRole !== "MASTER") { 
-  window.location.href = "index.html"; 
-}
+if (!sessionToken || !clientName) { window.location.href = "index.html"; }
 
-document.getElementById('userNameDisplay').innerText = clientName || "MASTER";
+document.getElementById('userNameDisplay').innerText = clientName;
 const badge = document.getElementById('userRoleBadge');
 if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => { 
-  localStorage.clear(); 
-  window.location.href = "index.html"; 
+  localStorage.clear(); window.location.href = "index.html"; 
 });
 
+// 🌟 [방화벽] VENDOR 권한 접속 시 불필요 UI 차단
+if (userRole === "VENDOR") {
+  const navDash = document.getElementById('navDashboard');
+  const navRec = document.getElementById('navRecipes');
+  const orderAct = document.getElementById('orderActionContainer');
+  if (navDash) navDash.remove(); if (navRec) navRec.remove(); if (orderAct) orderAct.remove();
+}
+
+if (userRole === "MASTER") {
+  const navAdmin = document.getElementById('navAdmin');
+  const navInv = document.getElementById('navInvoice');
+  if (navAdmin) navAdmin.classList.remove('hidden');
+  if (navInv) navInv.classList.remove('hidden');
+}
+
 const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
-const formatDate = (isoStr) => {
-  if(!isoStr) return "-";
-  const d = new Date(isoStr);
-  return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: '2-digit' });
-};
+function formatTimestamp(isoString) {
+  if (!isoString) return "Never";
+  const d = new Date(isoString); 
+  return d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' });
+}
 
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
+  if (!container) { 
+    container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container); 
   }
   const toast = document.createElement('div');
   const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#C23347]';
@@ -40,303 +52,275 @@ function showToast(message, type = 'success') {
   setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-function switchAdminTab(tab) {
-  const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
-  tabs.forEach(t => {
-    const btn = document.getElementById(`tabBtn_${t}`);
-    const sec = document.getElementById(`section_${t}`);
-    if(t === tab) {
-      if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-white text-[var(--premium-charcoal)] shadow-sm whitespace-nowrap";
-      if(sec) sec.classList.remove('hidden');
-    } else {
-      if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap";
-      if(sec) sec.classList.add('hidden');
-    }
-  });
-}
-
-let cachedClients = [];
-let cachedHqOrders = [];
-let cachedItems = []; 
+let cachedItems = [];
 let cachedMappings = []; 
-let isSubmitting = false; 
+let isStockEditMode = false; 
+let currentClientState = cachedClientState; 
+let masterViewRegion = "ALL"; 
+let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
+let isSubmitting = false;
 
-// ========================================================
-// [1] 마스터 DB (가맹점 프로필) 관리 로직
-// ========================================================
-async function fetchMasterData(retryCount = 3) {
-  const tableBody = document.getElementById('masterTableBody');
-  const errorBanner = document.getElementById('errorBanner');
-  if (!tableBody) return;
-  if (errorBanner) errorBanner.classList.add('hidden');
-
-  try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_master_data", token: sessionToken }) 
-    });
-    const result = JSON.parse(await response.text());
-
-    if (result.success) {
-      tableBody.innerHTML = '';
-      cachedClients = result.clients || [];
-      if (cachedClients.length === 0) return tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 가맹점 정보가 없습니다.</td></tr>`;
-
-      const inputClass = "w-full bg-white/70 border border-gray-200 rounded-xl px-3 py-2 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm transition-all";
-
-      cachedClients.forEach(c => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-gray-50/50 transition-colors duration-200";
-        tr.innerHTML = `
-          <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${c.name}</td>
-          <td class="px-3 py-4 text-center"><input type="text" id="state_${c.rowIdx}" value="${c.state || ''}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
-          <td class="px-3 py-4"><input type="text" id="city_${c.rowIdx}" value="${c.city || ''}" class="${inputClass}" placeholder="City"></td>
-          <td class="px-3 py-4"><input type="text" id="addr_${c.rowIdx}" value="${c.address || ''}" class="${inputClass}" placeholder="Full Address"></td>
-          <td class="px-3 py-4"><input type="text" id="attn_${c.rowIdx}" value="${c.attn || ''}" class="${inputClass}" placeholder="Manager Name"></td>
-          <td class="px-3 py-4"><input type="text" id="email_${c.rowIdx}" value="${c.email || ''}" class="${inputClass}" placeholder="Email"></td>
-          <td class="px-3 py-4"><input type="text" id="biz_${c.rowIdx}" value="${c.bizId || ''}" class="${inputClass} font-mono" placeholder="Business ID"></td>
-          <td class="px-5 py-4 text-center bg-[#E84C60]/5 border-l border-[#E84C60]/10"><button id="saveBtn_${c.rowIdx}" onclick="saveClientData(${c.rowIdx})" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
-        `;
-        tableBody.appendChild(tr);
-      });
-      populateSalesClientSelector(); 
-    } else { 
-      if (result.message.includes("만료") || result.message.includes("로그인")) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
-      throw new Error(result.message); 
-    }
-  } catch (err) { if (retryCount > 0) setTimeout(() => fetchMasterData(retryCount - 1), 1000); }
-}
-
-async function saveClientData(rowIdx) {
-  if (isSubmitting) return; 
-  isSubmitting = true;
-  const saveBtn = document.getElementById(`saveBtn_${rowIdx}`);
-  const originalText = saveBtn.innerText;
-  if (saveBtn) { saveBtn.disabled = true; saveBtn.innerText = "⏳ SAVING..."; saveBtn.classList.add('animate-pulse'); }
-
-  const stateVal = document.getElementById(`state_${rowIdx}`).value.toUpperCase().trim();
-  if (stateVal.length > 2) {
-    showToast("State(주) 코드는 2자리 영문(예: ON, BC)으로 입력해 주세요.", "error");
-    isSubmitting = false; saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); return;
-  }
-
-  const payload = {
-    rowIdx: rowIdx, state: stateVal, city: document.getElementById(`city_${rowIdx}`).value.trim(),
-    address: document.getElementById(`addr_${rowIdx}`).value.trim(), attn: document.getElementById(`attn_${rowIdx}`).value.trim(),
-    email: document.getElementById(`email_${rowIdx}`).value.trim(), bizId: document.getElementById(`biz_${rowIdx}`).value.trim()
-  };
-
-  try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "update_master_data", token: sessionToken, client: payload }) 
-    });
-    const result = JSON.parse(await response.text());
-    if (result.success) {
-      if(saveBtn) { saveBtn.innerText = "✅ SAVED"; saveBtn.classList.remove('animate-pulse'); saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
-      showToast("마스터 데이터가 저장되었습니다.", "success"); setTimeout(() => fetchMasterData(1), 1500); 
-    } else { showToast("저장 실패: " + result.message, "error"); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); } }
-  } catch (err) { 
-    showToast("서버 통신 오류", "error"); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
-  } finally { isSubmitting = false; }
-}
-
-// ========================================================
-// [2] 매출 데이터베이스 매니저 (ERP 로직)
-// ========================================================
-const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
-
-function populateSalesYearSelector() {
-  const yearSelect = document.getElementById('salesYearSelector');
-  if (!yearSelect) return;
-  yearSelect.innerHTML = '';
-  const currentYear = new Date().getFullYear();
-  for (let y = currentYear + 2; y >= 2022; y--) {
-    const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y} Fiscal Year`;
-    if (y === currentYear) opt.selected = true; yearSelect.appendChild(opt);
-  }
-}
-
-function populateSalesClientSelector() {
-  const clientSelect = document.getElementById('salesClientSelector');
-  if (!clientSelect || cachedClients.length === 0) return;
-  const previousSelection = clientSelect.value;
-  clientSelect.innerHTML = '';
-  cachedClients.forEach(c => { const opt = document.createElement('option'); opt.value = c.name; opt.innerText = c.name; clientSelect.appendChild(opt); });
-  if (previousSelection && Array.from(clientSelect.options).some(opt => opt.value === previousSelection)) clientSelect.value = previousSelection;
-  loadSalesGrid();
-}
-
-async function loadSalesGrid() {
-  const targetYear = document.getElementById('salesYearSelector').value, targetClient = document.getElementById('salesClientSelector').value, tbody = document.getElementById('salesGridBody');
-  if (!targetYear || !targetClient || !tbody) return;
-  tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><span class="animate-pulse">🔄 ${targetYear}년 ${targetClient} 매출 동기화 중...</span></td></tr>`;
-
-  try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_sales_records", token: sessionToken, year: targetYear, clientName: targetClient })
-    });
-    const result = JSON.parse(await response.text());
-    if (result.success) renderSalesGrid(result.records); else throw new Error(result.message);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E84C60] font-black py-8">Failed to load sales data.</td></tr>`; }
-}
-
-function renderSalesGrid(records) {
-  const tbody = document.getElementById('salesGridBody');
-  tbody.innerHTML = '';
-  const inputStyle = "w-full max-w-[170px] mx-auto bg-white border border-gray-200 rounded-xl px-3 py-2 text-center text-[13px] font-mono font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm transition";
-
-  records.forEach(r => {
-    const tr = document.createElement('tr'); tr.className = "hover:bg-gray-50/50 transition-colors";
-    const badgeHTML = r.exists ? `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">SAVED</span>` : `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-gray-100 text-gray-400">EMPTY</span>`;
-
-    tr.innerHTML = `
-      <td class="px-6 py-3 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap">${monthNames[r.month - 1]}</td>
-      <td class="px-6 py-3 text-center"><input type="number" step="0.01" min="0" data-month="${r.month}" value="${r.pos > 0 ? r.pos : ''}" placeholder="0.00" oninput="recalcSalesRow(${r.month})" class="sales-input-pos ${inputStyle}"></td>
-      <td class="px-6 py-3 text-center"><input type="number" step="0.01" min="0" data-month="${r.month}" value="${r.delivery > 0 ? r.delivery : ''}" placeholder="0.00" oninput="recalcSalesRow(${r.month})" class="sales-input-del ${inputStyle}"></td>
-      <td class="px-6 py-3 text-right font-black font-mono text-gray-800 text-sm whitespace-nowrap" id="rowTotal_${r.month}">${formatCurrency(r.total)}</td>
-      <td class="px-6 py-3 text-center whitespace-nowrap">${badgeHTML}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-  recalculateKpis();
-}
-
-function recalcSalesRow(month) {
-  const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
-  let p = parseFloat(posInput.value), d = parseFloat(delInput.value);
-  if (isNaN(p) || p < 0) { p = 0; if (posInput.value !== "") posInput.value = ""; }
-  if (isNaN(d) || d < 0) { d = 0; if (delInput.value !== "") delInput.value = ""; }
-  const totalDisplay = document.getElementById(`rowTotal_${month}`);
-  if (totalDisplay) totalDisplay.innerText = formatCurrency(p + d);
-  recalculateKpis();
-}
-
-function recalculateKpis() {
-  let totAnnual = 0, totPos = 0, totDel = 0;
-  for (let m = 1; m <= 12; m++) {
-    const pos = parseFloat(document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value) || 0;
-    const del = parseFloat(document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value) || 0;
-    totPos += Math.max(0, pos); totDel += Math.max(0, del); totAnnual += Math.max(0, pos + del);
-  }
-  document.getElementById('salesKpiTotal').innerText = formatCurrency(totAnnual);
-  document.getElementById('salesKpiPos').innerText = formatCurrency(totPos);
-  document.getElementById('salesKpiDelivery').innerText = formatCurrency(totDel);
-}
-
-async function saveSalesGridData() {
-  if (isSubmitting) return; 
-  const targetYear = document.getElementById('salesYearSelector').value, targetClient = document.getElementById('salesClientSelector').value;
-  if (!targetYear || !targetClient) return showToast("가맹점과 연도를 선택해 주세요.", "error");
-
-  isSubmitting = true;
-  const btn = document.getElementById('saveAllSalesBtn');
-  const recordsToSave = [];
-  for (let m = 1; m <= 12; m++) {
-    const pStr = document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value, dStr = document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value;
-    recordsToSave.push({ month: m, pos: Math.max(0, parseFloat(pStr) || 0), delivery: Math.max(0, parseFloat(dStr) || 0) });
-  }
-
-  const originalHtml = btn.innerHTML;
-  btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING BATCH...</span>`;
-  
-  try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "save_sales_records", token: sessionToken, year: targetYear, clientName: targetClient, records: recordsToSave })
-    });
-    const result = JSON.parse(await response.text());
-    if (result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
-    else throw new Error(result.message);
-  } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } 
-  finally { btn.disabled = false; btn.innerHTML = originalHtml; isSubmitting = false; }
-}
-
-// ========================================================
-// [3] 본사 조달 관제(HQ Orders) 및 매핑/카탈로그 로드
-// ========================================================
-
-// 🌟 백그라운드 벤더 매핑 DB 로드 (API 명령어 하드코딩)
+// 🌟 [통역 사전] 매핑 DB 로드
 async function fetchMappings() {
+  if (userRole !== "MASTER" && userRole !== "VENDOR") return;
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
       body: JSON.stringify({ action: "get_procurement_data", token: sessionToken })
     });
     const result = JSON.parse(await response.text());
-    if (result.success) {
-      cachedMappings = result.mappings || [];
-      cachedHqOrders = result.hqOrders || [];
-      renderHqOrders();
-    }
-  } catch (err) { console.error("Mapping DB Load Error:", err); }
+    if (result.success) cachedMappings = result.mappings || [];
+  } catch (error) { console.error("Mapping DB Load Error:", error); }
 }
 
-// 🌟 병합을 위한 카탈로그(Item_List) 백그라운드 로드
-async function fetchCatalogForInbound() {
+async function fetchItems() {
+  const tableBody = document.getElementById('itemTableBody');
+  if (!tableBody) return;
+  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Securely loading SCM data...</p></div></td></tr>`;
+
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_items", token: sessionToken, clientState: "DEFAULT" })
+      body: JSON.stringify({ action: "get_items", token: sessionToken, clientState: currentClientState }) 
     });
     const result = JSON.parse(await response.text());
-    if (result.success) cachedItems = result.items || [];
-  } catch (e) { console.error("Catalog load failed", e); }
+
+    if (result.success) {
+      cachedItems = result.items || [];
+      currentClientState = result.appliedState || "DEFAULT";
+      taxRateObj = SYSTEM_CONFIG.TAX_RATES[currentClientState.toUpperCase()] || SYSTEM_CONFIG.TAX_RATES["DEFAULT"];
+      
+      const taxLabel = document.getElementById('orderTaxLabel');
+      if (taxLabel) taxLabel.innerText = `Estimated Tax - ${taxRateObj.name}:`;
+
+      const headerTitle = document.getElementById('catalogHeaderTitle');
+      if (headerTitle) headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[var(--y2c-gold)]/10 text-[var(--y2c-gold)] px-3 py-1.5 rounded-lg border border-[var(--y2c-gold)]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
+      
+      const kpiDash = document.getElementById('kpiDashboard');
+      if (kpiDash) kpiDash.classList.remove('hidden');
+      const kpiUpdated = document.getElementById('kpiLastUpdated');
+      if (kpiUpdated) kpiUpdated.innerText = formatTimestamp(result.lastUpdated);
+
+      if (userRole === "MASTER" || userRole === "VENDOR") {
+        const masterControls = document.getElementById('masterInventoryControls');
+        const uploadZone = document.getElementById('vendorExcelUploadZone');
+        if (masterControls) masterControls.classList.remove('hidden');
+        if (uploadZone) uploadZone.classList.remove('hidden');
+        populateRegionFilter();
+      } else {
+        const aiBtn = document.getElementById('aiSuggestBtn');
+        if (aiBtn) aiBtn.classList.remove('hidden');
+      }
+
+      renderTableItems(); 
+      attachImageHoverEffect(); 
+      if(userRole !== "VENDOR") calculateOrderTotal(); 
+    } else {
+      if (result.message.includes("만료") || result.message.includes("로그인")) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
+      throw new Error(result.message);
+    }
+  } catch (error) { document.getElementById('itemTableBody').innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">Failed to load catalog data.</td></tr>`; }
 }
 
-function renderHqOrders() {
-  const tbody = document.getElementById('hqOrdersGridBody');
-  if(!tbody) return;
-  tbody.innerHTML = '';
-  if(cachedHqOrders.length === 0) return tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">본사 발주 관제 내역이 없습니다.</td></tr>`;
+function populateRegionFilter() {
+  const filter = document.getElementById('regionFilter');
+  if (!filter || cachedItems.length === 0) return;
+  const regions = Object.keys(cachedItems[0].stockBreakdown || {});
+  filter.innerHTML = `<option value="ALL">Total Stock</option>`;
+  regions.forEach(reg => { filter.innerHTML += `<option value="${reg}">Hub: ${reg}</option>`; });
+  filter.value = masterViewRegion;
+  
+  const inboundFilter = document.getElementById('inboundRegionSelector');
+  if (inboundFilter) {
+    inboundFilter.innerHTML = `<option value="">-- Select Hub Region for Inbound --</option>`;
+    regions.forEach(reg => { inboundFilter.innerHTML += `<option value="${reg}">Hub: ${reg}</option>`; });
+  }
+}
 
-  const sortedOrders = cachedHqOrders.sort((a,b) => new Date(b.date) - new Date(a.date));
-  sortedOrders.forEach(o => {
-    let statusClass = "bg-gray-100 text-gray-500", statusText = o.status;
-    if(o.status === "HQ_PENDING") { statusClass = "bg-purple-100 text-purple-700"; statusText = "접수 대기"; }
-    else if(o.status === "SHIPPED") { statusClass = "bg-blue-100 text-blue-700"; statusText = "선적 완료"; }
-    else if(o.status === "ARRIVED") { statusClass = "bg-emerald-100 text-emerald-700"; statusText = "캐나다 입항"; }
+function applyRegionFilter() { masterViewRegion = document.getElementById('regionFilter').value; renderTableItems(); }
 
-    const tr = document.createElement('tr'); tr.className = "hover:bg-gray-50/50 transition-colors";
-    tr.innerHTML = `
-      <td class="px-5 py-4 font-mono text-[11px] font-black text-gray-500">${o.id}</td>
-      <td class="px-5 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
-      <td class="px-5 py-4 text-[12px] font-black text-[#E84C60]">${o.vendor}</td>
-      <td class="px-5 py-4 text-[11px] font-bold text-gray-600">${o.region}</td>
-      <td class="px-5 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate" title="${o.items}">${o.items}</td>
-      <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${o.eta}</td>
-      <td class="px-5 py-4 text-center"><span class="px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider shadow-sm border border-black/5 ${statusClass}">${statusText}</span></td>
-    `;
-    tbody.appendChild(tr);
+function checkExpWarning(expDateStr) {
+  if (!expDateStr || expDateStr === "-") return false;
+  const firstDateStr = expDateStr.split('|')[0].split(':')[0].trim();
+  const dateMatch = firstDateStr.match(/\d{4}-\d{2}-\d{2}/);
+  if (!dateMatch) return false;
+  const expDate = new Date(dateMatch[0] + "T00:00:00"); const today = new Date();
+  const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+  return (diffDays <= 30); 
+}
+
+function renderTableItems() {
+  const tableBody = document.getElementById('itemTableBody');
+  if (!tableBody) return;
+  if (cachedItems.length === 0) return tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">표시할 품목이 없습니다.</td></tr>`;
+  tableBody.innerHTML = '';
+
+  let totalValue = 0, lowStockCount = 0;
+  const isMasterOrVendor = (userRole === "MASTER" || userRole === "VENDOR");
+  const sLabel = document.getElementById('stockHeaderLabel');
+  if (sLabel) sLabel.innerText = isMasterOrVendor ? (masterViewRegion === "ALL" ? "Total Hub Stock" : `Hub Stock (${masterViewRegion})`) : `Local Hub (${currentClientState})`;
+
+  cachedItems.forEach((item, index) => {
+    const row = document.createElement('tr'); row.className = "hover:bg-gray-50/50 transition-colors duration-200";
+    const imgTag = item.image && item.image.trim() !== '' ? `<img src="${item.image}" alt="${item.code}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors">` : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
+    let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown[masterViewRegion] || 0)) : item.regionalStock;
+    totalValue += (Number(item.price) * displayStock);
+    if (displayStock > 0 && displayStock <= 10) lowStockCount++;
+
+    const isLowStock = displayStock > 0 && displayStock <= 10, isSoldOut = displayStock <= 0;
+    let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E84C60]/10 px-2 py-0.5 rounded shadow-sm border border-[#E84C60]/20 low-stock-pulse" : (isLowStock ? "text-[#E84C60] font-extrabold" : "text-[var(--premium-charcoal)]");
+    let aiBadgeHTML = (userRole === "PARTNER" && item.aiSuggestedQty > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${item.aiSuggestedQty}</span></div>` : '';
+
+    let expDisplayHTML = '', expDateVal = "";
+    if (isMasterOrVendor && masterViewRegion !== "ALL") expDateVal = item.expBreakdown && item.expBreakdown[masterViewRegion] ? item.expBreakdown[masterViewRegion] : "";
+    else if (!isMasterOrVendor) expDateVal = item.expBreakdown && item.expBreakdown[currentClientState] ? item.expBreakdown[currentClientState] : "";
+    
+    if (expDateVal) {
+      const isExpWarn = checkExpWarning(expDateVal);
+      const expColorClass = isExpWarn ? "text-[#E84C60] bg-[#E84C60]/10 border-[#E84C60]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
+      expDisplayHTML = `<div class="mt-1.5 inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border shadow-sm ${expColorClass}"><span>${isExpWarn ? "⚠️" : "🕒"}</span> EXP: ${expDateVal}</div>`;
+    }
+
+    let stockDisplayHTML = '', orderInputHTML = '';
+    if (isStockEditMode && isMasterOrVendor) {
+      let editInputs = '';
+      for (const reg in item.stockBreakdown) {
+        const currentRegStock = item.stockBreakdown[reg]; const currentRegExp = item.expBreakdown && item.expBreakdown[reg] ? item.expBreakdown[reg] : "";
+        editInputs += `<div class="flex flex-col gap-1 bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-100 mb-1.5"><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800">${reg} STOCK</span><input type="number" min="0" data-code="${item.code}" data-region="${reg}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-14 bg-white border border-emerald-400 rounded px-1 text-center text-[11px] font-bold focus:outline-none"></div><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800">${reg} EXP</span><input type="text" placeholder="YYYY-MM-DD:Qty" data-code="${item.code}" data-region="${reg}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp}" class="exp-region-input w-full bg-white border border-emerald-400 rounded px-1 text-center text-[10px] font-bold focus:outline-none placeholder-emerald-200"></div></div>`;
+      }
+      stockDisplayHTML = `<div class="flex flex-col w-full">${editInputs}</div>`;
+      orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
+    } else if (isMasterOrVendor && !isStockEditMode) {
+      stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
+      orderInputHTML = `<input type="number" disabled placeholder="${userRole}" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[10px] font-black text-gray-400 opacity-50 cursor-not-allowed uppercase">`;
+    } else {
+      if (isSoldOut) {
+        stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap">Sold Out</span>${expDisplayHTML}</div>`;
+        orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
+      } else {
+        stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
+        orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" oninput="calculateOrderTotal()" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all">`;
+      }
+    }
+
+    const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black text-right font-mono">${formatCurrency(item.price || 0)}</td>`;
+    row.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${item.code || '-'}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-extrabold tracking-tight whitespace-normal break-keep">${item.name || '-'}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E84C60]/10 text-[#E84C60] border border-[#E84C60]/20 uppercase tracking-[0.15em] shadow-sm">${item.category || 'General'}</span></td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[var(--y2c-gold)]/5 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E84C60]/5 border-l border-[#E84C60]/10 align-middle">${orderInputHTML}</td>`;
+    tableBody.appendChild(row);
   });
+
+  if (document.getElementById('kpiTotalSkus')) document.getElementById('kpiTotalSkus').innerText = cachedItems.length;
+  if (document.getElementById('kpiTotalValue')) document.getElementById('kpiTotalValue').innerText = userRole === "VENDOR" ? "N/A" : formatCurrency(totalValue);
+  if (document.getElementById('kpiLowStock')) document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
 }
 
-async function saveHqOrder() {
-  if (isSubmitting) return;
-  const vendorName = document.getElementById('hqVendorInput').value.trim(), region = document.getElementById('hqRegionInput').value.toUpperCase().trim(), items = document.getElementById('hqItemsInput').value.trim();
-  if(!vendorName || !region || !items) return showToast("필수 내역을 모두 입력해 주세요.", "error");
+function applyAiSuggestion() {
+  const qtyInputs = document.querySelectorAll('.order-qty'); let appliedCount = 0;
+  qtyInputs.forEach(input => {
+    const idx = input.getAttribute('data-index');
+    if (cachedItems[idx] && cachedItems[idx].aiSuggestedQty > 0) {
+      const maxQty = parseInt(input.getAttribute('max')) || 0; const targetQty = Math.min(cachedItems[idx].aiSuggestedQty, maxQty);
+      if (targetQty > 0) { input.value = targetQty; appliedCount++; }
+    }
+  });
+  if (appliedCount > 0) { showToast(`AI 분석: ${appliedCount}개 품목 세팅 완료`, "success"); calculateOrderTotal(); } 
+  else { showToast("적용할 추천 데이터가 없습니다.", "error"); }
+}
+
+function calculateOrderTotal() {
+  if(userRole === "VENDOR") return; 
+  const qtyInputs = document.querySelectorAll('.order-qty'); let subtotal = 0;
+  qtyInputs.forEach(input => {
+    const qty = parseInt(input.value) || 0, maxQty = parseInt(input.getAttribute('max')) || 999;
+    if (qty > maxQty) { input.value = maxQty; showToast("재고 수량을 초과할 수 없습니다.", "error"); return; }
+    if (qty > 0) { const idx = input.getAttribute('data-index'); if (cachedItems[idx]) subtotal += (qty * Number(cachedItems[idx].price)); }
+  });
+  const taxAmt = subtotal * taxRateObj.rate;
+  if(document.getElementById('orderSubtotal')) document.getElementById('orderSubtotal').innerText = formatCurrency(subtotal);
+  if(document.getElementById('orderTaxAmt')) document.getElementById('orderTaxAmt').innerText = formatCurrency(taxAmt);
+  if(document.getElementById('orderGrandTotal')) document.getElementById('orderGrandTotal').innerText = formatCurrency(subtotal + taxAmt);
+}
+
+// 스마트 에디터
+async function toggleStockEditMode() {
+  if (isSubmitting) return; 
+  const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
+  if (!isStockEditMode) {
+    isStockEditMode = true;
+    if(btn) { btn.innerHTML = "💾 SAVE ALL"; btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); btn.classList.replace('hover:bg-black', 'hover:bg-emerald-700'); }
+    if (filter) filter.disabled = true; if (orderContainer) orderContainer.classList.add('hidden'); renderTableItems(); 
+  } else {
+    const stockInputs = document.querySelectorAll('.stock-region-input'), expInputs = document.querySelectorAll('.exp-region-input');
+    const updateMap = {}; let hasChanges = false;
+    stockInputs.forEach(input => {
+      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region'), v = parseInt(input.value) || 0, original = parseInt(input.getAttribute('data-original')) || 0;
+      if (v !== original) { if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} }; updateMap[c].stockBreakdown[r] = v; hasChanges = true; }
+    });
+    expInputs.forEach(input => {
+      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region'), v = String(input.value).trim(), original = String(input.getAttribute('data-original')).trim();
+      if (v !== original) { if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} }; updateMap[c].expBreakdown[r] = v; hasChanges = true; }
+    });
+    if (!hasChanges) {
+      isStockEditMode = false; 
+      if(btn) { btn.innerHTML = "⚙️ MANAGE"; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
+      if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
+      renderTableItems(); return; 
+    }
+    isSubmitting = true;
+    if(btn) { btn.disabled = true; btn.innerHTML = "⏳ SAVING..."; btn.classList.add('animate-pulse'); }
+    const updates = Object.keys(updateMap).map(c => ({ code: c, stockBreakdown: updateMap[c].stockBreakdown, expBreakdown: updateMap[c].expBreakdown }));
+    try {
+      const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+        body: JSON.stringify({ action: "update_stock", token: sessionToken, stockUpdates: updates })
+      });
+      const result = JSON.parse(await response.text());
+      if (result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
+      else throw new Error(result.message);
+    } catch (err) { showToast("업데이트 실패: " + err.message, "error"); } 
+    finally {
+      isStockEditMode = false; isSubmitting = false;
+      if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
+      if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
+    }
+  }
+}
+
+function attachImageHoverEffect() {
+  const tableBody = document.getElementById('itemTableBody'), previewContainer = document.getElementById('imagePreviewContainer'), previewImg = document.getElementById('imagePreview');
+  if (!tableBody || !previewContainer || !previewImg) return;
+  tableBody.addEventListener('mouseover', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewImg.src = e.target.src; previewContainer.classList.remove('hidden'); setTimeout(() => { previewContainer.classList.remove('scale-95', 'opacity-0'); previewContainer.classList.add('scale-100', 'opacity-100'); }, 10); } });
+  tableBody.addEventListener('mousemove', (e) => { if (e.target.classList.contains('item-thumbnail')) { const x = Math.min(e.clientX + 20, window.innerWidth - 300); const y = Math.min(e.clientY + 20, window.innerHeight - 300); previewContainer.style.left = x + 'px'; previewContainer.style.top = y + 'px'; } });
+  tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
+}
+
+async function submitOrder() {
+  if(userRole === "VENDOR" || isSubmitting) return;
+  const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
+  qtyInputs.forEach(input => {
+    const qty = parseInt(input.value) || 0;
+    if (qty > 0) { const idx = input.getAttribute('data-index'); if (cachedItems[idx]) orderItems.push({ code: cachedItems[idx].code, name: cachedItems[idx].name, price: cachedItems[idx].price, qty: qty }); }
+  });
+  if (orderItems.length === 0) return showToast("발주 수량을 최소 1개 이상 입력해 주세요.", "error");
+  const grandTotal = document.getElementById('orderGrandTotal').innerText;
+  if (!confirm(`총 ${orderItems.length}개 품목 (총액: ${grandTotal})\n발주를 서버로 전송하시겠습니까?`)) return;
 
   isSubmitting = true;
-  const btn = document.getElementById('btnSubmitHqOrder'), originalHtml = btn.innerHTML;
-  btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`;
+  const submitBtn = document.querySelector('button[onclick="submitOrder()"]'), originalHTML = submitBtn ? submitBtn.innerHTML : "SUBMIT ORDER";
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span>⏳</span> PROCESSING..."; submitBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
 
-  const payload = { id: "NEW", date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "upsert_hq_order", token: sessionToken, order: payload })
+      body: JSON.stringify({ action: "save_order", token: sessionToken, clientName: clientName, clientState: currentClientState, items: orderItems })
     });
     const result = JSON.parse(await response.text());
-    if (result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchMappings(); } 
-    else throw new Error(result.message);
-  } catch (err) { showToast("등록 실패: " + err.message, "error"); } 
-  finally { btn.disabled = false; btn.innerHTML = originalHtml; isSubmitting = false; }
+    if (result.success) { showToast(`발주가 완료되었습니다! (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
+    else showToast("접수 실패: " + result.message, "error"); 
+  } catch (error) { showToast("통신 오류 발생.", "error"); } 
+  finally { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
 }
 
-// ========================================================
-// [4] 통합 엑셀/OCR & 철통 방어 매핑 엔진 (마스터 전용)
-// ========================================================
+// 🌟 [최종 통합] 엑셀(SheetJS) + 이미지 OCR + 철통 매핑 방어
 async function handleExcelUpload(event) {
   event.preventDefault();
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
@@ -402,7 +386,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심] 공백 무시 정규화 파싱 & 매핑 DB(Translation) 완벽 연동
+// 🌟 [핵심] 엑셀 헤더 공백 무시 파싱 & Vendor_Mapping 완벽 연동 & 재고 누적(+)
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -435,12 +419,12 @@ async function processExcelData(jsonData, filename) {
     if (vItemCode !== "" && vQty > 0) {
       let hqCode = null;
 
-      // 🌟 1. Vendor_Mapping 테이블에서 마스터 코드로 번역 시도
+      // 🌟 [통역 엔진] 1. Vendor_Mapping 에서 변환 시도
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
-        hqCode = mapObj.hqCode; // 예: 70808SJ -> FD-002
+        hqCode = mapObj.hqCode;
       } else {
-        // 🌟 2. 매핑에 없으면 마스터 카탈로그(Item_List) 품번과 1:1 다이렉트 비교
+        // 🌟 [스마트 패스] 2. 매핑에 없으면 마스터 카탈로그(Item_List) 품번과 1:1 다이렉트 비교
         const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
         if (directMatch) hqCode = directMatch.code;
       }
@@ -459,7 +443,7 @@ async function processExcelData(jsonData, filename) {
 
   if (successCount === 0) {
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
-    showToast("마스터 DB와 매칭되는 품목이 0건입니다. Vendor_Mapping 시트와 품번을 확인하세요.", "error"); return;
+    showToast("마스터 DB와 일치하는 데이터가 없습니다. (품번 또는 매핑 DB 확인)", "error"); return;
   }
 
   // 🌟 기존 DB 재고 및 유통기한에 안전하게 덧셈(+) 병합
@@ -480,12 +464,10 @@ async function processExcelData(jsonData, filename) {
       });
     }
 
-    // 새 데이터 덧셈 연산
     for (let d in inboundMap[hqCode].batches) {
       mergedBatches[d] = (mergedBatches[d] || 0) + inboundMap[hqCode].batches[d];
     }
 
-    // 날짜 순 정렬 및 조립
     let sortedDates = Object.keys(mergedBatches).sort();
     let newExpArr = [];
     sortedDates.forEach(d => {
@@ -511,7 +493,7 @@ async function processExcelData(jsonData, filename) {
     if (result.success) {
       showToast(`입고 완료: ${successCount}건 누적 성공 (실패: ${failCount}건)`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
-      setTimeout(() => { fetchCatalogForInbound(); location.reload(); }, 1500); 
+      setTimeout(() => location.reload(), 1500); 
     } else throw new Error(result.message);
   } catch (err) {
     showToast("동기화 실패: " + err.message, "error");
@@ -530,15 +512,13 @@ function setupDragAndDrop() {
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
 }
 
-window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; 
-window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.saveHqOrder = saveHqOrder;
-window.handleExcelUpload = handleExcelUpload;
+window.submitOrder = submitOrder; window.fetchItems = fetchItems; window.toggleStockEditMode = toggleStockEditMode; 
+window.applyRegionFilter = applyRegionFilter; window.applyAiSuggestion = applyAiSuggestion; window.calculateOrderTotal = calculateOrderTotal; window.handleExcelUpload = handleExcelUpload;
 
-document.addEventListener('DOMContentLoaded', () => { 
-  populateSalesYearSelector();
+document.addEventListener('DOMContentLoaded', () => {
   setupDragAndDrop();
-  fetchMasterData(3); 
-  
-  // 🌟 시스템 구동 시 벤더 매핑 DB와 재고 카탈로그를 동시에 로드
-  fetchMappings().then(() => fetchCatalogForInbound()); 
+  // 🌟 시스템 구동 시 벤더 매핑 DB(fetchMappings)를 먼저 로드하여 번역 준비를 마친 뒤 카탈로그 로드
+  if (userRole === "MASTER" || userRole === "VENDOR") {
+    fetchMappings().then(() => fetchItems());
+  } else { fetchItems(); }
 });
