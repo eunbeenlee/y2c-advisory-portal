@@ -6,17 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#1A1516">
   
-  <title>Master Database | Advisory Master System</title>
+  <title>Master Admin | Advisory Master System</title>
   <link rel="icon" type="image/png" href="favicon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 🌟 [엔터프라이즈] 엑셀 파싱 코어 라이브러리 탑재 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
   <style>
-    :root { 
-      --sinjeon-pink: #E84C60; 
-      --sinjeon-pink-dark: #C23347; 
-      --premium-charcoal: #1A1516; 
-      --y2c-gold: #D4AF37; 
-    }
+    :root { --sinjeon-pink: #E84C60; --sinjeon-pink-dark: #C23347; --premium-charcoal: #1A1516; --y2c-gold: #D4AF37; }
     .bg-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); }
     .premium-glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
     body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -32,7 +30,6 @@
   
   <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
-      
       <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
         <img src="Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm">
         <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
@@ -40,14 +37,12 @@
           <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
         </div>
       </div>
-      
       <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
         <a href="dashboard.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
         <a href="items.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
         <a href="recipes.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
         <a href="admin.html" id="navAdmin" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-[13px] sm:text-sm tracking-wide">Master DB</a>
         <a href="invoice.html" id="navInvoice" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
-        
         <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
           <div class="flex items-center space-x-3 bg-white py-1 px-3 rounded-xl border border-gray-100 shadow-sm">
             <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">MASTER</span>
@@ -66,83 +61,63 @@
       <button onclick="location.reload()" class="text-xs bg-white text-[#C23347] font-black px-4 py-2 rounded-xl shadow-md hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RELOAD</button>
     </div>
 
-    <!-- 탭 스위처 -->
-    <div class="flex justify-center sm:justify-start mb-8">
-      <div class="bg-gray-200/70 p-1.5 rounded-2xl flex gap-2 border border-gray-300/40 shadow-inner">
-        <button id="tabBtnProfiles" onclick="switchAdminTab('profiles')" class="px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-white text-[var(--premium-charcoal)] shadow-sm">
-          🏢 Franchise Profiles
-        </button>
-        <button id="tabBtnSales" onclick="switchAdminTab('sales')" class="px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900">
-          📊 Sales Database Manager
-        </button>
+    <!-- 🌟 4구역 탭 스위처 확장 -->
+    <div class="flex flex-col sm:flex-row justify-center sm:justify-start mb-8 overflow-x-auto no-scrollbar">
+      <div class="bg-gray-200/70 p-1.5 rounded-2xl flex gap-2 border border-gray-300/40 shadow-inner w-max">
+        <button id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-white text-[var(--premium-charcoal)] shadow-sm whitespace-nowrap">🏢 Profiles</button>
+        <button id="tabBtn_sales" onclick="switchAdminTab('sales')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap">📊 Sales DB</button>
+        <button id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap">📤 Excel Inbound</button>
+        <button id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap">🚢 HQ Procurement</button>
       </div>
     </div>
 
-    <!-- SECTION 1: 가맹점 프로필 마스터 DB -->
-    <section id="sectionProfiles">
+    <!-- SECTION 1: 가맹점 프로필 -->
+    <section id="section_profiles">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
-            <span class="text-2xl">⚙️</span> Franchise Profiles
-          </h2>
-          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Manage Canadian franchise locations, legal business IDs, and tax provinces.</p>
+          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">⚙️</span> Franchise Profiles</h2>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Manage Canadian locations and tax provinces.</p>
         </div>
       </div>
-
       <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80">
         <div class="overflow-x-auto custom-scrollbar pb-2">
           <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/90 border-b-2 border-gray-200">
               <tr>
-                <th scope="col" class="px-5 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap min-w-[180px]">Client Name</th>
-                <th scope="col" class="px-3 py-5 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[80px]">State</th>
-                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[120px]">City</th>
-                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[200px]">Address</th>
-                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[150px]">Attn / Owner</th>
-                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[180px]">Email</th>
-                <th scope="col" class="px-3 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] min-w-[120px]">Business ID</th>
-                <th scope="col" class="px-5 py-5 text-center text-[10px] sm:text-[11px] font-black text-[#E84C60] bg-[#E84C60]/5 uppercase tracking-[0.15em] border-l border-[#E84C60]/10 min-w-[100px]">Action</th>
+                <th scope="col" class="px-5 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap min-w-[180px]">Client Name</th>
+                <th scope="col" class="px-3 py-5 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[80px]">State</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[120px]">City</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[200px]">Address</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[150px]">Attn</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[180px]">Email</th>
+                <th scope="col" class="px-3 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[120px]">Biz ID</th>
+                <th scope="col" class="px-5 py-5 text-center text-[10px] font-black text-[#E84C60] bg-[#E84C60]/5 uppercase tracking-widest border-l border-[#E84C60]/10 min-w-[100px]">Action</th>
               </tr>
             </thead>
-            <tbody id="masterTableBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md">
-              <!-- JS 동적 렌더링 -->
-            </tbody>
+            <tbody id="masterTableBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md"></tbody>
           </table>
         </div>
       </div>
     </section>
 
     <!-- SECTION 2: 세일즈 데이터베이스 매니저 -->
-    <section id="sectionSales" class="hidden">
+    <section id="section_sales" class="hidden">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-6 gap-4 border-b border-gray-200/60 pb-6">
         <div>
-          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
-            <span class="text-2xl">📊</span> Monthly Sales Database Manager
-          </h2>
-          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Enter and synchronize historical & live POS/Delivery revenues directly into Google Sheets.</p>
+          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">📊</span> Monthly Sales ERP</h2>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Enter POS/Delivery revenues directly into Google Sheets.</p>
         </div>
-
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
           <div class="relative w-full sm:w-44">
-            <select id="salesYearSelector" onchange="loadSalesGrid()" class="w-full appearance-none bg-white border-2 border-gray-200 text-gray-700 py-3 pl-4 pr-10 rounded-xl shadow-sm text-xs font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer">
-              <!-- JS 동적 생성 -->
-            </select>
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
+            <select id="salesYearSelector" onchange="loadSalesGrid()" class="w-full appearance-none bg-white border-2 border-gray-200 text-gray-700 py-3 pl-4 pr-10 rounded-xl shadow-sm text-xs font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer"></select>
           </div>
-
           <div class="relative w-full sm:w-64">
             <select id="salesClientSelector" onchange="loadSalesGrid()" class="w-full appearance-none bg-white border-2 border-gray-200 text-gray-700 py-3 pl-4 pr-10 rounded-xl shadow-sm text-xs font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer">
               <option value="">Loading stores...</option>
             </select>
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-            </div>
           </div>
         </div>
       </div>
-
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-[var(--premium-charcoal)]">
           <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Annual Total (YTD)</p>
@@ -157,26 +132,22 @@
           <h3 id="salesKpiDelivery" class="text-2xl font-black text-[var(--y2c-gold)] font-mono">$0.00</h3>
         </div>
       </div>
-
       <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80 mb-8">
         <div class="overflow-x-auto custom-scrollbar pb-2">
           <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/90 border-b-2 border-gray-200">
               <tr>
-                <th scope="col" class="px-6 py-4 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[80px]">Month</th>
-                <th scope="col" class="px-6 py-4 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[180px]">POS Sales (CAD)</th>
-                <th scope="col" class="px-6 py-4 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[180px]">Delivery Sales (CAD)</th>
-                <th scope="col" class="px-6 py-4 text-right text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[150px]">Net Monthly Total</th>
-                <th scope="col" class="px-6 py-4 text-center text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest min-w-[100px]">DB Status</th>
+                <th scope="col" class="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Month</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">POS (CAD)</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Delivery (CAD)</th>
+                <th scope="col" class="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Net Total</th>
+                <th scope="col" class="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">DB Status</th>
               </tr>
             </thead>
-            <tbody id="salesGridBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md">
-              <!-- JS 동적 렌더링 -->
-            </tbody>
+            <tbody id="salesGridBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md"></tbody>
           </table>
         </div>
       </div>
-
       <div class="flex justify-end pb-10">
         <button id="saveAllSalesBtn" onclick="saveSalesGridData()" class="w-full sm:w-auto bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] text-white font-black py-4 px-12 rounded-2xl transition-all duration-300 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-3 text-sm tracking-widest">
           <span>💾</span> SAVE ALL 12-MONTH SALES
@@ -184,12 +155,108 @@
       </div>
     </section>
 
+    <!-- 🌟 SECTION 3: 엑셀 파일 인바운드 파서 존 -->
+    <section id="section_inbound" class="hidden">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-gray-200/60 pb-6">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">📤</span> Multi-Vendor Excel Inbound</h2>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Drag & Drop vendor inventory files. Auto-matches SKUs using Vendor_Mapping DB.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        <!-- 엑셀 드롭존 -->
+        <div class="premium-glass p-8 rounded-[2.5rem] border border-gray-200 shadow-sm flex flex-col justify-center">
+          <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-4">Step 1. Select Target Hub Region</label>
+          <select id="inboundRegionSelector" class="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-4 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition mb-6">
+            <option value="">-- 입고될 지역(Hub)을 선택하세요 --</option>
+            <option value="ON">ON (Ontario Hub)</option>
+            <option value="BC">BC (British Columbia Hub)</option>
+            <option value="AB">AB (Alberta Hub)</option>
+          </select>
+
+          <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-4">Step 2. Upload Vendor Excel</label>
+          <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-all min-h-[200px]" onclick="document.getElementById('excelFileInput').click()">
+            <span class="text-4xl mb-4">📑</span>
+            <p id="uploadStatusText" class="text-sm font-bold text-gray-500 tracking-wide">Drag & Drop vendor excel file here<br><span class="text-xs text-gray-400 font-medium">or click to browse (.xlsx, .xls)</span></p>
+            <input type="file" id="excelFileInput" class="hidden" accept=".xlsx, .xls, .csv">
+          </div>
+        </div>
+
+        <div class="premium-glass p-8 rounded-[2.5rem] border border-gray-200 shadow-sm bg-gray-50/50">
+          <h3 class="text-sm font-black text-[var(--premium-charcoal)] tracking-widest uppercase mb-4 border-b border-gray-200 pb-3 flex items-center gap-2"><span>🛡️</span> Security & Rules</h3>
+          <ul class="space-y-4 text-xs text-gray-600 font-medium leading-relaxed">
+            <li class="flex items-start gap-2"><span class="text-[#E84C60] mt-0.5">●</span> 파일 내에 <strong>Item#, Item Code, 품번, Barcode</strong> 중 하나의 열이 반드시 존재해야 합니다.</li>
+            <li class="flex items-start gap-2"><span class="text-[#E84C60] mt-0.5">●</span> 재고 수량은 <strong>Qty, Quantity, 수량, Stock</strong> 열에서 자동으로 파싱됩니다.</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">●</span> 시스템 내의 <code>Vendor_Mapping</code> DB를 조회하여 해당 벤더의 고유 품번을 Y2C 본사 표준 코드로 1초 만에 스마트 치환합니다.</li>
+            <li class="flex items-start gap-2"><span class="text-purple-500 mt-0.5">●</span> 입고 처리 내역은 Audit Logs에 영구 기록되어 책임 소재를 보호합니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🌟 SECTION 4: 본사 발주 관제 타임라인 -->
+    <section id="section_hqorders" class="hidden">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-gray-200/60 pb-6">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2"><span class="text-2xl">🚢</span> HQ Procurement Tracking</h2>
+          <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Monitor orders dispatched from Canada directly to Korea HQ.</p>
+        </div>
+      </div>
+
+      <!-- 신규 발주서 등록 폼 -->
+      <div class="premium-glass p-6 sm:p-8 rounded-[2rem] border border-gray-200/80 mb-8 bg-gradient-to-br from-white to-gray-50">
+        <h3 class="text-sm font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-5">Create HQ Order Record</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+          <div>
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Vendor / Partner</label>
+            <input type="text" id="hqVendorInput" placeholder="e.g. ABC Logistics" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm">
+          </div>
+          <div>
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Target Region (Hub)</label>
+            <input type="text" id="hqRegionInput" placeholder="ON" maxlength="2" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm uppercase text-center">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Items Summary</label>
+            <div class="flex gap-3">
+              <input type="text" id="hqItemsInput" placeholder="e.g. Tteokbokki Sauce x 50 BOX" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm">
+              <button id="btnSubmitHqOrder" onclick="saveHqOrder()" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-6 py-3 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-widest whitespace-nowrap">
+                ADD RECORD
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 관제 타임라인 그리드 -->
+      <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm border border-gray-200/80 pb-6">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50/90 border-b-2 border-gray-200">
+              <tr>
+                <th scope="col" class="px-5 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Order ID</th>
+                <th scope="col" class="px-5 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                <th scope="col" class="px-5 py-4 text-left text-[10px] font-black text-[#E84C60] uppercase tracking-widest">Vendor Name</th>
+                <th scope="col" class="px-5 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Region</th>
+                <th scope="col" class="px-5 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Items Summary</th>
+                <th scope="col" class="px-5 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Est. Arrival (ETA)</th>
+                <th scope="col" class="px-5 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Logistics Status</th>
+              </tr>
+            </thead>
+            <tbody id="hqOrdersGridBody" class="bg-white/80 divide-y divide-gray-50 backdrop-blur-md">
+              <!-- JS 동적 렌더링 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+  <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-  <!-- 🌟 강력 캐시 무력화 버전 태그 (?v=9.3) -->
-  <script src="assets/js/config.js?v=9.3"></script>
-  <script src="assets/js/admin.js?v=9.3"></script>
+  <!-- 🌟 강력 캐시 무력화 버전 태그 (?v=10.3) -->
+  <script src="assets/js/config.js?v=10.3"></script>
+  <script src="assets/js/admin.js?v=10.3"></script>
 </body>
 </html>
