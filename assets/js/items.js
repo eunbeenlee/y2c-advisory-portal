@@ -3,10 +3,11 @@
 const userRole = (localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN);
-// 🌟 캐싱된 접속자의 주(State) 정보
 const cachedClientState = localStorage.getItem("y2c_premium_state") || "DEFAULT";
 
-if (!sessionToken || !clientName) window.location.href = "index.html";
+if (!sessionToken || !clientName) {
+  window.location.href = "index.html";
+}
 
 document.getElementById('userNameDisplay').innerText = clientName;
 const badge = document.getElementById('userRoleBadge');
@@ -22,14 +23,19 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
 
 // 🌟 [엔터프라이즈 방화벽] VENDOR 권한 접속 시 불필요/민감 UI 원천 삭제
 if (userRole === "VENDOR") {
-  document.getElementById('navDashboard')?.remove();
-  document.getElementById('navRecipes')?.remove();
-  document.getElementById('orderActionContainer')?.remove(); // 벤더는 결제창 파괴
+  const navDash = document.getElementById('navDashboard');
+  const navRec = document.getElementById('navRecipes');
+  const orderAct = document.getElementById('orderActionContainer');
+  if (navDash) navDash.remove();
+  if (navRec) navRec.remove();
+  if (orderAct) orderAct.remove();
 }
 
 if (userRole === "MASTER") {
-  document.getElementById('navAdmin')?.classList.remove('hidden');
-  document.getElementById('navInvoice')?.classList.remove('hidden');
+  const navAdmin = document.getElementById('navAdmin');
+  const navInv = document.getElementById('navInvoice');
+  if (navAdmin) navAdmin.classList.remove('hidden');
+  if (navInv) navInv.classList.remove('hidden');
 }
 
 const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
@@ -60,21 +66,39 @@ function showToast(message, type = 'success') {
 }
 
 let cachedItems = [];
+let cachedMappings = []; // 엑셀 매핑용 DB 보관
 let isStockEditMode = false; 
 let currentClientState = cachedClientState; 
 let masterViewRegion = "ALL"; 
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
+let isSubmitting = false;
+
+// 🌟 [신규 추가] 엑셀 파싱을 위한 벤더 매핑 DB 로드 (마스터 및 벤더 전용)
+async function fetchMappings() {
+  if (userRole !== "MASTER" && userRole !== "VENDOR") return;
+  try {
+    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_PROCUREMENT, token: sessionToken })
+    });
+    const result = JSON.parse(await response.text());
+    if (result.success) {
+      cachedMappings = result.mappings || [];
+    }
+  } catch (error) {
+    console.error("Mapping DB Load Error:", error);
+  }
+}
 
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody');
   if (!tableBody) return;
 
-  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Ultra-Fast Syncing SCM...</p></div></td></tr>`;
+  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Securely loading SCM data...</p></div></td></tr>`;
 
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      // 🌟 [로딩 최적화] 캐싱된 State를 보내서 백엔드 DB 풀스캔 차단
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.ITEMS, token: sessionToken, clientState: currentClientState }) 
     });
     const result = JSON.parse(await response.text());
@@ -92,14 +116,20 @@ async function fetchItems() {
         headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[var(--y2c-gold)]/10 text-[var(--y2c-gold)] px-3 py-1.5 rounded-lg border border-[var(--y2c-gold)]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
       }
       
-      document.getElementById('kpiDashboard')?.classList.remove('hidden');
-      document.getElementById('kpiLastUpdated').innerText = formatTimestamp(result.lastUpdated);
+      const kpiDash = document.getElementById('kpiDashboard');
+      if (kpiDash) kpiDash.classList.remove('hidden');
+      const kpiUpdated = document.getElementById('kpiLastUpdated');
+      if (kpiUpdated) kpiUpdated.innerText = formatTimestamp(result.lastUpdated);
 
       if (userRole === "MASTER" || userRole === "VENDOR") {
-        document.getElementById('masterInventoryControls')?.classList.remove('hidden');
+        const masterControls = document.getElementById('masterInventoryControls');
+        const excelZone = document.getElementById('vendorExcelUploadZone');
+        if (masterControls) masterControls.classList.remove('hidden');
+        if (excelZone) excelZone.classList.remove('hidden'); // 벤더 다이렉트 업로드 UI 활성화
         populateRegionFilter();
       } else {
-        document.getElementById('aiSuggestBtn')?.classList.remove('hidden');
+        const aiBtn = document.getElementById('aiSuggestBtn');
+        if (aiBtn) aiBtn.classList.remove('hidden');
       }
 
       renderTableItems(); 
@@ -107,7 +137,9 @@ async function fetchItems() {
       if(userRole !== "VENDOR") calculateOrderTotal(); 
 
     } else {
-      if (result.message.includes("만료") || result.message.includes("로그인")) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
+      if (result.message.includes("만료") || result.message.includes("로그인")) { 
+        alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; 
+      }
       throw new Error(result.message);
     }
   } catch (error) {
@@ -119,9 +151,16 @@ function populateRegionFilter() {
   const filter = document.getElementById('regionFilter');
   if (!filter || cachedItems.length === 0) return;
   const regions = Object.keys(cachedItems[0].stockBreakdown || {});
-  filter.innerHTML = `<option value="ALL">Canada Total</option>`;
+  filter.innerHTML = `<option value="ALL">Total Stock</option>`;
   regions.forEach(reg => { filter.innerHTML += `<option value="${reg}">Hub: ${reg}</option>`; });
   filter.value = masterViewRegion;
+  
+  // 엑셀 업로드 지역 셀렉터도 동기화
+  const inboundFilter = document.getElementById('inboundRegionSelector');
+  if (inboundFilter) {
+    inboundFilter.innerHTML = `<option value="">-- Select Hub Region for Excel --</option>`;
+    regions.forEach(reg => { inboundFilter.innerHTML += `<option value="${reg}">Hub: ${reg}</option>`; });
+  }
 }
 
 function applyRegionFilter() {
@@ -131,14 +170,20 @@ function applyRegionFilter() {
 
 function renderTableItems() {
   const tableBody = document.getElementById('itemTableBody');
-  if (cachedItems.length === 0) return;
+  if (!tableBody) return;
+  if (cachedItems.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">표시할 품목이 없습니다.</td></tr>`;
+    return;
+  }
   tableBody.innerHTML = '';
 
   let totalValue = 0, lowStockCount = 0;
   const isMasterOrVendor = (userRole === "MASTER" || userRole === "VENDOR");
 
   const sLabel = document.getElementById('stockHeaderLabel');
-  if (sLabel) sLabel.innerText = isMasterOrVendor ? (masterViewRegion === "ALL" ? "Canada Total Stock" : `Hub Stock (${masterViewRegion})`) : `Local Hub (${currentClientState})`;
+  if (sLabel) {
+    sLabel.innerText = isMasterOrVendor ? (masterViewRegion === "ALL" ? "Total Hub Stock" : `Hub Stock (${masterViewRegion})`) : `Local Hub (${currentClientState})`;
+  }
 
   cachedItems.forEach((item, index) => {
     const row = document.createElement('tr');
@@ -169,7 +214,6 @@ function renderTableItems() {
     if (isStockEditMode && isMasterOrVendor) {
       let editInputs = '';
       for (const reg in item.stockBreakdown) {
-        // 🌟 [성능 극대화] input 태그에 data-original 속성을 부여하여 나중에 수정 여부 파악
         const currentRegStock = item.stockBreakdown[reg];
         editInputs += `<div class="flex items-center justify-between gap-2 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 mb-1">
           <span class="text-[9px] font-black text-emerald-800">${reg}</span>
@@ -214,14 +258,18 @@ function renderTableItems() {
     tableBody.appendChild(row);
   });
 
-  document.getElementById('kpiTotalSkus').innerText = cachedItems.length;
+  const kpiTotal = document.getElementById('kpiTotalSkus');
+  if (kpiTotal) kpiTotal.innerText = cachedItems.length;
+
   if(userRole === "VENDOR") {
     const vKpi = document.getElementById('kpiTotalValue');
     if(vKpi) vKpi.innerText = "N/A";
   } else {
-    document.getElementById('kpiTotalValue').innerText = formatCurrency(totalValue);
+    const vKpi = document.getElementById('kpiTotalValue');
+    if(vKpi) vKpi.innerText = formatCurrency(totalValue);
   }
-  document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
+  const lowKpi = document.getElementById('kpiLowStock');
+  if (lowKpi) lowKpi.innerText = `${lowStockCount} Items`;
 }
 
 function applyAiSuggestion() {
@@ -258,35 +306,38 @@ function calculateOrderTotal() {
   });
   const taxAmt = subtotal * taxRateObj.rate;
   const grandTotal = subtotal + taxAmt;
-  document.getElementById('orderSubtotal').innerText = formatCurrency(subtotal);
-  document.getElementById('orderTaxAmt').innerText = formatCurrency(taxAmt);
-  document.getElementById('orderGrandTotal').innerText = formatCurrency(grandTotal);
+  
+  const eleSub = document.getElementById('orderSubtotal');
+  const eleTax = document.getElementById('orderTaxAmt');
+  const eleGrand = document.getElementById('orderGrandTotal');
+  if(eleSub) eleSub.innerText = formatCurrency(subtotal);
+  if(eleTax) eleTax.innerText = formatCurrency(taxAmt);
+  if(eleGrand) eleGrand.innerText = formatCurrency(grandTotal);
 }
 
-// 🌟 [성능 극대화] 수정된 내역이 없으면 서버 통신 자체를 차단 (Smart Diff)
+// 🌟 [최적화] 스마트 Diff 방화벽 로직 유지
 async function toggleStockEditMode() {
+  if (isSubmitting) return; // 광클 방어
   const btn = document.getElementById('toggleStockBtn');
   const filter = document.getElementById('regionFilter');
   const orderContainer = document.getElementById('orderActionContainer');
   
   if (!isStockEditMode) {
     isStockEditMode = true;
-    btn.innerHTML = "💾 SAVE ALL"; btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); btn.classList.replace('hover:bg-black', 'hover:bg-emerald-700');
+    if(btn) { btn.innerHTML = "💾 SAVE ALL"; btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); btn.classList.replace('hover:bg-black', 'hover:bg-emerald-700'); }
     if (filter) filter.disabled = true; 
     if (orderContainer) orderContainer.classList.add('hidden');
     renderTableItems(); 
   } else {
-    
     const inputs = document.querySelectorAll('.stock-region-input');
     const updateMap = {};
-    let hasChanges = false; // 변경 감지 플래그
+    let hasChanges = false;
     
     inputs.forEach(input => {
       const c = input.getAttribute('data-code'), r = input.getAttribute('data-region');
       const v = parseInt(input.value) || 0;
       const original = parseInt(input.getAttribute('data-original')) || 0;
       
-      // 값이 수정된 항목만 색출
       if (v !== original) {
         if(!updateMap[c]) updateMap[c] = {};
         updateMap[c][r] = v;
@@ -294,18 +345,17 @@ async function toggleStockEditMode() {
       }
     });
 
-    // 🌟 아무것도 안 고쳤으면 서버 부하 없이 즉시 닫기
     if (!hasChanges) {
-      isStockEditMode = false; btn.innerHTML = "⚙️ MANAGE"; 
-      btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black');
+      isStockEditMode = false; 
+      if(btn) { btn.innerHTML = "⚙️ MANAGE"; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; 
       if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
-      renderTableItems(); // 원래 화면으로 렌더링
+      renderTableItems(); 
       return; 
     }
 
-    // 변경 사항이 있을 때만 서버로 전송
-    btn.disabled = true; btn.innerHTML = "⏳ SAVING..."; btn.classList.add('animate-pulse');
+    isSubmitting = true;
+    if(btn) { btn.disabled = true; btn.innerHTML = "⏳ SAVING..."; btn.classList.add('animate-pulse'); }
     const updates = Object.keys(updateMap).map(c => ({ code: c, stockBreakdown: updateMap[c] }));
 
     try {
@@ -316,13 +366,14 @@ async function toggleStockEditMode() {
       const result = JSON.parse(await response.text());
 
       if (result.success) {
-        showToast("물류 재고가 안전하게 동기화되었습니다.", "success");
+        showToast("재고가 안전하게 동기화되었습니다.", "success");
         setTimeout(() => fetchItems(), 1000); 
       } else throw new Error(result.message);
-    } catch (err) { showToast("업데이트 실패: " + err.message, "error"); } 
-    finally {
-      isStockEditMode = false; btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse');
-      btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black');
+    } catch (err) { 
+      showToast("업데이트 실패: " + err.message, "error"); 
+    } finally {
+      isStockEditMode = false; isSubmitting = false;
+      if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; 
       if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
     }
@@ -340,7 +391,7 @@ function attachImageHoverEffect() {
 }
 
 async function submitOrder() {
-  if(userRole === "VENDOR") return;
+  if(userRole === "VENDOR" || isSubmitting) return;
   const qtyInputs = document.querySelectorAll('.order-qty');
   const orderItems = [];
   qtyInputs.forEach(input => {
@@ -348,11 +399,12 @@ async function submitOrder() {
     if (qty > 0) { const idx = input.getAttribute('data-index'); if (cachedItems[idx]) orderItems.push({ code: cachedItems[idx].code, name: cachedItems[idx].name, price: cachedItems[idx].price, qty: qty }); }
   });
   
-  if (orderItems.length === 0) { showToast("발주 수량을 입력해 주세요.", "error"); return; }
+  if (orderItems.length === 0) { showToast("발주 수량을 최소 1개 이상 입력해 주세요.", "error"); return; }
   
   const grandTotal = document.getElementById('orderGrandTotal').innerText;
-  if (!confirm(`총 ${orderItems.length}개 품목 (세금 포함 총액: ${grandTotal})\n발주를 전송하시겠습니까?`)) return;
+  if (!confirm(`총 ${orderItems.length}개 품목 (세금 포함 총액: ${grandTotal})\n발주를 서버로 전송하시겠습니까?`)) return;
 
+  isSubmitting = true;
   const submitBtn = document.querySelector('button[onclick="submitOrder()"]');
   const originalHTML = submitBtn ? submitBtn.innerHTML : "SUBMIT ORDER";
   if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span>⏳</span> PROCESSING..."; submitBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
@@ -366,9 +418,138 @@ async function submitOrder() {
     if (result.success) {
       showToast(`발주가 완료되었습니다! (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); 
     } else showToast("접수 실패: " + result.message, "error"); 
-  } catch (error) { showToast("통신 오류 발생.", "error"); } 
-  finally { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
+  } catch (error) { 
+    showToast("통신 오류 발생.", "error"); 
+  } finally { 
+    isSubmitting = false;
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } 
+  }
 }
 
-window.submitOrder = submitOrder; window.fetchItems = fetchItems; window.toggleStockEditMode = toggleStockEditMode; window.applyRegionFilter = applyRegionFilter; window.applyAiSuggestion = applyAiSuggestion; window.calculateOrderTotal = calculateOrderTotal;
-window.addEventListener('DOMContentLoaded', fetchItems);
+// 🌟 [신규 통합] 벤더 다이렉트 엑셀 업로드 엔진 (SheetJS 활용)
+function handleExcelUpload(event) {
+  event.preventDefault();
+  const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
+  if (!file) return;
+
+  const validExts = [".xlsx", ".xls", ".csv"];
+  const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+  if (!validExts.includes(fileExt)) return showToast("지원하지 않는 엑셀 포맷입니다 (.xlsx, .xls)", "error");
+
+  const statusText = document.getElementById('uploadStatusText');
+  if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Scanning Document...</span>`;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type: 'array'});
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+      
+      processExcelData(jsonData, file.name);
+      
+    } catch(err) {
+      showToast("파일 파싱 중 오류가 발생했습니다.", "error");
+      if(statusText) statusText.innerHTML = "Drag & Drop vendor excel file here";
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function processExcelData(jsonData, filename) {
+  const targetRegion = document.getElementById('inboundRegionSelector').value;
+  if (!targetRegion) {
+    showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
+    return;
+  }
+
+  if (cachedMappings.length === 0) {
+    showToast("벤더 매핑 DB가 아직 로드되지 않았습니다. 잠시 후 다시 시도하세요.", "error");
+    return;
+  }
+
+  let mappedUpdates = {};
+  let successCount = 0;
+  let failCount = 0;
+
+  jsonData.forEach(row => {
+    // 벤더사마다 다른 헤더명을 스마트하게 파악
+    const vItemCode = String(row["Item#"] || row["Item Code"] || row["품번"] || row["Barcode"] || "").trim();
+    const vQty = row["Qty"] || row["Quantity"] || row["수량"] || row["Stock"] || 0;
+    const parsedQty = parseInt(vQty);
+
+    if (vItemCode !== "" && !isNaN(parsedQty)) {
+      const mapObj = cachedMappings.find(m => m.vendorCode.toLowerCase() === vItemCode.toLowerCase());
+      if (mapObj) {
+        if(!mappedUpdates[mapObj.hqCode]) mappedUpdates[mapObj.hqCode] = {};
+        mappedUpdates[mapObj.hqCode][targetRegion] = parsedQty;
+        successCount++;
+      } else {
+        failCount++;
+      }
+    }
+  });
+
+  if (successCount === 0) {
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
+    showToast("매칭되는 품목이 0건입니다. Vendor_Mapping DB를 확인하세요.", "error");
+    return;
+  }
+
+  const finalStockUpdates = Object.keys(mappedUpdates).map(hqCode => ({
+    code: hqCode,
+    stockBreakdown: mappedUpdates[hqCode]
+  }));
+
+  document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Items...</span>`;
+  
+  try {
+    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.UPDATE_STOCK, token: sessionToken, stockUpdates: finalStockUpdates })
+    });
+    const result = JSON.parse(await response.text());
+
+    if (result.success) {
+      showToast(`엑셀 처리 완료: ${successCount}건 성공 (실패: ${failCount}건)`, "success");
+      document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
+      setTimeout(() => fetchItems(), 1500); // UI 갱신
+    } else throw new Error(result.message);
+  } catch (err) {
+    showToast("엑셀 동기화 실패: " + err.message, "error");
+    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor excel file here";
+  }
+}
+
+function setupDragAndDrop() {
+  const dropZone = document.getElementById('dropZone');
+  if(!dropZone) return;
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-[#E84C60]/10', 'border-[#E84C60]'); });
+  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E84C60]/10', 'border-[#E84C60]'); });
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E84C60]/10', 'border-[#E84C60]'); handleExcelUpload(e); });
+  
+  const fileInput = document.getElementById('excelFileInput');
+  if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
+}
+
+// 윈도우 객체 바인딩 (HTML에서 인라인 함수 호출 방어용)
+window.submitOrder = submitOrder; 
+window.fetchItems = fetchItems; 
+window.toggleStockEditMode = toggleStockEditMode; 
+window.applyRegionFilter = applyRegionFilter; 
+window.applyAiSuggestion = applyAiSuggestion; 
+window.calculateOrderTotal = calculateOrderTotal;
+window.handleExcelUpload = handleExcelUpload;
+
+// 🌟 시작 시 매핑 DB 로드 후 카탈로그 렌더링 (병렬 처리)
+document.addEventListener('DOMContentLoaded', () => {
+  setupDragAndDrop();
+  if (userRole === "MASTER" || userRole === "VENDOR") {
+    fetchMappings().then(() => fetchItems());
+  } else {
+    fetchItems();
+  }
+});
