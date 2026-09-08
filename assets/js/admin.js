@@ -57,7 +57,8 @@ function switchAdminTab(tab) {
 
 let cachedClients = [];
 let cachedHqOrders = [];
-let cachedItems = []; // 🌟 마스터 인바운드에서 기존 재고에 더하기(Merge) 위해 카탈로그 백그라운드 캐싱
+let cachedItems = []; 
+let cachedMappings = []; // 🌟 마스터 화면용 매핑 DB 배열 추가
 let isSubmitting = false; 
 
 // ========================================================
@@ -253,20 +254,26 @@ async function saveSalesGridData() {
 }
 
 // ========================================================
-// [3] V11.2 본사 조달 관제(HQ Orders) 및 SCM 인바운드 로직
+// [3] 본사 조달 관제(HQ Orders) 및 SCM 인바운드 로직
 // ========================================================
-async function fetchProcurementData(retryCount = 3) {
+
+// 🌟 백그라운드 매핑 DB (Vendor_Mapping) 로드 함수
+async function fetchMappings() {
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.GET_PROCUREMENT, token: sessionToken })
     });
     const result = JSON.parse(await response.text());
-    if (result.success) { cachedHqOrders = result.hqOrders || []; renderHqOrders(); }
-  } catch (err) { if (retryCount > 0) setTimeout(() => fetchProcurementData(retryCount - 1), 1000); }
+    if (result.success) {
+      cachedMappings = result.mappings || [];
+      cachedHqOrders = result.hqOrders || [];
+      renderHqOrders();
+    }
+  } catch (err) { console.error("Mapping DB Load Error:", err); }
 }
 
-// 🌟 마스터 화면에서 엑셀을 올렸을 때 기존 재고에 더하기(Merge) 위해 전체 카탈로그 백그라운드 로드
+// 🌟 기존 재고에 더하기(Merge) 위해 전체 카탈로그 백그라운드 로드
 async function fetchCatalogForInbound() {
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -321,14 +328,14 @@ async function saveHqOrder() {
       body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.UPSERT_HQ_ORDER, token: sessionToken, order: payload })
     });
     const result = JSON.parse(await response.text());
-    if (result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchProcurementData(); } 
+    if (result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchMappings(); } 
     else throw new Error(result.message);
   } catch (err) { showToast("등록 실패: " + err.message, "error"); } 
   finally { btn.disabled = false; btn.innerHTML = originalHtml; isSubmitting = false; }
 }
 
 // ========================================================
-// [4] V11.2 통합 AI Vision (OCR) & 엑셀 파싱 멀티 핸들러 (마스터 전용)
+// [4] 통합 AI Vision (OCR) & 엑셀 파싱 핸들러 (마스터 전용)
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -368,15 +375,17 @@ async function handleExcelUpload(event) {
   } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
 }
 
-// OCR 텍스트 정규화 (시간 제거 로직)
+// 🌟 OCR 텍스트 정규화 (시간 제거 로직)
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
   
   lines.forEach(line => {
+    // 날짜에서 시간 정보 방어
     const dateMatch = line.match(/\d{4}-\d{2}-\d{2}/);
     const expDate = dateMatch ? dateMatch[0] : "";
     
+    // 바코드 및 품번 매칭
     const barcodeMatch = line.match(/\b\d{13,14}\b/);
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
@@ -400,7 +409,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심] 기존 재고에 더하기(+) & 유통기한 다중 병합
+// 🌟 [핵심] 기존 재고에 더하기(+) & 유통기한 다중 병합, 벤더 매핑(Translation)
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -422,24 +431,39 @@ async function processExcelData(jsonData, filename) {
     const vQty = parseInt(row["Qty"] || row["Quantity"] || row["수량"] || row["Stock"]) || 0;
     let vExp = String(row["Exp.Date"] || row["유통기한"] || "").trim();
     
+    // 시간 정보 방어 (날짜만 칼같이 자름)
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
     if (vItemCode !== "" && vQty > 0) {
-      const matchedItem = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
-      if (matchedItem) {
-        const hqCode = matchedItem.code;
+      let hqCode = null;
+
+      // 1. Vendor_Mapping 테이블에서 변환 시도
+      const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
+      if (mapObj) {
+        hqCode = mapObj.hqCode;
+      } else {
+        // 2. 매핑 DB에 없으면 마스터 카탈로그 품번과 1:1 다이렉트 비교
+        const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
+        if (directMatch) hqCode = directMatch.code;
+      }
+
+      if (hqCode) {
         if (!inboundMap[hqCode]) inboundMap[hqCode] = { totalQty: 0, batches: {} };
         inboundMap[hqCode].totalQty += vQty;
-        if (vExp) inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty;
+        if (vExp) {
+          inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty;
+        }
         successCount++;
-      } else { failCount++; }
+      } else { 
+        failCount++; 
+      }
     }
   });
 
   if (successCount === 0) {
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
-    showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error");
+    showToast("마스터 DB와 매칭되는 품목이 0건입니다. Vendor_Mapping 시트와 품번을 확인하세요.", "error");
     return;
   }
 
@@ -472,7 +496,7 @@ async function processExcelData(jsonData, filename) {
     });
 
     const finalExpStr = newExpArr.join(' | ');
-    const finalStock = existingStock + inboundMap[hqCode].totalQty; // 덧셈 병합 완료!
+    const finalStock = existingStock + inboundMap[hqCode].totalQty; // 🌟 덧셈 병합 완료!
 
     return {
       code: hqCode, stockBreakdown: { [targetRegion]: finalStock }, expBreakdown: { [targetRegion]: finalExpStr }
@@ -489,9 +513,9 @@ async function processExcelData(jsonData, filename) {
     const result = JSON.parse(await response.text());
 
     if (result.success) {
-      showToast(`입고 완료: 엑셀/이미지 ${successCount}줄 누적 성공`, "success");
+      showToast(`입고 완료: 엑셀/이미지 ${successCount}줄 누적 성공 (실패: ${failCount}줄)`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
-      setTimeout(() => fetchCatalogForInbound(), 1000); // 캐시 갱신
+      setTimeout(() => fetchCatalogForInbound(), 1500); // 🌟 백그라운드 캐시 갱신
     } else throw new Error(result.message);
   } catch (err) {
     showToast("동기화 실패: " + err.message, "error");
@@ -518,6 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSalesYearSelector();
   setupDragAndDrop();
   fetchMasterData(3); 
-  fetchProcurementData(3); 
-  fetchCatalogForInbound(); // 🌟 백그라운드 카탈로그 로드 실행
+  
+  // 🌟 시스템 구동 시 매핑 DB와 재고 캐시를 백그라운드에서 미리 로드
+  fetchMappings().then(() => fetchCatalogForInbound()); 
 });
