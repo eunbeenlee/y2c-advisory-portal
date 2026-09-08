@@ -59,15 +59,31 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// 🌟 [통역 사전] 매핑 DB 로드
-async function fetchMappings() {
-  if (userRole !== "MASTER" && userRole !== "VENDOR") return;
+// 🌟 [최강 방어막] Failed to fetch 오류 원천 차단 API 모듈
+async function executeApi(action, payload = {}) {
   try {
     const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
       method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_procurement_data", token: sessionToken })
+      body: JSON.stringify({ action: action, token: sessionToken, ...payload })
     });
-    const result = JSON.parse(await response.text());
+    const rawText = await response.text();
+    try {
+      return JSON.parse(rawText);
+    } catch(e) {
+      console.error("GAS 500 Error Response:", rawText);
+      throw new Error("구글 서버 충돌. 잠시 후 다시 시도해 주세요.");
+    }
+  } catch (err) {
+    console.error("Fetch Network Error:", err);
+    throw new Error("통신 실패 (Failed to fetch). 네트워크 지연 또는 서버 병목 현상입니다.");
+  }
+}
+
+// 🌟 매핑 DB 로드
+async function fetchMappings() {
+  if (userRole !== "MASTER" && userRole !== "VENDOR") return;
+  try {
+    const result = await executeApi("get_procurement_data");
     if (result.success) cachedMappings = result.mappings || [];
   } catch (error) { console.error("Mapping DB Load Error:", error); }
 }
@@ -78,11 +94,7 @@ async function fetchItems() {
   tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Securely loading SCM data...</p></div></td></tr>`;
 
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "get_items", token: sessionToken, clientState: currentClientState }) 
-    });
-    const result = JSON.parse(await response.text());
+    const result = await executeApi("get_items", { clientState: currentClientState });
 
     if (result.success) {
       cachedItems = result.items || [];
@@ -239,7 +251,7 @@ function calculateOrderTotal() {
   if(document.getElementById('orderGrandTotal')) document.getElementById('orderGrandTotal').innerText = formatCurrency(subtotal + taxAmt);
 }
 
-// 스마트 디프 로직
+// 스마트 디프 수동 저장
 async function toggleStockEditMode() {
   if (isSubmitting) return; 
   const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
@@ -268,11 +280,7 @@ async function toggleStockEditMode() {
     if(btn) { btn.disabled = true; btn.innerHTML = "⏳ SAVING..."; btn.classList.add('animate-pulse'); }
     const updates = Object.keys(updateMap).map(c => ({ code: c, stockBreakdown: updateMap[c].stockBreakdown, expBreakdown: updateMap[c].expBreakdown }));
     try {
-      const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-        body: JSON.stringify({ action: "update_stock", token: sessionToken, stockUpdates: updates })
-      });
-      const result = JSON.parse(await response.text());
+      const result = await executeApi("update_stock", { stockUpdates: updates });
       if (result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
       else throw new Error(result.message);
     } catch (err) { showToast("업데이트 실패: " + err.message, "error"); } 
@@ -308,18 +316,14 @@ async function submitOrder() {
   if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span>⏳</span> PROCESSING..."; submitBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
 
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "save_order", token: sessionToken, clientName: clientName, clientState: currentClientState, items: orderItems })
-    });
-    const result = JSON.parse(await response.text());
-    if (result.success) { showToast(`발주가 완료되었습니다! (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
-    else showToast("접수 실패: " + result.message, "error"); 
-  } catch (error) { showToast("통신 오류 발생.", "error"); } 
+    const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems });
+    if (result.success) { showToast(`발주 완료 (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
+    else throw new Error(result.message);
+  } catch (error) { showToast("접수 실패: " + error.message, "error"); } 
   finally { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
 }
 
-// 🌟 [통합] 엑셀/이미지 업로드 엔진 & Tesseract OCR 핸들러
+// 🌟 [통합 방어] 엑셀/이미지 스캔 및 OCR 핸들러
 async function handleExcelUpload(event) {
   event.preventDefault();
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
@@ -339,7 +343,7 @@ async function handleExcelUpload(event) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         processExcelData(jsonData, file.name);
       } catch(err) {
-        showToast("엑셀 파싱 중 오류 발생", "error"); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+        showToast("엑셀 파일 파싱 중 오류 발생", "error"); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
       }
     };
     reader.readAsArrayBuffer(file);
@@ -347,7 +351,7 @@ async function handleExcelUpload(event) {
   else if (validImgExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
     try {
-      if (typeof Tesseract === 'undefined') throw new Error("Tesseract.js 라이브러리가 로드되지 않았습니다.");
+      if (typeof Tesseract === 'undefined') throw new Error("Tesseract.js 로드 실패");
       const result = await Tesseract.recognize(file, 'eng+kor', {
         logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`; } }
       });
@@ -358,26 +362,22 @@ async function handleExcelUpload(event) {
   } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
 }
 
-// 🌟 [V11.4 업그레이드] OCR 텍스트 구조화 (박스 규격 크기 제외 필터 도입)
+// 🌟 [V11.4] OCR 박스 규격 필터링 엔진
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
-  
   lines.forEach(line => {
-    // 1. 유통기한 추출
     const dateMatch = line.match(/\d{4}-\d{2}-\d{2}/);
     const expDate = dateMatch ? dateMatch[0] : "";
-    
-    // 2. 바코드 또는 혼합품번 추출
     const barcodeMatch = line.match(/\b\d{13,14}\b/);
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
-    // 🌟 3. 규격 컬럼(1KG*10, 2KG*6 등) 필터링 (수량 오인 방지)
+    // 🌟 규격 텍스트(예: 1KG*10)를 먼저 삭제하여 수량(Qty) 오인 방지
     let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGg]+\*\d+\b/g, ''); 
-    const nums = cleanLine.match(/\b\d+\b/g);
-    
+    const nums = cleanLine.match(/\b\d+\b/g); 
     let qty = 0;
+    
     if (nums && nums.length > 0) {
       for(let i = nums.length - 1; i >= 0; i--) {
         const n = parseInt(nums[i]);
@@ -394,7 +394,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심] 공백 무시 파싱, 매핑 테이블, 덧셈 누적 병합
+// 🌟 [V11.4] 엑셀 무결성 파싱, 기존 재고 병합, executeApi 융합 로직
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -412,7 +412,7 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 [V11.4 업그레이드] 투명 유니코드 공백 완벽 제거
+    // 투명 공백 완벽 차단 필터
     Object.keys(row).forEach(k => {
       let cleanK = k.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = String(row[k]).trim();
@@ -424,15 +424,15 @@ async function processExcelData(jsonData, filename) {
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
-    if (vItemCode !== "" && vQty > 0) {
+    if (vItemCode !== "" && !isNaN(vQty) && vQty > 0) {
       let hqCode = null;
 
-      // 1. Vendor_Mapping 변환 시도
+      // 1. 매핑 테이블 변환
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
         hqCode = mapObj.hqCode;
       } else {
-        // 2. 스마트 패스 (직접 매칭)
+        // 2. 스마트 패스
         const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
         if (directMatch) hqCode = directMatch.code;
       }
@@ -451,7 +451,7 @@ async function processExcelData(jsonData, filename) {
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
-  // 기존 DB 재고 및 유통기한에 안전하게 덧셈(+)
+  // 기존 DB 재고 안전 덧셈(+)
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
     const existingStock = existingItem ? (existingItem.stockBreakdown[targetRegion] || 0) : 0;
@@ -491,19 +491,14 @@ async function processExcelData(jsonData, filename) {
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows...</span>`;
   
   try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: "update_stock", token: sessionToken, stockUpdates: finalStockUpdates })
-    });
-    const result = JSON.parse(await response.text());
-
+    const result = await executeApi("update_stock", { stockUpdates: finalStockUpdates });
     if (result.success) {
-      showToast(`입고 완료: ${successCount}건 누적 성공`, "success");
+      showToast(`입고 완료: 엑셀/이미지 ${successCount}줄 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
       setTimeout(() => location.reload(), 1500); 
     } else throw new Error(result.message);
   } catch (err) {
-    showToast("동기화 실패: " + err.message, "error");
+    showToast(err.message, "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
   }
 }
