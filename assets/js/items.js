@@ -15,7 +15,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear(); window.location.href = "index.html"; 
 });
 
-// 🌟 [방화벽] VENDOR 권한 접속 시 불필요 UI 차단
 if (userRole === "VENDOR") {
   const navDash = document.getElementById('navDashboard');
   const navRec = document.getElementById('navRecipes');
@@ -60,7 +59,7 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// 🌟 [최강 방어막] Failed to fetch 및 구글 서버 충돌 원천 차단 우회 모듈 (Exponential Backoff)
+// 🌟 [교차검증 적용] 최강 방어막 API 모듈 - 서버 에러 및 트래픽 병목 동시 방어
 async function executeApi(action, payload = {}, retries = 2) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
@@ -72,22 +71,26 @@ async function executeApi(action, payload = {}, retries = 2) {
       const rawText = await response.text();
       try {
         const jsonResult = JSON.parse(rawText);
-        if (!jsonResult.success && jsonResult.message && jsonResult.message.includes("트래픽")) {
+        // 서버에서 안전하게 반환한 JSON 에러 중 '트래픽' 단어가 포함되면 재시도 유발
+        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("Lock"))) {
           throw new Error(jsonResult.message);
         }
         return jsonResult;
       } catch (e) {
+        // 구글 서버가 완전히 뻗어 HTML 에러 페이지를 뱉었을 때 (JSON 파싱 실패)
+        console.warn(`[API Attempt ${i+1}] 서버 응답 지연/오류. 재시도를 준비합니다.`);
         throw new Error("서버 응답 오류 및 병목. 재시도 중...");
       }
     } catch (err) {
       lastError = err;
       if (i < retries) {
-        await new Promise(res => setTimeout(res, 2000)); // 2초 대기 후 재시도
+        console.log(`[API Retry] 2초 대기 후 ${action} 재시도... (${i+1}/${retries})`);
+        await new Promise(res => setTimeout(res, 2000)); // 2초 대기
       }
     }
   }
   console.error("Fetch Final Error:", lastError);
-  throw new Error("구글 서버 트래픽 지연으로 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+  throw new Error("구글 서버 트래픽 지연으로 처리되지 않았습니다. 몇 초 뒤 다시 시도해 주세요.");
 }
 
 async function fetchMappings() {
@@ -259,7 +262,7 @@ function calculateOrderTotal() {
   if(document.getElementById('orderGrandTotal')) document.getElementById('orderGrandTotal').innerText = formatCurrency(subtotal + taxAmt);
 }
 
-// 스마트 에디터
+// 스마트 디프 로직
 async function toggleStockEditMode() {
   if (isSubmitting) return; 
   const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
@@ -291,7 +294,7 @@ async function toggleStockEditMode() {
       const result = await executeApi("update_stock", { stockUpdates: updates });
       if (result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
       else throw new Error(result.message);
-    } catch (err) { showToast("업데이트 실패: " + err.message, "error"); } 
+    } catch (err) { showToast(err.message, "error"); } 
     finally {
       isStockEditMode = false; isSubmitting = false;
       if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
@@ -327,7 +330,7 @@ async function submitOrder() {
     const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems });
     if (result.success) { showToast(`발주 완료 (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
     else throw new Error(result.message);
-  } catch (error) { showToast("접수 실패: " + error.message, "error"); } 
+  } catch (error) { showToast(error.message, "error"); } 
   finally { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
 }
 
@@ -379,7 +382,7 @@ function processOCRText(text, filename) {
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
-    // 🌟 OCR 규격(1KG*10) 필터링
+    // 🌟 [교차검증 방어막] 규격 사이즈(1KG*10) 완전 소거 필터
     let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGg]+\*\d+\b/g, ''); 
     const nums = cleanLine.match(/\b\d+\b/g); 
     let qty = 0;
@@ -399,6 +402,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
+// 🌟 [통합 핵심 엔진] 투명 공백 방어, 매핑 번역, 안전 덧셈 누적
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -416,7 +420,7 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 엑셀 투명 유니코드 공백 원천 차단
+    // 🌟 [교차검증 방어막] 엑셀 보이지 않는 공백 완벽 차단
     Object.keys(row).forEach(k => {
       let cleanK = k.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = String(row[k]).trim();
@@ -430,12 +434,12 @@ async function processExcelData(jsonData, filename) {
 
     if (vItemCode !== "" && !isNaN(vQty) && vQty > 0) {
       let hqCode = null;
-      // 매핑 변환
+      // 1. 매핑 테이블 번역
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
         hqCode = mapObj.hqCode;
       } else {
-        // 스마트 패스
+        // 2. 마스터 다이렉트 패스
         const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
         if (directMatch) hqCode = directMatch.code;
       }
@@ -454,7 +458,7 @@ async function processExcelData(jsonData, filename) {
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
-  // 🌟 기존 재고 및 유통기한 안전 덧셈(+) 병합
+  // 기존 재고 유지 및 덧셈(+) 병합
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
     const existingStock = existingItem ? (existingItem.stockBreakdown[targetRegion] || 0) : 0;
@@ -466,6 +470,7 @@ async function processExcelData(jsonData, filename) {
         if (p.includes(':')) {
           let parts = p.split(':');
           let q = parseInt(parts[1]);
+          // NaN 방어 통과 시 병합
           if (parts[0] && !isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
         } else if (p.trim() !== "") {
           mergedBatches[p.trim()] = 99999;
