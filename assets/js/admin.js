@@ -61,30 +61,40 @@ let cachedItems = [];
 let cachedMappings = []; 
 let isSubmitting = false; 
 
-// 🌟 [최강 방어막] Failed to fetch 오류 원천 차단 API 모듈
-async function executeApi(action, payload = {}) {
-  try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: action, token: sessionToken, ...payload })
-    });
-    const rawText = await response.text();
+// 🌟 [최강 방어막] Failed to fetch 및 구글 서버 충돌 원천 차단 우회 모듈 (Exponential Backoff)
+async function executeApi(action, payload = {}, retries = 2) {
+  let lastError;
+  for (let i = 0; i <= retries; i++) {
     try {
-      return JSON.parse(rawText);
-    } catch(e) {
-      console.error("GAS 500 Error Response:", rawText);
-      throw new Error("구글 서버 충돌. 잠시 후 다시 시도해 주세요.");
+      const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+        body: JSON.stringify({ action: action, token: sessionToken, ...payload })
+      });
+      const rawText = await response.text();
+      try {
+        const jsonResult = JSON.parse(rawText);
+        if (!jsonResult.success && jsonResult.message && jsonResult.message.includes("트래픽")) {
+          throw new Error(jsonResult.message);
+        }
+        return jsonResult;
+      } catch(e) {
+        throw new Error("서버 응답 오류 및 병목. 재시도 중...");
+      }
+    } catch (err) {
+      lastError = err;
+      if (i < retries) {
+        await new Promise(res => setTimeout(res, 2000)); // 2초 대기 후 재시도
+      }
     }
-  } catch (err) {
-    console.error("Fetch Network Error:", err);
-    throw new Error("통신 실패 (Failed to fetch). 네트워크 지연 또는 서버 병목 현상입니다.");
   }
+  console.error("Fetch Final Error:", lastError);
+  throw new Error("구글 서버 트래픽 지연으로 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
 }
 
 // ========================================================
 // [1] 마스터 DB (가맹점 프로필) 관리 로직
 // ========================================================
-async function fetchMasterData(retryCount = 3) {
+async function fetchMasterData() {
   const tableBody = document.getElementById('masterTableBody');
   const errorBanner = document.getElementById('errorBanner');
   if (!tableBody) return;
@@ -120,7 +130,9 @@ async function fetchMasterData(retryCount = 3) {
       if (result.message.includes("만료") || result.message.includes("로그인")) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
       throw new Error(result.message); 
     }
-  } catch (err) { if (retryCount > 0) setTimeout(() => fetchMasterData(retryCount - 1), 1000); }
+  } catch (err) { 
+    tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">마스터 데이터를 불러오지 못했습니다. 새로고침 해주세요.</td></tr>`;
+  }
 }
 
 async function saveClientData(rowIdx) {
@@ -146,10 +158,10 @@ async function saveClientData(rowIdx) {
     const result = await executeApi("update_master_data", { client: payload });
     if (result.success) {
       if(saveBtn) { saveBtn.innerText = "✅ SAVED"; saveBtn.classList.remove('animate-pulse'); saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
-      showToast("마스터 데이터가 저장되었습니다.", "success"); setTimeout(() => fetchMasterData(1), 1500); 
+      showToast("마스터 데이터가 저장되었습니다.", "success"); setTimeout(() => fetchMasterData(), 1500); 
     } else { showToast("저장 실패: " + result.message, "error"); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); } }
   } catch (err) { 
-    showToast("서버 통신 오류", "error"); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
+    showToast(err.message, "error"); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
   } finally { isSubmitting = false; }
 }
 
@@ -258,7 +270,7 @@ async function saveSalesGridData() {
 }
 
 // ========================================================
-// [3] 본사 조달 관제(HQ Orders) 및 매핑/카탈로그 로드
+// [3] 본사 조달 관제(HQ Orders) 및 매핑/카탈로그 백그라운드 로드
 // ========================================================
 
 async function fetchMappings() {
@@ -325,7 +337,7 @@ async function saveHqOrder() {
 }
 
 // ========================================================
-// [4] V11.4 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
+// [4] V11.6 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -365,7 +377,7 @@ async function handleExcelUpload(event) {
   } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
 }
 
-// 🌟 [V11.4] OCR 박스 규격 필터링 엔진
+// 🌟 [V11.6] OCR 박스 규격 필터링 엔진
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -397,7 +409,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심] 공백 무시 파싱, 매핑 연동, NaN 안전 덧셈(+)
+// 🌟 [핵심] 공백 무시 파싱, 매핑 연동, NaN 방어, 안전 재고 덧셈(+)
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -415,7 +427,7 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 [V11.4] 투명 유니코드 공백 완벽 제거 필터
+    // 🌟 투명 유니코드 공백 완벽 제거 필터
     Object.keys(row).forEach(k => {
       let cleanK = k.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = String(row[k]).trim();
@@ -525,8 +537,7 @@ window.handleExcelUpload = handleExcelUpload;
 document.addEventListener('DOMContentLoaded', () => { 
   populateSalesYearSelector();
   setupDragAndDrop();
-  fetchMasterData(3); 
   
-  // 🌟 시스템 구동 시 벤더 매핑 DB와 재고 카탈로그를 동시에 로드
-  fetchMappings().then(() => fetchCatalogForInbound()); 
+  // 🌟 시스템 구동 시 벤더 매핑 DB와 재고 카탈로그를 동시에 안정적으로 로드
+  fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
 });
