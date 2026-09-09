@@ -1,111 +1,338 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#1A1516">
-  <title>Login | Advisory Master System</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root { --sinjeon-pink: #E84C60; --premium-charcoal: #1A1516; }
-    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    input:-webkit-autofill { -webkit-box-shadow: 0 0 0 30px white inset !important; -webkit-text-fill-color: #1A1516 !important; }
-  </style>
-</head>
-<body class="bg-[#F8F6F6] min-h-screen flex selection:bg-[#E84C60] selection:text-white overflow-hidden">
-  
-  <!-- 좌측: 브랜드 비주얼 영역 -->
-  <div class="hidden lg:flex lg:w-1/2 bg-[var(--premium-charcoal)] relative flex-col justify-center px-16 xl:px-24">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute -top-40 -left-40 w-96 h-96 bg-[#E84C60] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-      <div class="absolute top-40 -right-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
-    </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Y2C Premium Portal - Secure Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <div class="relative z-10 w-full max-w-lg">
-      <div class="flex items-center gap-6 mb-16">
-        <!-- 이미지 에러 시 대체 경로 시도 -->
-        <img src="assets/images/Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="h-14 object-contain">
-        <div class="h-10 w-px bg-white/20"></div>
-        <img src="assets/images/y2c_holdings_logo.png" onerror="this.onerror=null; this.src='y2c_holdings_logo.png';" alt="Y2C Logo" class="h-10 object-contain bg-white rounded-lg p-1.5">
-      </div>
-      
-      <span class="inline-block border border-white/20 text-white/70 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full mb-6 bg-white/5 backdrop-blur-sm">
-        Premium Franchise Portal
-      </span>
-      
-      <h1 class="text-5xl xl:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6">
-        Advisory<br>Master System
-      </h1>
-      
-      <p class="text-base text-gray-400 font-medium leading-relaxed max-w-sm tracking-wide">
-        Integrated operational intelligence and supply chain management for exclusive Canadian partners.
-      </p>
-    </div>
-  </div>
+    <!-- SYSTEM CONFIG (기존 config.js가 있다면 연동, 없어도 자체 방어됨) -->
+    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
-  <!-- 우측: 로그인 폼 영역 -->
-  <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
-    <div class="w-full max-w-md bg-white p-10 sm:p-14 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-gray-100">
-      
-      <div class="mb-10 text-center lg:text-left">
-        <h2 class="text-3xl font-black text-[var(--premium-charcoal)] mb-3 tracking-tight">Welcome Back</h2>
-        <p class="text-sm font-bold text-gray-400 tracking-wide">Please enter your master or partner credentials.</p>
-      </div>
+    <style>
+        :root {
+            --y2c-red: #E84C60;
+            --y2c-red-glow: rgba(232, 76, 96, 0.4);
+            --bg-dark: #0a0a0a;
+            --glass-bg: rgba(20, 20, 20, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(232, 76, 96, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.03), transparent 25%);
+            color: #ffffff;
+            overflow: hidden;
+        }
 
-      <form id="loginForm" class="space-y-6">
-        <div class="space-y-2">
-          <label for="userId" class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Partner ID</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+        /* 🌟 대기업식 시네마틱 등장 애니메이션 */
+        .cinematic-enter { opacity: 0; transform: translateY(30px) scale(0.95); animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px var(--y2c-red-glow), inset 0 0 10px rgba(255,255,255,0.05); }
+            50% { box-shadow: 0 0 30px var(--y2c-red-glow), inset 0 0 10px rgba(255,255,255,0.05); }
+        }
+
+        /* 프리미엄 글래스모피즘 폼 */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+
+        /* 모바일 최적화 고급 입력창 */
+        .premium-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .premium-input:focus {
+            background: rgba(0, 0, 0, 0.7);
+            border-color: var(--y2c-red);
+            box-shadow: 0 0 0 4px rgba(232, 76, 96, 0.15);
+            outline: none;
+        }
+        .premium-input::placeholder { color: rgba(255, 255, 255, 0.3); font-weight: 300; }
+
+        /* 고급 버튼 */
+        .btn-premium {
+            background: linear-gradient(135deg, #E84C60 0%, #B82E40 100%);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-premium::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
+        }
+        .btn-premium:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(232, 76, 96, 0.4);
+        }
+        .btn-premium:hover:not(:disabled)::after { left: 150%; }
+        .btn-premium:active:not(:disabled) { transform: translateY(1px); }
+
+        /* CapsLock 경고 애니메이션 */
+        #capsLockWarning { transition: opacity 0.3s ease, height 0.3s ease; opacity: 0; height: 0; overflow: hidden; }
+        #capsLockWarning.active { opacity: 1; height: 24px; margin-top: 8px; }
+
+        /* 스크롤바 숨김 (모바일 뷰 최적화) */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-8 relative">
+
+    <!-- 배경 장식 요소 -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#E84C60] rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-pulse"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#2a2a2a] rounded-full mix-blend-multiply filter blur-[120px] opacity-50"></div>
+
+    <main class="w-full max-w-[420px] z-10">
+        
+        <!-- 헤더 영역 -->
+        <div class="text-center mb-10 cinematic-enter">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-black border border-white/10 shadow-2xl mb-5" style="animation: pulse-glow 3s infinite;">
+                <span class="text-2xl font-black text-white tracking-tighter">Y<span class="text-[#E84C60]">2</span>C</span>
             </div>
-            <input type="text" id="userId" required autocomplete="username"
-              class="block w-full pl-11 pr-4 py-4 bg-gray-50/50 border-2 border-gray-100 rounded-2xl text-[14px] font-bold text-[var(--premium-charcoal)] placeholder-gray-300 focus:bg-white focus:border-[#E84C60] focus:ring-4 focus:ring-[#E84C60]/10 transition-all outline-none" 
-              placeholder="admin">
-          </div>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2 uppercase">Enterprise <span class="font-light text-gray-400">Portal</span></h1>
+            <p class="text-xs sm:text-sm font-bold text-[#E84C60] tracking-[0.2em] uppercase">Authorized Access Only</p>
         </div>
 
-        <div class="space-y-2">
-          <label for="userPw" class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Password</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
+        <!-- 로그인 폼 (Glassmorphism) -->
+        <form id="loginForm" class="glass-panel rounded-3xl p-8 sm:p-10 cinematic-enter delay-100 relative overflow-hidden">
+            
+            <!-- 상단 엣지 하이라이트 -->
+            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+            <div class="space-y-6">
+                <!-- ID Input -->
+                <div class="relative cinematic-enter delay-200">
+                    <label for="userId" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Partner ID</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-4 text-gray-500 text-sm">👤</span>
+                        <input type="text" id="userId" autocomplete="off" placeholder="Enter your ID" 
+                            class="premium-input w-full rounded-xl py-3.5 pl-11 pr-4 text-sm font-mono font-bold">
+                    </div>
+                </div>
+
+                <!-- PW Input -->
+                <div class="relative cinematic-enter delay-300">
+                    <label for="userPw" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Secure Password</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-4 text-gray-500 text-sm">🔒</span>
+                        <input type="password" id="userPw" autocomplete="off" placeholder="••••••••" 
+                            class="premium-input w-full rounded-xl py-3.5 pl-11 pr-4 text-sm font-mono font-bold tracking-[0.2em]">
+                    </div>
+                    <!-- CapsLock Warning -->
+                    <div id="capsLockWarning" class="flex items-center gap-1.5 text-[11px] font-bold text-amber-500 ml-1">
+                        <span class="animate-bounce">⚠️</span> Caps Lock is ON
+                    </div>
+                </div>
+
+                <!-- Error Message Area -->
+                <div id="loginErrorMsg" class="text-center text-[12px] font-bold tracking-wide transition-all h-5"></div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="loginBtn" class="btn-premium w-full text-white font-black text-[13px] tracking-[0.15em] uppercase py-4 rounded-xl mt-4 cinematic-enter delay-400 shadow-xl flex items-center justify-center gap-2">
+                    Initialize Session <span class="text-lg leading-none">→</span>
+                </button>
             </div>
-            <input type="password" id="userPw" required autocomplete="current-password"
-              class="block w-full pl-11 pr-4 py-4 bg-gray-50/50 border-2 border-gray-100 rounded-2xl text-[14px] font-bold text-[var(--premium-charcoal)] placeholder-gray-300 focus:bg-white focus:border-[#E84C60] focus:ring-4 focus:ring-[#E84C60]/10 transition-all outline-none" 
-              placeholder="••••••••">
-          </div>
-        </div>
+            
+            <div class="mt-8 text-center cinematic-enter delay-400">
+                <p class="text-[10px] font-medium text-gray-500 tracking-wider">SECURE CONNECTION ESTABLISHED<br>© 2026 Y2C HOLDINGS LTD.</p>
+            </div>
+        </form>
+    </main>
 
-        <!-- 스크립트가 인식할 에러 메시지 영역 -->
-        <div id="errorMessage" class="hidden bg-[#C23347]/10 border border-[#C23347]/20 text-[#C23347] text-[12px] font-bold px-4 py-3.5 rounded-xl text-center flex items-center justify-center gap-2 tracking-wide">
-          <span>⚠️</span> <span id="errorText">Connection failed. Please try again.</span>
-        </div>
+<script>
+/**
+ * V12.3 Enterprise Login Core Logic
+ * - Absolute Anti-Crash, Multi-layer validation, Exponential Backoff
+ */
 
-        <button type="submit" id="submitBtn" 
-          class="w-full bg-[#E84C60] hover:bg-[#C23347] text-white font-black py-4.5 rounded-2xl shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] transition-all active:scale-[0.98] mt-2 text-[13px] tracking-[0.1em] uppercase h-[56px]">
-          Sign In to Portal
-        </button>
-      </form>
-      
-      <div class="mt-12 text-center">
-        <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
-          Y2C Holdings Inc. &copy; 2026
-        </p>
-      </div>
+// 🌟 1. 환경 변수 무결성 확보
+const CONFIG = (typeof SYSTEM_CONFIG !== 'undefined') ? SYSTEM_CONFIG : {
+    // 주의: SYSTEM_CONFIG가 로드되지 않았을 경우 사용할 폴백 URL. 배포된 웹앱 주소를 넣으세요.
+    API: { BASE_URL: "https://script.google.com/macros/s/AKfycbzT-_ZIfaVv6hQ6L9mE-Q4L0g9a17Q2Bw34gT4wI3Q19586QpL_D7I09Z0Y090zXw/exec" }, 
+    STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_ID: "y2c_id" }
+};
 
-    </div>
-  </div>
+document.addEventListener("DOMContentLoaded", () => {
+    // 🌟 2. 세션 하이재킹 방어 및 자동 리다이렉트 (속도 최적화)
+    const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
+    const userRole = localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE);
+    if (sessionToken && userRole) {
+        document.body.style.opacity = '0'; // 깜빡임 방지
+        window.location.replace(userRole === "MASTER" ? "admin.html" : "items.html");
+        return;
+    }
 
-  <!-- 강제 최신 버전 로딩 v=9.1 -->
-  <script src="assets/js/config.js?v=9.1"></script>
-  <script src="assets/js/auth.js?v=9.1"></script>
+    const loginForm = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const idInput = document.getElementById("userId");
+    const pwInput = document.getElementById("userPw");
+    const errorMsg = document.getElementById("loginErrorMsg");
+    const capsLockWarning = document.getElementById("capsLockWarning");
+
+    let isAuthenticating = false;
+
+    // 🌟 3. 모바일 가상 키보드 방어 (입력창 터치 시 위로 스크롤)
+    const inputs = [idInput, pwInput];
+    inputs.forEach(input => {
+        if(!input) return;
+        input.addEventListener('focus', () => {
+            setTimeout(() => {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+    });
+
+    // 🌟 4. Caps Lock 활성화 감지 센서
+    if (pwInput) {
+        pwInput.addEventListener('keyup', (e) => {
+            if (e.getModifierState && e.getModifierState('CapsLock')) {
+                capsLockWarning.classList.add('active');
+            } else {
+                capsLockWarning.classList.remove('active');
+            }
+        });
+    }
+
+    // 🌟 5. [핵심] V12.3 통신 방어막 (지능형 재시도 및 오프라인 차단)
+    async function executeLogin(payload, retries = 3) {
+        // 5-1. 오프라인 네트워크 단절 감지
+        if (!navigator.onLine) {
+            throw new Error("네트워크 연결이 끊겨있습니다. 와이파이 또는 데이터를 확인해주세요.");
+        }
+
+        let lastError;
+        for (let i = 0; i <= retries; i++) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선
+
+            try {
+                const response = await fetch(CONFIG.API.BASE_URL, {
+                    method: "POST", 
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                    redirect: "follow",
+                    body: JSON.stringify({ action: "login", ...payload }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                const rawText = await response.text();
+                
+                try {
+                    const jsonResult = JSON.parse(rawText);
+                    // 구글 서버 병목 500 에러 우회 처리
+                    if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("지연"))) {
+                        throw new Error(jsonResult.message);
+                    }
+                    return jsonResult;
+                } catch (parseErr) {
+                    throw new Error("서버 혼잡 현상. 우회 접속을 시도합니다.");
+                }
+            } catch (err) {
+                clearTimeout(timeoutId);
+                lastError = err;
+                if (i < retries) {
+                    // Jittered Backoff (1.5^i 초 + 랜덤 난수)
+                    const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 500); 
+                    if (errorMsg) errorMsg.innerHTML = `<span class="animate-pulse text-amber-400 font-bold">서버 트래픽 우회 접속 중입니다... (${i+1}/3)</span>`;
+                    await new Promise(res => setTimeout(res, waitTime));
+                }
+            }
+        }
+        throw new Error(lastError.message || "서버 접속이 거부되었습니다. (네트워크 또는 구글 권한 오류)");
+    }
+
+    // 🌟 6. 로그인 실행 컨트롤러
+    async function handleLogin(e) {
+        if (e) e.preventDefault();
+        
+        // 이중 클릭 방어
+        if (isAuthenticating) return;
+
+        const id = idInput ? idInput.value.trim() : "";
+        const pw = pwInput ? pwInput.value.trim() : "";
+
+        // 빈 칸 제출 방어
+        if (!id || !pw) {
+            if(errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">ID와 Password를 모두 입력해주세요.</span>`;
+            // 흔들림 애니메이션 효과
+            loginForm.style.transform = "translateX(5px)";
+            setTimeout(() => loginForm.style.transform = "translateX(-5px)", 50);
+            setTimeout(() => loginForm.style.transform = "translateX(0)", 100);
+            return;
+        }
+
+        // UI 잠금
+        isAuthenticating = true;
+        const originalBtnText = loginBtn.innerHTML;
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = `<span class="animate-pulse flex items-center justify-center gap-2"><svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> AUTHENTICATING...</span>`;
+            loginBtn.classList.add('opacity-80', 'cursor-not-allowed');
+        }
+        if (errorMsg) errorMsg.innerText = "";
+
+        try {
+            const result = await executeLogin({ id: id, pw: pw });
+
+            if (result.success) {
+                if (errorMsg) errorMsg.innerHTML = `<span class="text-emerald-400 font-bold">✅ SECURE SESSION ESTABLISHED</span>`;
+                
+                // 스토리지 안전 기록
+                localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, result.token);
+                localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, result.role);
+                localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, result.clientName);
+                localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, id);
+                localStorage.setItem("y2c_premium_state", result.clientState || "DEFAULT");
+
+                // 화려한 퇴장 애니메이션 후 리다이렉트
+                loginForm.style.transition = "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
+                loginForm.style.transform = "scale(0.95)";
+                loginForm.style.opacity = "0";
+                
+                setTimeout(() => {
+                    window.location.replace(result.role === "MASTER" ? "admin.html" : "items.html");
+                }, 400);
+
+            } else {
+                if (errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">⚠️ ${result.message || "인증에 실패했습니다."}</span>`;
+            }
+        } catch (err) {
+            if (errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">${err.message}</span>`;
+        } finally {
+            if (!loginForm.style.opacity || loginForm.style.opacity !== "0") {
+                isAuthenticating = false;
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = originalBtnText;
+                    loginBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                }
+            }
+        }
+    }
+
+    if (loginForm) loginForm.addEventListener("submit", handleLogin);
+});
+</script>
 </body>
 </html>
