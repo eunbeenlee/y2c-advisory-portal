@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Y2C Premium Portal - Secure Login</title>
+    <title>SINJEON CANADA - Premium Franchise Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
@@ -12,18 +12,18 @@
 
     <style>
         :root {
-            --y2c-red: #E84C60;
-            --y2c-red-glow: rgba(232, 76, 96, 0.4);
-            --bg-dark: #0a0a0a;
-            --glass-bg: rgba(20, 20, 20, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --sj-red: #D32F2F; /* 신전 고유의 강렬한 레드 */
+            --sj-red-glow: rgba(211, 47, 47, 0.4);
+            --bg-dark: #070707;
+            --glass-bg: rgba(15, 15, 15, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.06);
         }
         
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(232, 76, 96, 0.08), transparent 25%),
+                radial-gradient(circle at 15% 50%, rgba(211, 47, 47, 0.08), transparent 25%),
                 radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.03), transparent 25%);
             color: #ffffff;
             overflow: hidden;
@@ -40,39 +40,40 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+        /* 신전 캐나다 프리미엄 로고 글로우 효과 */
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 15px var(--y2c-red-glow), inset 0 0 10px rgba(255,255,255,0.05); }
-            50% { box-shadow: 0 0 30px var(--y2c-red-glow), inset 0 0 10px rgba(255,255,255,0.05); }
+            0%, 100% { box-shadow: 0 0 15px var(--sj-red-glow), inset 0 0 10px rgba(255,255,255,0.05); }
+            50% { box-shadow: 0 0 35px var(--sj-red-glow), inset 0 0 15px rgba(255,255,255,0.08); }
         }
 
         /* 프리미엄 글래스모피즘 폼 */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9);
         }
 
         /* 모바일 최적화 고급 입력창 */
         .premium-input {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.08);
             color: white;
             transition: all 0.3s ease;
         }
         .premium-input:focus {
-            background: rgba(0, 0, 0, 0.7);
-            border-color: var(--y2c-red);
-            box-shadow: 0 0 0 4px rgba(232, 76, 96, 0.15);
+            background: rgba(0, 0, 0, 0.8);
+            border-color: var(--sj-red);
+            box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.15);
             outline: none;
         }
-        .premium-input::placeholder { color: rgba(255, 255, 255, 0.3); font-weight: 300; }
+        .premium-input::placeholder { color: rgba(255, 255, 255, 0.25); font-weight: 300; }
 
         /* 고급 버튼 */
         .btn-premium {
-            background: linear-gradient(135deg, #E84C60 0%, #B82E40 100%);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: linear-gradient(135deg, #D32F2F 0%, #9A0007 100%);
+            border: 1px solid rgba(255,255,255,0.15);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
@@ -84,7 +85,7 @@
         }
         .btn-premium:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(232, 76, 96, 0.4);
+            box-shadow: 0 10px 25px rgba(211, 47, 47, 0.5);
         }
         .btn-premium:hover:not(:disabled)::after { left: 150%; }
         .btn-premium:active:not(:disabled) { transform: translateY(1px); }
@@ -100,25 +101,31 @@
 <body class="min-h-screen flex items-center justify-center p-4 sm:p-8 relative">
 
     <!-- 배경 장식 요소 -->
-    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#E84C60] rounded-full mix-blend-multiply filter blur-[120px] opacity-20 animate-pulse"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#2a2a2a] rounded-full mix-blend-multiply filter blur-[120px] opacity-50"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#D32F2F] rounded-full mix-blend-multiply filter blur-[140px] opacity-20 animate-pulse"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#2a2a2a] rounded-full mix-blend-multiply filter blur-[140px] opacity-40"></div>
 
-    <main class="w-full max-w-[420px] z-10">
+    <main class="w-full max-w-[440px] z-10">
         
-        <!-- 헤더 영역 -->
+        <!-- 🌟 신전 캐나다 & Y2C 홀딩스 통합 헤더 영역 -->
         <div class="text-center mb-10 cinematic-enter">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-black border border-white/10 shadow-2xl mb-5" style="animation: pulse-glow 3s infinite;">
-                <span class="text-2xl font-black text-white tracking-tighter">Y<span class="text-[#E84C60]">2</span>C</span>
+            <!-- 신전 프리미엄 엠블럼 -->
+            <div class="inline-flex items-center justify-center rounded-2xl bg-[#0a0a0a] border border-[#D32F2F]/40 shadow-2xl mb-5 px-7 py-3.5 relative overflow-hidden" style="animation: pulse-glow 3.5s infinite;">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#D32F2F]/10 to-transparent opacity-50"></div>
+                <span class="text-2xl sm:text-3xl font-black text-white tracking-tighter italic relative z-10">SINJEON</span>
+                <span class="text-2xl sm:text-3xl font-black text-[#D32F2F] ml-2 relative z-10 tracking-tight">CANADA</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2 uppercase">Enterprise <span class="font-light text-gray-400">Portal</span></h1>
-            <p class="text-xs sm:text-sm font-bold text-[#E84C60] tracking-[0.2em] uppercase">Authorized Access Only</p>
+            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white mb-1.5 uppercase">Franchise <span class="font-light text-gray-400">Portal</span></h1>
+            <p class="text-[11px] sm:text-xs font-bold text-gray-500 tracking-[0.2em] uppercase flex items-center justify-center gap-2">
+                <span>Operated by</span>
+                <span class="text-[#D32F2F]">Y2C Holdings</span>
+            </p>
         </div>
 
         <!-- 로그인 폼 (Glassmorphism) -->
-        <form id="loginForm" class="glass-panel rounded-3xl p-8 sm:p-10 cinematic-enter delay-100 relative overflow-hidden">
+        <form id="loginForm" class="glass-panel rounded-[2rem] p-8 sm:p-10 cinematic-enter delay-100 relative overflow-hidden">
             
             <!-- 상단 엣지 하이라이트 -->
-            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
             <div class="space-y-6">
                 <!-- ID Input -->
@@ -155,7 +162,10 @@
             </div>
             
             <div class="mt-8 text-center cinematic-enter delay-400">
-                <p class="text-[10px] font-medium text-gray-500 tracking-wider">SECURE CONNECTION ESTABLISHED<br>© 2026 Y2C HOLDINGS LTD.</p>
+                <p class="text-[10px] font-medium text-gray-500 tracking-widest leading-relaxed">
+                    SECURE CONNECTION ESTABLISHED<br>
+                    © 2026 SINJEON CANADA & Y2C HOLDINGS LTD.
+                </p>
             </div>
         </form>
     </main>
@@ -166,9 +176,9 @@
  * - Absolute Anti-Crash, Multi-layer validation, Exponential Backoff
  */
 
-// 🌟 1. 환경 변수 무결성 확보
+// 🌟 1. 환경 변수 무결성 확보 (config.js 연동 및 방어)
 const CONFIG = (typeof SYSTEM_CONFIG !== 'undefined') ? SYSTEM_CONFIG : {
-    // 주의: SYSTEM_CONFIG가 로드되지 않았을 경우 사용할 폴백 URL. 배포된 웹앱 주소를 넣으세요.
+    // 주의: SYSTEM_CONFIG가 로드되지 않았을 경우 사용할 폴백 URL입니다.
     API: { BASE_URL: "https://script.google.com/macros/s/AKfycbzT-_ZIfaVv6hQ6L9mE-Q4L0g9a17Q2Bw34gT4wI3Q19586QpL_D7I09Z0Y090zXw/exec" }, 
     STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_ID: "y2c_id" }
 };
@@ -178,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
     const userRole = localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE);
     if (sessionToken && userRole) {
-        document.body.style.opacity = '0'; // 깜빡임 방지
+        document.body.style.opacity = '0'; // 화면 깜빡임 방지
         window.location.replace(userRole === "MASTER" ? "admin.html" : "items.html");
         return;
     }
@@ -192,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let isAuthenticating = false;
 
-    // 🌟 3. 모바일 가상 키보드 방어 (입력창 터치 시 위로 스크롤)
+    // 🌟 3. 모바일 가상 키보드 방어 (입력창 터치 시 화면을 위로 끌어올림)
     const inputs = [idInput, pwInput];
     inputs.forEach(input => {
         if(!input) return;
@@ -203,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 🌟 4. Caps Lock 활성화 감지 센서
+    // 🌟 4. Caps Lock 활성화 감지 센서 (모바일/PC 대소문자 오류 방어)
     if (pwInput) {
         pwInput.addEventListener('keyup', (e) => {
             if (e.getModifierState && e.getModifierState('CapsLock')) {
@@ -216,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 🌟 5. [핵심] V12.3 통신 방어막 (지능형 재시도 및 오프라인 차단)
     async function executeLogin(payload, retries = 3) {
-        // 5-1. 오프라인 네트워크 단절 감지
+        // 5-1. 기기 오프라인(비행기모드 등) 단절 감지
         if (!navigator.onLine) {
             throw new Error("네트워크 연결이 끊겨있습니다. 와이파이 또는 데이터를 확인해주세요.");
         }
@@ -224,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let lastError;
         for (let i = 0; i <= retries; i++) {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선
+            const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선 설정
 
             try {
                 const response = await fetch(CONFIG.API.BASE_URL, {
@@ -240,19 +250,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 try {
                     const jsonResult = JSON.parse(rawText);
-                    // 구글 서버 병목 500 에러 우회 처리
+                    // 구글 서버 병목(Lock 대기열 초과) 시, 에러를 유발하여 아래 catch문의 우회 루프에 태움
                     if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("지연"))) {
                         throw new Error(jsonResult.message);
                     }
                     return jsonResult;
                 } catch (parseErr) {
-                    throw new Error("서버 혼잡 현상. 우회 접속을 시도합니다.");
+                    throw new Error("서버 혼잡 현상. 시스템이 우회 접속을 시도합니다.");
                 }
             } catch (err) {
                 clearTimeout(timeoutId);
                 lastError = err;
                 if (i < retries) {
-                    // Jittered Backoff (1.5^i 초 + 랜덤 난수)
+                    // Jittered Backoff: 1.5^i 초 + 랜덤 난수 밀리초를 더해 락(Lock) 충돌 완벽 회피
                     const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 500); 
                     if (errorMsg) errorMsg.innerHTML = `<span class="animate-pulse text-amber-400 font-bold">서버 트래픽 우회 접속 중입니다... (${i+1}/3)</span>`;
                     await new Promise(res => setTimeout(res, waitTime));
@@ -262,27 +272,26 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(lastError.message || "서버 접속이 거부되었습니다. (네트워크 또는 구글 권한 오류)");
     }
 
-    // 🌟 6. 로그인 실행 컨트롤러
+    // 🌟 6. 메인 로그인 실행 컨트롤러
     async function handleLogin(e) {
         if (e) e.preventDefault();
         
-        // 이중 클릭 방어
+        // 🌟 이중 클릭 뻥튀기 방어 (UI Lock)
         if (isAuthenticating) return;
 
+        // 모바일 자동완성 공백 쓰레기값 제거(trim)
         const id = idInput ? idInput.value.trim() : "";
         const pw = pwInput ? pwInput.value.trim() : "";
 
-        // 빈 칸 제출 방어
+        // 빈 칸 제출 시 폼 흔들림(Shake) 시각 피드백
         if (!id || !pw) {
             if(errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">ID와 Password를 모두 입력해주세요.</span>`;
-            // 흔들림 애니메이션 효과
             loginForm.style.transform = "translateX(5px)";
             setTimeout(() => loginForm.style.transform = "translateX(-5px)", 50);
             setTimeout(() => loginForm.style.transform = "translateX(0)", 100);
             return;
         }
 
-        // UI 잠금
         isAuthenticating = true;
         const originalBtnText = loginBtn.innerHTML;
         if (loginBtn) {
@@ -293,6 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (errorMsg) errorMsg.innerText = "";
 
         try {
+            // 🌟 지능형 우회 재시도 모듈 실행
             const result = await executeLogin({ id: id, pw: pw });
 
             if (result.success) {
@@ -305,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, id);
                 localStorage.setItem("y2c_premium_state", result.clientState || "DEFAULT");
 
-                // 화려한 퇴장 애니메이션 후 리다이렉트
+                // 화려한 퇴장(Exit) 애니메이션 후 리다이렉트
                 loginForm.style.transition = "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
                 loginForm.style.transform = "scale(0.95)";
                 loginForm.style.opacity = "0";
@@ -318,8 +328,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">⚠️ ${result.message || "인증에 실패했습니다."}</span>`;
             }
         } catch (err) {
+            // 안전하게 정제된 에러 피드백
             if (errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">${err.message}</span>`;
         } finally {
+            // 통신 성공으로 넘어가고 있지 않을 때만 버튼 락 해제 복구
             if (!loginForm.style.opacity || loginForm.style.opacity !== "0") {
                 isAuthenticating = false;
                 if (loginBtn) {
@@ -331,6 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // 🌟 7. 모바일/PC 입력 트리거 바인딩 (엔터키 하이재킹 방어)
     if (loginForm) loginForm.addEventListener("submit", handleLogin);
 });
 </script>
