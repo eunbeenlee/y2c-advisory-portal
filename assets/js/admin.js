@@ -61,7 +61,7 @@ let cachedItems = [];
 let cachedMappings = []; 
 let isSubmitting = false; 
 
-// 🌟 [최강 방어막] Failed to fetch 및 구글 서버 충돌 원천 차단 우회 모듈 (Exponential Backoff)
+// 🌟 [교차검증 적용] 최강 방어막 API 모듈 - 서버 에러 및 트래픽 병목 동시 방어
 async function executeApi(action, payload = {}, retries = 2) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
@@ -73,22 +73,26 @@ async function executeApi(action, payload = {}, retries = 2) {
       const rawText = await response.text();
       try {
         const jsonResult = JSON.parse(rawText);
-        if (!jsonResult.success && jsonResult.message && jsonResult.message.includes("트래픽")) {
+        // 서버에서 안전하게 반환한 JSON 에러 중 '트래픽' 단어가 포함되면 재시도 유발
+        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("Lock"))) {
           throw new Error(jsonResult.message);
         }
         return jsonResult;
       } catch(e) {
+        // 구글 서버가 완전히 뻗어 HTML 에러 페이지를 뱉었을 때 (JSON 파싱 실패)
+        console.warn(`[API Attempt ${i+1}] 서버 응답 지연/오류. 재시도를 준비합니다.`);
         throw new Error("서버 응답 오류 및 병목. 재시도 중...");
       }
     } catch (err) {
       lastError = err;
       if (i < retries) {
+        console.log(`[API Retry] 2초 대기 후 ${action} 재시도... (${i+1}/${retries})`);
         await new Promise(res => setTimeout(res, 2000)); // 2초 대기 후 재시도
       }
     }
   }
   console.error("Fetch Final Error:", lastError);
-  throw new Error("구글 서버 트래픽 지연으로 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+  throw new Error("구글 서버 트래픽 지연으로 처리되지 않았습니다. 몇 초 뒤 다시 시도해 주세요.");
 }
 
 // ========================================================
@@ -337,7 +341,7 @@ async function saveHqOrder() {
 }
 
 // ========================================================
-// [4] V11.7 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
+// [4] V11.8 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -377,7 +381,7 @@ async function handleExcelUpload(event) {
   } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
 }
 
-// 🌟 [V11.7] OCR 박스 규격 필터링 엔진
+// 🌟 [V11.8] OCR 박스 규격 필터링 엔진
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
