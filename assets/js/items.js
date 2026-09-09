@@ -15,6 +15,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear(); window.location.href = "index.html"; 
 });
 
+// 🌟 [방화벽] VENDOR 권한 접속 시 불필요 UI 차단
 if (userRole === "VENDOR") {
   const navDash = document.getElementById('navDashboard');
   const navRec = document.getElementById('navRecipes');
@@ -59,27 +60,36 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// 🌟 [최강 방어막] Failed to fetch 오류 원천 차단 API 모듈
-async function executeApi(action, payload = {}) {
-  try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: action, token: sessionToken, ...payload })
-    });
-    const rawText = await response.text();
+// 🌟 [최강 방어막] Failed to fetch 및 구글 서버 충돌 원천 차단 우회 모듈 (Exponential Backoff)
+async function executeApi(action, payload = {}, retries = 2) {
+  let lastError;
+  for (let i = 0; i <= retries; i++) {
     try {
-      return JSON.parse(rawText);
-    } catch(e) {
-      console.error("GAS 500 Error Response:", rawText);
-      throw new Error("구글 서버 충돌. 잠시 후 다시 시도해 주세요.");
+      const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+        body: JSON.stringify({ action: action, token: sessionToken, ...payload })
+      });
+      const rawText = await response.text();
+      try {
+        const jsonResult = JSON.parse(rawText);
+        if (!jsonResult.success && jsonResult.message && jsonResult.message.includes("트래픽")) {
+          throw new Error(jsonResult.message);
+        }
+        return jsonResult;
+      } catch (e) {
+        throw new Error("서버 응답 오류 및 병목. 재시도 중...");
+      }
+    } catch (err) {
+      lastError = err;
+      if (i < retries) {
+        await new Promise(res => setTimeout(res, 2000)); // 2초 대기 후 재시도
+      }
     }
-  } catch (err) {
-    console.error("Fetch Network Error:", err);
-    throw new Error("통신 실패 (Failed to fetch). 네트워크 지연 또는 서버 병목 현상입니다.");
   }
+  console.error("Fetch Final Error:", lastError);
+  throw new Error("구글 서버 트래픽 지연으로 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
 }
 
-// 🌟 매핑 DB 로드
 async function fetchMappings() {
   if (userRole !== "MASTER" && userRole !== "VENDOR") return;
   try {
@@ -95,7 +105,6 @@ async function fetchItems() {
 
   try {
     const result = await executeApi("get_items", { clientState: currentClientState });
-
     if (result.success) {
       cachedItems = result.items || [];
       currentClientState = result.appliedState || "DEFAULT";
@@ -103,7 +112,6 @@ async function fetchItems() {
       
       const taxLabel = document.getElementById('orderTaxLabel');
       if (taxLabel) taxLabel.innerText = `Estimated Tax - ${taxRateObj.name}:`;
-
       const headerTitle = document.getElementById('catalogHeaderTitle');
       if (headerTitle) headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[var(--y2c-gold)]/10 text-[var(--y2c-gold)] px-3 py-1.5 rounded-lg border border-[var(--y2c-gold)]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
       
@@ -251,7 +259,7 @@ function calculateOrderTotal() {
   if(document.getElementById('orderGrandTotal')) document.getElementById('orderGrandTotal').innerText = formatCurrency(subtotal + taxAmt);
 }
 
-// 스마트 디프 수동 저장
+// 스마트 디프 로직
 async function toggleStockEditMode() {
   if (isSubmitting) return; 
   const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
@@ -283,7 +291,7 @@ async function toggleStockEditMode() {
       const result = await executeApi("update_stock", { stockUpdates: updates });
       if (result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
       else throw new Error(result.message);
-    } catch (err) { showToast("업데이트 실패: " + err.message, "error"); } 
+    } catch (err) { showToast(err.message, "error"); } 
     finally {
       isStockEditMode = false; isSubmitting = false;
       if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
@@ -319,11 +327,10 @@ async function submitOrder() {
     const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems });
     if (result.success) { showToast(`발주 완료 (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
     else throw new Error(result.message);
-  } catch (error) { showToast("접수 실패: " + error.message, "error"); } 
+  } catch (error) { showToast(error.message, "error"); } 
   finally { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
 }
 
-// 🌟 [통합 방어] 엑셀/이미지 스캔 및 OCR 핸들러
 async function handleExcelUpload(event) {
   event.preventDefault();
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
@@ -362,7 +369,6 @@ async function handleExcelUpload(event) {
   } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
 }
 
-// 🌟 [V11.4] OCR 박스 규격 필터링 엔진
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -373,11 +379,9 @@ function processOCRText(text, filename) {
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
-    // 🌟 규격 텍스트(예: 1KG*10)를 먼저 삭제하여 수량(Qty) 오인 방지
     let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGg]+\*\d+\b/g, ''); 
     const nums = cleanLine.match(/\b\d+\b/g); 
     let qty = 0;
-    
     if (nums && nums.length > 0) {
       for(let i = nums.length - 1; i >= 0; i--) {
         const n = parseInt(nums[i]);
@@ -388,13 +392,13 @@ function processOCRText(text, filename) {
   });
 
   if (jsonData.length === 0) {
-    showToast("이미지에서 품번 및 수량 패턴을 찾지 못했습니다.", "error");
+    showToast("이미지에서 품번 및 수량을 찾지 못했습니다.", "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here"; return;
   }
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [V11.4] 엑셀 무결성 파싱, 기존 재고 병합, executeApi 융합 로직
+// 🌟 [통합 핵심 엔진] 공백 방어, 매핑 DB 연동, 안전 재고 덧셈
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -411,8 +415,6 @@ async function processExcelData(jsonData, filename) {
 
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
-    
-    // 투명 공백 완벽 차단 필터
     Object.keys(row).forEach(k => {
       let cleanK = k.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = String(row[k]).trim();
@@ -426,13 +428,10 @@ async function processExcelData(jsonData, filename) {
 
     if (vItemCode !== "" && !isNaN(vQty) && vQty > 0) {
       let hqCode = null;
-
-      // 1. 매핑 테이블 변환
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
         hqCode = mapObj.hqCode;
       } else {
-        // 2. 스마트 패스
         const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
         if (directMatch) hqCode = directMatch.code;
       }
@@ -451,7 +450,6 @@ async function processExcelData(jsonData, filename) {
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
-  // 기존 DB 재고 안전 덧셈(+)
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
     const existingStock = existingItem ? (existingItem.stockBreakdown[targetRegion] || 0) : 0;
