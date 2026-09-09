@@ -337,7 +337,7 @@ async function saveHqOrder() {
 }
 
 // ========================================================
-// [4] V11.6 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
+// [4] V11.7 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -377,7 +377,7 @@ async function handleExcelUpload(event) {
   } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
 }
 
-// 🌟 [V11.6] OCR 박스 규격 필터링 엔진
+// 🌟 [V11.7] OCR 박스 규격 필터링 엔진
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
