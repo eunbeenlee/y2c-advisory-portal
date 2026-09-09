@@ -9,7 +9,9 @@ if (!sessionToken || userRole !== "MASTER") {
   window.location.href = "index.html"; 
 }
 
-document.getElementById('userNameDisplay').innerText = clientName || "MASTER";
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.innerText = clientName || "MASTER";
+
 const badge = document.getElementById('userRoleBadge');
 if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
 
@@ -61,38 +63,44 @@ let cachedItems = [];
 let cachedMappings = []; 
 let isSubmitting = false; 
 
-// 🌟 [교차검증 적용] 최강 방어막 API 모듈 - 서버 에러 및 트래픽 병목 동시 방어
-async function executeApi(action, payload = {}, retries = 2) {
+// 🌟 [통신 모듈 V12.0] Timeout 절단기 및 난수화 지연(Jittered Backoff) 적용
+async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 이상 무응답 시 강제 차단
+
     try {
       const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-        body: JSON.stringify({ action: action, token: sessionToken, ...payload })
+        body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       const rawText = await response.text();
+      
       try {
         const jsonResult = JSON.parse(rawText);
-        // 서버에서 안전하게 반환한 JSON 에러 중 '트래픽' 단어가 포함되면 재시도 유발
-        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("Lock"))) {
+        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과"))) {
           throw new Error(jsonResult.message);
         }
         return jsonResult;
-      } catch(e) {
-        // 구글 서버가 완전히 뻗어 HTML 에러 페이지를 뱉었을 때 (JSON 파싱 실패)
-        console.warn(`[API Attempt ${i+1}] 서버 응답 지연/오류. 재시도를 준비합니다.`);
-        throw new Error("서버 응답 오류 및 병목. 재시도 중...");
+      } catch (parseErr) {
+        throw new Error("서버 응답 병목 현상. 재시도를 준비합니다.");
       }
     } catch (err) {
+      clearTimeout(timeoutId);
       lastError = err;
       if (i < retries) {
-        console.log(`[API Retry] 2초 대기 후 ${action} 재시도... (${i+1}/${retries})`);
-        await new Promise(res => setTimeout(res, 2000)); // 2초 대기 후 재시도
+        // 백오프 + 난수화(Jitter)로 락 충돌 방지: 1초, 2.5초, 5.5초 + 알파
+        const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
+        console.warn(`[통신 지연 우회] ${waitTime}ms 대기 후 재시도... (${i+1}/${retries})`);
+        await new Promise(res => setTimeout(res, waitTime));
       }
     }
   }
-  console.error("Fetch Final Error:", lastError);
-  throw new Error("구글 서버 트래픽 지연으로 처리되지 않았습니다. 몇 초 뒤 다시 시도해 주세요.");
+  console.error("Fetch API Final Error:", lastError);
+  throw new Error("서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침하여 다시 시도해주세요.");
 }
 
 // ========================================================
@@ -131,8 +139,8 @@ async function fetchMasterData() {
       });
       populateSalesClientSelector(); 
     } else { 
-      if (result.message.includes("만료") || result.message.includes("로그인")) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
-      throw new Error(result.message); 
+      if (result.message && (result.message.includes("만료") || result.message.includes("로그인"))) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
+      throw new Error(result.message || "Unknown error"); 
     }
   } catch (err) { 
     tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">마스터 데이터를 불러오지 못했습니다. 새로고침 해주세요.</td></tr>`;
@@ -143,13 +151,18 @@ async function saveClientData(rowIdx) {
   if (isSubmitting) return; 
   isSubmitting = true;
   const saveBtn = document.getElementById(`saveBtn_${rowIdx}`);
-  const originalText = saveBtn.innerText;
-  if (saveBtn) { saveBtn.disabled = true; saveBtn.innerText = "⏳ SAVING..."; saveBtn.classList.add('animate-pulse'); }
+  let originalText = "SAVE";
+  if (saveBtn) { 
+    originalText = saveBtn.innerText;
+    saveBtn.disabled = true; saveBtn.innerText = "⏳ SAVING..."; saveBtn.classList.add('animate-pulse'); 
+  }
 
   const stateVal = document.getElementById(`state_${rowIdx}`).value.toUpperCase().trim();
   if (stateVal.length > 2) {
     showToast("State(주) 코드는 2자리 영문(예: ON, BC)으로 입력해 주세요.", "error");
-    isSubmitting = false; saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); return;
+    isSubmitting = false; 
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
+    return;
   }
 
   const payload = {
@@ -163,9 +176,13 @@ async function saveClientData(rowIdx) {
     if (result.success) {
       if(saveBtn) { saveBtn.innerText = "✅ SAVED"; saveBtn.classList.remove('animate-pulse'); saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
       showToast("마스터 데이터가 저장되었습니다.", "success"); setTimeout(() => fetchMasterData(), 1500); 
-    } else { showToast("저장 실패: " + result.message, "error"); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); } }
+    } else { 
+      showToast("저장 실패: " + result.message, "error"); 
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); } 
+    }
   } catch (err) { 
-    showToast(err.message, "error"); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
+    showToast(err.message, "error"); 
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
   } finally { isSubmitting = false; }
 }
 
@@ -208,6 +225,7 @@ async function loadSalesGrid() {
 
 function renderSalesGrid(records) {
   const tbody = document.getElementById('salesGridBody');
+  if (!tbody) return;
   tbody.innerHTML = '';
   const inputStyle = "w-full max-w-[170px] mx-auto bg-white border border-gray-200 rounded-xl px-3 py-2 text-center text-[13px] font-mono font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm transition";
 
@@ -230,8 +248,8 @@ function renderSalesGrid(records) {
 function recalcSalesRow(month) {
   const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
   let p = parseFloat(posInput.value), d = parseFloat(delInput.value);
-  if (isNaN(p) || p < 0) { p = 0; if (posInput.value !== "") posInput.value = ""; }
-  if (isNaN(d) || d < 0) { d = 0; if (delInput.value !== "") delInput.value = ""; }
+  if (Number.isNaN(p) || p < 0) { p = 0; if (posInput.value !== "") posInput.value = ""; }
+  if (Number.isNaN(d) || d < 0) { d = 0; if (delInput.value !== "") delInput.value = ""; }
   const totalDisplay = document.getElementById(`rowTotal_${month}`);
   if (totalDisplay) totalDisplay.innerText = formatCurrency(p + d);
   recalculateKpis();
@@ -240,13 +258,19 @@ function recalcSalesRow(month) {
 function recalculateKpis() {
   let totAnnual = 0, totPos = 0, totDel = 0;
   for (let m = 1; m <= 12; m++) {
-    const pos = parseFloat(document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value) || 0;
-    const del = parseFloat(document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value) || 0;
+    const posNode = document.querySelector(`.sales-input-pos[data-month="${m}"]`);
+    const delNode = document.querySelector(`.sales-input-del[data-month="${m}"]`);
+    const pos = parseFloat(posNode?.value) || 0;
+    const del = parseFloat(delNode?.value) || 0;
     totPos += Math.max(0, pos); totDel += Math.max(0, del); totAnnual += Math.max(0, pos + del);
   }
-  document.getElementById('salesKpiTotal').innerText = formatCurrency(totAnnual);
-  document.getElementById('salesKpiPos').innerText = formatCurrency(totPos);
-  document.getElementById('salesKpiDelivery').innerText = formatCurrency(totDel);
+  const kpiTotal = document.getElementById('salesKpiTotal');
+  const kpiPos = document.getElementById('salesKpiPos');
+  const kpiDel = document.getElementById('salesKpiDelivery');
+  
+  if (kpiTotal) kpiTotal.innerText = formatCurrency(totAnnual);
+  if (kpiPos) kpiPos.innerText = formatCurrency(totPos);
+  if (kpiDel) kpiDel.innerText = formatCurrency(totDel);
 }
 
 async function saveSalesGridData() {
@@ -262,15 +286,21 @@ async function saveSalesGridData() {
     recordsToSave.push({ month: m, pos: Math.max(0, parseFloat(pStr) || 0), delivery: Math.max(0, parseFloat(dStr) || 0) });
   }
 
-  const originalHtml = btn.innerHTML;
-  btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING BATCH...</span>`;
+  let originalHtml = "SAVE DATA";
+  if (btn) {
+    originalHtml = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING BATCH...</span>`;
+  }
   
   try {
     const result = await executeApi("save_sales_records", { year: targetYear, clientName: targetClient, records: recordsToSave });
     if (result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
     else throw new Error(result.message);
   } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } 
-  finally { btn.disabled = false; btn.innerHTML = originalHtml; isSubmitting = false; }
+  finally { 
+    if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+    isSubmitting = false; 
+  }
 }
 
 // ========================================================
@@ -280,12 +310,17 @@ async function saveSalesGridData() {
 async function fetchMappings() {
   try {
     const result = await executeApi("get_procurement_data");
-    if (result.success) {
+    if (result && result.success) {
       cachedMappings = result.mappings || [];
       cachedHqOrders = result.hqOrders || [];
       renderHqOrders();
+    } else {
+      cachedMappings = [];
     }
-  } catch (err) { console.error("Mapping DB Load Error:", err); }
+  } catch (err) { 
+    cachedMappings = [];
+    console.error("Mapping DB Load Error (Ignored):", err); 
+  }
 }
 
 async function fetchCatalogForInbound() {
@@ -328,8 +363,12 @@ async function saveHqOrder() {
   if(!vendorName || !region || !items) return showToast("필수 내역을 모두 입력해 주세요.", "error");
 
   isSubmitting = true;
-  const btn = document.getElementById('btnSubmitHqOrder'), originalHtml = btn.innerHTML;
-  btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`;
+  const btn = document.getElementById('btnSubmitHqOrder');
+  let originalHtml = "SUBMIT";
+  if (btn) {
+    originalHtml = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`;
+  }
 
   const payload = { id: "NEW", date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
   try {
@@ -337,51 +376,78 @@ async function saveHqOrder() {
     if (result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchMappings(); } 
     else throw new Error(result.message);
   } catch (err) { showToast("등록 실패: " + err.message, "error"); } 
-  finally { btn.disabled = false; btn.innerHTML = originalHtml; isSubmitting = false; }
+  finally { 
+    if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+    isSubmitting = false; 
+  }
 }
 
 // ========================================================
-// [4] V11.8 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
+// [4] V12.0 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
+  if (isSubmitting) return showToast("현재 처리 중입니다. 잠시 대기해 주세요.", "error");
+
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
   if (!file) return;
 
+  isSubmitting = true;
   const validExcelExts = [".xlsx", ".xls", ".csv"], validImgExts = [".png", ".jpg", ".jpeg"];
   const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
   const statusText = document.getElementById('uploadStatusText');
 
   if (validExcelExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
+    
+    // 라이브러리 가드
+    if (typeof XLSX === 'undefined') {
+      isSubmitting = false; return showToast("엑셀 엔진을 로드 중입니다. 새로고침 후 다시 시도해 주세요.", "error");
+    }
+
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
-        const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'});
-        const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName];
+        const data = new Uint8Array(e.target.result); 
+        const workbook = XLSX.read(data, {type: 'array'});
+        const firstSheetName = workbook.SheetNames[0]; 
+        const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+        
+        if (jsonData.length === 0) throw new Error("엑셀 파일에 처리할 데이터가 없습니다.");
         processExcelData(jsonData, file.name);
       } catch(err) {
-        showToast("파일 파싱 중 오류 발생", "error"); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+        isSubmitting = false;
+        showToast("파일 파싱 중 오류 발생: " + err.message, "error"); 
+        if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
       }
     };
     reader.readAsArrayBuffer(file);
   } 
   else if (validImgExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
+    
+    if (typeof Tesseract === 'undefined') {
+      isSubmitting = false; return showToast("AI 엔진을 로드 중입니다. 잠시 후 다시 시도해 주세요.", "error");
+    }
+
     try {
-      if (typeof Tesseract === 'undefined') throw new Error("Tesseract 라이브러리 없음");
       const result = await Tesseract.recognize(file, 'eng+kor', {
         logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`; } }
       });
       processOCRText(result.data.text, file.name);
     } catch(err) {
-      showToast("이미지 인식 실패: " + err.message, "error"); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+      isSubmitting = false;
+      showToast("이미지 인식 실패: " + err.message, "error"); 
+      if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
     }
-  } else { return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); }
+  } else { 
+    isSubmitting = false;
+    return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); 
+  }
 }
 
-// 🌟 [V11.8] OCR 박스 규격 필터링 엔진
+// 🌟 [교차검증 8] OCR 규격 필터링 확장 (KG, G, L, ML 등)
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -392,35 +458,40 @@ function processOCRText(text, filename) {
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
-    // 🌟 규격 텍스트(예: 1KG*10)를 삭제하여 수량 오인 방지
-    let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGg]+\*\d+\b/g, ''); 
+    // 🌟 규격 텍스트(예: 1KG*10, 500ML*24)를 삭제하여 수량 오인 완벽 차단
+    let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGgLlMmCc]+\*\d+\b/g, ''); 
     const nums = cleanLine.match(/\b\d+\b/g); 
     let qty = 0;
 
     if (nums && nums.length > 0) {
       for(let i = nums.length - 1; i >= 0; i--) {
         const n = parseInt(nums[i]);
-        if(n < 10000 && String(n) !== itemCode) { qty = n; break; }
+        if(!Number.isNaN(n) && n < 10000 && String(n) !== itemCode) { qty = n; break; }
       }
     }
     if(itemCode && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
   });
 
   if (jsonData.length === 0) {
+    isSubmitting = false;
     showToast("이미지에서 품번 및 수량을 찾지 못했습니다.", "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here"; return;
   }
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심] 공백 무시 파싱, 매핑 연동, NaN 방어, 안전 재고 덧셈(+)
+// 🌟 [통합 핵심 엔진] 투명 공백 방어, 매핑 연동, NaN 방어, 안전 재고 덧셈(+)
 async function processExcelData(jsonData, filename) {
-  const targetRegion = document.getElementById('inboundRegionSelector').value;
-  if (!targetRegion) {
+  const targetRegion = document.getElementById('inboundRegionSelector');
+  if (!targetRegion || !targetRegion.value) {
+    isSubmitting = false;
     showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here"; return;
   }
+  const regionVal = targetRegion.value;
+
   if (cachedItems.length === 0) {
+    isSubmitting = false;
     showToast("카탈로그 데이터를 불러오는 중입니다. 잠시 후 시도하세요.", "error"); return;
   }
 
@@ -431,19 +502,22 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 투명 유니코드 공백 완벽 제거 필터
+    // 🌟 [교차검증 4, 5] 엑셀 보이지 않는 공백 완벽 제거 및 빈 셀 방어
     Object.keys(row).forEach(k => {
-      let cleanK = k.replace(/[\s\u200B-\u200D\uFEFF]+/g, '').toLowerCase();
-      if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = String(row[k]).trim();
-      if (!vItemCode && cleanK === 'barcode') vItemCode = String(row[k]).trim();
-      if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = parseInt(row[k]) || 0;
-      if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = String(row[k]).trim();
+      let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
+      let valStr = String(row[k] || "").trim();
+
+      if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
+      if (!vItemCode && cleanK === 'barcode') vItemCode = valStr;
+      if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = parseInt(valStr) || 0;
+      if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
     });
 
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
-    if (vItemCode !== "" && !isNaN(vQty) && vQty > 0) {
+    // 🌟 [교차검증 7, 9] 고스트 데이터 무시 및 NaN 방어
+    if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
 
       // 1. 매핑 테이블 번역
@@ -466,6 +540,7 @@ async function processExcelData(jsonData, filename) {
   });
 
   if (successCount === 0) {
+    isSubmitting = false;
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
@@ -473,8 +548,8 @@ async function processExcelData(jsonData, filename) {
   // 🌟 기존 DB 재고 및 유통기한 안전 덧셈(+) 병합
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
-    const existingStock = existingItem ? (existingItem.stockBreakdown[targetRegion] || 0) : 0;
-    const existingExpStr = existingItem ? (existingItem.expBreakdown[targetRegion] || "") : "";
+    const existingStock = existingItem ? (existingItem.stockBreakdown[regionVal] || 0) : 0;
+    const existingExpStr = existingItem ? (existingItem.expBreakdown[regionVal] || "") : "";
 
     let mergedBatches = {};
     if (existingExpStr && existingExpStr !== "-") {
@@ -482,7 +557,8 @@ async function processExcelData(jsonData, filename) {
         if (p.includes(':')) {
           let parts = p.split(':');
           let q = parseInt(parts[1]);
-          if (parts[0] && !isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
+          // NaN 방어 통과 시 병합
+          if (parts[0] && !Number.isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
         } else if (p.trim() !== "") {
           mergedBatches[p.trim()] = 99999;
         }
@@ -498,14 +574,14 @@ async function processExcelData(jsonData, filename) {
     let newExpArr = [];
     sortedDates.forEach(d => {
       let q = mergedBatches[d];
-      if (!isNaN(q) && q > 0 && q !== 99999) newExpArr.push(`${d}:${q}`);
+      if (!Number.isNaN(q) && q > 0 && q !== 99999) newExpArr.push(`${d}:${q}`);
       else if (q === 99999) newExpArr.push(d);
     });
 
     const finalExpStr = newExpArr.join(' | ');
     const finalStock = existingStock + inboundMap[hqCode].totalQty;
 
-    return { code: hqCode, stockBreakdown: { [targetRegion]: finalStock }, expBreakdown: { [targetRegion]: finalExpStr } };
+    return { code: hqCode, stockBreakdown: { [regionVal]: finalStock }, expBreakdown: { [regionVal]: finalExpStr } };
   });
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows...</span>`;
@@ -513,11 +589,12 @@ async function processExcelData(jsonData, filename) {
   try {
     const result = await executeApi("update_stock", { stockUpdates: finalStockUpdates });
     if (result.success) {
-      showToast(`입고 완료: 엑셀/이미지 ${successCount}줄 누적 성공`, "success");
+      showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
-      setTimeout(() => { fetchCatalogForInbound(); location.reload(); }, 1500); 
+      setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); 
     } else throw new Error(result.message);
   } catch (err) {
+    isSubmitting = false;
     showToast(err.message, "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
   }
