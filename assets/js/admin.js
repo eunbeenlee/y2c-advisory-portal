@@ -68,7 +68,7 @@ async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 무응답 시 강제 절단
+    const timeoutId = setTimeout(() => controller.abort(), 25000); 
 
     try {
       const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -81,7 +81,6 @@ async function executeApi(action, payload = {}, retries = 3) {
       
       try {
         const jsonResult = JSON.parse(rawText);
-        // 서버에서 반환한 정상 JSON 내부의 에러 메시지에 트래픽 관련 단어가 있으면 예외 발생시켜 재시도 루프 태움
         if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과"))) {
           throw new Error(jsonResult.message);
         }
@@ -93,7 +92,6 @@ async function executeApi(action, payload = {}, retries = 3) {
       clearTimeout(timeoutId);
       lastError = err;
       if (i < retries) {
-        // 난수(Jitter)를 포함한 점진적 대기(Exponential Backoff)로 락 충돌 회피
         const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
         console.warn(`[통신 지연 우회] ${waitTime}ms 대기 후 ${action} 재시도... (${i+1}/${retries})`);
         await new Promise(res => setTimeout(res, waitTime));
@@ -305,8 +303,42 @@ async function saveSalesGridData() {
 }
 
 // ========================================================
-// [3] 본사 조달 관제(HQ Orders) 및 매핑/카탈로그 백그라운드 로드
+// [3] 본사 조달 관제(HQ Orders) 및 B2B 지표(KPI) 생성
 // ========================================================
+
+// 🌟 [본사 전용] B2B 사용량 및 누적 금액 시각화 로직
+function renderOrderMetrics(metrics) {
+  if(!metrics) return;
+  const table = document.getElementById('hqOrdersGridBody')?.closest('table');
+  if(!table || !table.parentNode) return;
+
+  // 중복 생성 방지
+  let kpiContainer = document.getElementById('y2cOrderMetrics');
+  if (!kpiContainer) {
+    kpiContainer = document.createElement('div');
+    kpiContainer.id = 'y2cOrderMetrics';
+    kpiContainer.className = 'grid grid-cols-2 gap-4 sm:gap-6 mb-8';
+    table.parentNode.insertBefore(kpiContainer, table);
+  }
+  
+  kpiContainer.innerHTML = `
+    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg">📦</div>
+        <p class="text-[11px] font-black text-gray-500 uppercase tracking-widest">Total B2B Volume</p>
+      </div>
+      <h3 class="text-2xl sm:text-3xl font-black text-gray-800 font-mono tracking-tighter">${metrics.totalQty.toLocaleString()} <span class="text-xs text-gray-400 font-bold ml-1">Units</span></h3>
+    </div>
+    <div class="bg-gradient-to-br from-[#E84C60] to-[#9A0007] border border-[#E84C60]/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700"></div>
+      <div class="flex items-center gap-3 mb-2 relative z-10">
+        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-lg">💳</div>
+        <p class="text-[11px] font-black text-red-100 uppercase tracking-widest">Total B2B Expenditure</p>
+      </div>
+      <h3 class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tighter relative z-10">${formatCurrency(metrics.totalAmount)}</h3>
+    </div>
+  `;
+}
 
 async function fetchMappings() {
   try {
@@ -315,6 +347,8 @@ async function fetchMappings() {
       cachedMappings = result.mappings || [];
       cachedHqOrders = result.hqOrders || [];
       renderHqOrders();
+      // 🌟 [추가됨] 본사 사용량 지표 렌더링
+      if(result.orderMetrics) renderOrderMetrics(result.orderMetrics);
     } else {
       cachedMappings = [];
     }
@@ -384,12 +418,11 @@ async function saveHqOrder() {
 }
 
 // ========================================================
-// [4] V12.2 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
+// [4] V12.6 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
-  // 🌟 [UI Lock 방어] 이중 업로드 방지
-  if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시만 기다려주세요.", "error");
+  if (isSubmitting) return showToast("현재 처리 중입니다. 잠시 기다려주세요.", "error");
 
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
   if (!file) return;
@@ -402,9 +435,8 @@ async function handleExcelUpload(event) {
   if (validExcelExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
     
-    // 라이브러리 가드
     if (typeof XLSX === 'undefined') {
-      isSubmitting = false; return showToast("엑셀 분석 엔진이 로드되지 않았습니다. 새로고침(F5) 후 다시 시도해 주세요.", "error");
+      isSubmitting = false; return showToast("엑셀 분석 엔진(XLSX)을 로드 중입니다. 새로고침 후 다시 시도해주세요.", "error");
     }
 
     const reader = new FileReader();
@@ -416,12 +448,11 @@ async function handleExcelUpload(event) {
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         
-        // 빈 파일 업로드 차단
-        if (jsonData.length === 0) throw new Error("엑셀 파일에 유효한 데이터가 없습니다.");
+        if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다.");
         processExcelData(jsonData, file.name);
       } catch(err) {
         isSubmitting = false;
-        showToast("파일 파싱 중 오류 발생: " + err.message, "error"); 
+        showToast("엑셀 파일 파싱 중 오류 발생: " + err.message, "error"); 
         if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
       }
     };
@@ -431,7 +462,7 @@ async function handleExcelUpload(event) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
     
     if (typeof Tesseract === 'undefined') {
-      isSubmitting = false; return showToast("AI 비전 엔진이 로드되지 않았습니다. 새로고침 후 다시 시도해 주세요.", "error");
+      isSubmitting = false; return showToast("AI 엔진(Tesseract)을 로드 중입니다. 잠시 후 시도해주세요.", "error");
     }
 
     try {
@@ -450,7 +481,6 @@ async function handleExcelUpload(event) {
   }
 }
 
-// 🌟 [교차검증 8] OCR 규격 필터링 확장 (KG, G, L, ML 등 단위계 완벽 방어)
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -461,11 +491,10 @@ function processOCRText(text, filename) {
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
-    // 🌟 규격 텍스트(예: 1KG*10, 500ML*24)를 삭제하여 수량 오인 완벽 차단
     let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGgLlMmCc]+\*\d+\b/g, ''); 
     const nums = cleanLine.match(/\b\d+\b/g); 
     let qty = 0;
-
+    
     if (nums && nums.length > 0) {
       for(let i = nums.length - 1; i >= 0; i--) {
         const n = parseInt(nums[i]);
@@ -483,7 +512,6 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [통합 핵심 엔진] 투명 공백 방어, 매핑 연동, NaN 방어, 안전 재고 덧셈(+)
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector');
   if (!targetRegion || !targetRegion.value) {
@@ -505,7 +533,6 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 [교차검증 4, 5] 엑셀 보이지 않는 공백 완벽 제거 및 빈 셀(Null) 방어
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
       let valStr = String(row[k] || "").trim();
@@ -519,16 +546,13 @@ async function processExcelData(jsonData, filename) {
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
-    // 🌟 [교차검증 7, 9] 고스트 빈 데이터 무시 및 NaN 연산 방어
     if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
-
-      // 1. 매핑 테이블 번역
+      
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
         hqCode = mapObj.hqCode;
       } else {
-        // 2. 스마트 패스 직접 비교
         const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
         if (directMatch) hqCode = directMatch.code;
       }
@@ -545,10 +569,9 @@ async function processExcelData(jsonData, filename) {
   if (successCount === 0) {
     isSubmitting = false;
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
-    showToast("마스터 DB와 매칭되는 품목이 0건입니다. 매핑 테이블을 확인하세요.", "error"); return;
+    showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
-  // 🌟 기존 DB 재고 및 유통기한 안전 덧셈(+) 병합
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
     const existingStock = existingItem ? (existingItem.stockBreakdown[regionVal] || 0) : 0;
@@ -560,7 +583,6 @@ async function processExcelData(jsonData, filename) {
         if (p.includes(':')) {
           let parts = p.split(':');
           let q = parseInt(parts[1]);
-          // NaN 방어 통과 시 병합
           if (parts[0] && !Number.isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
         } else if (p.trim() !== "") {
           mergedBatches[p.trim()] = 99999;
@@ -568,7 +590,6 @@ async function processExcelData(jsonData, filename) {
       });
     }
 
-    // 새 데이터 덧셈
     for (let d in inboundMap[hqCode].batches) {
       mergedBatches[d] = (mergedBatches[d] || 0) + inboundMap[hqCode].batches[d];
     }
@@ -594,19 +615,12 @@ async function processExcelData(jsonData, filename) {
     if (result.success) {
       showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
-      
-      // 🌟 [다중접속 UI 자동갱신] 동기화 성공 후 마스터 화면 최신화
-      setTimeout(() => { 
-        isSubmitting = false; 
-        fetchCatalogForInbound(); 
-        location.reload(); 
-      }, 1500); 
+      setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); 
     } else throw new Error(result.message);
   } catch (err) {
     isSubmitting = false;
     showToast(err.message, "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
-    // 타 지사가 먼저 선점하여 에러 발생 시 UI 자동 새로고침 
     if(err.message.includes("트래픽") || err.message.includes("동기화")) {
       setTimeout(() => { fetchCatalogForInbound(); }, 2000);
     }
@@ -632,6 +646,6 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSalesYearSelector();
   setupDragAndDrop();
   
-  // 🌟 시스템 구동 시 벤더 매핑 DB와 재고 카탈로그를 동시에 안정적으로 로드
+  // 🌟 시스템 구동 시 벤더 매핑 DB와 재고 카탈로그를 동시에 로드 및 KPI 생성
   fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
 });
