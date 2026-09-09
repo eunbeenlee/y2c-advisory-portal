@@ -17,7 +17,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear(); window.location.href = "index.html"; 
 });
 
-// 🌟 권한별 UI 렌더링 (DOM 에러 방지 처리)
 if (userRole === "VENDOR") {
   const navDash = document.getElementById('navDashboard');
   const navRec = document.getElementById('navRecipes');
@@ -64,12 +63,12 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// 🌟 [통신 모듈 V12.0] Timeout 절단기 및 난수화 지연(Jittered Backoff) 적용
+// 🌟 [다중접속 방어막] 백오프 재시도
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 이상 무응답 시 강제 차단
+    const timeoutId = setTimeout(() => controller.abort(), 25000); 
 
     try {
       const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -82,7 +81,7 @@ async function executeApi(action, payload = {}, retries = 3) {
       
       try {
         const jsonResult = JSON.parse(rawText);
-        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과"))) {
+        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("지연"))) {
           throw new Error(jsonResult.message);
         }
         return jsonResult;
@@ -93,26 +92,22 @@ async function executeApi(action, payload = {}, retries = 3) {
       clearTimeout(timeoutId);
       lastError = err;
       if (i < retries) {
-        // 백오프 + 난수화(Jitter)로 락 충돌 방지: 1초, 2.5초, 5.5초 + 알파
         const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
         console.warn(`[통신 지연 우회] ${waitTime}ms 대기 후 재시도... (${i+1}/${retries})`);
         await new Promise(res => setTimeout(res, waitTime));
       }
     }
   }
-  console.error("Fetch API Final Error:", lastError);
-  throw new Error("서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침하여 다시 시도해주세요.");
+  throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 시도해주세요.");
 }
 
 async function fetchMappings() {
   if (userRole !== "MASTER" && userRole !== "VENDOR") return;
   try {
     const result = await executeApi("get_procurement_data");
-    // 매핑 실패 시 빈 배열 보장 (find 에러 차단)
     cachedMappings = (result && result.success && result.mappings) ? result.mappings : [];
   } catch (error) { 
     cachedMappings = [];
-    console.error("Mapping Load Error (Ignored):", error); 
   }
 }
 
@@ -202,7 +197,7 @@ function renderTableItems() {
     const imgTag = item.image && item.image.trim() !== '' ? `<img src="${item.image}" alt="${item.code}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors">` : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
     
     let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown[masterViewRegion] || 0)) : item.regionalStock;
-    if (isNaN(displayStock)) displayStock = 0;
+    if (Number.isNaN(displayStock)) displayStock = 0;
 
     totalValue += (Number(item.price) * displayStock);
     if (displayStock > 0 && displayStock <= 10) lowStockCount++;
@@ -280,6 +275,7 @@ function calculateOrderTotal() {
   if(document.getElementById('orderGrandTotal')) document.getElementById('orderGrandTotal').innerText = formatCurrency(subtotal + taxAmt);
 }
 
+// 스마트 디프 로직 (다중 접속자 자동 갱신 포함)
 async function toggleStockEditMode() {
   if (isSubmitting) return; 
   const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
@@ -311,8 +307,11 @@ async function toggleStockEditMode() {
       const result = await executeApi("update_stock", { stockUpdates: updates });
       if (result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
       else throw new Error(result.message);
-    } catch (err) { showToast(err.message, "error"); } 
-    finally {
+    } catch (err) { 
+      showToast(err.message, "error"); 
+      // 🌟 누군가 먼저 재고를 수정하여 에러가 발생했다면, 즉시 화면 자동 갱신
+      if(err.message.includes("재고") || err.message.includes("부족")) { setTimeout(() => fetchItems(), 1500); }
+    } finally {
       isStockEditMode = false; isSubmitting = false;
       if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
@@ -328,6 +327,7 @@ function attachImageHoverEffect() {
   tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
 }
 
+// 🌟 [다중 접속자 방어] 실시간 재고 갱신 알림
 async function submitOrder() {
   if(userRole === "VENDOR" || isSubmitting) return;
   const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
@@ -347,8 +347,16 @@ async function submitOrder() {
     const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems });
     if (result.success) { showToast(`발주 완료 (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
     else throw new Error(result.message);
-  } catch (error) { showToast(error.message, "error"); } 
-  finally { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }
+  } catch (error) { 
+    showToast(error.message, "error"); 
+    // 🌟 다른 사용자가 먼저 구매하여 실패했을 경우 즉시 최신 재고로 화면 리프레시
+    if(error.message.includes("재고") || error.message.includes("변동")) {
+      setTimeout(() => fetchItems(), 1500);
+    }
+  } finally { 
+    isSubmitting = false; 
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } 
+  }
 }
 
 async function handleExcelUpload(event) {
@@ -366,7 +374,6 @@ async function handleExcelUpload(event) {
   if (validExcelExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
     
-    // 라이브러리 가드
     if (typeof XLSX === 'undefined') {
       isSubmitting = false; return showToast("엑셀 분석 엔진(XLSX)을 로드 중입니다. 새로고침 후 다시 시도해주세요.", "error");
     }
@@ -413,7 +420,6 @@ async function handleExcelUpload(event) {
   }
 }
 
-// 🌟 [교차검증 8] OCR 박스 규격 필터링 확장 (KG, G, L, ML 등)
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -424,7 +430,6 @@ function processOCRText(text, filename) {
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
 
-    // 🌟 규격 텍스트(예: 1KG*10, 500ML*24)를 삭제하여 수량 오인 완벽 방어
     let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGgLlMmCc]+\*\d+\b/g, ''); 
     const nums = cleanLine.match(/\b\d+\b/g); 
     let qty = 0;
@@ -446,7 +451,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [통합 핵심 엔진] 투명 공백 2차 방어, 매핑 DB 연동, 안전 재고 덧셈
+// 🌟 [통합 핵심 엔진] 투명 공백 방어, 매핑 DB 연동, 안전 재고 덧셈
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector').value;
   if (!targetRegion) {
@@ -466,7 +471,6 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 [교차검증 4, 5] 엑셀 보이지 않는 공백 완벽 차단 및 빈 셀 예외 처리
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
       let valStr = String(row[k] || "").trim();
@@ -480,7 +484,6 @@ async function processExcelData(jsonData, filename) {
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
-    // 🌟 [교차검증 7, 9] 고스트 데이터(길이 짧음) 및 NaN 방어
     if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
       
@@ -507,7 +510,6 @@ async function processExcelData(jsonData, filename) {
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
-  // 기존 재고 유지 및 덧셈(+) 병합
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     const existingItem = cachedItems.find(i => i.code === hqCode);
     const existingStock = existingItem ? (existingItem.stockBreakdown[targetRegion] || 0) : 0;
@@ -519,7 +521,6 @@ async function processExcelData(jsonData, filename) {
         if (p.includes(':')) {
           let parts = p.split(':');
           let q = parseInt(parts[1]);
-          // NaN 방어 통과 시 병합
           if (parts[0] && !Number.isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
         } else if (p.trim() !== "") {
           mergedBatches[p.trim()] = 99999;
@@ -577,7 +578,6 @@ window.applyRegionFilter = applyRegionFilter; window.applyAiSuggestion = applyAi
 
 document.addEventListener('DOMContentLoaded', () => {
   setupDragAndDrop();
-  // 🌟 시스템 구동 시 벤더 매핑 DB 로드 후 안전하게 카탈로그 세팅
   if (userRole === "MASTER" || userRole === "VENDOR") {
     fetchMappings().then(() => fetchItems());
   } else { fetchItems(); }
