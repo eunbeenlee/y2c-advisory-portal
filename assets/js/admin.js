@@ -4,7 +4,6 @@ const userRole = (localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) || "").t
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
-// 🌟 [방화벽] 마스터 권한이 아니면 즉시 강제 추방
 if (!sessionToken || userRole !== "MASTER") { 
   window.location.href = "index.html"; 
 }
@@ -63,7 +62,6 @@ let cachedItems = [];
 let cachedMappings = []; 
 let isSubmitting = false; 
 
-// 🌟 [다중접속 교차검증 방어막] V12.0 타임아웃 절단기 및 지능형 백오프 재시도 모듈
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
@@ -93,17 +91,15 @@ async function executeApi(action, payload = {}, retries = 3) {
       lastError = err;
       if (i < retries) {
         const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
-        console.warn(`[통신 지연 우회] ${waitTime}ms 대기 후 ${action} 재시도... (${i+1}/${retries})`);
         await new Promise(res => setTimeout(res, waitTime));
       }
     }
   }
-  console.error("Fetch API Final Error:", lastError);
   throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침하여 다시 시도해주세요.");
 }
 
 // ========================================================
-// [1] 마스터 DB (가맹점 프로필) 관리 로직
+// [1] 마스터 DB 관리
 // ========================================================
 async function fetchMasterData() {
   const tableBody = document.getElementById('masterTableBody');
@@ -303,22 +299,28 @@ async function saveSalesGridData() {
 }
 
 // ========================================================
-// [3] 본사 조달 관제(HQ Orders) 및 B2B 지표(KPI) 생성
+// [3] 본사 조달 관제(HQ Orders) 및 스캔 알림(Health Scan)
 // ========================================================
 
-// 🌟 [본사 전용] B2B 사용량 및 누적 금액 시각화 로직
+// 🌟 본사 대시보드 및 시스템 스캔 버튼 주입
 function renderOrderMetrics(metrics) {
   if(!metrics) return;
   const table = document.getElementById('hqOrdersGridBody')?.closest('table');
   if(!table || !table.parentNode) return;
 
-  // 중복 생성 방지
   let kpiContainer = document.getElementById('y2cOrderMetrics');
   if (!kpiContainer) {
     kpiContainer = document.createElement('div');
     kpiContainer.id = 'y2cOrderMetrics';
     kpiContainer.className = 'grid grid-cols-2 gap-4 sm:gap-6 mb-8';
     table.parentNode.insertBefore(kpiContainer, table);
+    
+    // 🌟 V12.8 시스템 헬스 스캔(재고/유통기한 경고) 버튼 동적 생성
+    const scanBtn = document.createElement('button');
+    scanBtn.innerHTML = '🛡️ SYSTEM HEALTH SCAN';
+    scanBtn.className = "w-full col-span-2 bg-[#1e293b] hover:bg-black text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 tracking-[0.2em]";
+    scanBtn.onclick = runSystemAlertScan;
+    table.parentNode.insertBefore(scanBtn, kpiContainer);
   }
   
   kpiContainer.innerHTML = `
@@ -340,6 +342,81 @@ function renderOrderMetrics(metrics) {
   `;
 }
 
+// 🌟 [V12.8 신규] 시스템 헬스 스캔 및 결과창 표출 로직
+async function runSystemAlertScan(event) {
+  const btn = event.target;
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<span class="animate-pulse">⏳ SCANNING INVENTORY...</span>`;
+  
+  try {
+    const result = await executeApi("check_system_alerts");
+    if (result.success) {
+      showToast("스캔 완료. 대표님 메일로 리포트가 발송되었습니다.", "success");
+      displayAlertModal(result.alerts);
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (err) {
+    showToast("스캔 실패: " + err.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+}
+
+// 🌟 스캔 결과를 화면에 예쁘게 띄워주는 모달창 (Modal)
+function displayAlertModal(alerts) {
+  let modal = document.getElementById('alertModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'alertModal';
+    modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300';
+    document.body.appendChild(modal);
+  }
+  
+  let html = `<div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl transform transition-transform scale-95 duration-300" id="alertModalContent">`;
+  html += `<div class="bg-[#1e293b] p-6 text-white flex justify-between items-center"><h2 class="text-xl font-black tracking-widest">🛡️ SYSTEM HEALTH REPORT</h2><button onclick="closeAlertModal()" class="text-gray-400 hover:text-white font-bold text-xl">&times;</button></div>`;
+  html += `<div class="p-6 max-h-[70vh] overflow-y-auto">`;
+  
+  if (alerts.lowStock.length === 0 && alerts.expiring.length === 0) {
+    html += `<div class="text-center py-10"><span class="text-4xl">✅</span><p class="mt-4 font-bold text-gray-500">모든 허브의 재고 및 유통기한이 안정적입니다.</p></div>`;
+  } else {
+    if (alerts.lowStock.length > 0) {
+      html += `<h3 class="font-black text-[#E84C60] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3>`;
+      html += `<div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
+      alerts.lowStock.forEach(item => {
+        html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${item.region}] ${item.name}</span><span class="font-black text-[#E84C60] bg-white px-2 py-1 rounded shadow-sm">${item.stock}</span></li>`;
+      });
+      html += `</ul></div>`;
+    }
+    if (alerts.expiring.length > 0) {
+      html += `<h3 class="font-black text-amber-600 mb-3 flex items-center gap-2"><span>⏳</span> Expiration Alert (${alerts.expiring.length})</h3>`;
+      html += `<div class="bg-amber-50 border border-amber-100 rounded-xl p-4"><ul class="space-y-2">`;
+      alerts.expiring.forEach(item => {
+        let textCol = item.daysLeft < 0 ? "text-[#E84C60]" : "text-amber-600";
+        let badge = item.daysLeft < 0 ? "기한 초과" : `D-${item.daysLeft}`;
+        html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2"><span class="font-bold text-gray-800">[${item.region}] ${item.name}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${item.date} (${badge})</span><span class="font-bold text-gray-500">Qty: ${item.qty}</span></div></li>`;
+      });
+      html += `</ul></div>`;
+    }
+  }
+  
+  html += `</div><div class="p-4 bg-gray-50 border-t border-gray-100 text-center"><button onclick="closeAlertModal()" class="bg-[#E84C60] text-white px-8 py-2.5 rounded-xl font-black shadow-md hover:bg-black transition-colors uppercase tracking-widest text-[11px]">Close Report</button></div></div>`;
+  
+  modal.innerHTML = html;
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+  setTimeout(() => document.getElementById('alertModalContent').classList.remove('scale-95'), 50);
+}
+
+window.closeAlertModal = function() {
+  const modal = document.getElementById('alertModal');
+  if (modal) {
+    document.getElementById('alertModalContent').classList.add('scale-95');
+    modal.classList.add('opacity-0', 'pointer-events-none');
+  }
+}
+
 async function fetchMappings() {
   try {
     const result = await executeApi("get_procurement_data");
@@ -347,14 +424,12 @@ async function fetchMappings() {
       cachedMappings = result.mappings || [];
       cachedHqOrders = result.hqOrders || [];
       renderHqOrders();
-      // 🌟 [추가됨] 본사 사용량 지표 렌더링
       if(result.orderMetrics) renderOrderMetrics(result.orderMetrics);
     } else {
       cachedMappings = [];
     }
   } catch (err) { 
     cachedMappings = [];
-    console.error("Mapping DB Load Error (Ignored):", err); 
   }
 }
 
@@ -418,7 +493,7 @@ async function saveHqOrder() {
 }
 
 // ========================================================
-// [4] V12.6 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
+// [4] V12.8 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -646,6 +721,5 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSalesYearSelector();
   setupDragAndDrop();
   
-  // 🌟 시스템 구동 시 벤더 매핑 DB와 재고 카탈로그를 동시에 로드 및 KPI 생성
   fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
 });
