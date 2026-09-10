@@ -4,6 +4,7 @@ const userRole = (localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) || "").t
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
+// 🌟 [방화벽 1] 마스터 권한 무결성 검증
 if (!sessionToken || userRole !== "MASTER") { 
   window.location.href = "index.html"; 
 }
@@ -26,13 +27,14 @@ const formatDate = (isoStr) => {
   return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: '2-digit' });
 };
 
+// 🌟 [UI] 상태 알림 토스트 메시지
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) {
     container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
   }
   const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#C23347]';
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]';
   const icon = type === 'success' ? '✅' : '⚠️';
   toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
   toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
@@ -62,11 +64,14 @@ let cachedItems = [];
 let cachedMappings = []; 
 let isSubmitting = false; 
 
+// ============================================================================
+// 🌟 [방화벽 2] V13.0 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 엔진
+// ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); 
+    const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
     try {
       const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -79,27 +84,31 @@ async function executeApi(action, payload = {}, retries = 3) {
       
       try {
         const jsonResult = JSON.parse(rawText);
-        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과"))) {
+        // 서버의 트래픽/병목 메시지 감지 시 즉시 예외로 던져 재시도 루프 탑승
+        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
           throw new Error(jsonResult.message);
         }
         return jsonResult;
       } catch (parseErr) {
-        throw new Error("서버 응답 병목 현상. 재시도를 준비합니다.");
+        throw new Error("서버 응답 지연 현상. 재시도를 준비합니다.");
       }
     } catch (err) {
       clearTimeout(timeoutId);
       lastError = err;
       if (i < retries) {
+        // 난수(Jitter)가 포함된 점진적 대기로 다중 접속 교착 상태 완벽 회피
         const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
+        console.warn(`[통신 지연 우회] ${waitTime}ms 대기 후 ${action} 재시도... (${i+1}/${retries})`);
         await new Promise(res => setTimeout(res, waitTime));
       }
     }
   }
-  throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침하여 다시 시도해주세요.");
+  console.error("Fetch API Final Error:", lastError);
+  throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
 }
 
 // ========================================================
-// [1] 마스터 DB 관리
+// [1] 마스터 DB (가맹점 프로필) 관리 로직
 // ========================================================
 async function fetchMasterData() {
   const tableBody = document.getElementById('masterTableBody');
@@ -109,7 +118,6 @@ async function fetchMasterData() {
 
   try {
     const result = await executeApi("get_master_data");
-
     if (result.success) {
       tableBody.innerHTML = '';
       cachedClients = result.clients || [];
@@ -128,7 +136,7 @@ async function fetchMasterData() {
           <td class="px-3 py-4"><input type="text" id="attn_${c.rowIdx}" value="${c.attn || ''}" class="${inputClass}" placeholder="Manager Name"></td>
           <td class="px-3 py-4"><input type="text" id="email_${c.rowIdx}" value="${c.email || ''}" class="${inputClass}" placeholder="Email"></td>
           <td class="px-3 py-4"><input type="text" id="biz_${c.rowIdx}" value="${c.bizId || ''}" class="${inputClass} font-mono" placeholder="Business ID"></td>
-          <td class="px-5 py-4 text-center bg-[#E84C60]/5 border-l border-[#E84C60]/10"><button id="saveBtn_${c.rowIdx}" onclick="saveClientData(${c.rowIdx})" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
+          <td class="px-5 py-4 text-center bg-gray-50 border-l border-gray-100"><button id="saveBtn_${c.rowIdx}" onclick="saveClientData(${c.rowIdx})" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
         `;
         tableBody.appendChild(tr);
       });
@@ -138,7 +146,7 @@ async function fetchMasterData() {
       throw new Error(result.message || "알 수 없는 오류가 발생했습니다."); 
     }
   } catch (err) { 
-    tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">마스터 데이터를 불러오지 못했습니다. 새로고침 해주세요.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide">마스터 데이터를 불러오지 못했습니다. 새로고침 해주세요.</td></tr>`;
   }
 }
 
@@ -154,7 +162,7 @@ async function saveClientData(rowIdx) {
 
   const stateVal = document.getElementById(`state_${rowIdx}`).value.toUpperCase().trim();
   if (stateVal.length > 2) {
-    showToast("State(주) 코드는 2자리 영문(예: ON, BC)으로 입력해 주세요.", "error");
+    showToast("State(주) 코드는 2자리 영문으로 입력해 주세요.", "error");
     isSubmitting = false; 
     if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
     return;
@@ -170,11 +178,8 @@ async function saveClientData(rowIdx) {
     const result = await executeApi("update_master_data", { client: payload });
     if (result.success) {
       if(saveBtn) { saveBtn.innerText = "✅ SAVED"; saveBtn.classList.remove('animate-pulse'); saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
-      showToast("마스터 데이터가 저장되었습니다.", "success"); setTimeout(() => fetchMasterData(), 1500); 
-    } else { 
-      showToast("저장 실패: " + result.message, "error"); 
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); } 
-    }
+      showToast("마스터 데이터 저장 완료", "success"); setTimeout(() => fetchMasterData(), 1500); 
+    } else { throw new Error(result.message); }
   } catch (err) { 
     showToast(err.message, "error"); 
     if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
@@ -210,12 +215,12 @@ function populateSalesClientSelector() {
 async function loadSalesGrid() {
   const targetYear = document.getElementById('salesYearSelector').value, targetClient = document.getElementById('salesClientSelector').value, tbody = document.getElementById('salesGridBody');
   if (!targetYear || !targetClient || !tbody) return;
-  tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><span class="animate-pulse">🔄 ${targetYear}년 ${targetClient} 매출 동기화 중...</span></td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
 
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
     if (result.success) renderSalesGrid(result.records); else throw new Error(result.message);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E84C60] font-black py-8">Failed to load sales data.</td></tr>`; }
+  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8">데이터 로드 실패</td></tr>`; }
 }
 
 function renderSalesGrid(records) {
@@ -243,6 +248,7 @@ function renderSalesGrid(records) {
 function recalcSalesRow(month) {
   const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
   let p = parseFloat(posInput?.value), d = parseFloat(delInput?.value);
+  // [방어 3] 악성 음수 차단 및 부동소수점 예외 처리
   if (Number.isNaN(p) || p < 0) { p = 0; if (posInput && posInput.value !== "") posInput.value = ""; }
   if (Number.isNaN(d) || d < 0) { d = 0; if (delInput && delInput.value !== "") delInput.value = ""; }
   const totalDisplay = document.getElementById(`rowTotal_${month}`);
@@ -259,13 +265,9 @@ function recalculateKpis() {
     const del = parseFloat(delNode?.value) || 0;
     totPos += Math.max(0, pos); totDel += Math.max(0, del); totAnnual += Math.max(0, pos + del);
   }
-  const kpiTotal = document.getElementById('salesKpiTotal');
-  const kpiPos = document.getElementById('salesKpiPos');
-  const kpiDel = document.getElementById('salesKpiDelivery');
-  
-  if (kpiTotal) kpiTotal.innerText = formatCurrency(totAnnual);
-  if (kpiPos) kpiPos.innerText = formatCurrency(totPos);
-  if (kpiDel) kpiDel.innerText = formatCurrency(totDel);
+  if (document.getElementById('salesKpiTotal')) document.getElementById('salesKpiTotal').innerText = formatCurrency(totAnnual);
+  if (document.getElementById('salesKpiPos')) document.getElementById('salesKpiPos').innerText = formatCurrency(totPos);
+  if (document.getElementById('salesKpiDelivery')) document.getElementById('salesKpiDelivery').innerText = formatCurrency(totDel);
 }
 
 async function saveSalesGridData() {
@@ -284,7 +286,7 @@ async function saveSalesGridData() {
   let originalHtml = "SAVE DATA";
   if (btn) {
     originalHtml = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING BATCH...</span>`;
+    btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING...</span>`;
   }
   
   try {
@@ -302,7 +304,6 @@ async function saveSalesGridData() {
 // [3] 본사 조달 관제(HQ Orders) 및 스캔 알림(Health Scan)
 // ========================================================
 
-// 🌟 본사 대시보드 및 시스템 스캔 버튼 주입
 function renderOrderMetrics(metrics) {
   if(!metrics) return;
   const table = document.getElementById('hqOrdersGridBody')?.closest('table');
@@ -315,7 +316,7 @@ function renderOrderMetrics(metrics) {
     kpiContainer.className = 'grid grid-cols-2 gap-4 sm:gap-6 mb-8';
     table.parentNode.insertBefore(kpiContainer, table);
     
-    // 🌟 V12.8 시스템 헬스 스캔(재고/유통기한 경고) 버튼 동적 생성
+    // 시스템 헬스 스캔 버튼 주입
     const scanBtn = document.createElement('button');
     scanBtn.innerHTML = '🛡️ SYSTEM HEALTH SCAN';
     scanBtn.className = "w-full col-span-2 bg-[#1e293b] hover:bg-black text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 tracking-[0.2em]";
@@ -331,7 +332,7 @@ function renderOrderMetrics(metrics) {
       </div>
       <h3 class="text-2xl sm:text-3xl font-black text-gray-800 font-mono tracking-tighter">${metrics.totalQty.toLocaleString()} <span class="text-xs text-gray-400 font-bold ml-1">Units</span></h3>
     </div>
-    <div class="bg-gradient-to-br from-[#E84C60] to-[#9A0007] border border-[#E84C60]/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+    <div class="bg-gradient-to-br from-[#E3000F] to-[#9A0007] border border-[#E3000F]/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
       <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700"></div>
       <div class="flex items-center gap-3 mb-2 relative z-10">
         <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-lg">💳</div>
@@ -342,7 +343,7 @@ function renderOrderMetrics(metrics) {
   `;
 }
 
-// 🌟 [V12.8 신규] 시스템 헬스 스캔 및 결과창 표출 로직
+// 🌟 모달창 팝업 함수
 async function runSystemAlertScan(event) {
   const btn = event.target;
   const originalText = btn.innerHTML;
@@ -365,7 +366,6 @@ async function runSystemAlertScan(event) {
   }
 }
 
-// 🌟 스캔 결과를 화면에 예쁘게 띄워주는 모달창 (Modal)
 function displayAlertModal(alerts) {
   let modal = document.getElementById('alertModal');
   if (!modal) {
@@ -383,10 +383,10 @@ function displayAlertModal(alerts) {
     html += `<div class="text-center py-10"><span class="text-4xl">✅</span><p class="mt-4 font-bold text-gray-500">모든 허브의 재고 및 유통기한이 안정적입니다.</p></div>`;
   } else {
     if (alerts.lowStock.length > 0) {
-      html += `<h3 class="font-black text-[#E84C60] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3>`;
+      html += `<h3 class="font-black text-[#E3000F] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3>`;
       html += `<div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
       alerts.lowStock.forEach(item => {
-        html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${item.region}] ${item.name}</span><span class="font-black text-[#E84C60] bg-white px-2 py-1 rounded shadow-sm">${item.stock}</span></li>`;
+        html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${item.region}] ${item.name}</span><span class="font-black text-[#E3000F] bg-white px-2 py-1 rounded shadow-sm">${item.stock}</span></li>`;
       });
       html += `</ul></div>`;
     }
@@ -394,7 +394,7 @@ function displayAlertModal(alerts) {
       html += `<h3 class="font-black text-amber-600 mb-3 flex items-center gap-2"><span>⏳</span> Expiration Alert (${alerts.expiring.length})</h3>`;
       html += `<div class="bg-amber-50 border border-amber-100 rounded-xl p-4"><ul class="space-y-2">`;
       alerts.expiring.forEach(item => {
-        let textCol = item.daysLeft < 0 ? "text-[#E84C60]" : "text-amber-600";
+        let textCol = item.daysLeft < 0 ? "text-[#E3000F]" : "text-amber-600";
         let badge = item.daysLeft < 0 ? "기한 초과" : `D-${item.daysLeft}`;
         html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2"><span class="font-bold text-gray-800">[${item.region}] ${item.name}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${item.date} (${badge})</span><span class="font-bold text-gray-500">Qty: ${item.qty}</span></div></li>`;
       });
@@ -402,7 +402,7 @@ function displayAlertModal(alerts) {
     }
   }
   
-  html += `</div><div class="p-4 bg-gray-50 border-t border-gray-100 text-center"><button onclick="closeAlertModal()" class="bg-[#E84C60] text-white px-8 py-2.5 rounded-xl font-black shadow-md hover:bg-black transition-colors uppercase tracking-widest text-[11px]">Close Report</button></div></div>`;
+  html += `</div><div class="p-4 bg-gray-50 border-t border-gray-100 text-center"><button onclick="closeAlertModal()" class="bg-[#E3000F] text-white px-8 py-2.5 rounded-xl font-black shadow-md hover:bg-black transition-colors uppercase tracking-widest text-[11px]">Close Report</button></div></div>`;
   
   modal.innerHTML = html;
   modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -457,7 +457,7 @@ function renderHqOrders() {
     tr.innerHTML = `
       <td class="px-5 py-4 font-mono text-[11px] font-black text-gray-500">${o.id}</td>
       <td class="px-5 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
-      <td class="px-5 py-4 text-[12px] font-black text-[#E84C60]">${o.vendor}</td>
+      <td class="px-5 py-4 text-[12px] font-black text-[#E3000F]">${o.vendor}</td>
       <td class="px-5 py-4 text-[11px] font-bold text-gray-600">${o.region}</td>
       <td class="px-5 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate" title="${o.items}">${o.items}</td>
       <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${o.eta}</td>
@@ -493,7 +493,7 @@ async function saveHqOrder() {
 }
 
 // ========================================================
-// [4] V12.8 통합 엑셀/OCR 및 철통 방어 매핑 엔진 (마스터 전용)
+// [4] V13.0 통합 엑셀/OCR 및 철통 방어 매핑 엔진 
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -556,6 +556,7 @@ async function handleExcelUpload(event) {
   }
 }
 
+// 🌟 [방어 8] 유령 셀 및 단위 규격 철통 방어
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -576,7 +577,7 @@ function processOCRText(text, filename) {
         if(!Number.isNaN(n) && n < 10000 && String(n) !== itemCode) { qty = n; break; }
       }
     }
-    if(itemCode && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
+    if(itemCode && itemCode.length >= 3 && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
   });
 
   if (jsonData.length === 0) {
@@ -608,13 +609,14 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
+    // 🌟 투명 공백 찌꺼기 및 유니코드 완전 분쇄
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
       let valStr = String(row[k] || "").trim();
 
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
       if (!vItemCode && cleanK === 'barcode') vItemCode = valStr;
-      if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = parseInt(valStr) || 0;
+      if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = Math.max(0, parseInt(valStr) || 0);
       if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
     });
 
@@ -721,5 +723,6 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSalesYearSelector();
   setupDragAndDrop();
   
+  // 🌟 V13.1 마스터 라우팅 복구 연결 (무결점 로드)
   fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
 });
