@@ -64,12 +64,14 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// 🌟 [다중접속 교차검증 방어막] 타임아웃 절단기 및 지능형 백오프 재시도 모듈
+// ============================================================================
+// 🌟 [다중접속 교차검증 방어막] V13.1 타임아웃 절단기 및 지능형 백오프 모듈
+// ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); 
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 응답 무한 대기 방어
 
     try {
       const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -82,12 +84,12 @@ async function executeApi(action, payload = {}, retries = 3) {
       
       try {
         const jsonResult = JSON.parse(rawText);
-        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과"))) {
+        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
           throw new Error(jsonResult.message);
         }
         return jsonResult;
       } catch (parseErr) {
-        throw new Error("서버 응답 병목 현상. 재시도를 준비합니다.");
+        throw new Error("서버 응답 지연 현상. 재시도를 준비합니다.");
       }
     } catch (err) {
       clearTimeout(timeoutId);
@@ -99,7 +101,7 @@ async function executeApi(action, payload = {}, retries = 3) {
       }
     }
   }
-  throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 시도해주세요.");
+  throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침 후 시도해주세요.");
 }
 
 async function fetchMappings() {
@@ -266,7 +268,8 @@ function calculateOrderTotal() {
   if(userRole === "VENDOR") return; 
   const qtyInputs = document.querySelectorAll('.order-qty'); let subtotal = 0;
   qtyInputs.forEach(input => {
-    const qty = parseInt(input.value) || 0, maxQty = parseInt(input.getAttribute('max')) || 999;
+    // 음수 차단 로직 적용
+    const qty = Math.max(0, parseInt(input.value) || 0), maxQty = parseInt(input.getAttribute('max')) || 999;
     if (qty > maxQty) { input.value = maxQty; showToast("재고 수량을 초과할 수 없습니다.", "error"); return; }
     if (qty > 0) { const idx = input.getAttribute('data-index'); if (cachedItems[idx]) subtotal += (qty * Number(cachedItems[idx].price)); }
   });
@@ -287,7 +290,7 @@ async function toggleStockEditMode() {
     const stockInputs = document.querySelectorAll('.stock-region-input'), expInputs = document.querySelectorAll('.exp-region-input');
     const updateMap = {}; let hasChanges = false;
     stockInputs.forEach(input => {
-      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region'), v = parseInt(input.value) || 0, original = parseInt(input.getAttribute('data-original')) || 0;
+      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region'), v = Math.max(0, parseInt(input.value) || 0), original = parseInt(input.getAttribute('data-original')) || 0;
       if (v !== original) { if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} }; updateMap[c].stockBreakdown[r] = v; hasChanges = true; }
     });
     expInputs.forEach(input => {
@@ -331,13 +334,13 @@ async function submitOrder() {
   if(userRole === "VENDOR" || isSubmitting) return;
   const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
   qtyInputs.forEach(input => {
-    const qty = parseInt(input.value) || 0;
+    const qty = Math.max(0, parseInt(input.value) || 0); // 음수 차단
     if (qty > 0) { const idx = input.getAttribute('data-index'); if (cachedItems[idx]) orderItems.push({ code: cachedItems[idx].code, name: cachedItems[idx].name, price: cachedItems[idx].price, qty: qty }); }
   });
   if (orderItems.length === 0) return showToast("발주 수량을 최소 1개 이상 입력해 주세요.", "error");
   const grandTotal = document.getElementById('orderGrandTotal').innerText;
   
-  if (!confirm(`총 ${orderItems.length}개 품목 (총액: ${grandTotal})\n\n발주를 진행하면 B2B 물류업체로 발주 이메일이 전송됩니다. 계속하시겠습니까?`)) return;
+  if (!confirm(`총 ${orderItems.length}개 품목 (총액: ${grandTotal})\n\n발주를 진행하면 B2B 물류업체로 발주 이메일이 자동 전송됩니다. 계속하시겠습니까?`)) return;
 
   isSubmitting = true;
   const submitBtn = document.querySelector('button[onclick="submitOrder()"]'), originalHTML = submitBtn ? submitBtn.innerHTML : "SUBMIT ORDER";
@@ -351,8 +354,8 @@ async function submitOrder() {
     } else throw new Error(result.message);
   } catch (error) { 
     showToast(error.message, "error"); 
-    // 다중접속 재고 소진 시 즉각 화면 최신화 (Auto-Sync)
-    if(error.message.includes("재고") || error.message.includes("변동") || error.message.includes("부족")) {
+    // 🌟 다중접속으로 인한 재고 소진 시 즉각 화면 최신화 (Auto-Sync)
+    if(error.message.includes("재고") || error.message.includes("변동") || error.message.includes("취소")) {
       setTimeout(() => fetchItems(), 1500);
     }
   } finally { 
@@ -363,7 +366,7 @@ async function submitOrder() {
 
 async function handleExcelUpload(event) {
   event.preventDefault();
-  if (isSubmitting) return showToast("현재 처리 중입니다. 잠시 기다려주세요.", "error");
+  if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시 기다려주세요.", "error");
 
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
   if (!file) return;
@@ -389,7 +392,7 @@ async function handleExcelUpload(event) {
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         
-        if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다.");
+        if (jsonData.length === 0) throw new Error("엑셀 파일에 처리할 데이터가 없습니다.");
         processExcelData(jsonData, file.name);
       } catch(err) {
         isSubmitting = false;
@@ -422,6 +425,7 @@ async function handleExcelUpload(event) {
   }
 }
 
+// 🌟 OCR 규격(KG, G, ML 등) 필터링
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -442,7 +446,8 @@ function processOCRText(text, filename) {
         if(!Number.isNaN(n) && n < 10000 && String(n) !== itemCode) { qty = n; break; }
       }
     }
-    if(itemCode && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
+    // 유령 텍스트 차단 (최소 3글자 이상 코드만 인정)
+    if(itemCode && itemCode.length >= 3 && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
   });
 
   if (jsonData.length === 0) {
@@ -474,19 +479,21 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
+    // 투명 공백 찌꺼기 완벽 분쇄
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
       let valStr = String(row[k] || "").trim();
 
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
       if (!vItemCode && cleanK === 'barcode') vItemCode = valStr;
-      if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = parseInt(valStr) || 0;
+      if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = Math.max(0, parseInt(valStr) || 0);
       if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
     });
 
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
+    // 고스트 셀 방어
     if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
       
