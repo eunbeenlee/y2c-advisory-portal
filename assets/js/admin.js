@@ -4,7 +4,7 @@ const userRole = (localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) || "").t
 const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
-// 🌟 [방화벽 1] 마스터 권한 무결성 검증
+// 🌟 [방화벽 1] 마스터 권한 무결성 검증 (불법 접근 원천 차단)
 if (!sessionToken || userRole !== "MASTER") { 
   window.location.href = "index.html"; 
 }
@@ -27,7 +27,7 @@ const formatDate = (isoStr) => {
   return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: '2-digit' });
 };
 
-// 🌟 [UI] 상태 알림 토스트 메시지
+// 🌟 상태 알림 토스트 (UI 피드백)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) {
@@ -65,7 +65,7 @@ let cachedMappings = [];
 let isSubmitting = false; 
 
 // ============================================================================
-// 🌟 [방화벽 2] V13.0 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 엔진
+// 🌟 [방화벽 2] V14.0 세션 만료 강제 추방(Global Interceptor) & 지능형 백오프 엔진
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
@@ -84,9 +84,17 @@ async function executeApi(action, payload = {}, retries = 3) {
       
       try {
         const jsonResult = JSON.parse(rawText);
-        // 서버의 트래픽/병목 메시지 감지 시 즉시 예외로 던져 재시도 루프 탑승
-        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
-          throw new Error(jsonResult.message);
+        if (!jsonResult.success) {
+          // 🚨 [핵심 보안] 세션 만료 즉각 감지 및 강제 로그아웃
+          if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
+            localStorage.clear();
+            alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
+            window.location.href = "index.html";
+            return;
+          }
+          if (jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
+            throw new Error(jsonResult.message);
+          }
         }
         return jsonResult;
       } catch (parseErr) {
@@ -96,14 +104,11 @@ async function executeApi(action, payload = {}, retries = 3) {
       clearTimeout(timeoutId);
       lastError = err;
       if (i < retries) {
-        // 난수(Jitter)가 포함된 점진적 대기로 다중 접속 교착 상태 완벽 회피
         const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
-        console.warn(`[통신 지연 우회] ${waitTime}ms 대기 후 ${action} 재시도... (${i+1}/${retries})`);
         await new Promise(res => setTimeout(res, waitTime));
       }
     }
   }
-  console.error("Fetch API Final Error:", lastError);
   throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
 }
 
@@ -118,7 +123,7 @@ async function fetchMasterData() {
 
   try {
     const result = await executeApi("get_master_data");
-    if (result.success) {
+    if (result && result.success) {
       tableBody.innerHTML = '';
       cachedClients = result.clients || [];
       if (cachedClients.length === 0) return tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 가맹점 정보가 없습니다.</td></tr>`;
@@ -141,9 +146,8 @@ async function fetchMasterData() {
         tableBody.appendChild(tr);
       });
       populateSalesClientSelector(); 
-    } else { 
-      if (result.message && (result.message.includes("만료") || result.message.includes("로그인"))) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
-      throw new Error(result.message || "알 수 없는 오류가 발생했습니다."); 
+    } else if (result) {
+      throw new Error(result.message);
     }
   } catch (err) { 
     tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide">마스터 데이터를 불러오지 못했습니다. 새로고침 해주세요.</td></tr>`;
@@ -176,10 +180,10 @@ async function saveClientData(rowIdx) {
 
   try {
     const result = await executeApi("update_master_data", { client: payload });
-    if (result.success) {
+    if (result && result.success) {
       if(saveBtn) { saveBtn.innerText = "✅ SAVED"; saveBtn.classList.remove('animate-pulse'); saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
       showToast("마스터 데이터 저장 완료", "success"); setTimeout(() => fetchMasterData(), 1500); 
-    } else { throw new Error(result.message); }
+    } else if (result) { throw new Error(result.message); }
   } catch (err) { 
     showToast(err.message, "error"); 
     if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); }
@@ -219,7 +223,7 @@ async function loadSalesGrid() {
 
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
-    if (result.success) renderSalesGrid(result.records); else throw new Error(result.message);
+    if (result && result.success) renderSalesGrid(result.records); else if (result) throw new Error(result.message);
   } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8">데이터 로드 실패</td></tr>`; }
 }
 
@@ -248,7 +252,6 @@ function renderSalesGrid(records) {
 function recalcSalesRow(month) {
   const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
   let p = parseFloat(posInput?.value), d = parseFloat(delInput?.value);
-  // [방어 3] 악성 음수 차단 및 부동소수점 예외 처리
   if (Number.isNaN(p) || p < 0) { p = 0; if (posInput && posInput.value !== "") posInput.value = ""; }
   if (Number.isNaN(d) || d < 0) { d = 0; if (delInput && delInput.value !== "") delInput.value = ""; }
   const totalDisplay = document.getElementById(`rowTotal_${month}`);
@@ -291,8 +294,8 @@ async function saveSalesGridData() {
   
   try {
     const result = await executeApi("save_sales_records", { year: targetYear, clientName: targetClient, records: recordsToSave });
-    if (result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
-    else throw new Error(result.message);
+    if (result && result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
+    else if (result) throw new Error(result.message);
   } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } 
   finally { 
     if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
@@ -316,7 +319,7 @@ function renderOrderMetrics(metrics) {
     kpiContainer.className = 'grid grid-cols-2 gap-4 sm:gap-6 mb-8';
     table.parentNode.insertBefore(kpiContainer, table);
     
-    // 시스템 헬스 스캔 버튼 주입
+    // 시스템 헬스 스캔 버튼 렌더링
     const scanBtn = document.createElement('button');
     scanBtn.innerHTML = '🛡️ SYSTEM HEALTH SCAN';
     scanBtn.className = "w-full col-span-2 bg-[#1e293b] hover:bg-black text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 tracking-[0.2em]";
@@ -343,7 +346,6 @@ function renderOrderMetrics(metrics) {
   `;
 }
 
-// 🌟 모달창 팝업 함수
 async function runSystemAlertScan(event) {
   const btn = event.target;
   const originalText = btn.innerHTML;
@@ -352,10 +354,10 @@ async function runSystemAlertScan(event) {
   
   try {
     const result = await executeApi("check_system_alerts");
-    if (result.success) {
+    if (result && result.success) {
       showToast("스캔 완료. 대표님 메일로 리포트가 발송되었습니다.", "success");
       displayAlertModal(result.alerts);
-    } else {
+    } else if (result) {
       throw new Error(result.message);
     }
   } catch (err) {
@@ -436,7 +438,7 @@ async function fetchMappings() {
 async function fetchCatalogForInbound() {
   try {
     const result = await executeApi("get_items", { clientState: "DEFAULT" });
-    if (result.success) cachedItems = result.items || [];
+    if (result && result.success) cachedItems = result.items || [];
   } catch (e) { console.error("Catalog load failed", e); }
 }
 
@@ -483,8 +485,8 @@ async function saveHqOrder() {
   const payload = { id: "NEW", date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
   try {
     const result = await executeApi("upsert_hq_order", { order: payload });
-    if (result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchMappings(); } 
-    else throw new Error(result.message);
+    if (result && result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchMappings(); } 
+    else if (result) throw new Error(result.message);
   } catch (err) { showToast("등록 실패: " + err.message, "error"); } 
   finally { 
     if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
@@ -493,7 +495,7 @@ async function saveHqOrder() {
 }
 
 // ========================================================
-// [4] V13.0 통합 엑셀/OCR 및 철통 방어 매핑 엔진 
+// [4] V14.0 통합 엑셀/OCR 및 원자성(Atomic) 엔진
 // ========================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -556,7 +558,6 @@ async function handleExcelUpload(event) {
   }
 }
 
-// 🌟 [방어 8] 유령 셀 및 단위 규격 철통 방어
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -588,6 +589,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
+// 🌟 [핵심 보호 로직] V14.0 원자성(Atomic) 'ADD' 모드 연동
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector');
   if (!targetRegion || !targetRegion.value) {
@@ -604,12 +606,10 @@ async function processExcelData(jsonData, filename) {
 
   let inboundMap = {};
   let successCount = 0;
-  let failCount = 0;
 
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 🌟 투명 공백 찌꺼기 및 유니코드 완전 분쇄
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
       let valStr = String(row[k] || "").trim();
@@ -623,9 +623,9 @@ async function processExcelData(jsonData, filename) {
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
+    // 유령 셀(Ghost Cell) 완벽 필터링
     if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
-      
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
         hqCode = mapObj.hqCode;
@@ -639,7 +639,7 @@ async function processExcelData(jsonData, filename) {
         inboundMap[hqCode].totalQty += vQty;
         if (vExp) { inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty; }
         successCount++;
-      } else { failCount++; }
+      }
     }
   });
 
@@ -649,51 +649,32 @@ async function processExcelData(jsonData, filename) {
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
+  // 🌟 클라이언트가 계산을 다 해버리는 대신, 백엔드에 "변동량(ADD)"만 보냄!
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
-    const existingItem = cachedItems.find(i => i.code === hqCode);
-    const existingStock = existingItem ? (existingItem.stockBreakdown[regionVal] || 0) : 0;
-    const existingExpStr = existingItem ? (existingItem.expBreakdown[regionVal] || "") : "";
-
-    let mergedBatches = {};
-    if (existingExpStr && existingExpStr !== "-") {
-      existingExpStr.split('|').forEach(p => {
-        if (p.includes(':')) {
-          let parts = p.split(':');
-          let q = parseInt(parts[1]);
-          if (parts[0] && !Number.isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
-        } else if (p.trim() !== "") {
-          mergedBatches[p.trim()] = 99999;
-        }
-      });
-    }
-
-    for (let d in inboundMap[hqCode].batches) {
-      mergedBatches[d] = (mergedBatches[d] || 0) + inboundMap[hqCode].batches[d];
-    }
-
-    let sortedDates = Object.keys(mergedBatches).sort();
     let newExpArr = [];
+    let sortedDates = Object.keys(inboundMap[hqCode].batches).sort();
     sortedDates.forEach(d => {
-      let q = mergedBatches[d];
-      if (!Number.isNaN(q) && q > 0 && q !== 99999) newExpArr.push(`${d}:${q}`);
-      else if (q === 99999) newExpArr.push(d);
+      newExpArr.push(`${d}:${inboundMap[hqCode].batches[d]}`);
     });
+    const addedExpStr = newExpArr.join(' | ');
 
-    const finalExpStr = newExpArr.join(' | ');
-    const finalStock = existingStock + inboundMap[hqCode].totalQty;
-
-    return { code: hqCode, stockBreakdown: { [regionVal]: finalStock }, expBreakdown: { [regionVal]: finalExpStr } };
+    return { 
+      code: hqCode, 
+      stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, // 더할 수량
+      expBreakdown: { [regionVal]: addedExpStr } // 더할 유통기한
+    };
   });
 
-  document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows...</span>`;
+  document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
   try {
-    const result = await executeApi("update_stock", { stockUpdates: finalStockUpdates });
-    if (result.success) {
+    // 🌟 mode: "ADD" 명시 -> 백엔드가 기존 값을 덮어쓰지 않고 더하기만 수행하여 데이터 소실을 막음
+    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates });
+    if (result && result.success) {
       showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
       setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); 
-    } else throw new Error(result.message);
+    } else if (result) throw new Error(result.message);
   } catch (err) {
     isSubmitting = false;
     showToast(err.message, "error");
@@ -723,6 +704,5 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSalesYearSelector();
   setupDragAndDrop();
   
-  // 🌟 V13.1 마스터 라우팅 복구 연결 (무결점 로드)
   fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
 });
