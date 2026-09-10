@@ -17,7 +17,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear(); window.location.href = "index.html"; 
 });
 
-// 🌟 [방화벽] 권한별 접근 차단
 if (userRole === "VENDOR") {
   const navDash = document.getElementById('navDashboard');
   const navRec = document.getElementById('navRecipes');
@@ -64,14 +63,25 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// ============================================================================
-// 🌟 [다중접속 교차검증 방어막] V13.1 타임아웃 절단기 및 지능형 백오프 모듈
-// ============================================================================
+// 🌟 [캐나다 CRA 세법 엔진] 식품류 면세 판별 함수
+function isZeroRatedItem(item) {
+  if (!item) return false;
+  // 명시적 세금 플래그 지원
+  if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
+  if (item.taxable === true || item.taxType === 'TAXABLE') return false;
+
+  // 카테고리 기반 자동 감지 (식품, 냉동, 떡, 소스, 파우더, 식자재류는 0% 면세)
+  const zeroRatedCategories = ['FOOD', 'FROZEN', 'SAUCE', 'POWDER', 'GRAIN', 'RICE', 'INGREDIENTS', 'GROCERY', 'DISH'];
+  const cat = String(item.category || '').toUpperCase().trim();
+  return zeroRatedCategories.some(z => cat.includes(z));
+}
+
+// 🌟 V13.3 타임아웃 절단기 및 지능형 백오프 모듈
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 응답 무한 대기 방어
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
 
     try {
       const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -126,8 +136,6 @@ async function fetchItems() {
       currentClientState = result.appliedState || "DEFAULT";
       taxRateObj = SYSTEM_CONFIG.TAX_RATES[currentClientState.toUpperCase()] || SYSTEM_CONFIG.TAX_RATES["DEFAULT"];
       
-      const taxLabel = document.getElementById('orderTaxLabel');
-      if (taxLabel) taxLabel.innerText = `Estimated Tax - ${taxRateObj.name}:`;
       const headerTitle = document.getElementById('catalogHeaderTitle');
       if (headerTitle) headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E3000F]/10 text-[#E3000F] px-3 py-1.5 rounded-lg border border-[#E3000F]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
       
@@ -209,6 +217,12 @@ function renderTableItems() {
     let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E3000F]/10 px-2 py-0.5 rounded shadow-sm border border-[#E3000F]/20 low-stock-pulse" : (isLowStock ? "text-[#E3000F] font-extrabold" : "text-gray-800");
     let aiBadgeHTML = (userRole === "PARTNER" && item.aiSuggestedQty > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${item.aiSuggestedQty}</span></div>` : '';
 
+    // 🌟 면세/과세 배지 표시 (사용자가 세금 여부를 직관적으로 인지)
+    const isZeroRated = isZeroRatedItem(item);
+    const taxTag = isZeroRated 
+      ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-100 text-emerald-700 border border-emerald-200" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
+      : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-100 text-blue-700 border border-blue-200" title="Standard Taxable Goods">TAXABLE</span>`;
+
     let expDisplayHTML = '', expDateVal = "";
     if (isMasterOrVendor && masterViewRegion !== "ALL") expDateVal = item.expBreakdown && item.expBreakdown[masterViewRegion] ? item.expBreakdown[masterViewRegion] : "";
     else if (!isMasterOrVendor) expDateVal = item.expBreakdown && item.expBreakdown[currentClientState] ? item.expBreakdown[currentClientState] : "";
@@ -242,7 +256,7 @@ function renderTableItems() {
     }
 
     const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-800 font-black text-right font-mono">${formatCurrency(item.price || 0)}</td>`;
-    row.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${item.code || '-'}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-gray-800 font-extrabold tracking-tight whitespace-normal break-keep">${item.name || '-'}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm">${item.category || 'General'}</span></td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td>`;
+    row.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${item.code || '-'}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-gray-800 font-extrabold tracking-tight whitespace-normal break-keep">${item.name || '-'}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm">${item.category || 'General'}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td>`;
     tableBody.appendChild(row);
   });
 
@@ -264,19 +278,60 @@ function applyAiSuggestion() {
   else { showToast("적용할 추천 데이터가 없습니다.", "error"); }
 }
 
+// ============================================================================
+// 🌟 [핵심 개선] 품목별 과세/면세 분리 정밀 세금 연산 엔진
+// ============================================================================
+let currentOrderTaxSummary = { subtotal: 0, foodSubtotal: 0, taxableSubtotal: 0, taxAmount: 0, grandTotal: 0 };
+
 function calculateOrderTotal() {
   if(userRole === "VENDOR") return; 
-  const qtyInputs = document.querySelectorAll('.order-qty'); let subtotal = 0;
+  const qtyInputs = document.querySelectorAll('.order-qty'); 
+  let subtotal = 0;
+  let foodSubtotal = 0;      // 0% 면세 품목 (떡, 소스, 냉동식품 등)
+  let taxableSubtotal = 0;   // 과세 품목 (용기, 유니폼 등 소모품)
+
   qtyInputs.forEach(input => {
-    // 음수 차단 로직 적용
-    const qty = Math.max(0, parseInt(input.value) || 0), maxQty = parseInt(input.getAttribute('max')) || 999;
+    const qty = Math.max(0, parseInt(input.value) || 0);
+    const maxQty = parseInt(input.getAttribute('max')) || 999;
     if (qty > maxQty) { input.value = maxQty; showToast("재고 수량을 초과할 수 없습니다.", "error"); return; }
-    if (qty > 0) { const idx = input.getAttribute('data-index'); if (cachedItems[idx]) subtotal += (qty * Number(cachedItems[idx].price)); }
+    
+    if (qty > 0) { 
+      const idx = input.getAttribute('data-index'); 
+      if (cachedItems[idx]) {
+        const itemPrice = Number(cachedItems[idx].price) || 0;
+        const lineTotal = qty * itemPrice;
+        subtotal += lineTotal;
+        
+        if (isZeroRatedItem(cachedItems[idx])) {
+          foodSubtotal += lineTotal;
+        } else {
+          taxableSubtotal += lineTotal;
+        }
+      }
+    }
   });
-  const taxAmt = subtotal * taxRateObj.rate;
-  if(document.getElementById('orderSubtotal')) document.getElementById('orderSubtotal').innerText = formatCurrency(subtotal);
-  if(document.getElementById('orderTaxAmt')) document.getElementById('orderTaxAmt').innerText = formatCurrency(taxAmt);
-  if(document.getElementById('orderGrandTotal')) document.getElementById('orderGrandTotal').innerText = formatCurrency(subtotal + taxAmt);
+
+  const taxRate = taxRateObj.rate || 0;
+  // 🌟 세금은 오직 과세 소모품(taxableSubtotal)에만 곱해집니다!
+  const taxAmt = Number((taxableSubtotal * taxRate).toFixed(2));
+  const grandTotal = Number((subtotal + taxAmt).toFixed(2));
+
+  currentOrderTaxSummary = { subtotal, foodSubtotal, taxableSubtotal, taxAmount: taxAmt, grandTotal };
+
+  // UI 렌더링 업데이트
+  const subtotalElem = document.getElementById('orderSubtotal');
+  if (subtotalElem) subtotalElem.innerText = formatCurrency(subtotal);
+
+  const taxLabelElem = document.getElementById('orderTaxLabel');
+  if (taxLabelElem) {
+    taxLabelElem.innerHTML = `Estimated Tax - ${taxRateObj.name}:<br><span class="text-[10px] font-normal text-gray-500">(0% on Food $${foodSubtotal.toFixed(2)} / Taxable: $${taxableSubtotal.toFixed(2)})</span>`;
+  }
+
+  const taxAmtElem = document.getElementById('orderTaxAmt');
+  if (taxAmtElem) taxAmtElem.innerText = formatCurrency(taxAmt);
+
+  const grandTotalElem = document.getElementById('orderGrandTotal');
+  if (grandTotalElem) grandTotalElem.innerText = formatCurrency(grandTotal);
 }
 
 async function toggleStockEditMode() {
@@ -329,32 +384,58 @@ function attachImageHoverEffect() {
   tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
 }
 
-// 🌟 [핵심] 발주 접수 및 B2B 이메일 전송 알림 연동
+// 🌟 [핵심] 정밀 과세 분리 발주 데이터 전송
 async function submitOrder() {
   if(userRole === "VENDOR" || isSubmitting) return;
   const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
-  qtyInputs.forEach(input => {
-    const qty = Math.max(0, parseInt(input.value) || 0); // 음수 차단
-    if (qty > 0) { const idx = input.getAttribute('data-index'); if (cachedItems[idx]) orderItems.push({ code: cachedItems[idx].code, name: cachedItems[idx].name, price: cachedItems[idx].price, qty: qty }); }
-  });
-  if (orderItems.length === 0) return showToast("발주 수량을 최소 1개 이상 입력해 주세요.", "error");
-  const grandTotal = document.getElementById('orderGrandTotal').innerText;
   
-  if (!confirm(`총 ${orderItems.length}개 품목 (총액: ${grandTotal})\n\n발주를 진행하면 B2B 물류업체로 발주 이메일이 자동 전송됩니다. 계속하시겠습니까?`)) return;
+  qtyInputs.forEach(input => {
+    const qty = Math.max(0, parseInt(input.value) || 0);
+    if (qty > 0) { 
+      const idx = input.getAttribute('data-index'); 
+      if (cachedItems[idx]) {
+        orderItems.push({ 
+          code: cachedItems[idx].code, 
+          name: cachedItems[idx].name, 
+          price: cachedItems[idx].price, 
+          qty: qty,
+          category: cachedItems[idx].category,
+          isZeroRated: isZeroRatedItem(cachedItems[idx])
+        }); 
+      }
+    }
+  });
+  
+  if (orderItems.length === 0) return showToast("발주 수량을 최소 1개 이상 입력해 주세요.", "error");
+  
+  const grandTotal = document.getElementById('orderGrandTotal').innerText;
+  const confirmMsg = `[발주 내역 요약]\n` +
+    `• 식품/식자재(0% 면세): ${formatCurrency(currentOrderTaxSummary.foodSubtotal)}\n` +
+    `• 과세 비품/소모품: ${formatCurrency(currentOrderTaxSummary.taxableSubtotal)}\n` +
+    `• 적용 세금 (${taxRateObj.name}): ${formatCurrency(currentOrderTaxSummary.taxAmount)}\n` +
+    `• 최종 결제액: ${grandTotal}\n\n` +
+    `B2B 물류업체로 발주 이메일을 전송하시겠습니까?`;
+
+  if (!confirm(confirmMsg)) return;
 
   isSubmitting = true;
   const submitBtn = document.querySelector('button[onclick="submitOrder()"]'), originalHTML = submitBtn ? submitBtn.innerHTML : "SUBMIT ORDER";
   if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span>⏳</span> DISPATCHING EMAIL..."; submitBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
 
   try {
-    const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems });
+    const result = await executeApi("save_order", { 
+      clientName: clientName, 
+      clientState: currentClientState, 
+      items: orderItems,
+      taxSummary: currentOrderTaxSummary
+    });
+    
     if (result.success) { 
-      showToast(`발주 및 B2B 이메일 자동전송 완료 (번호: ${result.batchId})`, "success"); 
+      showToast(`발주 완료 및 B2B 이메일 전송 성공 (번호: ${result.batchId})`, "success"); 
       setTimeout(() => fetchItems(), 1500); 
     } else throw new Error(result.message);
   } catch (error) { 
     showToast(error.message, "error"); 
-    // 🌟 다중접속으로 인한 재고 소진 시 즉각 화면 최신화 (Auto-Sync)
     if(error.message.includes("재고") || error.message.includes("변동") || error.message.includes("취소")) {
       setTimeout(() => fetchItems(), 1500);
     }
@@ -425,7 +506,6 @@ async function handleExcelUpload(event) {
   }
 }
 
-// 🌟 OCR 규격(KG, G, ML 등) 필터링
 function processOCRText(text, filename) {
   const lines = text.split('\n');
   const jsonData = [];
@@ -446,7 +526,6 @@ function processOCRText(text, filename) {
         if(!Number.isNaN(n) && n < 10000 && String(n) !== itemCode) { qty = n; break; }
       }
     }
-    // 유령 텍스트 차단 (최소 3글자 이상 코드만 인정)
     if(itemCode && itemCode.length >= 3 && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
   });
 
@@ -479,7 +558,6 @@ async function processExcelData(jsonData, filename) {
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
-    // 투명 공백 찌꺼기 완벽 분쇄
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
       let valStr = String(row[k] || "").trim();
@@ -493,7 +571,6 @@ async function processExcelData(jsonData, filename) {
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
-    // 고스트 셀 방어
     if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
       
