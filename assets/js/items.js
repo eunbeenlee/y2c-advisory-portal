@@ -17,7 +17,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear(); window.location.href = "index.html"; 
 });
 
-// 🌟 [방화벽] VENDOR 권한 접속 시 불필요 UI 차단
+// 🌟 [방화벽] 권한별 접근 차단
 if (userRole === "VENDOR") {
   const navDash = document.getElementById('navDashboard');
   const navRec = document.getElementById('navRecipes');
@@ -64,7 +64,7 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// 🌟 [다중접속 교차검증 방어막] V12.6 타임아웃 절단기 및 지능형 백오프 재시도 모듈
+// 🌟 [다중접속 교차검증 방어막] 타임아웃 절단기 및 지능형 백오프 재시도 모듈
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
@@ -127,7 +127,7 @@ async function fetchItems() {
       const taxLabel = document.getElementById('orderTaxLabel');
       if (taxLabel) taxLabel.innerText = `Estimated Tax - ${taxRateObj.name}:`;
       const headerTitle = document.getElementById('catalogHeaderTitle');
-      if (headerTitle) headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[var(--sj-red)]/10 text-[var(--sj-red)] px-3 py-1.5 rounded-lg border border-[var(--sj-red)]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
+      if (headerTitle) headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E3000F]/10 text-[#E3000F] px-3 py-1.5 rounded-lg border border-[#E3000F]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
       
       const kpiDash = document.getElementById('kpiDashboard');
       if (kpiDash) kpiDash.classList.remove('hidden');
@@ -318,6 +318,14 @@ async function toggleStockEditMode() {
   }
 }
 
+function attachImageHoverEffect() {
+  const tableBody = document.getElementById('itemTableBody'), previewContainer = document.getElementById('imagePreviewContainer'), previewImg = document.getElementById('imagePreview');
+  if (!tableBody || !previewContainer || !previewImg) return;
+  tableBody.addEventListener('mouseover', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewImg.src = e.target.src; previewContainer.classList.remove('hidden'); setTimeout(() => { previewContainer.classList.remove('scale-95', 'opacity-0'); previewContainer.classList.add('scale-100', 'opacity-100'); }, 10); } });
+  tableBody.addEventListener('mousemove', (e) => { if (e.target.classList.contains('item-thumbnail')) { const x = Math.min(e.clientX + 20, window.innerWidth - 300); const y = Math.min(e.clientY + 20, window.innerHeight - 300); previewContainer.style.left = x + 'px'; previewContainer.style.top = y + 'px'; } });
+  tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
+}
+
 // 🌟 [핵심] 발주 접수 및 B2B 이메일 전송 알림 연동
 async function submitOrder() {
   if(userRole === "VENDOR" || isSubmitting) return;
@@ -337,12 +345,13 @@ async function submitOrder() {
 
   try {
     const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems });
-    // 🌟 성공 토스트에서 메일 전송 완료를 명확히 안내
-    if (result.success) { showToast(`발주 완료 및 B2B 이메일 전송 성공 (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
-    else throw new Error(result.message);
+    if (result.success) { 
+      showToast(`발주 및 B2B 이메일 자동전송 완료 (번호: ${result.batchId})`, "success"); 
+      setTimeout(() => fetchItems(), 1500); 
+    } else throw new Error(result.message);
   } catch (error) { 
     showToast(error.message, "error"); 
-    // 다중접속 재고 소진 시 즉각 화면 최신화
+    // 다중접속 재고 소진 시 즉각 화면 최신화 (Auto-Sync)
     if(error.message.includes("재고") || error.message.includes("변동") || error.message.includes("부족")) {
       setTimeout(() => fetchItems(), 1500);
     }
