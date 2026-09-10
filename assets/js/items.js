@@ -5,6 +5,7 @@ const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN);
 const cachedClientState = localStorage.getItem("y2c_premium_state") || "DEFAULT";
 
+// 🌟 [방화벽 1] 토큰 및 권한 무결성 검증
 if (!sessionToken || !clientName) { window.location.href = "index.html"; }
 
 const userNameDisplay = document.getElementById('userNameDisplay');
@@ -17,6 +18,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear(); window.location.href = "index.html"; 
 });
 
+// 🌟 권한별 UI 접근 통제 (RBAC)
 if (userRole === "VENDOR") {
   const navDash = document.getElementById('navDashboard');
   const navRec = document.getElementById('navRecipes');
@@ -40,6 +42,7 @@ function formatTimestamp(isoString) {
   return d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' });
 }
 
+// 🌟 상태 알림 토스트 (UI 피드백)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -66,22 +69,22 @@ let isSubmitting = false;
 // 🌟 [캐나다 CRA 세법 엔진] 식품류 면세 판별 함수
 function isZeroRatedItem(item) {
   if (!item) return false;
-  // 명시적 세금 플래그 지원
   if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
   if (item.taxable === true || item.taxType === 'TAXABLE') return false;
 
-  // 카테고리 기반 자동 감지 (식품, 냉동, 떡, 소스, 파우더, 식자재류는 0% 면세)
   const zeroRatedCategories = ['FOOD', 'FROZEN', 'SAUCE', 'POWDER', 'GRAIN', 'RICE', 'INGREDIENTS', 'GROCERY', 'DISH'];
   const cat = String(item.category || '').toUpperCase().trim();
   return zeroRatedCategories.some(z => cat.includes(z));
 }
 
-// 🌟 V13.3 타임아웃 절단기 및 지능형 백오프 모듈
+// ============================================================================
+// 🌟 [방화벽 2] V14.0 세션 만료 강제 추방(Global Interceptor) & 지능형 백오프 엔진
+// ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const timeoutId = setTimeout(() => controller.abort(), 25000); 
 
     try {
       const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
@@ -94,8 +97,17 @@ async function executeApi(action, payload = {}, retries = 3) {
       
       try {
         const jsonResult = JSON.parse(rawText);
-        if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
-          throw new Error(jsonResult.message);
+        if (!jsonResult.success) {
+          // 🚨 보안 세션 만료 즉각 감지 및 강제 로그아웃 처리
+          if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
+            localStorage.clear();
+            alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
+            window.location.href = "index.html";
+            return;
+          }
+          if (jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
+            throw new Error(jsonResult.message);
+          }
         }
         return jsonResult;
       } catch (parseErr) {
@@ -131,7 +143,7 @@ async function fetchItems() {
 
   try {
     const result = await executeApi("get_items", { clientState: currentClientState });
-    if (result.success) {
+    if (result && result.success) {
       cachedItems = result.items || [];
       currentClientState = result.appliedState || "DEFAULT";
       taxRateObj = SYSTEM_CONFIG.TAX_RATES[currentClientState.toUpperCase()] || SYSTEM_CONFIG.TAX_RATES["DEFAULT"];
@@ -158,8 +170,7 @@ async function fetchItems() {
       renderTableItems(); 
       attachImageHoverEffect(); 
       if(userRole !== "VENDOR") calculateOrderTotal(); 
-    } else {
-      if (result.message.includes("만료") || result.message.includes("로그인")) { alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return; }
+    } else if (result) {
       throw new Error(result.message);
     }
   } catch (error) { document.getElementById('itemTableBody').innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide">Failed to load catalog data. Server is busy.</td></tr>`; }
@@ -217,7 +228,7 @@ function renderTableItems() {
     let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E3000F]/10 px-2 py-0.5 rounded shadow-sm border border-[#E3000F]/20 low-stock-pulse" : (isLowStock ? "text-[#E3000F] font-extrabold" : "text-gray-800");
     let aiBadgeHTML = (userRole === "PARTNER" && item.aiSuggestedQty > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${item.aiSuggestedQty}</span></div>` : '';
 
-    // 🌟 면세/과세 배지 표시 (사용자가 세금 여부를 직관적으로 인지)
+    // 🌟 면세/과세 배지 표시 (CRA 세금 규정 직관적 안내)
     const isZeroRated = isZeroRatedItem(item);
     const taxTag = isZeroRated 
       ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-100 text-emerald-700 border border-emerald-200" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
@@ -251,6 +262,7 @@ function renderTableItems() {
         orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
       } else {
         stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
+        // 마이너스 발주 원천 차단 min="0" 설정
         orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" oninput="calculateOrderTotal()" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E3000F] outline-none shadow-sm transition-all">`;
       }
     }
@@ -291,6 +303,7 @@ function calculateOrderTotal() {
   let taxableSubtotal = 0;   // 과세 품목 (용기, 유니폼 등 소모품)
 
   qtyInputs.forEach(input => {
+    // 음수 차단 
     const qty = Math.max(0, parseInt(input.value) || 0);
     const maxQty = parseInt(input.getAttribute('max')) || 999;
     if (qty > maxQty) { input.value = maxQty; showToast("재고 수량을 초과할 수 없습니다.", "error"); return; }
@@ -318,7 +331,6 @@ function calculateOrderTotal() {
 
   currentOrderTaxSummary = { subtotal, foodSubtotal, taxableSubtotal, taxAmount: taxAmt, grandTotal };
 
-  // UI 렌더링 업데이트
   const subtotalElem = document.getElementById('orderSubtotal');
   if (subtotalElem) subtotalElem.innerText = formatCurrency(subtotal);
 
@@ -363,8 +375,8 @@ async function toggleStockEditMode() {
     const updates = Object.keys(updateMap).map(c => ({ code: c, stockBreakdown: updateMap[c].stockBreakdown, expBreakdown: updateMap[c].expBreakdown }));
     try {
       const result = await executeApi("update_stock", { stockUpdates: updates });
-      if (result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
-      else throw new Error(result.message);
+      if (result && result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
+      else if (result) throw new Error(result.message);
     } catch (err) { 
       showToast(err.message, "error"); 
       if(err.message.includes("재고") || err.message.includes("부족")) { setTimeout(() => fetchItems(), 1500); }
@@ -384,13 +396,13 @@ function attachImageHoverEffect() {
   tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
 }
 
-// 🌟 [핵심] 정밀 과세 분리 발주 데이터 전송
+// 🌟 [핵심] 정밀 과세 분리 발주 데이터 전송 & 다중접속 Auto-Sync
 async function submitOrder() {
   if(userRole === "VENDOR" || isSubmitting) return;
   const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
   
   qtyInputs.forEach(input => {
-    const qty = Math.max(0, parseInt(input.value) || 0);
+    const qty = Math.max(0, parseInt(input.value) || 0); // 악성 음수 차단
     if (qty > 0) { 
       const idx = input.getAttribute('data-index'); 
       if (cachedItems[idx]) {
@@ -427,15 +439,16 @@ async function submitOrder() {
       clientName: clientName, 
       clientState: currentClientState, 
       items: orderItems,
-      taxSummary: currentOrderTaxSummary
+      taxSummary: currentOrderTaxSummary // 백엔드 검증용 패키지 전송
     });
     
-    if (result.success) { 
+    if (result && result.success) { 
       showToast(`발주 완료 및 B2B 이메일 전송 성공 (번호: ${result.batchId})`, "success"); 
       setTimeout(() => fetchItems(), 1500); 
-    } else throw new Error(result.message);
+    } else if (result) throw new Error(result.message);
   } catch (error) { 
     showToast(error.message, "error"); 
+    // 🌟 다중접속으로 인해 내가 주문하려던 재고가 사라졌을 때 화면 즉각 자동 동기화(Auto-Sync)
     if(error.message.includes("재고") || error.message.includes("변동") || error.message.includes("취소")) {
       setTimeout(() => fetchItems(), 1500);
     }
@@ -537,6 +550,7 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
+// 🌟 [핵심 보호 로직] V14.0 원자성(Atomic) 'ADD' 모드 연동
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector');
   if (!targetRegion || !targetRegion.value) {
@@ -553,17 +567,18 @@ async function processExcelData(jsonData, filename) {
 
   let inboundMap = {};
   let successCount = 0;
-  let failCount = 0;
 
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
     
+    // 투명 공백 및 유니코드 찌꺼기 완벽 정제
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
       let valStr = String(row[k] || "").trim();
 
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
       if (!vItemCode && cleanK === 'barcode') vItemCode = valStr;
+      // 음수 입력 무시
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = Math.max(0, parseInt(valStr) || 0);
       if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
     });
@@ -571,9 +586,9 @@ async function processExcelData(jsonData, filename) {
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
+    // 유령 셀(Ghost Cell) 완벽 필터링 (최소 3글자 코드 + 1개 이상 수량)
     if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
-      
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
       if (mapObj) {
         hqCode = mapObj.hqCode;
@@ -587,7 +602,7 @@ async function processExcelData(jsonData, filename) {
         inboundMap[hqCode].totalQty += vQty;
         if (vExp) { inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty; }
         successCount++;
-      } else { failCount++; }
+      }
     }
   });
 
@@ -597,51 +612,33 @@ async function processExcelData(jsonData, filename) {
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
+  // 🌟 클라이언트가 수량을 계산해서 보내는 것이 아니라, 백엔드에 "변동량(ADD)"만 보냅니다!
+  // 이를 통해 다른 직원이 동시에 발주/수정을 진행해도 데이터가 덮어씌워져 증발하지 않습니다.
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
-    const existingItem = cachedItems.find(i => i.code === hqCode);
-    const existingStock = existingItem ? (existingItem.stockBreakdown[regionVal] || 0) : 0;
-    const existingExpStr = existingItem ? (existingItem.expBreakdown[regionVal] || "") : "";
-
-    let mergedBatches = {};
-    if (existingExpStr && existingExpStr !== "-") {
-      existingExpStr.split('|').forEach(p => {
-        if (p.includes(':')) {
-          let parts = p.split(':');
-          let q = parseInt(parts[1]);
-          if (parts[0] && !Number.isNaN(q) && q > 0) mergedBatches[parts[0].trim()] = q;
-        } else if (p.trim() !== "") {
-          mergedBatches[p.trim()] = 99999;
-        }
-      });
-    }
-
-    for (let d in inboundMap[hqCode].batches) {
-      mergedBatches[d] = (mergedBatches[d] || 0) + inboundMap[hqCode].batches[d];
-    }
-
-    let sortedDates = Object.keys(mergedBatches).sort();
     let newExpArr = [];
+    let sortedDates = Object.keys(inboundMap[hqCode].batches).sort();
     sortedDates.forEach(d => {
-      let q = mergedBatches[d];
-      if (!Number.isNaN(q) && q > 0 && q !== 99999) newExpArr.push(`${d}:${q}`);
-      else if (q === 99999) newExpArr.push(d);
+      newExpArr.push(`${d}:${inboundMap[hqCode].batches[d]}`);
     });
+    const addedExpStr = newExpArr.join(' | ');
 
-    const finalExpStr = newExpArr.join(' | ');
-    const finalStock = existingStock + inboundMap[hqCode].totalQty;
-
-    return { code: hqCode, stockBreakdown: { [regionVal]: finalStock }, expBreakdown: { [regionVal]: finalExpStr } };
+    return { 
+      code: hqCode, 
+      stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, 
+      expBreakdown: { [regionVal]: addedExpStr } 
+    };
   });
 
-  document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows...</span>`;
+  document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
   try {
-    const result = await executeApi("update_stock", { stockUpdates: finalStockUpdates });
-    if (result.success) {
+    // 🌟 mode: "ADD" 명시 -> 백엔드가 기존 값을 덮어쓰지 않고 더하기만 수행하여 동시성 에러 완전 방어
+    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates });
+    if (result && result.success) {
       showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
       setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); 
-    } else throw new Error(result.message);
+    } else if (result) throw new Error(result.message);
   } catch (err) {
     isSubmitting = false;
     showToast(err.message, "error");
@@ -655,9 +652,9 @@ async function processExcelData(jsonData, filename) {
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone');
   if(!dropZone) return;
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-[#E84C60]/10', 'border-[#E84C60]'); });
-  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E84C60]/10', 'border-[#E84C60]'); });
-  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E84C60]/10', 'border-[#E84C60]'); handleExcelUpload(e); });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-[#E3000F]/10', 'border-[#E3000F]'); });
+  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E3000F]/10', 'border-[#E3000F]'); });
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E3000F]/10', 'border-[#E3000F]'); handleExcelUpload(e); });
   
   const fileInput = document.getElementById('excelFileInput');
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
