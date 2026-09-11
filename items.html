@@ -1,197 +1,212 @@
-<!-- items.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#1A1516">
-  
-  <title>Inventory & Catalog | Advisory Master System</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 🌟 [엔터프라이즈] 엑셀 파싱 및 AI Vision OCR 라이브러리 탑재 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-  
-  <style>
-    :root { 
-      --sinjeon-pink: #E84C60; 
-      --sinjeon-pink-dark: #C23347; 
-      --premium-charcoal: #1A1516; 
-      --y2c-gold: #D4AF37; 
-    }
-    .bg-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); }
-    .premium-glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
-    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f8f6f6; border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--premium-charcoal); }
-    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type="number"] { -moz-appearance: textfield; }
-    .low-stock-pulse { animation: lowStock 2s infinite; }
-    @keyframes lowStock { 0% { box-shadow: 0 0 0 0 rgba(194, 51, 71, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(194, 51, 71, 0); } 100% { box-shadow: 0 0 0 0 rgba(194, 51, 71, 0); } }
-  </style>
+    <meta charset="UTF-8">
+    <!-- 🌟 모바일 고급화 전략: iOS 자동 확대(Zoom) 완벽 차단 및 화면 고정 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SINJEON CANADA | Item Catalog</title>
+    
+    <!-- V14.2 Tailwind CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+            -webkit-font-smoothing: antialiased; 
+        }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* 🌟 숫자 입력 화살표(Spinner) 제거 및 UI 최적화 */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        /* 가로 스크롤 숨김 */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-[#F8F6F6] min-h-screen font-sans text-gray-800 selection:bg-[#E84C60] selection:text-white">
-  
-  <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
-      <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
-        <img src="Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='assets/images/Sinjeon_Logo_Pink.png'; this.onerror=function(){this.style.display='none';};" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm">
-        <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
-          <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1">Partner Portal</h1>
-          <p class="text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
+<body class="text-gray-800">
+    
+    <!-- 🌟 프리미엄 네비게이션 바 -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-5">
+                    <!-- 🌟 듀얼 로고 플레이 -->
+                    <img src="favicon.png" alt="Sinjeon Logo" class="h-10 sm:h-12 object-contain hover:scale-105 transition-transform cursor-pointer">
+                    <div class="h-8 w-px bg-gray-200"></div>
+                    <img src="y2c_holdings_logo.png" alt="Y2C Holdings" class="h-12 sm:h-14 object-contain hover:scale-105 transition-transform cursor-pointer">
+                    <div class="hidden sm:flex flex-col justify-center ml-2">
+                        <span class="font-montserrat text-lg font-black text-gray-900 leading-none tracking-tight">SINJEON CANADA</span>
+                        <span class="text-[10px] font-bold text-[#E3000F] tracking-widest uppercase mt-1">Enterprise Portal</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="hidden sm:flex items-center bg-gray-50 rounded-full px-4 py-2 border border-gray-100 shadow-inner">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+                        <span id="userNameDisplay" class="text-xs font-black tracking-wider text-gray-700 uppercase"></span>
+                        <span id="userRoleBadge" class="hidden ml-2 px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded uppercase tracking-widest"></span>
+                    </div>
+                    <button id="logoutBtn" class="text-xs font-black text-gray-500 hover:text-[#E3000F] transition-colors uppercase tracking-widest px-2 active:scale-95">LOGOUT</button>
+                </div>
+            </div>
         </div>
-      </div>
-      
-      <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto" id="navContainer">
-        <a href="dashboard.html" id="navDashboard" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
-        <a href="items.html" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
-        <a href="recipes.html" id="navRecipes" class="text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
         
-        <a href="admin.html" id="navAdmin" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Master DB</a>
-        <a href="invoice.html" id="navInvoice" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-colors duration-300 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
+        <!-- 탭 메뉴 -->
+        <div class="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 lg:px-8 overflow-x-auto hide-scrollbar">
+            <div class="max-w-[1600px] mx-auto flex gap-6 sm:gap-10">
+                <a href="dashboard.html" id="navDashboard" class="py-3 text-xs sm:text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap tracking-wide">Dashboard</a>
+                <a href="items.html" class="py-3 text-xs sm:text-sm font-black text-[#E3000F] border-b-2 border-[#E3000F] transition-colors whitespace-nowrap tracking-wide">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="py-3 text-xs sm:text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap tracking-wide">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="hidden py-3 text-xs sm:text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap tracking-wide">Master Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         
-        <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-          <div class="flex items-center space-x-3 bg-white py-1 px-3 rounded-xl border border-gray-100 shadow-sm">
-            <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">USER</span>
-            <span id="userRoleBadge" class="hidden px-2 py-0.5 bg-gray-100 text-gray-500 text-[9px] font-black rounded uppercase tracking-wider">ROLE</span>
-            <button id="logoutBtn" class="text-[10px] sm:text-[11px] bg-[var(--premium-charcoal)] text-white font-bold px-3 py-1.5 rounded-lg hover:bg-black transition-colors shadow-md cursor-pointer tracking-widest">LOGOUT</button>
-          </div>
+        <!-- 🌟 헤더 및 액션 버튼 컨트롤 -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+            <div>
+                <h1 id="catalogHeaderTitle" class="font-montserrat text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+                    <span class="animate-pulse">📦</span> Inventory & Catalog
+                </h1>
+                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide">Select items and quantities to request procurement.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- 🌟 [V14.2 신규] 발주 취소 버튼 -->
+                <button onclick="cancelOrder()" class="bg-white border border-[#E3000F] text-[#E3000F] hover:bg-[#E3000F] hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Cancel Order
+                </button>
+                <!-- AI 자동완성 버튼 -->
+                <button id="aiSuggestBtn" onclick="applyAiSuggestion()" class="hidden bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-sm flex items-center gap-2">
+                    ✨ Auto-Fill AI
+                </button>
+            </div>
         </div>
-      </div>
-    </div>
-  </nav>
 
-  <main class="max-w-7xl mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8">
-    <div id="errorBanner" class="hidden mb-6 bg-[#C23347] text-white p-5 rounded-2xl shadow-lg flex items-center justify-between">
-      <div class="flex items-center space-x-4"><span class="text-2xl">⚠️</span><div><h4 class="font-black text-sm tracking-wide">System Notice</h4><p id="errorBannerText" class="text-xs text-white/90 mt-0.5">Failed to fetch data.</p></div></div>
-      <button onclick="fetchItems()" class="text-xs bg-white text-[#C23347] font-black px-4 py-2 rounded-xl shadow-md hover:bg-gray-50 transition-all active:scale-95 tracking-wide">RETRY</button>
-    </div>
-
-    <!-- SCM KPI 대시보드 위젯 -->
-    <div id="kpiDashboard" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 hidden">
-      <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-[var(--premium-charcoal)]">
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total SKUs</p>
-        <h3 id="kpiTotalSkus" class="text-2xl font-black text-[var(--premium-charcoal)]">0</h3>
-      </div>
-      <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-[var(--y2c-gold)]">
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Inventory Value</p>
-        <h3 id="kpiTotalValue" class="text-2xl font-black text-[var(--premium-charcoal)] font-mono">$0.00</h3>
-      </div>
-      <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-[#E84C60]">
-        <p class="text-[10px] font-black text-[#E84C60] uppercase tracking-widest mb-1 flex items-center gap-1"><span class="animate-pulse">🔴</span> Low Stock Alert</p>
-        <h3 id="kpiLowStock" class="text-2xl font-black text-[#E84C60]">0 Items</h3>
-      </div>
-      <div class="premium-glass p-5 rounded-2xl border-t-[3px] border-t-emerald-500">
-        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Last Updated</p>
-        <h3 id="kpiLastUpdated" class="text-sm font-black text-[var(--premium-charcoal)] mt-1.5 break-words">-</h3>
-      </div>
-    </div>
-
-    <!-- 🌟 VENDOR 전용 엑셀/이미지 업로드 UI (AI OCR 지원) -->
-    <div id="vendorExcelUploadZone" class="hidden premium-glass p-6 sm:p-8 rounded-[2rem] border border-gray-200 shadow-sm mb-8 flex flex-col md:flex-row gap-6 items-center bg-gradient-to-br from-white to-gray-50/50">
-      <div class="w-full md:w-1/3">
-        <h3 class="text-sm font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-2 flex items-center gap-2">
-          <span class="text-xl">📤</span> AI Inbound Scanner
-        </h3>
-        <p class="text-[11px] sm:text-xs text-gray-500 font-bold mb-4 leading-relaxed">
-          Select target hub and drop excel files (.xlsx) or invoice images (.jpg) for auto-sync.
-        </p>
-        <select id="inboundRegionSelector" class="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-3 text-xs font-bold text-gray-800 focus:border-[#E84C60] outline-none transition cursor-pointer">
-          <option value="">-- Select Hub Region --</option>
-        </select>
-      </div>
-      <div class="w-full md:w-2/3">
-        <div id="dropZone" class="border-2 border-dashed border-gray-300 bg-white rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 hover:border-[#E84C60] transition-all min-h-[120px]" onclick="document.getElementById('excelFileInput').click()">
-          <span class="text-3xl mb-2">📸</span>
-          <p id="uploadStatusText" class="text-[11px] sm:text-xs font-bold text-gray-500 tracking-wide leading-relaxed">
-            Drag & Drop vendor excel/image here<br>
-            <span class="text-[10px] text-gray-400 font-medium">Supports .xlsx, .xls, .jpg, .png</span>
-          </p>
-          <input type="file" id="excelFileInput" class="hidden" accept=".xlsx, .xls, .csv, .png, .jpg, .jpeg">
+        <!-- 🌟 Master / Vendor 전용 재고 관리 컨트롤 패널 -->
+        <div id="masterInventoryControls" class="hidden mb-6 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Hub View:</span>
+                    <select id="regionFilter" onchange="applyRegionFilter()" class="bg-gray-50 border border-gray-200 text-gray-800 text-sm font-bold rounded-xl focus:ring-[#E3000F] focus:border-[#E3000F] block p-2.5 outline-none w-full sm:w-48 transition-colors"></select>
+                </div>
+                <button id="toggleStockBtn" onclick="toggleStockEditMode()" class="w-full sm:w-auto bg-gray-800 hover:bg-black text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95">
+                    ⚙️ MANAGE
+                </button>
+            </div>
         </div>
-      </div>
+
+        <!-- 🌟 Master / Vendor 전용 엑셀(Atomic ADD) 입고 패널 -->
+        <div id="vendorExcelUploadZone" class="hidden mb-8">
+            <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-3xl p-8 bg-white text-center transition-all hover:bg-gray-50 hover:border-[#E3000F]/50 flex flex-col items-center justify-center gap-4 group">
+                <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-sm">📄</div>
+                <div>
+                    <p id="uploadStatusText" class="text-sm font-black text-gray-600 tracking-wide">Drag & Drop vendor document here</p>
+                    <p class="text-xs font-bold text-gray-400 mt-1">Supports .xlsx, .csv, .jpg, .png (Auto OCR & Atomic ADD)</p>
+                </div>
+                <div class="flex items-center justify-center gap-3 mt-2 w-full max-w-sm">
+                    <select id="inboundRegionSelector" class="bg-gray-50 border border-gray-200 text-gray-800 text-xs font-bold rounded-xl focus:ring-[#E3000F] focus:border-[#E3000F] block p-2.5 outline-none w-full shadow-sm"></select>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .png, .jpg, .jpeg" class="hidden">
+                    <button onclick="document.getElementById('excelFileInput').click()" class="bg-white border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-400 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95">Browse File</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 상태 대시보드 -->
+        <div id="kpiDashboard" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total SKUs</p>
+                <p id="kpiTotalSkus" class="text-2xl font-black font-mono text-gray-800">-</p>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Inventory Value</p>
+                <p id="kpiTotalValue" class="text-2xl font-black font-mono text-gray-800">-</p>
+            </div>
+            <div class="bg-red-50 border border-red-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                <p class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Low Stock Warning</p>
+                <p id="kpiLowStock" class="text-2xl font-black font-mono text-[#E3000F]">-</p>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Last Synced</p>
+                <p id="kpiLastUpdated" class="text-xs sm:text-sm font-bold text-gray-600 mt-2">-</p>
+            </div>
+        </div>
+
+        <!-- 🌟 메인 카탈로그 테이블 영역 -->
+        <div class="bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden mb-32">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="py-4 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Item Code</th>
+                            <th class="py-4 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Product Name</th>
+                            <th class="py-4 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Category / Tax</th>
+                            <th class="py-4 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right whitespace-nowrap">Unit Price</th>
+                            <th id="stockHeaderLabel" class="py-4 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-200 bg-gray-50">Stock & EXP</th>
+                            <th class="py-4 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-200 bg-[#E3000F]/5 text-[#E3000F]">Order Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemTableBody" class="divide-y divide-gray-100">
+                        <!-- items.js 파일에 의해 동적으로 테이블 내용이 렌더링 됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 🌟 결제 및 주문 플로팅 하단 액션 바 -->
+        <div id="orderActionContainer" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] z-40 transition-transform duration-300">
+            <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
+                    
+                    <!-- 정밀 세무 분리 UI (식품 vs 공산품 분리) -->
+                    <div class="flex items-center gap-4 sm:gap-8 w-full sm:w-auto overflow-x-auto hide-scrollbar">
+                        <div class="flex flex-col shrink-0">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Subtotal</span>
+                            <span id="orderSubtotal" class="font-mono text-lg font-bold text-gray-700">$0.00</span>
+                        </div>
+                        <div class="w-px h-10 bg-gray-200 shrink-0"></div>
+                        <div class="flex flex-col shrink-0">
+                            <span id="orderTaxLabel" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Estimated Tax</span>
+                            <span id="orderTaxAmt" class="font-mono text-lg font-bold text-gray-700">$0.00</span>
+                        </div>
+                        <div class="w-px h-10 bg-gray-200 shrink-0"></div>
+                        <div class="flex flex-col shrink-0">
+                            <span class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-0.5">Total Due</span>
+                            <span id="orderGrandTotal" class="font-mono text-2xl font-black text-gray-900">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 최종 결제 제출 버튼 -->
+                    <button onclick="submitOrder()" class="w-full sm:w-auto bg-gradient-to-r from-[#E3000F] to-[#9A0007] hover:from-black hover:to-gray-900 text-white px-8 py-4 rounded-xl font-black text-[13px] uppercase tracking-[0.15em] transition-all shadow-xl hover:shadow-2xl active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Submit Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 이미지 프리뷰 확대 모달 -->
+    <div id="imagePreviewContainer" class="fixed hidden z-[9999] pointer-events-none transform transition-all duration-200 scale-95 opacity-0 bg-white p-2 rounded-2xl shadow-2xl border border-gray-200">
+        <img id="imagePreview" src="" alt="Preview" class="w-64 h-64 sm:w-80 sm:h-80 object-cover rounded-xl border border-gray-100">
     </div>
 
-    <!-- 카탈로그 헤더 & 컨트롤 -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 border-b border-gray-200/60 pb-6">
-      <div>
-        <h2 id="catalogHeaderTitle" class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3 leading-none mb-2">
-          <span class="text-2xl">📦</span> Inventory & Catalog
-        </h2>
-        <p class="text-[11px] sm:text-xs text-gray-500 font-bold tracking-wide">Real-time SCM module for logistics and procurement.</p>
-      </div>
-      
-      <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-        <button id="aiSuggestBtn" onclick="applyAiSuggestion()" class="hidden w-full sm:w-auto bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[11px] sm:text-xs tracking-widest font-black px-6 py-3 rounded-xl shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] hover:from-purple-600 hover:to-indigo-600 transition-all border border-indigo-400 cursor-pointer flex items-center justify-center gap-2">
-          ✨ AI AUTO-FILL
-        </button>
-
-        <div id="masterInventoryControls" class="hidden flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-          <select id="regionFilter" onchange="applyRegionFilter()" class="w-full sm:w-40 bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-xl shadow-sm text-xs font-black focus:outline-none focus:border-[#E84C60] transition cursor-pointer appearance-none">
-            <option value="ALL">Total Stock</option>
-          </select>
-          <button id="toggleStockBtn" onclick="toggleStockEditMode()" class="w-full sm:w-auto bg-[var(--premium-charcoal)] text-white text-[11px] sm:text-xs tracking-widest font-black px-6 py-3 rounded-xl shadow-md hover:bg-black transition-all border border-gray-700 cursor-pointer flex items-center justify-center gap-2">
-            ⚙️ MANAGE
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 데이터 테이블 -->
-    <div class="premium-glass rounded-[2rem] overflow-hidden shadow-sm mb-8 border border-gray-200/80">
-      <div class="overflow-x-auto custom-scrollbar pb-2">
-        <table class="min-w-full divide-y divide-gray-100">
-          <thead class="bg-gray-50/90 border-b-2 border-gray-200">
-            <tr>
-              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap min-w-[100px]">Item Code</th>
-              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap min-w-[280px]">Product Info</th>
-              <th scope="col" class="px-5 sm:px-6 py-5 text-left text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap">Category</th>
-              <th scope="col" class="px-5 sm:px-6 py-5 text-right text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.15em] whitespace-nowrap" id="priceHeaderLabel">Unit Price</th>
-              <th id="stockHeaderLabel" scope="col" class="px-5 sm:px-6 py-5 text-center text-[10px] sm:text-[11px] font-black text-[var(--y2c-gold)] uppercase tracking-[0.15em] whitespace-nowrap border-l border-gray-200 bg-[var(--y2c-gold)]/5 min-w-[150px]">Inventory Status</th>
-              <th scope="col" id="orderHeaderLabel" class="px-5 sm:px-6 py-5 text-center text-[10px] sm:text-[11px] font-black text-[#E84C60] uppercase tracking-[0.15em] whitespace-nowrap border-l border-gray-200 bg-[#E84C60]/5">Order Qty</th>
-            </tr>
-          </thead>
-          <tbody id="itemTableBody" class="bg-white/80 divide-y divide-gray-100/50 backdrop-blur-md">
-            <tr><td colspan="6" class="px-6 py-24 text-center text-gray-400 font-bold tracking-wide">Loading secure catalog data...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 결제(주문) 바텀 시트 (VENDOR는 JS에서 이 요소를 파괴하여 보이지 않게 함) -->
-    <div id="orderActionContainer" class="flex flex-col sm:flex-row justify-end items-end gap-5 pt-4 mb-16">
-      <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm min-w-[280px] w-full sm:w-auto text-right">
-        <div class="flex justify-between items-center text-sm font-bold text-gray-500 mb-2">
-          <span>Subtotal:</span>
-          <span id="orderSubtotal" class="font-mono text-[var(--premium-charcoal)]">$0.00</span>
-        </div>
-        <div class="flex justify-between items-center text-xs font-bold text-gray-400 mb-4 pb-4 border-b border-gray-100">
-          <span id="orderTaxLabel">Estimated Tax:</span>
-          <span id="orderTaxAmt" class="font-mono text-gray-500">$0.00</span>
-        </div>
-        <div class="flex justify-between items-end">
-          <span class="text-[10px] font-black text-[#E84C60] uppercase tracking-[0.2em]">Total Due</span>
-          <span id="orderGrandTotal" class="text-3xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">$0.00</span>
-        </div>
-      </div>
-      <button onclick="submitOrder()" class="w-full sm:w-auto bg-gradient-pink hover:shadow-[0_10px_20px_-10px_rgba(232,76,96,0.6)] text-white font-black py-5 px-12 rounded-2xl transition-all duration-300 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-3 text-sm tracking-widest border border-white/20 h-full">
-        <span>📤</span> SUBMIT ORDER
-      </button>
-    </div>
-  </main>
-
-  <div id="imagePreviewContainer" class="fixed hidden z-[9999] pointer-events-none rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-white bg-white overflow-hidden transform scale-95 opacity-0 transition-all duration-200 ease-out">
-    <img id="imagePreview" src="" class="w-64 h-64 sm:w-80 sm:h-80 object-cover">
-  </div>
-  
-  <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
-
-  <!-- 강제 캐시 무시 (?v=11.1) -->
-  <script src="assets/js/config.js?v=11.1"></script>
-  <script src="assets/js/items.js?v=11.1"></script>
+    <!-- 🌟 JS 엔진 연동 -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/items.js"></script>
 </body>
 </html>
