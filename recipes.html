@@ -11,8 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- SYSTEM CONFIG (기능 소실 원천 차단) -->
-    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
+    <!-- 🚨 에러 원인 해결: 여기에 있던 config.js 중복 호출 코드를 제거하여 충돌을 방지했습니다. -->
 
     <style>
         :root {
@@ -210,7 +209,7 @@
     <!-- UI 토스트 컨테이너 -->
     <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🌟 JS 엔진 연동 -->
+    <!-- 🌟 JS 엔진 연동 (단일 호출로 에러 해결 완벽 대응) -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/recipes.js"></script>
     <script>
