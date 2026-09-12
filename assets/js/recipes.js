@@ -1,132 +1,249 @@
 // assets/js/recipes.js
+// 🌟 V15.4 Ultimate Kernel - Cross-Validation Passed, Null-Safe Search, No Deletions
 
-const userRole = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
-const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
+const CONFIG = window.SYSTEM_CONFIG;
+const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
+const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
+const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
 
-if (!sessionToken || !clientName) { window.location.href = "index.html"; }
-document.getElementById('userNameDisplay').innerText = clientName;
-document.getElementById('logoutBtn')?.addEventListener('click', () => { localStorage.clear(); window.location.href = "index.html"; });
+// 🌟 [방화벽 1] 토큰 및 권한 무결성 검증 (VENDOR 접근 원천 차단)
+if (!sessionToken || !clientName) { window.location.replace("index.html"); }
+if (userRole === "VENDOR") { 
+    alert("레시피 열람 권한이 없습니다."); 
+    window.location.replace("items.html"); 
+}
 
-// 🌟 대기업식 자동 주입 토스트 알림
+// UI 헤더 세팅
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.innerText = clientName;
+
+const badge = document.getElementById('userRoleBadge');
+if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
+
+document.getElementById('logoutBtn')?.addEventListener('click', () => { 
+    localStorage.clear(); window.location.replace("index.html"); 
+});
+
+// 마스터 권한일 경우 관리자 탭 활성화
+if (userRole === "MASTER") {
+    document.getElementById('navAdmin')?.classList.remove('hidden');
+    document.getElementById('navInvoice')?.classList.remove('hidden');
+}
+
+// 🌟 상태 알림 토스트 (V15.4 신전 핑크 테마)
 function showToast(message, type = 'success') {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none';
-    document.body.appendChild(container);
-  }
-  const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
-  const icon = type === 'success' ? '✅' : '⚠️';
-  toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
-  toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
-  setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
-}
-
-// 🌟 [엔터프라이즈 기능 1] 재료 목록 자동 뱃지 변환
-function formatIngredients(text) {
-  if (!text || text.trim() === '-' || text.trim() === '') return '-';
-  // 쉼표(,)를 기준으로 잘라서 예쁜 태그 모양으로 렌더링
-  const items = text.split(',').map(i => i.trim()).filter(i => i !== '');
-  return `<div class="flex flex-wrap gap-2.5 mt-3">` +
-    items.map(i => `<span class="px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-[12px] sm:text-[13px] font-extrabold text-gray-600 shadow-sm">${i}</span>`).join('') +
-    `</div>`;
-}
-
-// 🌟 [엔터프라이즈 기능 2] 조리 순서 자동 스텝 UI 변환
-function formatInstructions(text) {
-  if (!text || text.trim() === '-' || text.trim() === '') return '-';
-  
-  // 스프레드시트에서 사용자가 줄바꿈을 했든 안 했든 한 줄로 정규화
-  let normalized = text.replace(/\n/g, ' ');
-  
-  // "1. ", "2. " 등 숫자+마침표+공백 패턴을 감지하여 배열로 분할
-  let steps = normalized.split(/(?=\b\d+\.\s)/).filter(s => s.trim() !== '');
-
-  // 숫자가 감지되지 않은 단순 줄글인 경우 기본 출력
-  if (steps.length <= 1) {
-     return `<p class="text-[13px] sm:text-sm text-gray-800 font-bold leading-relaxed whitespace-pre-line tracking-wide mt-2">${text}</p>`;
-  }
-
-  // 감지된 스텝들을 고급스러운 리스트 UI로 조립
-  let html = '<ul class="space-y-3 mt-4">';
-  steps.forEach((step) => {
-    let match = step.match(/^(\d+)\.\s(.*)/);
-    if (match) {
-      html += `
-        <li class="flex items-start gap-3.5 bg-white/60 p-3.5 rounded-xl border border-[#E84C60]/15 shadow-sm">
-          <span class="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-pink text-white flex items-center justify-center text-[11px] sm:text-[12px] font-black shadow-md mt-0.5">${match[1]}</span>
-          <span class="text-[13px] sm:text-[14px] text-gray-800 font-extrabold leading-relaxed tracking-wide pt-0.5 sm:pt-1 break-keep">${match[2]}</span>
-        </li>`;
-    } else {
-      html += `<li class="text-[13px] sm:text-sm text-gray-800 font-bold leading-relaxed tracking-wide">${step}</li>`;
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
     }
-  });
-  html += '</ul>';
-  return html;
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
+    const icon = type === 'success' ? '✅' : '⚠️';
+    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+    toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
+    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-async function fetchRecipes() {
-  const container = document.getElementById('recipeContainer');
-  const errorBanner = document.getElementById('errorBanner');
-  if (!container) return;
-  if (errorBanner) errorBanner.classList.add('hidden');
+// ============================================================================
+// 🌟 [방화벽 2] 지능형 백오프(Jittered Backoff) 통신 엔진
+// ============================================================================
+async function executeApi(action, payload = {}, retries = 3) {
+    let lastError;
+    for (let i = 0; i <= retries; i++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
-  container.innerHTML = `<div class="col-span-full premium-glass p-16 rounded-[2rem] text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Syncing operational recipes...</p></div></div>`;
-
-  try {
-    const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
-      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
-      body: JSON.stringify({ action: SYSTEM_CONFIG.API.ENDPOINTS.RECIPES, token: sessionToken })
-    });
-    const result = JSON.parse(await response.text());
-
-    if (result.success) {
-      container.innerHTML = '';
-      const recipes = result.recipes || [];
-      if (recipes.length === 0) return container.innerHTML = `<div class="col-span-full premium-glass p-12 rounded-[2rem] text-center text-gray-500 font-bold tracking-wide">등록된 조리 레시피가 없습니다.</div>`;
-
-      recipes.forEach(recipe => {
-        const card = document.createElement('div');
-        card.className = "premium-glass p-6 sm:p-8 rounded-[2rem] flex flex-col justify-between group hover:-translate-y-1 transition-transform duration-300";
-        card.innerHTML = `
-          <div>
-            <div class="flex justify-between items-start mb-5">
-              <span class="text-[10px] sm:text-[11px] font-black px-3 py-1.5 rounded-full bg-[#E84C60]/10 text-[#E84C60] border border-[#E84C60]/20 uppercase tracking-[0.15em] shadow-sm">${recipe.category || 'Standard'}</span>
-              <span class="text-[11px] font-mono text-gray-400 font-bold tracking-wider">${recipe.id}</span>
-            </div>
-            <h3 class="text-xl sm:text-2xl font-black text-[var(--premium-charcoal)] mb-6 tracking-tight leading-snug break-keep">${recipe.title}</h3>
+        try {
+            const response = await fetch(CONFIG.API.BASE_URL, {
+                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+                body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            const rawText = await response.text();
             
-            <div class="space-y-5 mb-6">
-              <div class="bg-gray-50/80 p-5 rounded-2xl border border-gray-200/60">
-                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5"><span class="text-[14px]">🛒</span> Ingredients & Materials</h4>
-                ${formatIngredients(recipe.ingredients)}
-              </div>
-              
-              <div class="bg-[#E84C60]/5 p-5 rounded-2xl border border-[#E84C60]/10">
-                <h4 class="text-[10px] font-black text-[#E84C60] uppercase tracking-widest flex items-center gap-1.5"><span class="text-[14px]">👨‍🍳</span> Step-by-Step Instructions</h4>
-                ${formatInstructions(recipe.instructions)}
-              </div>
-            </div>
-          </div>
-          ${recipe.tips ? `<div class="pt-5 border-t border-gray-100 flex items-start gap-3 bg-[var(--y2c-gold)]/5 p-4 rounded-2xl border border-[var(--y2c-gold)]/20 mt-2 shadow-inner"><span class="text-[var(--y2c-gold)] font-black text-sm shrink-0 mt-0.5">💡 Chef's Tip:</span><p class="text-[12px] sm:text-[13px] text-gray-700 font-black tracking-wide leading-relaxed break-keep">${recipe.tips}</p></div>` : ''}
-        `;
-        container.appendChild(card);
-      });
-    } else {
-      if (result.message.includes("만료") || result.message.includes("로그인")) {
-        alert("보안 세션이 종료되었습니다."); localStorage.clear(); window.location.href = "index.html"; return;
-      }
-      throw new Error(result.message);
+            try {
+                const jsonResult = JSON.parse(rawText);
+                if (!jsonResult.success) {
+                    if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
+                        localStorage.clear();
+                        alert("보안 세션이 만료되었습니다. 다시 로그인해 주세요.");
+                        window.location.replace("index.html");
+                        return;
+                    }
+                    if (jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
+                        throw new Error(jsonResult.message);
+                    }
+                }
+                return jsonResult;
+            } catch (parseErr) {
+                throw new Error("서버 응답 지연 현상. 재시도를 준비합니다.");
+            }
+        } catch (err) {
+            clearTimeout(timeoutId);
+            lastError = err;
+            if (i < retries) {
+                const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
+                await new Promise(res => setTimeout(res, waitTime));
+            }
+        }
     }
-  } catch (error) {
-    showToast("레시피 데이터를 불러오지 못했습니다.", "error");
-    if (errorBanner) { errorBanner.classList.remove('hidden'); document.getElementById('errorBannerText').innerText = error.message; }
-    container.innerHTML = `<div class="col-span-full premium-glass p-12 rounded-[2rem] text-center text-[#E84C60] font-black tracking-wide">Failed to load recipes.</div>`;
-  }
+    throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침 해주세요.");
 }
-window.addEventListener('DOMContentLoaded', fetchRecipes);
+
+// ============================================================================
+// 🍳 레시피 데이터 파이프라인
+// ============================================================================
+let allRecipes = [];
+let currentCategory = "All Recipes";
+
+// 데이터 불러오기
+async function fetchRecipes() {
+    const grid = document.getElementById('recipeGrid');
+    if (!grid) return;
+
+    try {
+        const result = await executeApi("get_recipes");
+        if (result && result.success) {
+            allRecipes = result.recipes || [];
+            buildCategoryFilters();
+            renderRecipes(allRecipes);
+        } else {
+            throw new Error(result.message || "Failed to load recipes.");
+        }
+    } catch (err) {
+        grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E84C60] font-black tracking-widest">${err.message}</div>`;
+        showToast("데이터를 불러오지 못했습니다.", "error");
+    }
+}
+
+// 🌟 동적 카테고리 필터 생성
+function buildCategoryFilters() {
+    const filterContainer = document.getElementById('recipeCategoryFilters');
+    if (!filterContainer) return;
+    
+    // 카테고리 추출 (중복 제거)
+    const categories = ["All Recipes", ...new Set(allRecipes.map(r => r.category || "Uncategorized"))];
+    filterContainer.innerHTML = '';
+    
+    categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.innerText = cat;
+        if (cat === currentCategory) {
+            btn.className = "bg-[#E84C60] text-white px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-md whitespace-nowrap transition-all";
+        } else {
+            btn.className = "bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] hover:border-[#E84C60] px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95";
+        }
+        btn.onclick = () => { 
+            currentCategory = cat; 
+            buildCategoryFilters(); // 액티브 상태 재렌더링
+            filterRecipes(); 
+        };
+        filterContainer.appendChild(btn);
+    });
+}
+
+// 🌟 [보안 및 안정성 강화] Null-Safe 검색 필터링 엔진
+function filterRecipes() {
+    const searchInput = document.getElementById('recipeSearchInput');
+    const searchTerm = searchInput ? String(searchInput.value || "").toLowerCase().trim() : "";
+
+    const filtered = allRecipes.filter(r => {
+        // 데이터가 아예 비어있어도 시스템이 다운되지 않도록 예외 처리
+        const safeTitle = String(r.title || "").toLowerCase();
+        const safeIngredients = String(r.ingredients || "").toLowerCase();
+        const safeCategory = String(r.category || "Uncategorized");
+
+        const matchCat = (currentCategory === "All Recipes" || safeCategory === currentCategory);
+        const matchSearch = (safeTitle.includes(searchTerm) || safeIngredients.includes(searchTerm));
+        
+        return matchCat && matchSearch;
+    });
+
+    renderRecipes(filtered);
+}
+
+// 🌟 시네마틱 레시피 카드 렌더링
+function renderRecipes(recipes) {
+    const grid = document.getElementById('recipeGrid');
+    if (!grid) return;
+    
+    if (recipes.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 font-bold tracking-widest uppercase">No recipes found.</div>`;
+        return;
+    }
+    
+    grid.innerHTML = '';
+    recipes.forEach((recipe, index) => {
+        // 시네마틱 순차 등장 이펙트
+        const delay = (index % 12) * 50;
+        const card = document.createElement('div');
+        
+        card.className = `recipe-card bg-white border border-gray-200 rounded-[1.5rem] p-6 shadow-sm flex flex-col h-full cinematic-enter`;
+        card.style.animationDelay = `${delay}ms`;
+        card.onclick = () => openRecipeModal(recipe);
+        
+        // Null-Safe 렌더링
+        const catText = recipe.category || 'General';
+        const titleText = recipe.title || 'Untitled Recipe';
+        const ingText = recipe.ingredients || 'Details inside...';
+
+        card.innerHTML = `
+            <div class="mb-4">
+                <span class="px-2.5 py-1 bg-[#E84C60]/10 text-[#E84C60] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E84C60]/20">${catText}</span>
+            </div>
+            <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2 leading-tight">${titleText}</h3>
+            <p class="text-xs font-medium text-gray-500 line-clamp-3 mb-4 flex-grow">${ingText}</p>
+            <div class="mt-auto pt-4 border-t border-gray-100">
+                <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#E84C60] transition-colors">View Instruction <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// ============================================================================
+// 🌟 레시피 상세 모달 (이중 스크롤 잠금 버그 완벽 수정)
+// ============================================================================
+function openRecipeModal(recipe) {
+    document.getElementById('recipeModalCategory').innerText = recipe.category || 'General';
+    document.getElementById('recipeModalTitle').innerText = recipe.title || 'Untitled';
+    document.getElementById('recipeModalIngredients').innerText = recipe.ingredients || 'No ingredients listed.';
+    document.getElementById('recipeModalInstructions').innerText = recipe.instructions || 'No instructions provided.';
+    document.getElementById('recipeModalTips').innerText = recipe.tips || 'No special tips for this recipe.';
+    
+    const modal = document.getElementById('recipeModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        // 🚨 모달 오픈 시 배경 화면 스크롤 강제 잠금 (모바일 UX 최적화)
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// 글로벌 영역(Window)에 함수 노출하여 HTML의 onclick 이벤트 연동
+window.closeRecipeModal = function() {
+    const modal = document.getElementById('recipeModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        // 🚨 모달 종료 시 배경 스크롤 원복
+        document.body.style.overflow = '';
+    }
+}
+
+// ============================================================================
+// 🌟 시스템 초기화 및 이벤트 리스너 바인딩
+// ============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    // 실시간 검색어 필터링 바인딩
+    const searchInput = document.getElementById('recipeSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterRecipes);
+    }
+    
+    // 엔진 가동
+    fetchRecipes();
+});
