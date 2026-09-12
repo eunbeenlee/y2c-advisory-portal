@@ -1,7 +1,7 @@
 // assets/js/items.js
-// 🌟 V15.2 Ultimate - No Deletion, Full Protection, Zero-Rated Tax Expansion
+// 🌟 V15.4 Ultimate - No Deletion, Full Protection, CRA Dynamic Tax Engine (Cross-Validation)
 
-const CONFIG = window.SYSTEM_CONFIG; // 글로벌 설정 객체 안전 바인딩
+const CONFIG = window.SYSTEM_CONFIG; 
 const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
 const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
@@ -44,14 +44,14 @@ function formatTimestamp(isoString) {
   return d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' });
 }
 
-// 🌟 상태 알림 토스트 (V15.2 신전 핑크 테마 적용)
+// 🌟 상태 알림 토스트 
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
     container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container); 
   }
   const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]'; // 에러 시 신전 핑크 사용
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
   const icon = type === 'success' ? '✅' : '⚠️';
   toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
   toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
@@ -69,21 +69,40 @@ let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
 // ============================================================================
-// 🌟 [캐나다 CRA 세법 엔진] 조미료/양념 무조건 면세(0%) 적용 방어벽 구축
+// 🚨 [V15.4 엔진] 캐나다 CRA 세법 정밀 분석 (교차 검증 및 예외 처리 완벽 대응)
 // ============================================================================
 function isZeroRatedItem(item) {
   if (!item) return false;
+
+  // 1. DB 우선순위 (Explicit Flag Override)
+  // 마스터 DB에서 수동으로 면세/과세를 확정지은 경우, 키워드 로직을 무시하고 무조건 이를 따름
   if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
   if (item.taxable === true || item.taxType === 'TAXABLE') return false;
 
-  const zeroRatedCategories = [
-    'FOOD', 'FROZEN', 'SAUCE', 'POWDER', 'GRAIN', 'RICE', 'INGREDIENTS', 
-    'GROCERY', 'DISH', 'SEASONING', 'SPICE', 'MEAT', 'NOODLE', 'OIL', 'SYRUP', 'EXTRACT',
-    '양념', '소스', '시즈닝', '떡', '면', '식품', '냉동', '원물',
-    '조미료', '향신료', '가루', '분말', '파우더', '기름', '식용유', '시럽', '농축액', '엑기스'
-  ];
+  // 병합 검색용 타겟 텍스트 준비
   const cat = String(item.category || '').toUpperCase().trim();
-  return zeroRatedCategories.some(z => cat.includes(z));
+  const name = String(item.name || '').toUpperCase().trim();
+  const combinedSearchTarget = cat + " " + name;
+
+  // 2. CRA 과세(Taxable) 예외 품목 필터링 (Negative Filter)
+  // 식품 관련 단어가 들어가 있더라도, 소모품/스낵류/가공완성품이면 과세 처리
+  const craTaxableKeywords = [
+    'SNACK', 'CHIP', 'CANDY', 'CHOCOLATE', 'GUM', 'SODA', 'POP', 'CARBONATED', 'BEVERAGE', 'DRINK', 'LIQUOR', 'BEER', 'WINE', 'HOT FOOD', 'PREPARED MEAL', 'CATERING', 'EQUIPMENT', 'SUPPLY', 'PACKAGING', 'PLASTIC', 'PAPER', 'BAG', 'CUP', 'BOWL', 'UNIFORM',
+    '스낵', '과자', '사탕', '캔디', '젤리', '초콜릿', '탄산', '음료', '주류', '맥주', '소주', '조리식품', '기기', '소모품', '포장재', '용기', '비닐', '쇼핑백', '유니폼', '장비', '비품'
+  ];
+  
+  if (craTaxableKeywords.some(t => combinedSearchTarget.includes(t))) {
+    return false; // 과세 품목으로 튕겨냄
+  }
+
+  // 3. CRA 기본 식료품(Basic Groceries) 면세 키워드 (Positive Filter)
+  // 육류, 가금류, 채소, 곡물, 소스, 향신료 등 철저한 면세 대상자
+  const craZeroRatedKeywords = [
+    'FOOD', 'FROZEN', 'SAUCE', 'POWDER', 'GRAIN', 'RICE', 'INGREDIENT', 'GROCERY', 'DISH', 'SEASONING', 'SPICE', 'MEAT', 'NOODLE', 'OIL', 'SYRUP', 'EXTRACT', 'SOUP', 'BROTH', 'BEEF', 'PORK', 'CHICKEN', 'FISH', 'SEAFOOD', 'VEGETABLE', 'FRUIT', 'FLOUR', 'SUGAR', 'SALT',
+    '양념', '소스', '시즈닝', '떡', '면', '식품', '냉동', '원물', '조미료', '향신료', '가루', '분말', '파우더', '기름', '식용유', '시럽', '농축액', '엑기스', '고기', '해산물', '야채', '채소', '과일', '쌀', '밀가루', '육수', '국물', '육류', '생선'
+  ];
+  
+  return craZeroRatedKeywords.some(z => combinedSearchTarget.includes(z));
 }
 
 // ============================================================================
@@ -107,7 +126,6 @@ async function executeApi(action, payload = {}, retries = 3) {
       try {
         const jsonResult = JSON.parse(rawText);
         if (!jsonResult.success) {
-          // 🚨 보안 세션 만료 즉각 감지 및 강제 로그아웃 처리
           if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
             localStorage.clear();
             alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
@@ -148,7 +166,6 @@ async function fetchMappings() {
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody');
   if (!tableBody) return;
-  // 로딩 스피너 핑크 테마 적용
   tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Securely loading SCM data...</p></div></td></tr>`;
 
   try {
@@ -226,7 +243,7 @@ function renderTableItems() {
 
   cachedItems.forEach((item, index) => {
     const row = document.createElement('tr'); row.className = "hover:bg-pink-50/40 transition-colors duration-200 cinematic-enter";
-    row.style.animationDelay = `${(index % 10) * 50}ms`; // 시네마틱 렌더링 리스트
+    row.style.animationDelay = `${(index % 10) * 50}ms`; 
     
     const imgTag = item.image && item.image.trim() !== '' ? `<img src="${item.image}" alt="${item.code}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors">` : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
     
@@ -240,11 +257,11 @@ function renderTableItems() {
     let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E84C60]/10 px-2 py-0.5 rounded shadow-sm border border-[#E84C60]/20 low-stock-pulse" : (isLowStock ? "text-[#E84C60] font-extrabold" : "text-gray-800");
     let aiBadgeHTML = (userRole === "PARTNER" && item.aiSuggestedQty > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${item.aiSuggestedQty}</span></div>` : '';
 
-    // 🌟 면세/과세 배지 표시 (안전망 강화)
+    // 🌟 면세/과세 배지 표시 (교차 검증된 결과를 바탕으로 렌더링)
     const isZeroRated = isZeroRatedItem(item);
     const taxTag = isZeroRated 
-      ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-100 text-emerald-700 border border-emerald-200" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
-      : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-100 text-blue-700 border border-blue-200" title="Standard Taxable Goods">TAXABLE</span>`;
+      ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
+      : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-100 text-blue-700 border border-blue-200 shadow-sm" title="Standard Taxable Goods">TAXABLE</span>`;
 
     let expDisplayHTML = '';
     
@@ -337,7 +354,6 @@ function calculateOrderTotal() {
         const lineTotal = qty * itemPrice;
         subtotal += lineTotal;
         
-        // 조미료, 양념 등 0% 면세품목 정밀 분리 계산
         if (isZeroRatedItem(cachedItems[idx])) {
           foodSubtotal += lineTotal;
         } else {
@@ -433,7 +449,7 @@ async function submitOrder() {
           price: cachedItems[idx].price, 
           qty: qty,
           category: cachedItems[idx].category,
-          isZeroRated: isZeroRatedItem(cachedItems[idx]) // 🌟 세법 분리 검증 탑재
+          isZeroRated: isZeroRatedItem(cachedItems[idx]) 
         }); 
       }
     }
@@ -657,7 +673,7 @@ async function processExcelData(jsonData, filename) {
     showToast(err.message, "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
     if(err.message.includes("트래픽") || err.message.includes("동기화")) {
-      setTimeout(() => { fetchItems(); }, 2000); // 🚨 fetchCatalogForInbound -> fetchItems 로 100% 대응 복구
+      setTimeout(() => { fetchItems(); }, 2000); 
     }
   }
 }
@@ -665,7 +681,6 @@ async function processExcelData(jsonData, filename) {
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone');
   if(!dropZone) return;
-  // 드롭존 호버 이펙트 핑크 테마 동기화
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
   dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
   dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
@@ -675,14 +690,14 @@ function setupDragAndDrop() {
 }
 
 // ============================================================================
-// 🌟 발주 취소(Cancel Order) 프론트엔드 엔진 탑재 (기능 소실 없음)
+// 🌟 발주 취소(Cancel Order) 프론트엔드 엔진 (소실 방지 100% 유지)
 // ============================================================================
 async function cancelOrder(batchId) {
     if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
 
     if (!batchId) {
         batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: ORD-123456)");
-        if (!batchId) return;
+        if (!batchId) return; 
     }
 
     const confirmMsg = `정말 주문 [${batchId.trim()}]을 취소하시겠습니까?\n\n` + 
