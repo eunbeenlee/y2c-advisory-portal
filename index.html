@@ -2,29 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- 🌟 모바일 고급화 전략: iOS 자동 확대(Zoom) 완벽 차단 및 화면 고정 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#1A1516">
     
     <title>SINJEON CANADA | Enterprise Portal</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- V15.0 통합 Tailwind CSS & Fonts -->
+    <!-- V15.2 통합 Tailwind CSS & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- SYSTEM CONFIG -->
+    <!-- SYSTEM CONFIG (기능 소실 원천 차단) -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <style>
         :root {
-            /* 🌟 신전 파비콘 기준 프리미엄 핑크 테마 통합 */
+            /* 🌟 신전 핑크 & 프리미엄 차콜 (통일 테마) */
             --sinjeon-pink: #E84C60; 
             --sinjeon-pink-dark: #C23347;
-            --sinjeon-pink-glow: rgba(232, 76, 96, 0.45);
             --premium-charcoal: #1A1516;
-            --y2c-gold: #D4AF37;
-            --glass-bg: rgba(26, 21, 22, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(26, 21, 22, 0.7); 
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
         
         body {
@@ -35,65 +34,67 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 🌟 신전 핑크 앰비언트 오로라 애니메이션 */
+        /* 🌟 애니메이션 극대화 1: 다이나믹 앰비언트 오로라 배경 */
         .ambient-bg {
             position: absolute;
             top: 0; left: 0; width: 100vw; height: 100vh;
             overflow: hidden; z-index: 0;
-            background-image: radial-gradient(circle at 50% 50%, rgba(30,25,26,1) 0%, var(--premium-charcoal) 100%);
+            background: radial-gradient(circle at 50% 50%, #2a2224 0%, var(--premium-charcoal) 100%);
         }
         .aurora-1 {
-            position: absolute; top: -20%; left: -10%; width: 60vw; height: 60vw;
-            background: radial-gradient(circle, rgba(232,76,96,0.12) 0%, rgba(0,0,0,0) 70%);
-            animation: float-aurora 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute; top: -30%; left: -20%; width: 70vw; height: 70vw;
+            background: radial-gradient(circle, rgba(232,76,96,0.15) 0%, rgba(0,0,0,0) 70%);
+            animation: float-aurora-fast 12s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
         }
         .aurora-2 {
-            position: absolute; bottom: -20%; right: -10%; width: 50vw; height: 50vw;
-            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 70%);
-            animation: float-aurora 15s infinite alternate-reverse cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute; bottom: -30%; right: -20%; width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%);
+            animation: float-aurora-fast 15s infinite alternate-reverse cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes float-aurora {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(5%, 10%) scale(1.1); }
+        @keyframes float-aurora-fast {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(10%, 15%) scale(1.2) rotate(10deg); }
         }
 
-        /* 시네마틱 등장 애니메이션 */
-        .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-100 { animation-delay: 0.15s; }
-        .delay-200 { animation-delay: 0.3s; }
-        .delay-300 { animation-delay: 0.45s; }
-        .delay-400 { animation-delay: 0.6s; }
+        /* 🌟 애니메이션 극대화 2: 시네마틱 렌더링 (순차적 페이드 업) */
+        .cinematic-enter { opacity: 0; transform: translateY(30px) scale(0.98); animation: fadeUpCinematic 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
 
-        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUpCinematic { 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
 
         /* 럭셔리 글래스 패널 */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 1), inset 0 1px 0 rgba(255,255,255,0.05);
-            position: relative;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255,255,255,0.1);
         }
         
-        /* 🌟 모바일 iOS 줌 방지 및 프리미엄 인풋 */
+        /* 모바일 iOS 줌 방지 및 프리미엄 인풋 (트랜지션 극대화) */
         .premium-input {
             background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
             color: white;
-            transition: all 0.3s ease;
             font-size: 16px !important; 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .premium-input:focus {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             border-color: var(--sinjeon-pink);
-            box-shadow: 0 0 0 3px rgba(232, 76, 96, 0.15);
+            box-shadow: 0 0 20px rgba(232, 76, 96, 0.3);
+            transform: scale(1.02);
             outline: none;
         }
-        .premium-input::placeholder { color: rgba(255, 255, 255, 0.25); font-weight: 400; letter-spacing: 0.05em; }
+        .premium-input::placeholder { color: rgba(255, 255, 255, 0.3); font-weight: 400; letter-spacing: 0.05em; }
 
-        /* 마그네틱 핑크 버튼 효과 */
+        /* 🌟 애니메이션 극대화 3: 버튼 호버 빛 반사(Shine) 및 마그네틱 부양 효과 */
         .btn-premium {
             background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%);
             border: 1px solid rgba(255,255,255,0.2);
@@ -103,32 +104,35 @@
         }
         .btn-premium::before {
             content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-            transition: all 0.6s ease;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: all 0.7s ease;
         }
         .btn-premium:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px var(--sinjeon-pink-glow);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 15px 30px rgba(232, 76, 96, 0.5);
         }
         .btn-premium:hover:not(:disabled)::before { left: 100%; }
-        .btn-premium:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 5px 15px var(--sinjeon-pink-glow); }
+        .btn-premium:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.4); }
 
-        /* 매트 텍스처 오버레이 */
-        .noise-overlay {
-            position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        /* 🌟 애니메이션 극대화 4: 로고 둥둥 효과 (Floating) */
+        .floating-logo {
+            animation: floating 4s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
         }
 
-        #capsLockWarning { transition: all 0.3s ease; opacity: 0; height: 0; overflow: hidden; transform: translateY(-5px); }
+        #capsLockWarning { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; height: 0; overflow: hidden; transform: translateY(-5px); }
         #capsLockWarning.active { opacity: 1; height: 24px; margin-top: 8px; transform: translateY(0); }
-        ::-webkit-scrollbar { display: none; }
         
-        .logo-filter { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-5 relative">
 
-    <div class="noise-overlay"></div>
+    <!-- 다이나믹 배경 -->
     <div class="ambient-bg">
         <div class="aurora-1"></div>
         <div class="aurora-2"></div>
@@ -136,36 +140,34 @@
 
     <main class="w-full max-w-[420px] z-10">
         
-        <!-- 🌟 듀얼 로고 플레이 영역 (핑크 테마) -->
+        <!-- 🌟 듀얼 로고 플레이 (플로팅 애니메이션 적용) -->
         <div class="text-center mb-10 cinematic-enter">
             <div class="flex items-center justify-center gap-6 mb-6">
-                <!-- Sinjeon Favicon (핑크 톤 맞춤) -->
-                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png'; this.style.display='none';" alt="Sinjeon Logo" class="h-16 sm:h-20 object-contain logo-filter hover:scale-105 transition-transform duration-500">
-                <div class="h-12 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent"></div>
-                <!-- Y2C Holdings Logo -->
-                <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.style.display='none';" alt="Y2C Holdings Logo" class="h-20 sm:h-24 object-contain logo-filter hover:scale-105 transition-transform duration-500 rounded-full bg-white/5 p-1 backdrop-blur-sm">
+                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png'; this.style.display='none';" alt="Sinjeon Logo" class="h-16 sm:h-20 object-contain drop-shadow-2xl floating-logo">
+                <div class="h-12 w-px bg-white/20"></div>
+                <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.style.display='none';" alt="Y2C Holdings Logo" class="h-20 sm:h-24 object-contain drop-shadow-2xl rounded-full bg-white/5 p-1 backdrop-blur-md floating-logo" style="animation-delay: 1s;">
             </div>
             
-            <div class="flex items-center justify-center gap-2 mb-1.5">
-                <span class="font-montserrat text-3xl sm:text-4xl font-black text-white tracking-tighter uppercase drop-shadow-lg">SINJEON</span>
-                <span class="font-montserrat text-3xl sm:text-4xl font-black text-[#E84C60] tracking-tight uppercase drop-shadow-lg">CANADA</span>
+            <div class="flex items-center justify-center gap-2 mb-1.5 drop-shadow-xl">
+                <span class="font-montserrat text-3xl sm:text-4xl font-black text-white tracking-tighter uppercase">SINJEON</span>
+                <span class="font-montserrat text-3xl sm:text-4xl font-black text-[#E84C60] tracking-tight uppercase">CANADA</span>
             </div>
             
-            <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase flex items-center justify-center gap-3 mt-3">
+            <div class="flex items-center justify-center gap-3 mt-4">
                 <span class="w-8 h-[1px] bg-gradient-to-r from-transparent to-gray-500"></span>
-                <span>Enterprise Portal</span>
+                <span class="text-[10px] font-bold text-gray-300 tracking-[0.3em] uppercase drop-shadow-md">Enterprise Portal</span>
                 <span class="w-8 h-[1px] bg-gradient-to-l from-transparent to-gray-500"></span>
-            </p>
+            </div>
         </div>
 
-        <!-- 로그인 폼 -->
-        <form id="loginForm" class="glass-panel rounded-[2rem] p-7 sm:p-10 cinematic-enter delay-100 relative">
+        <!-- 로그인 폼 (시네마틱 등장) -->
+        <form id="loginForm" class="glass-panel rounded-3xl p-7 sm:p-10 relative cinematic-enter delay-100">
             <div class="space-y-6">
                 
-                <div class="relative cinematic-enter delay-200">
+                <div class="cinematic-enter delay-200">
                     <label for="userId" class="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1">Partner / Vendor ID</label>
                     <div class="relative flex items-center group">
-                        <span class="absolute left-4 text-gray-400 group-focus-within:text-[#E84C60] transition-colors duration-300">
+                        <span class="absolute left-4 text-gray-400 group-focus-within:text-[#E84C60] transition-colors duration-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         </span>
                         <input type="text" id="userId" autocomplete="username" placeholder="Enter Authorized ID" 
@@ -173,49 +175,60 @@
                     </div>
                 </div>
 
-                <div class="relative cinematic-enter delay-300">
+                <div class="cinematic-enter delay-300">
                     <label for="userPw" class="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1">Passkey</label>
                     <div class="relative flex items-center group">
-                        <span class="absolute left-4 text-gray-400 group-focus-within:text-[#E84C60] transition-colors duration-300">
+                        <span class="absolute left-4 text-gray-400 group-focus-within:text-[#E84C60] transition-colors duration-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         </span>
                         <input type="password" id="userPw" autocomplete="current-password" placeholder="••••••••" 
                             class="premium-input w-full rounded-xl py-4 pl-12 pr-4 font-mono font-bold tracking-[0.25em]">
                     </div>
-                    <div id="capsLockWarning" class="flex items-center gap-1.5 text-[11px] font-bold text-[#E84C60] ml-1">
+                    
+                    <div id="capsLockWarning" class="items-center gap-1.5 text-[11px] font-bold text-[#E84C60] ml-1">
                         <svg class="w-3 h-3 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                         Caps Lock is ON
                     </div>
                 </div>
 
-                <div id="loginErrorMsg" class="text-center text-[12px] font-bold tracking-wide transition-all min-h-[20px] flex items-center justify-center break-keep"></div>
+                <div id="loginErrorMsg" class="text-center text-[12px] font-bold tracking-wide min-h-[20px] flex items-center justify-center break-keep"></div>
 
-                <button type="submit" id="loginBtn" class="btn-premium w-full text-white font-black text-[13px] tracking-[0.2em] uppercase py-4.5 rounded-xl mt-2 cinematic-enter delay-400 shadow-2xl flex items-center justify-center gap-2">
+                <button type="submit" id="loginBtn" class="btn-premium w-full text-white font-black text-[13px] tracking-[0.2em] uppercase py-4.5 rounded-xl mt-2 cinematic-enter delay-400 flex items-center justify-center gap-2">
                     Secure Login
                 </button>
             </div>
             
-            <div class="mt-8 text-center cinematic-enter delay-400 border-t border-white/10 pt-5">
-                <p class="text-[9px] font-medium text-gray-500 tracking-widest leading-relaxed uppercase">
+            <div class="mt-8 text-center border-t border-white/10 pt-5 cinematic-enter delay-400">
+                <p class="text-[9px] font-medium text-gray-500 tracking-widest leading-relaxed uppercase drop-shadow-sm">
                     Operated by Y2C Holdings Ltd.<br>
-                    System V15.0 Ultimate
+                    System V15.2 Enterprise
                 </p>
             </div>
         </form>
     </main>
 
 <script>
+/**
+ * 🌟 V15.2 Enterprise Login Core Logic
+ * - 기능 100% 보존
+ * - 흔들림(Shake), 마그네틱 호버 등 다이나믹 애니메이션 엔진 부활 적용
+ */
+
 const CONFIG = (typeof SYSTEM_CONFIG !== 'undefined') ? SYSTEM_CONFIG : {
     API: { BASE_URL: "https://script.google.com/macros/s/AKfycbzT-_ZIfaVv6hQ6L9mE-Q4L0g9a17Q2Bw34gT4wI3Q19586QpL_D7I09Z0Y090zXw/exec" }, 
     STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_ID: "y2c_id" }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 1. 보안 라우팅 (세션 스니핑 방어)
     const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
     const userRole = localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE);
     if (sessionToken && userRole) {
+        document.body.style.transition = "opacity 0.3s ease";
         document.body.style.opacity = '0';
-        window.location.replace(userRole === "MASTER" ? "admin.html" : "items.html");
+        setTimeout(() => {
+            window.location.replace(userRole === "MASTER" ? "admin.html" : "items.html");
+        }, 300);
         return;
     }
 
@@ -228,6 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let isAuthenticating = false;
 
+    // 2. 모바일 가상 키보드 가림 방어 (부드러운 스크롤)
     const inputs = [idInput, pwInput];
     inputs.forEach(input => {
         if(!input) return;
@@ -236,6 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // 3. Caps Lock 감지 (애니메이션 동반)
     if (pwInput) {
         pwInput.addEventListener('keyup', (e) => {
             if (e.getModifierState && e.getModifierState('CapsLock')) {
@@ -246,6 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // 4. Jitter Backoff 기반 백엔드 통신 로직 (100% 기능 보존)
     async function executeLogin(payload, retries = 3) {
         if (!navigator.onLine) throw new Error("네트워크 연결이 오프라인 상태입니다.");
 
@@ -278,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 lastError = err;
                 if (i < retries) {
                     const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 500); 
-                    if (errorMsg) errorMsg.innerHTML = `<span class="animate-pulse text-amber-400 font-bold">보안 연결 재시도 중... (${i+1}/3)</span>`;
+                    if (errorMsg) errorMsg.innerHTML = `<span class="animate-pulse text-amber-400 font-bold">보안 트래픽 우회 중... (${i+1}/3)</span>`;
                     await new Promise(res => setTimeout(res, waitTime));
                 }
             }
@@ -286,6 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(lastError.message || "보안 연결이 거부되었습니다. 네트워크를 확인하세요.");
     }
 
+    // 5. 폼 제출 메인 로직
     async function handleLogin(e) {
         if (e) e.preventDefault();
         if (isAuthenticating) return;
@@ -293,11 +310,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = idInput ? String(idInput.value).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '') : "";
         const pw = pwInput ? pwInput.value.trim() : "";
 
+        // 🌟 애니메이션 극대화 5: 에러 시 폼 강제 진동(Shake) 피드백 부활
         if (!id || !pw) {
             if(errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">ID와 Password를 모두 입력해주세요.</span>`;
-            loginForm.style.transform = "translateX(5px)";
-            setTimeout(() => loginForm.style.transform = "translateX(-5px)", 50);
-            setTimeout(() => loginForm.style.transform = "translateX(0)", 100);
+            loginForm.style.transition = "transform 0.1s ease-in-out";
+            loginForm.style.transform = "translateX(10px)";
+            setTimeout(() => loginForm.style.transform = "translateX(-10px)", 60);
+            setTimeout(() => loginForm.style.transform = "translateX(10px)", 120);
+            setTimeout(() => loginForm.style.transform = "translateX(0)", 180);
+            setTimeout(() => loginForm.style.transition = "", 200); // 찌꺼기 방지
             return;
         }
 
@@ -305,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const originalBtnText = loginBtn.innerHTML;
         if (loginBtn) {
             loginBtn.disabled = true;
-            loginBtn.innerHTML = `<span class="animate-pulse flex items-center justify-center gap-2"><svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> AUTHENTICATING...</span>`;
+            loginBtn.innerHTML = `<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> AUTHENTICATING...</span>`;
             loginBtn.classList.add('opacity-80', 'cursor-not-allowed');
         }
         if (errorMsg) errorMsg.innerText = "";
@@ -323,16 +344,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, id);
                 localStorage.setItem("y2c_premium_state", result.clientState || "DEFAULT");
 
-                loginForm.style.transition = "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
-                loginForm.style.transform = "scale(0.95) translateY(20px)";
+                // 🌟 애니메이션 극대화 6: 성공 시 화려한 줌 인 & 페이드아웃 효과 부활
+                loginForm.style.transition = "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
+                loginForm.style.transform = "scale(1.05) translateY(-10px)";
                 loginForm.style.opacity = "0";
                 
                 setTimeout(() => {
                     window.location.replace(result.role === "MASTER" ? "admin.html" : "items.html");
-                }, 450);
+                }, 500);
 
             } else {
                 if (errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">⚠️ ${result.message || "인증에 실패했습니다."}</span>`;
+                // 실패 시에도 진동 효과
+                loginForm.style.transition = "transform 0.1s ease-in-out";
+                loginForm.style.transform = "translateX(8px)";
+                setTimeout(() => loginForm.style.transform = "translateX(-8px)", 60);
+                setTimeout(() => loginForm.style.transform = "translateX(0)", 120);
+                setTimeout(() => loginForm.style.transition = "", 150);
             }
         } catch (err) {
             if (errorMsg) errorMsg.innerHTML = `<span class="text-[#E84C60]">${err.message}</span>`;
