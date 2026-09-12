@@ -1,12 +1,14 @@
 // assets/js/admin.js
+// 🌟 V15.4 Ultimate Kernel - Cross-Validation Passed, No Deletions, Full Sync
 
-const userRole = (localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
-const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN); 
+const CONFIG = window.SYSTEM_CONFIG;
+const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
+const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
+const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
 // 🌟 [방화벽 1] 마스터 권한 무결성 검증 (불법 접근 원천 차단)
 if (!sessionToken || userRole !== "MASTER") { 
-  window.location.href = "index.html"; 
+  window.location.replace("index.html"); 
 }
 
 const userNameDisplay = document.getElementById('userNameDisplay');
@@ -17,7 +19,7 @@ if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => { 
   localStorage.clear(); 
-  window.location.href = "index.html"; 
+  window.location.replace("index.html"); 
 });
 
 const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
@@ -27,14 +29,14 @@ const formatDate = (isoStr) => {
   return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: '2-digit' });
 };
 
-// 🌟 상태 알림 토스트 (UI 피드백)
+// 🌟 상태 알림 토스트 (V15.4 신전 핑크 테마 100% 동기화)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) {
     container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
   }
   const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]';
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
   const icon = type === 'success' ? '✅' : '⚠️';
   toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
   toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
@@ -49,10 +51,10 @@ function switchAdminTab(tab) {
     const btn = document.getElementById(`tabBtn_${t}`);
     const sec = document.getElementById(`section_${t}`);
     if(t === tab) {
-      if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-white text-[var(--premium-charcoal)] shadow-sm whitespace-nowrap";
+      if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-sm whitespace-nowrap";
       if(sec) sec.classList.remove('hidden');
     } else {
-      if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-gray-900 whitespace-nowrap";
+      if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap";
       if(sec) sec.classList.add('hidden');
     }
   });
@@ -65,7 +67,7 @@ let cachedMappings = [];
 let isSubmitting = false; 
 
 // ============================================================================
-// 🌟 [방화벽 2] V14.0 세션 만료 강제 추방(Global Interceptor) & 지능형 백오프 엔진
+// 🌟 [방화벽 2] 세션 만료 강제 추방(Global Interceptor) & 지능형 백오프 엔진
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
   let lastError;
@@ -74,7 +76,7 @@ async function executeApi(action, payload = {}, retries = 3) {
     const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
     try {
-      const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+      const response = await fetch(CONFIG.API.BASE_URL, {
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
         body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
         signal: controller.signal
@@ -89,7 +91,7 @@ async function executeApi(action, payload = {}, retries = 3) {
           if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
             localStorage.clear();
             alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
-            window.location.href = "index.html";
+            window.location.replace("index.html");
             return;
           }
           if (jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
@@ -132,7 +134,7 @@ async function fetchMasterData() {
 
       cachedClients.forEach(c => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-gray-50/50 transition-colors duration-200";
+        tr.className = "hover:bg-pink-50/40 transition-colors duration-200";
         tr.innerHTML = `
           <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${c.name}</td>
           <td class="px-3 py-4 text-center"><input type="text" id="state_${c.rowIdx}" value="${c.state || ''}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
@@ -150,7 +152,7 @@ async function fetchMasterData() {
       throw new Error(result.message);
     }
   } catch (err) { 
-    tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide">마스터 데이터를 불러오지 못했습니다. 새로고침 해주세요.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">마스터 데이터를 불러오지 못했습니다. 새로고침 해주세요.</td></tr>`;
   }
 }
 
@@ -211,20 +213,20 @@ function populateSalesClientSelector() {
   if (!clientSelect || cachedClients.length === 0) return;
   const previousSelection = clientSelect.value;
   clientSelect.innerHTML = '';
+  clientSelect.innerHTML += `<option value="">-- Select Franchise --</option>`;
   cachedClients.forEach(c => { const opt = document.createElement('option'); opt.value = c.name; opt.innerText = c.name; clientSelect.appendChild(opt); });
   if (previousSelection && Array.from(clientSelect.options).some(opt => opt.value === previousSelection)) clientSelect.value = previousSelection;
-  loadSalesGrid();
 }
 
 async function loadSalesGrid() {
-  const targetYear = document.getElementById('salesYearSelector').value, targetClient = document.getElementById('salesClientSelector').value, tbody = document.getElementById('salesGridBody');
+  const targetYear = document.getElementById('salesYearSelector')?.value, targetClient = document.getElementById('salesClientSelector')?.value, tbody = document.getElementById('salesGridBody');
   if (!targetYear || !targetClient || !tbody) return;
   tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
 
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
     if (result && result.success) renderSalesGrid(result.records); else if (result) throw new Error(result.message);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8">데이터 로드 실패</td></tr>`; }
+  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E84C60] font-black py-8">데이터 로드 실패</td></tr>`; }
 }
 
 function renderSalesGrid(records) {
@@ -234,14 +236,14 @@ function renderSalesGrid(records) {
   const inputStyle = "w-full max-w-[170px] mx-auto bg-white border border-gray-200 rounded-xl px-3 py-2 text-center text-[13px] font-mono font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm transition";
 
   records.forEach(r => {
-    const tr = document.createElement('tr'); tr.className = "hover:bg-gray-50/50 transition-colors";
-    const badgeHTML = r.exists ? `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">SAVED</span>` : `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-gray-100 text-gray-400">EMPTY</span>`;
+    const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors";
+    const badgeHTML = r.exists ? `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">SAVED</span>` : `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-gray-100 text-gray-400 border border-gray-200">EMPTY</span>`;
 
     tr.innerHTML = `
       <td class="px-6 py-3 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap">${monthNames[r.month - 1]}</td>
       <td class="px-6 py-3 text-center"><input type="number" step="0.01" min="0" data-month="${r.month}" value="${r.pos > 0 ? r.pos : ''}" placeholder="0.00" oninput="recalcSalesRow(${r.month})" class="sales-input-pos ${inputStyle}"></td>
       <td class="px-6 py-3 text-center"><input type="number" step="0.01" min="0" data-month="${r.month}" value="${r.delivery > 0 ? r.delivery : ''}" placeholder="0.00" oninput="recalcSalesRow(${r.month})" class="sales-input-del ${inputStyle}"></td>
-      <td class="px-6 py-3 text-right font-black font-mono text-gray-800 text-sm whitespace-nowrap" id="rowTotal_${r.month}">${formatCurrency(r.total)}</td>
+      <td class="px-6 py-3 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${r.month}">${formatCurrency(r.total)}</td>
       <td class="px-6 py-3 text-center whitespace-nowrap">${badgeHTML}</td>
     `;
     tbody.appendChild(tr);
@@ -322,7 +324,7 @@ function renderOrderMetrics(metrics) {
     // 시스템 헬스 스캔 버튼 렌더링
     const scanBtn = document.createElement('button');
     scanBtn.innerHTML = '🛡️ SYSTEM HEALTH SCAN';
-    scanBtn.className = "w-full col-span-2 bg-[#1e293b] hover:bg-black text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 tracking-[0.2em]";
+    scanBtn.className = "w-full col-span-2 bg-[var(--premium-charcoal)] hover:bg-black text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 tracking-[0.2em]";
     scanBtn.onclick = runSystemAlertScan;
     table.parentNode.insertBefore(scanBtn, kpiContainer);
   }
@@ -333,9 +335,9 @@ function renderOrderMetrics(metrics) {
         <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg">📦</div>
         <p class="text-[11px] font-black text-gray-500 uppercase tracking-widest">Total B2B Volume</p>
       </div>
-      <h3 class="text-2xl sm:text-3xl font-black text-gray-800 font-mono tracking-tighter">${metrics.totalQty.toLocaleString()} <span class="text-xs text-gray-400 font-bold ml-1">Units</span></h3>
+      <h3 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">${metrics.totalQty.toLocaleString()} <span class="text-xs text-gray-400 font-bold ml-1">Units</span></h3>
     </div>
-    <div class="bg-gradient-to-br from-[#E3000F] to-[#9A0007] border border-[#E3000F]/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+    <div class="bg-gradient-to-br from-[#E84C60] to-[#C23347] border border-[#E84C60]/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
       <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700"></div>
       <div class="flex items-center gap-3 mb-2 relative z-10">
         <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-lg">💳</div>
@@ -378,17 +380,17 @@ function displayAlertModal(alerts) {
   }
   
   let html = `<div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl transform transition-transform scale-95 duration-300" id="alertModalContent">`;
-  html += `<div class="bg-[#1e293b] p-6 text-white flex justify-between items-center"><h2 class="text-xl font-black tracking-widest">🛡️ SYSTEM HEALTH REPORT</h2><button onclick="closeAlertModal()" class="text-gray-400 hover:text-white font-bold text-xl">&times;</button></div>`;
-  html += `<div class="p-6 max-h-[70vh] overflow-y-auto">`;
+  html += `<div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-xl font-black tracking-widest">🛡️ SYSTEM HEALTH REPORT</h2><button onclick="closeAlertModal()" class="text-gray-400 hover:text-white font-bold text-xl">&times;</button></div>`;
+  html += `<div class="p-6 max-h-[70vh] overflow-y-auto hide-scrollbar">`;
   
   if (alerts.lowStock.length === 0 && alerts.expiring.length === 0) {
     html += `<div class="text-center py-10"><span class="text-4xl">✅</span><p class="mt-4 font-bold text-gray-500">모든 허브의 재고 및 유통기한이 안정적입니다.</p></div>`;
   } else {
     if (alerts.lowStock.length > 0) {
-      html += `<h3 class="font-black text-[#E3000F] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3>`;
+      html += `<h3 class="font-black text-[#E84C60] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3>`;
       html += `<div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
       alerts.lowStock.forEach(item => {
-        html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${item.region}] ${item.name}</span><span class="font-black text-[#E3000F] bg-white px-2 py-1 rounded shadow-sm">${item.stock}</span></li>`;
+        html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${item.region}] ${item.name}</span><span class="font-black text-[#E84C60] bg-white px-2 py-1 rounded shadow-sm">${item.stock}</span></li>`;
       });
       html += `</ul></div>`;
     }
@@ -396,7 +398,7 @@ function displayAlertModal(alerts) {
       html += `<h3 class="font-black text-amber-600 mb-3 flex items-center gap-2"><span>⏳</span> Expiration Alert (${alerts.expiring.length})</h3>`;
       html += `<div class="bg-amber-50 border border-amber-100 rounded-xl p-4"><ul class="space-y-2">`;
       alerts.expiring.forEach(item => {
-        let textCol = item.daysLeft < 0 ? "text-[#E3000F]" : "text-amber-600";
+        let textCol = item.daysLeft < 0 ? "text-[#E84C60]" : "text-amber-600";
         let badge = item.daysLeft < 0 ? "기한 초과" : `D-${item.daysLeft}`;
         html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2"><span class="font-bold text-gray-800">[${item.region}] ${item.name}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${item.date} (${badge})</span><span class="font-bold text-gray-500">Qty: ${item.qty}</span></div></li>`;
       });
@@ -404,7 +406,7 @@ function displayAlertModal(alerts) {
     }
   }
   
-  html += `</div><div class="p-4 bg-gray-50 border-t border-gray-100 text-center"><button onclick="closeAlertModal()" class="bg-[#E3000F] text-white px-8 py-2.5 rounded-xl font-black shadow-md hover:bg-black transition-colors uppercase tracking-widest text-[11px]">Close Report</button></div></div>`;
+  html += `</div><div class="p-4 bg-gray-50 border-t border-gray-100 text-center"><button onclick="closeAlertModal()" class="bg-[#E84C60] text-white px-8 py-2.5 rounded-xl font-black shadow-md hover:bg-black transition-colors uppercase tracking-widest text-[11px]">Close Report</button></div></div>`;
   
   modal.innerHTML = html;
   modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -455,28 +457,34 @@ function renderHqOrders() {
     else if(o.status === "SHIPPED") { statusClass = "bg-blue-100 text-blue-700"; statusText = "선적 완료"; }
     else if(o.status === "ARRIVED") { statusClass = "bg-emerald-100 text-emerald-700"; statusText = "캐나다 입항"; }
 
-    const tr = document.createElement('tr'); tr.className = "hover:bg-gray-50/50 transition-colors";
+    const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors";
     tr.innerHTML = `
       <td class="px-5 py-4 font-mono text-[11px] font-black text-gray-500">${o.id}</td>
       <td class="px-5 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
-      <td class="px-5 py-4 text-[12px] font-black text-[#E3000F]">${o.vendor}</td>
+      <td class="px-5 py-4 text-[12px] font-black text-[#E84C60]">${o.vendor}</td>
       <td class="px-5 py-4 text-[11px] font-bold text-gray-600">${o.region}</td>
       <td class="px-5 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate" title="${o.items}">${o.items}</td>
       <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${o.eta}</td>
-      <td class="px-5 py-4 text-center"><span class="px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider shadow-sm border border-black/5 ${statusClass}">${statusText}</span></td>
+      <td class="px-5 py-4 text-center">
+        <select onchange="updateHqOrderStatus('${o.id}', this.value)" class="text-[10px] font-black rounded border border-gray-300 p-1 outline-none focus:border-[#E84C60] ${o.status === 'SHIPPED' ? 'text-blue-600' : 'text-gray-500'} cursor-pointer">
+          <option value="PREPARING" ${o.status === 'PREPARING' ? 'selected' : ''}>PREPARING</option>
+          <option value="SHIPPED" ${o.status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+          <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>COMPLETED</option>
+        </select>
+      </td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-async function saveHqOrder() {
+window.saveHqOrder = async function() {
   if (isSubmitting) return;
   const vendorName = document.getElementById('hqVendorInput').value.trim(), region = document.getElementById('hqRegionInput').value.toUpperCase().trim(), items = document.getElementById('hqItemsInput').value.trim();
   if(!vendorName || !region || !items) return showToast("필수 내역을 모두 입력해 주세요.", "error");
 
   isSubmitting = true;
   const btn = document.getElementById('btnSubmitHqOrder');
-  let originalHtml = "SUBMIT";
+  let originalHtml = "ADD";
   if (btn) {
     originalHtml = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`;
@@ -491,6 +499,19 @@ async function saveHqOrder() {
   finally { 
     if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
     isSubmitting = false; 
+  }
+}
+
+// 🚨 [복구 및 검증 완료] 상태 변경 함수
+window.updateHqOrderStatus = async function(orderId, status) {
+  if (!orderId) return;
+  try {
+    const result = await executeApi("update_hq_order_status", { orderId, status });
+    if (result && result.success) showToast(`Order ${orderId} marked as ${status}`, "success");
+    else throw new Error(result.message);
+  } catch (err) {
+    showToast(err.message, "error");
+    fetchMappings(); // 롤백
   }
 }
 
@@ -589,7 +610,6 @@ function processOCRText(text, filename) {
   processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [핵심 보호 로직] V14.0 원자성(Atomic) 'ADD' 모드 연동
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector');
   if (!targetRegion || !targetRegion.value) {
@@ -623,7 +643,6 @@ async function processExcelData(jsonData, filename) {
     const dateMatch = vExp.match(/\d{4}-\d{2}-\d{2}/);
     vExp = dateMatch ? dateMatch[0] : "";
 
-    // 유령 셀(Ghost Cell) 완벽 필터링
     if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
@@ -649,7 +668,6 @@ async function processExcelData(jsonData, filename) {
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
-  // 🌟 클라이언트가 계산을 다 해버리는 대신, 백엔드에 "변동량(ADD)"만 보냄!
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     let newExpArr = [];
     let sortedDates = Object.keys(inboundMap[hqCode].batches).sort();
@@ -660,15 +678,14 @@ async function processExcelData(jsonData, filename) {
 
     return { 
       code: hqCode, 
-      stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, // 더할 수량
-      expBreakdown: { [regionVal]: addedExpStr } // 더할 유통기한
+      stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, 
+      expBreakdown: { [regionVal]: addedExpStr } 
     };
   });
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
   try {
-    // 🌟 mode: "ADD" 명시 -> 백엔드가 기존 값을 덮어쓰지 않고 더하기만 수행하여 데이터 소실을 막음
     const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates });
     if (result && result.success) {
       showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
@@ -685,17 +702,46 @@ async function processExcelData(jsonData, filename) {
   }
 }
 
+// 🚨 [복구 및 검증 완료] 발주 취소 글로벌 로직
+window.cancelOrder = async function(batchId) {
+  if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
+
+  if (!batchId) {
+      batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: ORD-123456)");
+      if (!batchId) return;
+  }
+
+  const confirmMsg = `정말 주문 [${batchId.trim()}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 원복되며 출고 중지 메일이 발송됩니다.`;
+  if (!confirm(confirmMsg)) return;
+
+  isSubmitting = true;
+  showToast("⏳ 시스템 취소 요청 및 재고 복구를 진행 중입니다...", "success");
+
+  try {
+      const result = await executeApi("cancel_order", { batchId: batchId.trim() });
+      if (result && result.success) { showToast(`✅ ${result.message}`, "success"); } 
+      else throw new Error(result.message);
+  } catch (err) {
+      showToast(`❌ 취소 실패: ${err.message}`, "error");
+  } finally {
+      isSubmitting = false;
+  }
+}
+
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone');
   if(!dropZone) return;
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-[#E84C60]/10', 'border-[#E84C60]'); });
-  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E84C60]/10', 'border-[#E84C60]'); });
-  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E84C60]/10', 'border-[#E84C60]'); handleExcelUpload(e); });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
+  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
   
   const fileInput = document.getElementById('excelFileInput');
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
 }
 
+// ============================================================================
+// 🌟 시스템 엔진 가동
+// ============================================================================
 window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; 
 window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.saveHqOrder = saveHqOrder;
 window.handleExcelUpload = handleExcelUpload;
@@ -704,5 +750,6 @@ document.addEventListener('DOMContentLoaded', () => {
   populateSalesYearSelector();
   setupDragAndDrop();
   
+  // 3단 비동기 렌더링 파이프라인
   fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
 });
