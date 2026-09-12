@@ -1,12 +1,14 @@
 // assets/js/items.js
+// 🌟 V15.2 Ultimate - No Deletion, Full Protection, Zero-Rated Tax Expansion
 
-const userRole = (localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
-const clientName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN);
+const CONFIG = window.SYSTEM_CONFIG; // 글로벌 설정 객체 안전 바인딩
+const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
+const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
+const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
 const cachedClientState = localStorage.getItem("y2c_premium_state") || "DEFAULT";
 
 // 🌟 [방화벽 1] 토큰 및 권한 무결성 검증
-if (!sessionToken || !clientName) { window.location.href = "index.html"; }
+if (!sessionToken || !clientName) { window.location.replace("index.html"); }
 
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName;
@@ -15,7 +17,7 @@ const badge = document.getElementById('userRoleBadge');
 if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => { 
-  localStorage.clear(); window.location.href = "index.html"; 
+  localStorage.clear(); window.location.replace("index.html"); 
 });
 
 // 🌟 권한별 UI 접근 통제 (RBAC)
@@ -42,14 +44,14 @@ function formatTimestamp(isoString) {
   return d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' });
 }
 
-// 🌟 상태 알림 토스트 (UI 피드백)
+// 🌟 상태 알림 토스트 (V15.2 신전 핑크 테마 적용)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
     container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container); 
   }
   const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]';
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]'; // 에러 시 신전 핑크 사용
   const icon = type === 'success' ? '✅' : '⚠️';
   toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
   toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
@@ -66,7 +68,9 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
-// 🌟 [캐나다 CRA 세법 엔진] V14.1 양념/떡 등 한글/영문 식자재 키워드 전면 확장
+// ============================================================================
+// 🌟 [캐나다 CRA 세법 엔진] 조미료/양념 무조건 면세(0%) 적용 방어벽 구축
+// ============================================================================
 function isZeroRatedItem(item) {
   if (!item) return false;
   if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
@@ -74,8 +78,9 @@ function isZeroRatedItem(item) {
 
   const zeroRatedCategories = [
     'FOOD', 'FROZEN', 'SAUCE', 'POWDER', 'GRAIN', 'RICE', 'INGREDIENTS', 
-    'GROCERY', 'DISH', 'SEASONING', 'SPICE', 'MEAT', 'NOODLE',
-    '양념', '소스', '시즈닝', '떡', '면', '식품', '냉동', '원물'
+    'GROCERY', 'DISH', 'SEASONING', 'SPICE', 'MEAT', 'NOODLE', 'OIL', 'SYRUP', 'EXTRACT',
+    '양념', '소스', '시즈닝', '떡', '면', '식품', '냉동', '원물',
+    '조미료', '향신료', '가루', '분말', '파우더', '기름', '식용유', '시럽', '농축액', '엑기스'
   ];
   const cat = String(item.category || '').toUpperCase().trim();
   return zeroRatedCategories.some(z => cat.includes(z));
@@ -91,7 +96,7 @@ async function executeApi(action, payload = {}, retries = 3) {
     const timeoutId = setTimeout(() => controller.abort(), 25000); 
 
     try {
-      const response = await fetch(SYSTEM_CONFIG.API.BASE_URL, {
+      const response = await fetch(CONFIG.API.BASE_URL, {
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
         body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
         signal: controller.signal
@@ -106,7 +111,7 @@ async function executeApi(action, payload = {}, retries = 3) {
           if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
             localStorage.clear();
             alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
-            window.location.href = "index.html";
+            window.location.replace("index.html");
             return;
           }
           if (jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
@@ -143,17 +148,18 @@ async function fetchMappings() {
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody');
   if (!tableBody) return;
-  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E3000F]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Securely loading SCM data...</p></div></td></tr>`;
+  // 로딩 스피너 핑크 테마 적용
+  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Securely loading SCM data...</p></div></td></tr>`;
 
   try {
     const result = await executeApi("get_items", { clientState: currentClientState });
     if (result && result.success) {
       cachedItems = result.items || [];
       currentClientState = result.appliedState || "DEFAULT";
-      taxRateObj = SYSTEM_CONFIG.TAX_RATES[currentClientState.toUpperCase()] || SYSTEM_CONFIG.TAX_RATES["DEFAULT"];
+      taxRateObj = CONFIG.TAX_RATES[currentClientState.toUpperCase()] || CONFIG.TAX_RATES["DEFAULT"];
       
       const headerTitle = document.getElementById('catalogHeaderTitle');
-      if (headerTitle) headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E3000F]/10 text-[#E3000F] px-3 py-1.5 rounded-lg border border-[#E3000F]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
+      if (headerTitle) headerTitle.innerHTML = `<span class="text-[#E84C60] drop-shadow-md">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E84C60]/10 text-[#E84C60] px-3 py-1.5 rounded-lg border border-[#E84C60]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
       
       const kpiDash = document.getElementById('kpiDashboard');
       if (kpiDash) kpiDash.classList.remove('hidden');
@@ -177,7 +183,7 @@ async function fetchItems() {
     } else if (result) {
       throw new Error(result.message);
     }
-  } catch (error) { document.getElementById('itemTableBody').innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide">Failed to load catalog data. Server is busy.</td></tr>`; }
+  } catch (error) { document.getElementById('itemTableBody').innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">Failed to load catalog data. Server is busy.</td></tr>`; }
 }
 
 function populateRegionFilter() {
@@ -219,8 +225,10 @@ function renderTableItems() {
   if (sLabel) sLabel.innerText = isMasterOrVendor ? (masterViewRegion === "ALL" ? "Total Hub Stock" : `Hub Stock (${masterViewRegion})`) : `Local Hub (${currentClientState})`;
 
   cachedItems.forEach((item, index) => {
-    const row = document.createElement('tr'); row.className = "hover:bg-gray-50/50 transition-colors duration-200";
-    const imgTag = item.image && item.image.trim() !== '' ? `<img src="${item.image}" alt="${item.code}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E3000F] transition-colors">` : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
+    const row = document.createElement('tr'); row.className = "hover:bg-pink-50/40 transition-colors duration-200 cinematic-enter";
+    row.style.animationDelay = `${(index % 10) * 50}ms`; // 시네마틱 렌더링 리스트
+    
+    const imgTag = item.image && item.image.trim() !== '' ? `<img src="${item.image}" alt="${item.code}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors">` : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
     
     let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown[masterViewRegion] || 0)) : item.regionalStock;
     if (Number.isNaN(displayStock)) displayStock = 0;
@@ -229,10 +237,10 @@ function renderTableItems() {
     if (displayStock > 0 && displayStock <= 10) lowStockCount++;
 
     const isLowStock = displayStock > 0 && displayStock <= 10, isSoldOut = displayStock <= 0;
-    let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E3000F]/10 px-2 py-0.5 rounded shadow-sm border border-[#E3000F]/20 low-stock-pulse" : (isLowStock ? "text-[#E3000F] font-extrabold" : "text-gray-800");
+    let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E84C60]/10 px-2 py-0.5 rounded shadow-sm border border-[#E84C60]/20 low-stock-pulse" : (isLowStock ? "text-[#E84C60] font-extrabold" : "text-gray-800");
     let aiBadgeHTML = (userRole === "PARTNER" && item.aiSuggestedQty > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${item.aiSuggestedQty}</span></div>` : '';
 
-    // 🌟 면세/과세 배지 표시
+    // 🌟 면세/과세 배지 표시 (안전망 강화)
     const isZeroRated = isZeroRatedItem(item);
     const taxTag = isZeroRated 
       ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-100 text-emerald-700 border border-emerald-200" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
@@ -240,14 +248,13 @@ function renderTableItems() {
 
     let expDisplayHTML = '';
     
-    // 🌟 [V14.1 핵심 개선] 벤더/마스터가 'Total Stock(ALL)'을 볼 때 전 지역 유통기한을 리스트로 펼쳐줌
     if (isMasterOrVendor && masterViewRegion === "ALL") {
       let expLines = [];
       for (let reg in item.expBreakdown) {
         let regExp = item.expBreakdown[reg];
         if (regExp && regExp !== "-") {
           const isExpWarn = checkExpWarning(regExp);
-          const expColorClass = isExpWarn ? "text-[#E3000F] bg-[#E3000F]/10 border-[#E3000F]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
+          const expColorClass = isExpWarn ? "text-[#E84C60] bg-[#E84C60]/10 border-[#E84C60]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
           expLines.push(`<div class="flex items-start justify-between gap-3 text-[9px] font-black uppercase px-2 py-1 rounded border shadow-sm ${expColorClass} mb-1"><span class="opacity-70 mt-0.5">${reg}:</span> <span class="text-right leading-tight">${isExpWarn ? "⚠️" : "🕒"} ${regExp.replace(/\|/g, '<br>')}</span></div>`);
         }
       }
@@ -259,7 +266,7 @@ function renderTableItems() {
                                         : (item.expBreakdown && item.expBreakdown[currentClientState] ? item.expBreakdown[currentClientState] : "");
       if (expDateVal && expDateVal !== "-") {
         const isExpWarn = checkExpWarning(expDateVal);
-        const expColorClass = isExpWarn ? "text-[#E3000F] bg-[#E3000F]/10 border-[#E3000F]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
+        const expColorClass = isExpWarn ? "text-[#E84C60] bg-[#E84C60]/10 border-[#E84C60]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
         expDisplayHTML = `<div class="mt-1.5 inline-block text-left text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border shadow-sm ${expColorClass}"><span>${isExpWarn ? "⚠️" : "🕒"}</span> EXP:<br>${expDateVal.replace(/\|/g, '<br>')}</div>`;
       }
     }
@@ -282,12 +289,12 @@ function renderTableItems() {
         orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
       } else {
         stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-        orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" oninput="calculateOrderTotal()" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E3000F] outline-none shadow-sm transition-all">`;
+        orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" oninput="calculateOrderTotal()" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all hover:shadow-md">`;
       }
     }
 
     const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-800 font-black text-right font-mono">${formatCurrency(item.price || 0)}</td>`;
-    row.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${item.code || '-'}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-gray-800 font-extrabold tracking-tight whitespace-normal break-keep">${item.name || '-'}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm">${item.category || 'General'}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td>`;
+    row.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${item.code || '-'}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-gray-800 font-extrabold tracking-tight whitespace-normal break-keep">${item.name || '-'}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E84C60]/10 text-[#E84C60] border border-[#E84C60]/20 uppercase tracking-[0.15em] shadow-sm">${item.category || 'General'}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E84C60]/5 border-l border-[#E84C60]/10 align-middle">${orderInputHTML}</td>`;
     tableBody.appendChild(row);
   });
 
@@ -330,6 +337,7 @@ function calculateOrderTotal() {
         const lineTotal = qty * itemPrice;
         subtotal += lineTotal;
         
+        // 조미료, 양념 등 0% 면세품목 정밀 분리 계산
         if (isZeroRatedItem(cachedItems[idx])) {
           foodSubtotal += lineTotal;
         } else {
@@ -365,7 +373,7 @@ async function toggleStockEditMode() {
   const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
   if (!isStockEditMode) {
     isStockEditMode = true;
-    if(btn) { btn.innerHTML = "💾 SAVE ALL"; btn.classList.replace('bg-gray-800', 'bg-emerald-600'); btn.classList.replace('hover:bg-black', 'hover:bg-emerald-700'); }
+    if(btn) { btn.innerHTML = "💾 SAVE ALL"; btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); btn.classList.replace('hover:bg-black', 'hover:bg-emerald-700'); }
     if (filter) filter.disabled = true; if (orderContainer) orderContainer.classList.add('hidden'); renderTableItems(); 
   } else {
     const stockInputs = document.querySelectorAll('.stock-region-input'), expInputs = document.querySelectorAll('.exp-region-input');
@@ -380,7 +388,7 @@ async function toggleStockEditMode() {
     });
     if (!hasChanges) {
       isStockEditMode = false; 
-      if(btn) { btn.innerHTML = "⚙️ MANAGE"; btn.classList.replace('bg-emerald-600', 'bg-gray-800'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
+      if(btn) { btn.innerHTML = "⚙️ MANAGE INVENTORY"; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
       renderTableItems(); return; 
     }
@@ -396,7 +404,7 @@ async function toggleStockEditMode() {
       if(err.message.includes("재고") || err.message.includes("부족")) { setTimeout(() => fetchItems(), 1500); }
     } finally {
       isStockEditMode = false; isSubmitting = false;
-      if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-gray-800'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
+      if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE INVENTORY"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
     }
   }
@@ -425,7 +433,7 @@ async function submitOrder() {
           price: cachedItems[idx].price, 
           qty: qty,
           category: cachedItems[idx].category,
-          isZeroRated: isZeroRatedItem(cachedItems[idx])
+          isZeroRated: isZeroRatedItem(cachedItems[idx]) // 🌟 세법 분리 검증 탑재
         }); 
       }
     }
@@ -435,7 +443,7 @@ async function submitOrder() {
   
   const grandTotal = document.getElementById('orderGrandTotal').innerText;
   const confirmMsg = `[발주 내역 요약]\n` +
-    `• 식품/식자재(0% 면세): ${formatCurrency(currentOrderTaxSummary.foodSubtotal)}\n` +
+    `• 식품/조미료(0% 면세): ${formatCurrency(currentOrderTaxSummary.foodSubtotal)}\n` +
     `• 과세 비품/소모품: ${formatCurrency(currentOrderTaxSummary.taxableSubtotal)}\n` +
     `• 적용 세금 (${taxRateObj.name}): ${formatCurrency(currentOrderTaxSummary.taxAmount)}\n` +
     `• 최종 결제액: ${grandTotal}\n\n` +
@@ -483,7 +491,7 @@ async function handleExcelUpload(event) {
   const statusText = document.getElementById('uploadStatusText');
 
   if (validExcelExts.includes(fileExt)) {
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E3000F] font-bold">Parsing Excel Document...</span>`;
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
     
     if (typeof XLSX === 'undefined') {
       isSubmitting = false; return showToast("엑셀 엔진을 로드 중입니다. 새로고침 후 다시 시도해주세요.", "error");
@@ -649,7 +657,7 @@ async function processExcelData(jsonData, filename) {
     showToast(err.message, "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
     if(err.message.includes("트래픽") || err.message.includes("동기화")) {
-      setTimeout(() => { fetchCatalogForInbound(); }, 2000);
+      setTimeout(() => { fetchItems(); }, 2000); // 🚨 fetchCatalogForInbound -> fetchItems 로 100% 대응 복구
     }
   }
 }
@@ -657,24 +665,24 @@ async function processExcelData(jsonData, filename) {
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone');
   if(!dropZone) return;
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-[#E3000F]/10', 'border-[#E3000F]'); });
-  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E3000F]/10', 'border-[#E3000F]'); });
-  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E3000F]/10', 'border-[#E3000F]'); handleExcelUpload(e); });
+  // 드롭존 호버 이펙트 핑크 테마 동기화
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
+  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
   
   const fileInput = document.getElementById('excelFileInput');
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
 }
 
 // ============================================================================
-// 🌟 [V14.2 신규] 발주 취소(Cancel Order) 프론트엔드 엔진 탑재
+// 🌟 발주 취소(Cancel Order) 프론트엔드 엔진 탑재 (기능 소실 없음)
 // ============================================================================
 async function cancelOrder(batchId) {
     if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
 
-    // 버튼에서 ID를 받지 못한 경우 팝업으로 입력 요청
     if (!batchId) {
         batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: ORD-123456)");
-        if (!batchId) return; // 취소 누른 경우
+        if (!batchId) return;
     }
 
     const confirmMsg = `정말 주문 [${batchId.trim()}]을 취소하시겠습니까?\n\n` + 
@@ -691,7 +699,6 @@ async function cancelOrder(batchId) {
         
         if (result && result.success) {
             showToast(`✅ ${result.message}`, "success");
-            // 취소 후 화면의 재고 수량 갱신을 위해 카탈로그 최신화
             setTimeout(() => fetchItems(), 1500);
         } else if (result) {
             throw new Error(result.message);
@@ -705,7 +712,7 @@ async function cancelOrder(batchId) {
 
 window.submitOrder = submitOrder; window.fetchItems = fetchItems; window.toggleStockEditMode = toggleStockEditMode; 
 window.applyRegionFilter = applyRegionFilter; window.applyAiSuggestion = applyAiSuggestion; window.calculateOrderTotal = calculateOrderTotal; window.handleExcelUpload = handleExcelUpload;
-window.cancelOrder = cancelOrder; // 외부 버튼 바인딩용
+window.cancelOrder = cancelOrder; 
 
 document.addEventListener('DOMContentLoaded', () => {
   setupDragAndDrop();
