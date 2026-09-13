@@ -1,5 +1,5 @@
 // assets/js/dashboard.js
-// 🌟 V15.5 Ultimate Kernel - Null-Safe Architecture & Cross-Validation Passed
+// 🌟 V15.6 Ultimate Kernel - Omni-Parser Data Mapping, Memory Leak Fixed, No Deletions
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -19,7 +19,7 @@ const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
 };
 
-// 🌟 상태 알림 토스트 (V15.5 신전 핑크 테마 동기화)
+// 🌟 상태 알림 토스트 (V15.6 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -36,7 +36,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 엔진
+// 🌟 [방화벽 2] 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 통신 엔진
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
@@ -45,7 +45,6 @@ async function executeApi(action, payload = {}, retries = 3) {
         const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선
 
         try {
-            // Null-Safe API URL 호출
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
                 method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
@@ -84,7 +83,7 @@ async function executeApi(action, payload = {}, retries = 3) {
 }
 
 // ============================================================================
-// 📊 대시보드 핵심 데이터 로드 및 렌더링 엔진 (Null-Safe 특화 방어탑재)
+// 📊 대시보드 핵심 데이터 로드 및 렌더링 엔진 (Omni-Parser 방어탑재)
 // ============================================================================
 let salesChartInstance = null; // 메모리 누수 방지용 차트 추적 변수
 
@@ -99,19 +98,25 @@ async function loadDashboardData() {
     try {
         const result = await executeApi("get_dashboard", { 
             year: targetYear, 
+            targetYear: targetYear, // 크로스 호환성 부여
             clientName: userRole === "MASTER" ? "ALL" : clientName 
         });
 
         if (result && result.success) {
-            // 🚨 [핵심 오류 수정] Null-Safe 방어 코드 강화
-            // 백엔드에서 데이터가 없거나, 키 이름이 다를 경우 빈 객체({})를 강제 할당하여 튕김 방지
-            const data = result.data || result.dashboardData || result.dashboard || {}; 
+            // 🚨 [핵심 오류 수정] Omni-Parser: 객체 뎁스 및 네이밍 파편화 완벽 통합
+            const source = result.data || result.dashboardData || result.dashboard || result;
             
-            // 1. KPI 카드 업데이트 (데이터가 없으면 0으로 치환하여 에러 원천 차단)
-            const posAmt = Number(data.ytdPos) || 0;
-            const delAmt = Number(data.ytdDelivery) || 0;
-            const totalAmt = posAmt + delAmt;
+            // 1. KPI 데이터 추출 (모든 가능한 변수명 조합 대응)
+            const posAmt = Number(source.ytdPos || source.posSales || source.pos || 0);
+            const delAmt = Number(source.ytdDelivery || source.deliverySales || source.delivery || 0);
+            let totalAmt = Number(source.ytdTotal || source.totalSales || source.total || 0);
+            
+            // 서버에서 Total을 계산해주지 않았을 경우 프론트에서 강제 합산
+            if (totalAmt === 0 && (posAmt > 0 || delAmt > 0)) {
+                totalAmt = posAmt + delAmt;
+            }
 
+            // 화면에 렌더링
             const elemTotal = document.getElementById('dashYtdTotal');
             const elemPos = document.getElementById('dashYtdPos');
             const elemDel = document.getElementById('dashYtdDelivery');
@@ -120,9 +125,28 @@ async function loadDashboardData() {
             if (elemPos) elemPos.innerText = formatCurrency(posAmt);
             if (elemDel) elemDel.innerText = formatCurrency(delAmt);
 
-            // 2. Chart.js 렌더링 (배열이 누락되었을 경우 0으로 채워진 12개월 배열 생성)
-            const monthlyData = Array.isArray(data.monthlyData) ? data.monthlyData : Array(12).fill(0);
-            renderSalesChart(monthlyData);
+            // 2. 월별 차트 데이터 구조 정규화 (배열 vs 객체 배열)
+            let rawMonthly = source.monthlyData || source.chartData || source.records || Array(12).fill(0);
+            let finalChartData = Array(12).fill(0);
+
+            if (Array.isArray(rawMonthly)) {
+                if (rawMonthly.length > 0 && typeof rawMonthly[0] === 'object') {
+                    // 데이터가 [{month: 1, total: 1000}, ...] 형태일 경우 파싱
+                    rawMonthly.forEach(item => {
+                        const mIdx = (parseInt(item.month) || 1) - 1;
+                        const val = Number(item.total || item.totalSales || item.amount || (Number(item.posSales||0) + Number(item.deliverySales||0)) || 0);
+                        if (mIdx >= 0 && mIdx < 12) finalChartData[mIdx] = val;
+                    });
+                } else {
+                    // 순수 숫자 배열일 경우
+                    finalChartData = rawMonthly.map(v => Number(v) || 0);
+                    while(finalChartData.length < 12) finalChartData.push(0);
+                    finalChartData = finalChartData.slice(0, 12);
+                }
+            }
+
+            // Chart.js 렌더링 호출
+            renderSalesChart(finalChartData);
             
             showToast(`${targetYear}년도 데이터 동기화 완료`, "success");
         } else {
@@ -150,7 +174,7 @@ function renderSalesChart(monthlyData) {
 
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    // V15.5 핑크 그라데이션 생성 (배경)
+    // V15.6 핑크 그라데이션 생성 (배경)
     const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(232, 76, 96, 0.4)'); // 상단은 진한 핑크
     gradient.addColorStop(1, 'rgba(232, 76, 96, 0.0)'); // 하단은 투명
