@@ -1,18 +1,19 @@
 // assets/js/admin.js
-// 🌟 V15.4 Ultimate Kernel - Cross-Validation Passed, No Deletions, Full Sync
+// 🌟 V15.8 Ultimate Kernel - VENDOR Access Granted, RBAC Shield, No Deletions
 
 const CONFIG = window.SYSTEM_CONFIG;
 const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
 const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
 const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN); 
 
-// 🌟 [방화벽 1] 마스터 권한 무결성 검증 (불법 접근 원천 차단)
-if (!sessionToken || userRole !== "MASTER") { 
+// 🌟 [방화벽 1] 권한 무결성 검증 (MASTER 및 VENDOR만 접근 허용)
+if (!sessionToken || (userRole !== "MASTER" && userRole !== "VENDOR")) { 
+  alert("비정상적인 접근입니다.");
   window.location.replace("index.html"); 
 }
 
 const userNameDisplay = document.getElementById('userNameDisplay');
-if (userNameDisplay) userNameDisplay.innerText = clientName || "MASTER";
+if (userNameDisplay) userNameDisplay.innerText = clientName || userRole;
 
 const badge = document.getElementById('userRoleBadge');
 if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
@@ -29,7 +30,7 @@ const formatDate = (isoStr) => {
   return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: '2-digit' });
 };
 
-// 🌟 상태 알림 토스트 (V15.4 신전 핑크 테마 100% 동기화)
+// 🌟 상태 알림 토스트 (V15.8 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) {
@@ -87,7 +88,6 @@ async function executeApi(action, payload = {}, retries = 3) {
       try {
         const jsonResult = JSON.parse(rawText);
         if (!jsonResult.success) {
-          // 🚨 [핵심 보안] 세션 만료 즉각 감지 및 강제 로그아웃
           if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
             localStorage.clear();
             alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
@@ -115,9 +115,11 @@ async function executeApi(action, payload = {}, retries = 3) {
 }
 
 // ========================================================
-// [1] 마스터 DB (가맹점 프로필) 관리 로직
+// [1] 마스터 DB (가맹점 프로필) 관리 로직 (VENDOR 접근 불가)
 // ========================================================
 async function fetchMasterData() {
+  if (userRole === "VENDOR") return; // 벤더는 로드하지 않음
+
   const tableBody = document.getElementById('masterTableBody');
   const errorBanner = document.getElementById('errorBanner');
   if (!tableBody) return;
@@ -193,7 +195,7 @@ async function saveClientData(rowIdx) {
 }
 
 // ========================================================
-// [2] 매출 데이터베이스 매니저 (ERP 로직)
+// [2] 매출 데이터베이스 매니저 (ERP 로직) (VENDOR 접근 불가)
 // ========================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
@@ -321,12 +323,14 @@ function renderOrderMetrics(metrics) {
     kpiContainer.className = 'grid grid-cols-2 gap-4 sm:gap-6 mb-8';
     table.parentNode.insertBefore(kpiContainer, table);
     
-    // 시스템 헬스 스캔 버튼 렌더링
-    const scanBtn = document.createElement('button');
-    scanBtn.innerHTML = '🛡️ SYSTEM HEALTH SCAN';
-    scanBtn.className = "w-full col-span-2 bg-[var(--premium-charcoal)] hover:bg-black text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 tracking-[0.2em]";
-    scanBtn.onclick = runSystemAlertScan;
-    table.parentNode.insertBefore(scanBtn, kpiContainer);
+    // 🚨 시스템 헬스 스캔 버튼은 MASTER(본사)에게만 보임
+    if (userRole === "MASTER") {
+        const scanBtn = document.createElement('button');
+        scanBtn.innerHTML = '🛡️ SYSTEM HEALTH SCAN';
+        scanBtn.className = "w-full col-span-2 bg-[var(--premium-charcoal)] hover:bg-black text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 tracking-[0.2em]";
+        scanBtn.onclick = runSystemAlertScan;
+        table.parentNode.insertBefore(scanBtn, kpiContainer);
+    }
   }
   
   kpiContainer.innerHTML = `
@@ -467,8 +471,9 @@ function renderHqOrders() {
       <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${o.eta}</td>
       <td class="px-5 py-4 text-center">
         <select onchange="updateHqOrderStatus('${o.id}', this.value)" class="text-[10px] font-black rounded border border-gray-300 p-1 outline-none focus:border-[#E84C60] ${o.status === 'SHIPPED' ? 'text-blue-600' : 'text-gray-500'} cursor-pointer">
-          <option value="PREPARING" ${o.status === 'PREPARING' ? 'selected' : ''}>PREPARING</option>
+          <option value="HQ_PENDING" ${o.status === 'HQ_PENDING' ? 'selected' : ''}>PREPARING</option>
           <option value="SHIPPED" ${o.status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+          <option value="ARRIVED" ${o.status === 'ARRIVED' ? 'selected' : ''}>ARRIVED</option>
           <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>COMPLETED</option>
         </select>
       </td>
@@ -479,7 +484,13 @@ function renderHqOrders() {
 
 window.saveHqOrder = async function() {
   if (isSubmitting) return;
-  const vendorName = document.getElementById('hqVendorInput').value.trim(), region = document.getElementById('hqRegionInput').value.toUpperCase().trim(), items = document.getElementById('hqItemsInput').value.trim();
+  
+  // 벤더(VENDOR)의 경우, Input이 막혀있을 수 있으므로 value를 확실히 가져옴
+  const vendorInput = document.getElementById('hqVendorInput');
+  const vendorName = vendorInput ? vendorInput.value.trim() : clientName;
+  const region = document.getElementById('hqRegionInput').value.toUpperCase().trim();
+  const items = document.getElementById('hqItemsInput').value.trim();
+  
   if(!vendorName || !region || !items) return showToast("필수 내역을 모두 입력해 주세요.", "error");
 
   isSubmitting = true;
@@ -493,7 +504,11 @@ window.saveHqOrder = async function() {
   const payload = { id: "NEW", date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
   try {
     const result = await executeApi("upsert_hq_order", { order: payload });
-    if (result && result.success) { showToast("등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; fetchMappings(); } 
+    if (result && result.success) { 
+      showToast("등록되었습니다.", "success"); 
+      document.getElementById('hqItemsInput').value = ''; 
+      fetchMappings(); 
+    } 
     else if (result) throw new Error(result.message);
   } catch (err) { showToast("등록 실패: " + err.message, "error"); } 
   finally { 
@@ -506,12 +521,19 @@ window.saveHqOrder = async function() {
 window.updateHqOrderStatus = async function(orderId, status) {
   if (!orderId) return;
   try {
-    const result = await executeApi("update_hq_order_status", { orderId, status });
-    if (result && result.success) showToast(`Order ${orderId} marked as ${status}`, "success");
+    // 백엔드가 인식하는 상태값으로 변환(PREPARING -> HQ_PENDING 등)
+    let finalStatus = status;
+    if(status === "PREPARING") finalStatus = "HQ_PENDING";
+    
+    const result = await executeApi("update_hq_order_status", { orderId, status: finalStatus });
+    if (result && result.success) {
+        showToast(`Order ${orderId} marked as ${finalStatus}`, "success");
+        fetchMappings(); // 상태 변경 후 즉각 리렌더링
+    }
     else throw new Error(result.message);
   } catch (err) {
     showToast(err.message, "error");
-    fetchMappings(); // 롤백
+    fetchMappings(); // 에러 발생 시 UI 롤백
   }
 }
 
@@ -740,16 +762,45 @@ function setupDragAndDrop() {
 }
 
 // ============================================================================
-// 🌟 시스템 엔진 가동
+// 🌟 시스템 엔진 가동 및 UI 라우팅 (VENDOR 권한 분리)
 // ============================================================================
 window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; 
 window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.saveHqOrder = saveHqOrder;
 window.handleExcelUpload = handleExcelUpload;
 
 document.addEventListener('DOMContentLoaded', () => { 
-  populateSalesYearSelector();
-  setupDragAndDrop();
   
-  // 3단 비동기 렌더링 파이프라인
-  fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
+  const navAdmin = document.getElementById('navAdmin');
+  if (navAdmin) {
+      navAdmin.classList.remove('hidden');
+      if (userRole === "VENDOR") navAdmin.innerText = "Logistics (HQ)";
+  }
+
+  // 🌟 VENDOR 계정 전용 라우팅
+  if (userRole === "VENDOR") {
+      // 벤더는 가맹점 프로필, 매출 탭을 볼 수 없음 (강제 숨김)
+      document.getElementById('tabBtn_profiles')?.classList.add('hidden');
+      document.getElementById('tabBtn_sales')?.classList.add('hidden');
+      
+      // HQ 발주 인풋창에 벤더 본인 이름 자동 세팅 및 잠금 (위조 방지)
+      const hqVendorInput = document.getElementById('hqVendorInput');
+      if (hqVendorInput) {
+          hqVendorInput.value = clientName;
+          hqVendorInput.readOnly = true;
+          hqVendorInput.classList.add('bg-gray-100', 'text-[#E84C60]', 'cursor-not-allowed', 'font-black');
+      }
+
+      // 기본 탭을 HQ Orders로 강제 전환
+      switchAdminTab('hqorders');
+      
+      // VENDOR는 마스터 전용 DB를 로드하지 않음
+      setupDragAndDrop();
+      fetchMappings().then(() => fetchCatalogForInbound()); 
+  } else {
+      // MASTER 기본 파이프라인
+      populateSalesYearSelector();
+      setupDragAndDrop();
+      switchAdminTab('profiles');
+      fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
+  }
 });
