@@ -1,10 +1,11 @@
 // assets/js/dashboard.js
-// 🌟 V15.4 Ultimate Kernel - Cross-Validation Passed, Memory Leak Fixed, No Deletions
+// 🌟 V15.5 Ultimate Kernel - Null-Safe Architecture & Cross-Validation Passed
 
-const CONFIG = window.SYSTEM_CONFIG;
-const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
-const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
-const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
+const CONFIG = window.SYSTEM_CONFIG || {};
+const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+const userRole = (localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
+const sessionToken = localStorage.getItem(STORAGE.USER_TOKEN);
+const clientName = localStorage.getItem(STORAGE.CLIENT_NAME);
 
 // 🌟 [방화벽 1] 토큰 및 권한 무결성 검증 (VENDOR 접근 원천 차단)
 if (!sessionToken || userRole === "VENDOR") {
@@ -12,10 +13,13 @@ if (!sessionToken || userRole === "VENDOR") {
     window.location.replace("items.html");
 }
 
-// 회계 표준 포맷팅
-const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+// 회계 표준 포맷팅 (Null-Safe 방어탑재)
+const formatCurrency = (amount) => {
+    const safeAmount = Number(amount) || 0;
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
+};
 
-// 🌟 상태 알림 토스트 (V15.4 신전 핑크 테마 동기화)
+// 🌟 상태 알림 토스트 (V15.5 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -32,7 +36,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] V14.0 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 엔진
+// 🌟 [방화벽 2] 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 엔진
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
@@ -41,7 +45,8 @@ async function executeApi(action, payload = {}, retries = 3) {
         const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선
 
         try {
-            const response = await fetch(CONFIG.API.BASE_URL, {
+            // Null-Safe API URL 호출
+            const response = await fetch(CONFIG.API?.BASE_URL || "", {
                 method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
                 signal: controller.signal
@@ -75,18 +80,18 @@ async function executeApi(action, payload = {}, retries = 3) {
             }
         }
     }
-    throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
+    throw new Error(lastError?.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
 }
 
 // ============================================================================
-// 📊 대시보드 핵심 데이터 로드 및 렌더링 엔진
+// 📊 대시보드 핵심 데이터 로드 및 렌더링 엔진 (Null-Safe 특화 방어탑재)
 // ============================================================================
 let salesChartInstance = null; // 메모리 누수 방지용 차트 추적 변수
 
 async function loadDashboardData() {
     const yearSelector = document.getElementById('dashYearSelector');
     if (!yearSelector) return;
-    const targetYear = yearSelector.value;
+    const targetYear = yearSelector.value || new Date().getFullYear();
     
     const refreshBtn = document.getElementById('refreshChartBtn');
     if (refreshBtn) refreshBtn.classList.add('animate-spin', 'text-[#E84C60]');
@@ -98,26 +103,36 @@ async function loadDashboardData() {
         });
 
         if (result && result.success) {
-            const data = result.data; // { ytdPos: 0, ytdDelivery: 0, monthlyData: [] }
+            // 🚨 [핵심 오류 수정] Null-Safe 방어 코드 강화
+            // 백엔드에서 데이터가 없거나, 키 이름이 다를 경우 빈 객체({})를 강제 할당하여 튕김 방지
+            const data = result.data || result.dashboardData || result.dashboard || {}; 
             
-            // 1. KPI 카드 업데이트 (데이터 무결성 검증 후 합산)
+            // 1. KPI 카드 업데이트 (데이터가 없으면 0으로 치환하여 에러 원천 차단)
             const posAmt = Number(data.ytdPos) || 0;
             const delAmt = Number(data.ytdDelivery) || 0;
             const totalAmt = posAmt + delAmt;
 
-            document.getElementById('dashYtdTotal').innerText = formatCurrency(totalAmt);
-            document.getElementById('dashYtdPos').innerText = formatCurrency(posAmt);
-            document.getElementById('dashYtdDelivery').innerText = formatCurrency(delAmt);
+            const elemTotal = document.getElementById('dashYtdTotal');
+            const elemPos = document.getElementById('dashYtdPos');
+            const elemDel = document.getElementById('dashYtdDelivery');
 
-            // 2. Chart.js 렌더링
-            renderSalesChart(data.monthlyData);
+            if (elemTotal) elemTotal.innerText = formatCurrency(totalAmt);
+            if (elemPos) elemPos.innerText = formatCurrency(posAmt);
+            if (elemDel) elemDel.innerText = formatCurrency(delAmt);
+
+            // 2. Chart.js 렌더링 (배열이 누락되었을 경우 0으로 채워진 12개월 배열 생성)
+            const monthlyData = Array.isArray(data.monthlyData) ? data.monthlyData : Array(12).fill(0);
+            renderSalesChart(monthlyData);
             
             showToast(`${targetYear}년도 데이터 동기화 완료`, "success");
         } else {
-            throw new Error(result.message || "데이터 로드 실패");
+            throw new Error(result?.message || "데이터를 불러올 수 없습니다.");
         }
     } catch (err) {
-        showToast(err.message, "error");
+        console.error("Dashboard Load Error:", err);
+        // 에러 발생 시 UI가 멈추지 않도록 기본 차트(0) 렌더링 보장
+        renderSalesChart(Array(12).fill(0));
+        showToast("대시보드 데이터 로드 오류: " + (err.message || "알 수 없는 오류"), "error");
     } finally {
         if (refreshBtn) refreshBtn.classList.remove('animate-spin', 'text-[#E84C60]');
     }
@@ -128,16 +143,14 @@ function renderSalesChart(monthlyData) {
     const ctx = document.getElementById('salesChartCanvas');
     if (!ctx) return;
 
-    // 🚨 기존에 그려진 차트가 있다면 무조건 파괴(Destroy)하여 브라우저 메모리 폭발(Crash) 방지
+    // 🚨 기존에 그려진 차트가 있다면 무조건 파괴(Destroy)하여 브라우저 강제 종료(Crash) 방지
     if (salesChartInstance) {
         salesChartInstance.destroy();
     }
 
-    // 데이터가 아예 없을 경우를 대비한 방어 코드
-    const safeData = monthlyData && monthlyData.length === 12 ? monthlyData : Array(12).fill(0);
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    // V15.4 핑크 그라데이션 생성 (배경)
+    // V15.5 핑크 그라데이션 생성 (배경)
     const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(232, 76, 96, 0.4)'); // 상단은 진한 핑크
     gradient.addColorStop(1, 'rgba(232, 76, 96, 0.0)'); // 하단은 투명
@@ -151,7 +164,7 @@ function renderSalesChart(monthlyData) {
             labels: labels,
             datasets: [{
                 label: 'Total Revenue (CAD)',
-                data: safeData,
+                data: monthlyData,
                 borderColor: '#E84C60',
                 backgroundColor: gradient,
                 borderWidth: 3,
