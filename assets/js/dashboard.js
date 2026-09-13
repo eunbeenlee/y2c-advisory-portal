@@ -1,5 +1,5 @@
 // assets/js/dashboard.js
-// 🌟 V15.6 Ultimate Kernel - Omni-Parser Data Mapping, Memory Leak Fixed, No Deletions
+// 🌟 V15.7 Ultimate Kernel - Omni-Parser 2.0 (ERP Data Sync), No Deletions
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -13,13 +13,13 @@ if (!sessionToken || userRole === "VENDOR") {
     window.location.replace("items.html");
 }
 
-// 회계 표준 포맷팅 (Null-Safe 방어탑재)
+// 회계 표준 포맷팅 (Null-Safe 방어)
 const formatCurrency = (amount) => {
     const safeAmount = Number(amount) || 0;
     return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
 };
 
-// 🌟 상태 알림 토스트 (V15.6 신전 핑크 테마 동기화)
+// 🌟 상태 알림 토스트 (V15.7 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -42,7 +42,7 @@ async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
     for (let i = 0; i <= retries; i++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 한계선
 
         try {
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
@@ -83,9 +83,9 @@ async function executeApi(action, payload = {}, retries = 3) {
 }
 
 // ============================================================================
-// 📊 대시보드 핵심 데이터 로드 및 렌더링 엔진 (Omni-Parser 방어탑재)
+// 📊 대시보드 핵심 데이터 로드 및 렌더링 엔진 (Omni-Parser 2.0 방어탑재)
 // ============================================================================
-let salesChartInstance = null; // 메모리 누수 방지용 차트 추적 변수
+let salesChartInstance = null; // 메모리 누수 방지용
 
 async function loadDashboardData() {
     const yearSelector = document.getElementById('dashYearSelector');
@@ -96,57 +96,65 @@ async function loadDashboardData() {
     if (refreshBtn) refreshBtn.classList.add('animate-spin', 'text-[#E84C60]');
 
     try {
+        // 백엔드 통신: get_dashboard (만약 백엔드가 ALL 파라미터를 못받을 경우를 대비해 targetYear 중복전송)
         const result = await executeApi("get_dashboard", { 
             year: targetYear, 
-            targetYear: targetYear, // 크로스 호환성 부여
+            targetYear: targetYear,
             clientName: userRole === "MASTER" ? "ALL" : clientName 
         });
 
+        // 디버깅 용이성을 위한 콘솔 출력 (실서버 방해 안됨)
+        console.log(`[Dashboard ${targetYear} API Response]`, result);
+
         if (result && result.success) {
-            // 🚨 [핵심 오류 수정] Omni-Parser: 객체 뎁스 및 네이밍 파편화 완벽 통합
-            const source = result.data || result.dashboardData || result.dashboard || result;
+            // 🚨 [핵심 오류 수정] Omni-Parser 2.0: ERP Sales 데이터 배열 완벽 매핑
+            const dataPayload = result.data || result.dashboardData || result.records || result;
             
-            // 1. KPI 데이터 추출 (모든 가능한 변수명 조합 대응)
-            const posAmt = Number(source.ytdPos || source.posSales || source.pos || 0);
-            const delAmt = Number(source.ytdDelivery || source.deliverySales || source.delivery || 0);
-            let totalAmt = Number(source.ytdTotal || source.totalSales || source.total || 0);
+            // 데이터가 ERP Sales처럼 records 배열 형식으로 넘어올 경우 완벽 추출
+            let rawRecords = Array.isArray(dataPayload) ? dataPayload : (dataPayload.records || dataPayload.monthlyData || []);
             
-            // 서버에서 Total을 계산해주지 않았을 경우 프론트에서 강제 합산
-            if (totalAmt === 0 && (posAmt > 0 || delAmt > 0)) {
-                totalAmt = posAmt + delAmt;
+            let calcPos = 0, calcDel = 0, calcTotal = 0;
+            let chartArr = Array(12).fill(0);
+
+            if (rawRecords.length > 0 && typeof rawRecords[0] === 'object') {
+                // 객체 배열 파싱 [{month: 1, pos: 100, delivery: 50...}]
+                rawRecords.forEach(r => {
+                    const m = (parseInt(r.month) || 1) - 1;
+                    const p = Number(r.pos || r.posSales || 0);
+                    const d = Number(r.delivery || r.deliverySales || 0);
+                    const t = Number(r.total || r.totalSales || r.amount || (p + d) || 0);
+                    
+                    if (m >= 0 && m < 12) {
+                        chartArr[m] = t;
+                        calcPos += p;
+                        calcDel += d;
+                        calcTotal += t;
+                    }
+                });
+            } else if (rawRecords.length > 0 && typeof rawRecords[0] === 'number') {
+                // 단순 숫자 배열 [100, 200, 300...]
+                chartArr = rawRecords.slice(0, 12).map(v => Number(v)||0);
+                calcTotal = chartArr.reduce((a,b) => a+b, 0);
             }
 
-            // 화면에 렌더링
+            // 만약 배열이 비어있었다면, 루트 객체의 ytd 값을 스캔하는 2차 백업 플랜
+            if (calcTotal === 0) {
+                calcPos = Number(dataPayload.ytdPos || dataPayload.posSales || dataPayload.pos || 0);
+                calcDel = Number(dataPayload.ytdDelivery || dataPayload.deliverySales || dataPayload.delivery || 0);
+                calcTotal = Number(dataPayload.ytdTotal || dataPayload.totalSales || dataPayload.total || (calcPos + calcDel));
+            }
+
+            // 1. KPI 텍스트 렌더링
             const elemTotal = document.getElementById('dashYtdTotal');
             const elemPos = document.getElementById('dashYtdPos');
             const elemDel = document.getElementById('dashYtdDelivery');
 
-            if (elemTotal) elemTotal.innerText = formatCurrency(totalAmt);
-            if (elemPos) elemPos.innerText = formatCurrency(posAmt);
-            if (elemDel) elemDel.innerText = formatCurrency(delAmt);
+            if (elemTotal) elemTotal.innerText = formatCurrency(calcTotal);
+            if (elemPos) elemPos.innerText = formatCurrency(calcPos);
+            if (elemDel) elemDel.innerText = formatCurrency(calcDel);
 
-            // 2. 월별 차트 데이터 구조 정규화 (배열 vs 객체 배열)
-            let rawMonthly = source.monthlyData || source.chartData || source.records || Array(12).fill(0);
-            let finalChartData = Array(12).fill(0);
-
-            if (Array.isArray(rawMonthly)) {
-                if (rawMonthly.length > 0 && typeof rawMonthly[0] === 'object') {
-                    // 데이터가 [{month: 1, total: 1000}, ...] 형태일 경우 파싱
-                    rawMonthly.forEach(item => {
-                        const mIdx = (parseInt(item.month) || 1) - 1;
-                        const val = Number(item.total || item.totalSales || item.amount || (Number(item.posSales||0) + Number(item.deliverySales||0)) || 0);
-                        if (mIdx >= 0 && mIdx < 12) finalChartData[mIdx] = val;
-                    });
-                } else {
-                    // 순수 숫자 배열일 경우
-                    finalChartData = rawMonthly.map(v => Number(v) || 0);
-                    while(finalChartData.length < 12) finalChartData.push(0);
-                    finalChartData = finalChartData.slice(0, 12);
-                }
-            }
-
-            // Chart.js 렌더링 호출
-            renderSalesChart(finalChartData);
+            // 2. Chart.js 렌더링
+            renderSalesChart(chartArr);
             
             showToast(`${targetYear}년도 데이터 동기화 완료`, "success");
         } else {
@@ -154,7 +162,7 @@ async function loadDashboardData() {
         }
     } catch (err) {
         console.error("Dashboard Load Error:", err);
-        // 에러 발생 시 UI가 멈추지 않도록 기본 차트(0) 렌더링 보장
+        // 에러 발생 시 UI가 멈추지 않도록 기본 차트(0) 렌더링 강제 보장
         renderSalesChart(Array(12).fill(0));
         showToast("대시보드 데이터 로드 오류: " + (err.message || "알 수 없는 오류"), "error");
     } finally {
@@ -167,19 +175,18 @@ function renderSalesChart(monthlyData) {
     const ctx = document.getElementById('salesChartCanvas');
     if (!ctx) return;
 
-    // 🚨 기존에 그려진 차트가 있다면 무조건 파괴(Destroy)하여 브라우저 강제 종료(Crash) 방지
+    // 🚨 차트 인스턴스 파괴 (브라우저 메모리 폭발 방지)
     if (salesChartInstance) {
         salesChartInstance.destroy();
     }
 
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    // V15.6 핑크 그라데이션 생성 (배경)
+    // V15.7 핑크 그라데이션
     const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(232, 76, 96, 0.4)'); // 상단은 진한 핑크
-    gradient.addColorStop(1, 'rgba(232, 76, 96, 0.0)'); // 하단은 투명
+    gradient.addColorStop(0, 'rgba(232, 76, 96, 0.4)');
+    gradient.addColorStop(1, 'rgba(232, 76, 96, 0.0)');
 
-    // 폰트 전역 설정 (엔터프라이즈 통합)
     Chart.defaults.font.family = "'Inter', sans-serif";
 
     salesChartInstance = new Chart(ctx, {
@@ -198,7 +205,7 @@ function renderSalesChart(monthlyData) {
                 pointRadius: 4,
                 pointHoverRadius: 6,
                 fill: true,
-                tension: 0.4 // 부드러운 곡선 적용 (시네마틱 렌더링)
+                tension: 0.4
             }]
         },
         options: {
@@ -211,7 +218,7 @@ function renderSalesChart(monthlyData) {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(26, 21, 22, 0.9)', // 프리미엄 차콜
+                    backgroundColor: 'rgba(26, 21, 22, 0.9)',
                     titleFont: { size: 13, weight: 'bold' },
                     bodyFont: { size: 14, weight: 'bold' },
                     padding: 12,
@@ -251,23 +258,30 @@ function renderSalesChart(monthlyData) {
     });
 }
 
+// 🌟 [누락 해결] ERP Sales와 100% 동일한 로딩가능 연도 리스트 생성
+function populateDashYearSelector() {
+    const yearSelector = document.getElementById('dashYearSelector');
+    if (!yearSelector) return;
+    
+    yearSelector.innerHTML = '';
+    const currentYear = new Date().getFullYear();
+    
+    // 2022년도부터 내년도까지 렌더링 (admin.js와 동기화)
+    for (let y = currentYear + 2; y >= 2022; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.innerText = y + " Fiscal Year";
+        if (y === currentYear) opt.selected = true;
+        yearSelector.appendChild(opt);
+    }
+}
+
 // ============================================================================
 // 🌟 시스템 초기화 및 이벤트 리스너 바인딩
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 셀렉터 기본값 세팅 (올해 연도 자동 할당)
-    const yearSelector = document.getElementById('dashYearSelector');
-    if (yearSelector) {
-        const currentYear = new Date().getFullYear();
-        // 옵션에 올해가 없다면 자동 추가
-        if (!Array.from(yearSelector.options).some(opt => opt.value === String(currentYear))) {
-            const opt = document.createElement('option');
-            opt.value = currentYear;
-            opt.innerText = currentYear;
-            yearSelector.appendChild(opt);
-        }
-        yearSelector.value = currentYear;
-    }
+    // 1. 연도 셀렉터 동기화
+    populateDashYearSelector();
 
     // 2. 이벤트 리스너 연결
     document.getElementById('dashYearSelector')?.addEventListener('change', loadDashboardData);
