@@ -1,19 +1,19 @@
 // assets/js/recipes.js
-// 🌟 V15.4 Ultimate Kernel - Cross-Validation Passed, Null-Safe Search, No Deletions
+// 🌟 V15.9 Ultimate Kernel - Omni-Parser, Body Scroll Lock, No Deletions
 
-const CONFIG = window.SYSTEM_CONFIG;
-const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
-const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
+const CONFIG = window.SYSTEM_CONFIG || {};
+const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+const userRole = (localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
+const clientName = localStorage.getItem(STORAGE.CLIENT_NAME);
+const sessionToken = localStorage.getItem(STORAGE.USER_TOKEN);
 
-// 🌟 [방화벽 1] 토큰 및 권한 무결성 검증 (VENDOR 접근 원천 차단)
+// 🌟 [방화벽 1] 권한 무결성 검증 (VENDOR 접근 원천 차단)
 if (!sessionToken || !clientName) { window.location.replace("index.html"); }
 if (userRole === "VENDOR") { 
-    alert("레시피 열람 권한이 없습니다."); 
+    alert("레시피 보안 구역입니다. 열람 권한이 없습니다."); 
     window.location.replace("items.html"); 
 }
 
-// UI 헤더 세팅
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName;
 
@@ -24,13 +24,13 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     localStorage.clear(); window.location.replace("index.html"); 
 });
 
-// 마스터 권한일 경우 관리자 탭 활성화
+// 마스터 권한일 경우 관리자 전용 탭 활성화
 if (userRole === "MASTER") {
     document.getElementById('navAdmin')?.classList.remove('hidden');
     document.getElementById('navInvoice')?.classList.remove('hidden');
 }
 
-// 🌟 상태 알림 토스트 (V15.4 신전 핑크 테마)
+// 🌟 상태 알림 토스트 (V15.9 신전 핑크 테마)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -56,7 +56,7 @@ async function executeApi(action, payload = {}, retries = 3) {
         const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
         try {
-            const response = await fetch(CONFIG.API.BASE_URL, {
+            const response = await fetch(CONFIG.API?.BASE_URL || "", {
                 method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
                 signal: controller.signal
@@ -90,11 +90,11 @@ async function executeApi(action, payload = {}, retries = 3) {
             }
         }
     }
-    throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침 해주세요.");
+    throw new Error(lastError?.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침 해주세요.");
 }
 
 // ============================================================================
-// 🍳 레시피 데이터 파이프라인
+// 🍳 레시피 데이터 파이프라인 (Omni-Parser 스캔 탑재)
 // ============================================================================
 let allRecipes = [];
 let currentCategory = "All Recipes";
@@ -106,15 +106,20 @@ async function fetchRecipes() {
 
     try {
         const result = await executeApi("get_recipes");
+        
         if (result && result.success) {
-            allRecipes = result.recipes || [];
+            // 🚨 Omni-Parser: 객체 뎁스 및 파편화 대응 (result.recipes -> result.data -> result 등)
+            let dataPayload = result.recipes || result.data || result || [];
+            if (!Array.isArray(dataPayload)) dataPayload = []; // 배열이 아닐 경우 빈 배열로 강제 초기화
+            
+            allRecipes = dataPayload;
             buildCategoryFilters();
             renderRecipes(allRecipes);
         } else {
-            throw new Error(result.message || "Failed to load recipes.");
+            throw new Error(result?.message || "Failed to load recipes.");
         }
     } catch (err) {
-        grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E84C60] font-black tracking-widest">${err.message}</div>`;
+        grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E84C60] font-black tracking-widest">${err.message || "로딩 오류"}</div>`;
         showToast("데이터를 불러오지 못했습니다.", "error");
     }
 }
@@ -124,7 +129,7 @@ function buildCategoryFilters() {
     const filterContainer = document.getElementById('recipeCategoryFilters');
     if (!filterContainer) return;
     
-    // 카테고리 추출 (중복 제거)
+    // 카테고리 추출 (중복 제거 및 Null 방어)
     const categories = ["All Recipes", ...new Set(allRecipes.map(r => r.category || "Uncategorized"))];
     filterContainer.innerHTML = '';
     
@@ -181,7 +186,7 @@ function renderRecipes(recipes) {
         const delay = (index % 12) * 50;
         const card = document.createElement('div');
         
-        card.className = `recipe-card bg-white border border-gray-200 rounded-[1.5rem] p-6 shadow-sm flex flex-col h-full cinematic-enter`;
+        card.className = `recipe-card bg-white border border-gray-200 rounded-[1.5rem] p-6 shadow-sm flex flex-col h-full cinematic-enter cursor-pointer group`;
         card.style.animationDelay = `${delay}ms`;
         card.onclick = () => openRecipeModal(recipe);
         
@@ -218,6 +223,7 @@ function openRecipeModal(recipe) {
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        
         // 🚨 모달 오픈 시 배경 화면 스크롤 강제 잠금 (모바일 UX 최적화)
         document.body.style.overflow = 'hidden';
     }
@@ -229,6 +235,7 @@ window.closeRecipeModal = function() {
     if (modal) {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        
         // 🚨 모달 종료 시 배경 스크롤 원복
         document.body.style.overflow = '';
     }
