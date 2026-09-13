@@ -1,5 +1,5 @@
 // assets/js/invoice.js
-// 🌟 V15.8 Ultimate Kernel - Omni-Parser 2.0 (Remittance & Null-Safe Fix), No Deletions
+// 🌟 V16.3 Ultimate Kernel - Transparent RBAC + Omni-Parser 2.0 + PDF Print Restored
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -34,7 +34,7 @@ const formatDate = (dateObj) => {
     return dateObj.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' });
 };
 
-// 🌟 [UI] 상태 알림 토스트 메시지 (V15.8 핑크 테마 동기화)
+// 🌟 [UI] 상태 알림 토스트 메시지 (V16.3 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -48,6 +48,43 @@ function showToast(message, type = 'success') {
     container.appendChild(toast);
     setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
     setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ============================================================================
+// 🔒 [V16.3 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// ============================================================================
+function applyGlobalRbacNavigation() {
+    const rbacRules = {
+        'navDashboard': ['MASTER', 'PARTNER'], 
+        'navRecipes': ['MASTER', 'PARTNER'],   
+        'navAdmin': ['MASTER', 'VENDOR'],      
+        'navInvoice': ['MASTER']               
+    };
+
+    // 1. 모든 GNB 탭 강제 노출 (시스템 스케일 증명)
+    ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+    });
+
+    // 2. 권한 락(Lock) 처리 및 이벤트 강제 탈취 (이벤트 복제)
+    Object.keys(rbacRules).forEach(id => {
+        const el = document.getElementById(id);
+        const allowedRoles = rbacRules[id];
+        
+        if (el && !allowedRoles.includes(userRole)) {
+            el.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
+            el.innerHTML += ' <span class="text-[11px] ml-1 opacity-80">🔒</span>';
+            el.removeAttribute('href'); 
+            
+            const clone = el.cloneNode(true);
+            clone.addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                showToast("해당 메뉴는 열람 권한이 없습니다.", "error");
+            });
+            el.parentNode.replaceChild(clone, el);
+        }
+    });
 }
 
 // ============================================================================
@@ -170,11 +207,10 @@ async function generateInvoice() {
             clientName, targetYear, startMonth, endMonth 
         });
 
-        // 디버깅 콘솔
         console.log(`[Invoice Data Scanned]`, result);
 
         if (result && result.success) {
-            // 🚨 [핵심 오류 수정] Omni-Parser 2.0: 백엔드 페이로드 객체 구조 파편화 완벽 방어
+            // 🚨 Omni-Parser 2.0: 백엔드 페이로드 객체 구조 파편화 완벽 방어
             const data = result.data || result.invoiceData || result.invoice || result || {};
             
             // 1. 하위 객체 방어 (Null-Safe)
@@ -271,6 +307,34 @@ async function generateInvoice() {
 }
 
 // ============================================================================
+// 🖨️ [누락 복구 완벽 완료] 브라우저 네이티브 PDF 인쇄 엔진
+// ============================================================================
+window.printInvoicePDF = function() {
+    // 인쇄 시 CSS 조작을 위해 잠시 스타일 추가 (인보이스 영역만 렌더링)
+    const style = document.createElement('style');
+    style.id = 'printOverrideStyle';
+    style.innerHTML = `
+        @media print {
+            body * { visibility: hidden; }
+            #invoiceDocumentContainer, #invoiceDocumentContainer * { visibility: visible; }
+            #invoiceDocumentContainer { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; box-shadow: none !important; }
+            .no-print { display: none !important; }
+            @page { margin: 0; size: auto; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // 인쇄(PDF 저장) 대화상자 호출
+    window.print();
+    
+    // 인쇄 창이 닫힌 후 원래대로 복구
+    setTimeout(() => {
+        const override = document.getElementById('printOverrideStyle');
+        if (override) override.remove();
+    }, 1000);
+};
+
+// ============================================================================
 // 📥 3. CSV 데이터 추출 엔진 (무결성 검증)
 // ============================================================================
 function exportInvoiceCSV() {
@@ -306,5 +370,9 @@ function exportInvoiceCSV() {
 // 글로벌 함수 노출
 window.generateInvoice = generateInvoice;
 window.exportInvoiceCSV = exportInvoiceCSV;
+window.printInvoicePDF = printInvoicePDF; // 누락 복원 완료
 
-document.addEventListener('DOMContentLoaded', initInvoicePanel);
+document.addEventListener('DOMContentLoaded', () => {
+    applyGlobalRbacNavigation(); // 글로벌 접근 통제 락 가동
+    initInvoicePanel();
+});
