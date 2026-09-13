@@ -1,5 +1,5 @@
 // assets/js/admin.js
-// 🌟 V15.9 Ultimate Kernel - Fully Digitized HQ Procurement & Strict RBAC Shield
+// 🌟 V16.2 Ultimate Kernel - Fully Digitized HQ Procurement + Transparent RBAC Shield + Zero Deletion
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -47,6 +47,43 @@ function showToast(message, type = 'success') {
   setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
+// ============================================================================
+// 🔒 [V16.2 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// ============================================================================
+function applyGlobalRbacNavigation() {
+    const rbacRules = {
+        'navDashboard': ['MASTER', 'PARTNER'], 
+        'navRecipes': ['MASTER', 'PARTNER'],   
+        'navAdmin': ['MASTER', 'VENDOR'],      
+        'navInvoice': ['MASTER']               
+    };
+
+    // 1. 모든 GNB 탭 강제 노출 (시스템 스케일 증명)
+    ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+    });
+
+    // 2. 권한 락(Lock) 처리 및 이벤트 강제 탈취 (이벤트 복제)
+    Object.keys(rbacRules).forEach(id => {
+        const el = document.getElementById(id);
+        const allowedRoles = rbacRules[id];
+        
+        if (el && !allowedRoles.includes(userRole)) {
+            el.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
+            el.innerHTML += ' <span class="text-[11px] ml-1 opacity-80">🔒</span>';
+            el.removeAttribute('href'); 
+            
+            const clone = el.cloneNode(true);
+            clone.addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                showToast("해당 메뉴는 열람 권한이 없습니다.", "error");
+            });
+            el.parentNode.replaceChild(clone, el);
+        }
+    });
+}
+
 function switchAdminTab(tab) {
   const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
   tabs.forEach(t => {
@@ -56,7 +93,10 @@ function switchAdminTab(tab) {
       if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-sm whitespace-nowrap";
       if(sec) sec.classList.remove('hidden');
     } else {
-      if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap";
+      // 🚨 권한이 잠긴 탭(cursor-not-allowed)은 스타일 원복에서 제외
+      if(btn && !btn.classList.contains('cursor-not-allowed')) {
+          btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap";
+      }
       if(sec) sec.classList.add('hidden');
     }
   });
@@ -116,7 +156,7 @@ async function executeApi(action, payload = {}, retries = 3) {
 }
 
 // ========================================================
-// [1] 마스터 DB (가맹점 프로필) 관리 로직 (VENDOR 접근 불가)
+// [1] 마스터 DB (가맹점 프로필) 관리 로직
 // ========================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR") return; 
@@ -196,7 +236,7 @@ async function saveClientData(rowIdx) {
 }
 
 // ========================================================
-// [2] 매출 데이터베이스 매니저 (ERP 로직) (VENDOR 접근 불가)
+// [2] 매출 데이터베이스 매니저 (ERP 로직)
 // ========================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
@@ -311,7 +351,6 @@ async function saveSalesGridData() {
 // ========================================================
 // [3] 본사 조달 관제(HQ Orders) 및 스캔 알림(Health Scan)
 // ========================================================
-
 function renderOrderMetrics(metrics) {
   if(!metrics) return;
   const table = document.getElementById('hqOrdersGridBody')?.closest('table');
@@ -488,10 +527,8 @@ function renderHqOrders() {
 // ============================================================================
 let hqCartData = {}; // { itemCode: qty }
 
-// 1. 입력창 강제 클릭 이벤트로 덮어씌우기
 function transformHqInputsToDigital() {
     const regionInput = document.getElementById('hqRegionInput');
-    // 지역 입력창 -> Dropdown으로 강제 변환 (오타 원천 차단)
     if (regionInput && regionInput.tagName === 'INPUT') {
         const select = document.createElement('select');
         select.id = 'hqRegionInput';
@@ -501,7 +538,6 @@ function transformHqInputsToDigital() {
     }
 
     const itemsInput = document.getElementById('hqItemsInput');
-    // 수기 입력 텍스트창 -> 클릭 시 스마트 카트 팝업 버튼으로 강제 변환
     if (itemsInput) {
         itemsInput.readOnly = true;
         itemsInput.placeholder = "🛒 Click to Select Items & Qty...";
@@ -510,7 +546,6 @@ function transformHqInputsToDigital() {
     }
 }
 
-// 2. 스마트 카트 모달 열기
 function openHqOrderCartModal() {
     if(cachedItems.length === 0) return showToast("품목 카탈로그를 불러오는 중입니다. 잠시만 기다려주세요.", "error");
 
@@ -522,9 +557,7 @@ function openHqOrderCartModal() {
         document.body.appendChild(modal);
     }
 
-    // 벤더일 경우, 해당 벤더의 품목만 보여주기 (옵션: 모든 품목 오픈)
     let displayItems = cachedItems;
-
     let itemsHtml = '';
     displayItems.forEach(item => {
         let currentQty = hqCartData[item.code] || "";
@@ -562,7 +595,6 @@ function openHqOrderCartModal() {
     setTimeout(() => document.getElementById('hqCartModalContent').classList.remove('scale-95'), 50);
 }
 
-// 3. 모달 닫기
 window.closeHqCartModal = function() {
     const modal = document.getElementById('hqCartModal');
     if (modal) {
@@ -571,7 +603,6 @@ window.closeHqCartModal = function() {
     }
 }
 
-// 4. 모달 내 실시간 검색
 window.filterHqCart = function(query) {
     const term = query.toLowerCase();
     const rows = document.querySelectorAll('.hq-cart-item-row');
@@ -582,10 +613,9 @@ window.filterHqCart = function(query) {
     });
 }
 
-// 5. 확정 및 표준화된 문자열 변환 (Digitization)
 window.confirmHqCart = function() {
     const inputs = document.querySelectorAll('.hq-cart-item-row input[type="number"]');
-    hqCartData = {}; // 초기화
+    hqCartData = {}; 
     let formattedStrings = [];
     
     inputs.forEach(input => {
@@ -609,11 +639,9 @@ window.confirmHqCart = function() {
     closeHqCartModal();
 }
 
-// 6. 서버로 최종 제출
 window.saveHqOrder = async function() {
   if (isSubmitting) return;
   
-  // 벤더(VENDOR)의 경우, Input이 막혀있으므로 value를 확실히 가져옴
   const vendorInput = document.getElementById('hqVendorInput');
   const vendorName = vendorInput ? vendorInput.value.trim() : clientName;
   const region = document.getElementById('hqRegionInput').value.toUpperCase().trim();
@@ -851,32 +879,6 @@ async function processExcelData(jsonData, filename) {
   }
 }
 
-// 🚨 발주 취소 글로벌 로직
-window.cancelOrder = async function(batchId) {
-  if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
-
-  if (!batchId) {
-      batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: ORD-123456)");
-      if (!batchId) return;
-  }
-
-  const confirmMsg = `정말 주문 [${batchId.trim()}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 원복되며 출고 중지 메일이 발송됩니다.`;
-  if (!confirm(confirmMsg)) return;
-
-  isSubmitting = true;
-  showToast("⏳ 시스템 취소 요청 및 재고 복구를 진행 중입니다...", "success");
-
-  try {
-      const result = await executeApi("cancel_order", { batchId: batchId.trim() });
-      if (result && result.success) { showToast(`✅ ${result.message}`, "success"); } 
-      else throw new Error(result.message);
-  } catch (err) {
-      showToast(`❌ 취소 실패: ${err.message}`, "error");
-  } finally {
-      isSubmitting = false;
-  }
-}
-
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone');
   if(!dropZone) return;
@@ -889,13 +891,16 @@ function setupDragAndDrop() {
 }
 
 // ============================================================================
-// 🌟 시스템 엔진 가동 및 UI 라우팅 (VENDOR 권한 분리)
+// 🌟 시스템 엔진 가동 및 UI 라우팅 (VENDOR 권한 분리 및 서브탭 락 다운)
 // ============================================================================
 window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; 
-window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.handleExcelUpload = handleExcelUpload;
+window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.saveHqOrder = saveHqOrder; window.handleExcelUpload = handleExcelUpload;
 
 document.addEventListener('DOMContentLoaded', () => { 
   
+  // 🌟 글로벌 네비게이션 "투명성 보장형 접근 통제" 적용
+  applyGlobalRbacNavigation();
+
   const navAdmin = document.getElementById('navAdmin');
   if (navAdmin) {
       navAdmin.classList.remove('hidden');
@@ -907,8 +912,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 2. VENDOR 계정 전용 라우팅
   if (userRole === "VENDOR") {
-      document.getElementById('tabBtn_profiles')?.classList.add('hidden');
-      document.getElementById('tabBtn_sales')?.classList.add('hidden');
       
       const hqVendorInput = document.getElementById('hqVendorInput');
       if (hqVendorInput) {
