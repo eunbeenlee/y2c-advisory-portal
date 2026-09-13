@@ -1,5 +1,5 @@
 // assets/js/dashboard.js
-// 🌟 V15.7 Ultimate Kernel - Omni-Parser 2.0 (ERP Data Sync), No Deletions
+// 🌟 V16.4 Ultimate Kernel - Transparent RBAC + Omni-Parser 2.0 + Zero Deletion
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -13,13 +13,25 @@ if (!sessionToken || userRole === "VENDOR") {
     window.location.replace("items.html");
 }
 
+// 🌟 상단 프로필 및 로그아웃 바인딩 (타 페이지와 완벽 동기화)
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.innerText = clientName || userRole;
+
+const badge = document.getElementById('userRoleBadge');
+if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
+
+document.getElementById('logoutBtn')?.addEventListener('click', () => { 
+    localStorage.clear(); 
+    window.location.replace("index.html"); 
+});
+
 // 회계 표준 포맷팅 (Null-Safe 방어)
 const formatCurrency = (amount) => {
     const safeAmount = Number(amount) || 0;
     return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
 };
 
-// 🌟 상태 알림 토스트 (V15.7 신전 핑크 테마 동기화)
+// 🌟 상태 알림 토스트 (V16.4 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -33,6 +45,43 @@ function showToast(message, type = 'success') {
     container.appendChild(toast);
     setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
     setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ============================================================================
+// 🔒 [V16.4 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// ============================================================================
+function applyGlobalRbacNavigation() {
+    const rbacRules = {
+        'navDashboard': ['MASTER', 'PARTNER'], 
+        'navRecipes': ['MASTER', 'PARTNER'],   
+        'navAdmin': ['MASTER', 'VENDOR'],      
+        'navInvoice': ['MASTER']               
+    };
+
+    // 1. 모든 GNB 탭 강제 노출 (시스템 스케일 증명)
+    ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+    });
+
+    // 2. 권한 락(Lock) 처리 및 이벤트 강제 탈취 (이벤트 복제)
+    Object.keys(rbacRules).forEach(id => {
+        const el = document.getElementById(id);
+        const allowedRoles = rbacRules[id];
+        
+        if (el && !allowedRoles.includes(userRole)) {
+            el.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
+            el.innerHTML += ' <span class="text-[11px] ml-1 opacity-80">🔒</span>';
+            el.removeAttribute('href'); 
+            
+            const clone = el.cloneNode(true);
+            clone.addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                showToast("해당 메뉴는 열람 권한이 없습니다.", "error");
+            });
+            el.parentNode.replaceChild(clone, el);
+        }
+    });
 }
 
 // ============================================================================
@@ -96,28 +145,24 @@ async function loadDashboardData() {
     if (refreshBtn) refreshBtn.classList.add('animate-spin', 'text-[#E84C60]');
 
     try {
-        // 백엔드 통신: get_dashboard (만약 백엔드가 ALL 파라미터를 못받을 경우를 대비해 targetYear 중복전송)
         const result = await executeApi("get_dashboard", { 
             year: targetYear, 
             targetYear: targetYear,
             clientName: userRole === "MASTER" ? "ALL" : clientName 
         });
 
-        // 디버깅 용이성을 위한 콘솔 출력 (실서버 방해 안됨)
         console.log(`[Dashboard ${targetYear} API Response]`, result);
 
         if (result && result.success) {
-            // 🚨 [핵심 오류 수정] Omni-Parser 2.0: ERP Sales 데이터 배열 완벽 매핑
+            // 🚨 Omni-Parser 2.0: ERP Sales 데이터 배열 완벽 매핑
             const dataPayload = result.data || result.dashboardData || result.records || result;
             
-            // 데이터가 ERP Sales처럼 records 배열 형식으로 넘어올 경우 완벽 추출
             let rawRecords = Array.isArray(dataPayload) ? dataPayload : (dataPayload.records || dataPayload.monthlyData || []);
             
             let calcPos = 0, calcDel = 0, calcTotal = 0;
             let chartArr = Array(12).fill(0);
 
             if (rawRecords.length > 0 && typeof rawRecords[0] === 'object') {
-                // 객체 배열 파싱 [{month: 1, pos: 100, delivery: 50...}]
                 rawRecords.forEach(r => {
                     const m = (parseInt(r.month) || 1) - 1;
                     const p = Number(r.pos || r.posSales || 0);
@@ -132,19 +177,16 @@ async function loadDashboardData() {
                     }
                 });
             } else if (rawRecords.length > 0 && typeof rawRecords[0] === 'number') {
-                // 단순 숫자 배열 [100, 200, 300...]
                 chartArr = rawRecords.slice(0, 12).map(v => Number(v)||0);
                 calcTotal = chartArr.reduce((a,b) => a+b, 0);
             }
 
-            // 만약 배열이 비어있었다면, 루트 객체의 ytd 값을 스캔하는 2차 백업 플랜
             if (calcTotal === 0) {
                 calcPos = Number(dataPayload.ytdPos || dataPayload.posSales || dataPayload.pos || 0);
                 calcDel = Number(dataPayload.ytdDelivery || dataPayload.deliverySales || dataPayload.delivery || 0);
                 calcTotal = Number(dataPayload.ytdTotal || dataPayload.totalSales || dataPayload.total || (calcPos + calcDel));
             }
 
-            // 1. KPI 텍스트 렌더링
             const elemTotal = document.getElementById('dashYtdTotal');
             const elemPos = document.getElementById('dashYtdPos');
             const elemDel = document.getElementById('dashYtdDelivery');
@@ -153,7 +195,6 @@ async function loadDashboardData() {
             if (elemPos) elemPos.innerText = formatCurrency(calcPos);
             if (elemDel) elemDel.innerText = formatCurrency(calcDel);
 
-            // 2. Chart.js 렌더링
             renderSalesChart(chartArr);
             
             showToast(`${targetYear}년도 데이터 동기화 완료`, "success");
@@ -162,7 +203,6 @@ async function loadDashboardData() {
         }
     } catch (err) {
         console.error("Dashboard Load Error:", err);
-        // 에러 발생 시 UI가 멈추지 않도록 기본 차트(0) 렌더링 강제 보장
         renderSalesChart(Array(12).fill(0));
         showToast("대시보드 데이터 로드 오류: " + (err.message || "알 수 없는 오류"), "error");
     } finally {
@@ -175,14 +215,12 @@ function renderSalesChart(monthlyData) {
     const ctx = document.getElementById('salesChartCanvas');
     if (!ctx) return;
 
-    // 🚨 차트 인스턴스 파괴 (브라우저 메모리 폭발 방지)
     if (salesChartInstance) {
         salesChartInstance.destroy();
     }
 
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    // V15.7 핑크 그라데이션
     const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(232, 76, 96, 0.4)');
     gradient.addColorStop(1, 'rgba(232, 76, 96, 0.0)');
@@ -258,7 +296,7 @@ function renderSalesChart(monthlyData) {
     });
 }
 
-// 🌟 [누락 해결] ERP Sales와 100% 동일한 로딩가능 연도 리스트 생성
+// 🌟 ERP Sales와 100% 동일한 로딩가능 연도 리스트 생성
 function populateDashYearSelector() {
     const yearSelector = document.getElementById('dashYearSelector');
     if (!yearSelector) return;
@@ -266,7 +304,6 @@ function populateDashYearSelector() {
     yearSelector.innerHTML = '';
     const currentYear = new Date().getFullYear();
     
-    // 2022년도부터 내년도까지 렌더링 (admin.js와 동기화)
     for (let y = currentYear + 2; y >= 2022; y--) {
         const opt = document.createElement('option');
         opt.value = y;
@@ -280,6 +317,9 @@ function populateDashYearSelector() {
 // 🌟 시스템 초기화 및 이벤트 리스너 바인딩
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // 🌟 글로벌 투명성 보장 접근 제어 락 가동
+    applyGlobalRbacNavigation();
+
     // 1. 연도 셀렉터 동기화
     populateDashYearSelector();
 
