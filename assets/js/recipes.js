@@ -1,5 +1,5 @@
 // assets/js/recipes.js
-// 🌟 V15.9 Ultimate Kernel - Omni-Parser, Body Scroll Lock, No Deletions
+// 🌟 V16.0 Ultimate Kernel - Transparent RBAC + Omni-Parser + Body Scroll Lock + Zero Deletion
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -24,13 +24,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     localStorage.clear(); window.location.replace("index.html"); 
 });
 
-// 마스터 권한일 경우 관리자 전용 탭 활성화
-if (userRole === "MASTER") {
-    document.getElementById('navAdmin')?.classList.remove('hidden');
-    document.getElementById('navInvoice')?.classList.remove('hidden');
-}
-
-// 🌟 상태 알림 토스트 (V15.9 신전 핑크 테마)
+// 🌟 상태 알림 토스트 (V16.0 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -44,6 +38,43 @@ function showToast(message, type = 'success') {
     container.appendChild(toast);
     setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
     setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ============================================================================
+// 🔒 [V16.0 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// ============================================================================
+function applyGlobalRbacNavigation() {
+    const rbacRules = {
+        'navDashboard': ['MASTER', 'PARTNER'], 
+        'navRecipes': ['MASTER', 'PARTNER'],   
+        'navAdmin': ['MASTER', 'VENDOR'],      
+        'navInvoice': ['MASTER']               
+    };
+
+    // 1. 모든 GNB 탭 강제 노출 (시스템 스케일 증명)
+    ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+    });
+
+    // 2. 권한 락(Lock) 처리 및 이벤트 강제 탈취
+    Object.keys(rbacRules).forEach(id => {
+        const el = document.getElementById(id);
+        const allowedRoles = rbacRules[id];
+        
+        if (el && !allowedRoles.includes(userRole)) {
+            el.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
+            el.innerHTML += ' <span class="text-[11px] ml-1 opacity-80">🔒</span>';
+            el.removeAttribute('href'); 
+            
+            const clone = el.cloneNode(true);
+            clone.addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                showToast("해당 메뉴는 열람 권한이 없습니다.", "error");
+            });
+            el.parentNode.replaceChild(clone, el);
+        }
+    });
 }
 
 // ============================================================================
@@ -245,6 +276,9 @@ window.closeRecipeModal = function() {
 // 🌟 시스템 초기화 및 이벤트 리스너 바인딩
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // 🌟 글로벌 투명성 보장 접근 제어 락 가동
+    applyGlobalRbacNavigation();
+
     // 실시간 검색어 필터링 바인딩
     const searchInput = document.getElementById('recipeSearchInput');
     if (searchInput) {
