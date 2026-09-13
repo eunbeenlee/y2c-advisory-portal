@@ -1,10 +1,11 @@
 // assets/js/admin.js
-// 🌟 V15.8 Ultimate Kernel - VENDOR Access Granted, RBAC Shield, No Deletions
+// 🌟 V15.9 Ultimate Kernel - Fully Digitized HQ Procurement & Strict RBAC Shield
 
-const CONFIG = window.SYSTEM_CONFIG;
-const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
-const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN); 
+const CONFIG = window.SYSTEM_CONFIG || {};
+const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+const userRole = (localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
+const clientName = localStorage.getItem(STORAGE.CLIENT_NAME);
+const sessionToken = localStorage.getItem(STORAGE.USER_TOKEN); 
 
 // 🌟 [방화벽 1] 권한 무결성 검증 (MASTER 및 VENDOR만 접근 허용)
 if (!sessionToken || (userRole !== "MASTER" && userRole !== "VENDOR")) { 
@@ -30,7 +31,7 @@ const formatDate = (isoStr) => {
   return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: '2-digit' });
 };
 
-// 🌟 상태 알림 토스트 (V15.8 신전 핑크 테마 동기화)
+// 🌟 상태 알림 토스트 (V15.9 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) {
@@ -118,7 +119,7 @@ async function executeApi(action, payload = {}, retries = 3) {
 // [1] 마스터 DB (가맹점 프로필) 관리 로직 (VENDOR 접근 불가)
 // ========================================================
 async function fetchMasterData() {
-  if (userRole === "VENDOR") return; // 벤더는 로드하지 않음
+  if (userRole === "VENDOR") return; 
 
   const tableBody = document.getElementById('masterTableBody');
   const errorBanner = document.getElementById('errorBanner');
@@ -482,16 +483,143 @@ function renderHqOrders() {
   });
 }
 
+// ============================================================================
+// 🛒 [V15.9 핵심 엔진] 완전 전산화된 본사 발주(HQ Order) 스마트 카트 모달
+// ============================================================================
+let hqCartData = {}; // { itemCode: qty }
+
+// 1. 입력창 강제 클릭 이벤트로 덮어씌우기
+function transformHqInputsToDigital() {
+    const regionInput = document.getElementById('hqRegionInput');
+    // 지역 입력창 -> Dropdown으로 강제 변환 (오타 원천 차단)
+    if (regionInput && regionInput.tagName === 'INPUT') {
+        const select = document.createElement('select');
+        select.id = 'hqRegionInput';
+        select.className = "w-full text-xs p-2 border border-gray-300 rounded focus:border-[#E84C60] outline-none text-center cursor-pointer font-bold text-gray-700";
+        select.innerHTML = '<option value="">-- Hub --</option><option value="ON">ON (Ontario)</option><option value="BC">BC (British Columbia)</option><option value="AB">AB (Alberta)</option>';
+        regionInput.parentNode.replaceChild(select, regionInput);
+    }
+
+    const itemsInput = document.getElementById('hqItemsInput');
+    // 수기 입력 텍스트창 -> 클릭 시 스마트 카트 팝업 버튼으로 강제 변환
+    if (itemsInput) {
+        itemsInput.readOnly = true;
+        itemsInput.placeholder = "🛒 Click to Select Items & Qty...";
+        itemsInput.classList.add('cursor-pointer', 'bg-pink-50', 'text-[#E84C60]', 'font-bold', 'hover:border-[#E84C60]', 'transition-colors');
+        itemsInput.addEventListener('click', openHqOrderCartModal);
+    }
+}
+
+// 2. 스마트 카트 모달 열기
+function openHqOrderCartModal() {
+    if(cachedItems.length === 0) return showToast("품목 카탈로그를 불러오는 중입니다. 잠시만 기다려주세요.", "error");
+
+    let modal = document.getElementById('hqCartModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'hqCartModal';
+        modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300';
+        document.body.appendChild(modal);
+    }
+
+    // 벤더일 경우, 해당 벤더의 품목만 보여주기 (옵션: 모든 품목 오픈)
+    let displayItems = cachedItems;
+
+    let itemsHtml = '';
+    displayItems.forEach(item => {
+        let currentQty = hqCartData[item.code] || "";
+        itemsHtml += `
+            <div class="hq-cart-item-row flex justify-between items-center p-3 border-b border-gray-100 hover:bg-pink-50 transition-colors" data-name="${item.name.toLowerCase()}">
+                <div class="flex flex-col">
+                    <span class="text-xs font-black text-gray-800">${item.name}</span>
+                    <span class="text-[10px] font-mono text-gray-500">[${item.code}] ${item.category}</span>
+                </div>
+                <input type="number" min="0" data-code="${item.code}" data-name="${item.name}" value="${currentQty}" placeholder="0" class="w-20 border border-gray-300 rounded px-2 py-1 text-center text-sm font-bold text-[#E84C60] focus:border-[#E84C60] outline-none shadow-inner bg-white">
+            </div>
+        `;
+    });
+
+    modal.innerHTML = `
+        <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transform transition-transform scale-95 duration-300" id="hqCartModalContent">
+            <div class="bg-[var(--premium-charcoal)] p-5 text-white flex justify-between items-center">
+                <h2 class="text-lg font-black tracking-widest uppercase flex items-center gap-2"><span>🛒</span> Digital Procurement Cart</h2>
+                <button onclick="closeHqCartModal()" class="text-gray-400 hover:text-white font-bold text-2xl">&times;</button>
+            </div>
+            <div class="p-3 bg-gray-50 border-b border-gray-200">
+                <input type="text" placeholder="Search item name..." class="w-full text-xs p-2.5 rounded-lg border border-gray-300 focus:border-[#E84C60] outline-none font-bold" oninput="filterHqCart(this.value)">
+            </div>
+            <div class="p-2 overflow-y-auto flex-grow hide-scrollbar">
+                ${itemsHtml}
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                <span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase">Enter Quantity & Confirm</span>
+                <button onclick="confirmHqCart()" class="bg-[#E84C60] text-white px-8 py-2.5 rounded-xl font-black shadow-md hover:bg-black transition-colors uppercase tracking-widest text-[11px]">Apply to Order</button>
+            </div>
+        </div>
+    `;
+
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => document.getElementById('hqCartModalContent').classList.remove('scale-95'), 50);
+}
+
+// 3. 모달 닫기
+window.closeHqCartModal = function() {
+    const modal = document.getElementById('hqCartModal');
+    if (modal) {
+        document.getElementById('hqCartModalContent').classList.add('scale-95');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+}
+
+// 4. 모달 내 실시간 검색
+window.filterHqCart = function(query) {
+    const term = query.toLowerCase();
+    const rows = document.querySelectorAll('.hq-cart-item-row');
+    rows.forEach(row => {
+        const name = row.getAttribute('data-name');
+        if (name.includes(term)) row.style.display = 'flex';
+        else row.style.display = 'none';
+    });
+}
+
+// 5. 확정 및 표준화된 문자열 변환 (Digitization)
+window.confirmHqCart = function() {
+    const inputs = document.querySelectorAll('.hq-cart-item-row input[type="number"]');
+    hqCartData = {}; // 초기화
+    let formattedStrings = [];
+    
+    inputs.forEach(input => {
+        const qty = parseInt(input.value);
+        if (qty > 0) {
+            const code = input.getAttribute('data-code');
+            const name = input.getAttribute('data-name');
+            hqCartData[code] = qty;
+            formattedStrings.push(`[${code}] ${name} x ${qty}`);
+        }
+    });
+
+    const itemsInput = document.getElementById('hqItemsInput');
+    if (formattedStrings.length > 0) {
+        itemsInput.value = formattedStrings.join(' / ');
+        showToast(`${formattedStrings.length}개의 품목이 전산화되어 카트에 담겼습니다.`, "success");
+    } else {
+        itemsInput.value = '';
+    }
+
+    closeHqCartModal();
+}
+
+// 6. 서버로 최종 제출
 window.saveHqOrder = async function() {
   if (isSubmitting) return;
   
-  // 벤더(VENDOR)의 경우, Input이 막혀있을 수 있으므로 value를 확실히 가져옴
+  // 벤더(VENDOR)의 경우, Input이 막혀있으므로 value를 확실히 가져옴
   const vendorInput = document.getElementById('hqVendorInput');
   const vendorName = vendorInput ? vendorInput.value.trim() : clientName;
   const region = document.getElementById('hqRegionInput').value.toUpperCase().trim();
   const items = document.getElementById('hqItemsInput').value.trim();
   
-  if(!vendorName || !region || !items) return showToast("필수 내역을 모두 입력해 주세요.", "error");
+  if(!vendorName || !region || !items) return showToast("모든 발주 정보(벤더, 지역, 품목)를 기입해 주세요.", "error");
 
   isSubmitting = true;
   const btn = document.getElementById('btnSubmitHqOrder');
@@ -505,8 +633,9 @@ window.saveHqOrder = async function() {
   try {
     const result = await executeApi("upsert_hq_order", { order: payload });
     if (result && result.success) { 
-      showToast("등록되었습니다.", "success"); 
+      showToast("발주가 본사 전산에 성공적으로 등록되었습니다.", "success"); 
       document.getElementById('hqItemsInput').value = ''; 
+      hqCartData = {}; // 카트 초기화
       fetchMappings(); 
     } 
     else if (result) throw new Error(result.message);
@@ -517,23 +646,21 @@ window.saveHqOrder = async function() {
   }
 }
 
-// 🚨 [복구 및 검증 완료] 상태 변경 함수
 window.updateHqOrderStatus = async function(orderId, status) {
   if (!orderId) return;
   try {
-    // 백엔드가 인식하는 상태값으로 변환(PREPARING -> HQ_PENDING 등)
     let finalStatus = status;
     if(status === "PREPARING") finalStatus = "HQ_PENDING";
     
     const result = await executeApi("update_hq_order_status", { orderId, status: finalStatus });
     if (result && result.success) {
         showToast(`Order ${orderId} marked as ${finalStatus}`, "success");
-        fetchMappings(); // 상태 변경 후 즉각 리렌더링
+        fetchMappings(); 
     }
     else throw new Error(result.message);
   } catch (err) {
     showToast(err.message, "error");
-    fetchMappings(); // 에러 발생 시 UI 롤백
+    fetchMappings(); 
   }
 }
 
@@ -724,7 +851,7 @@ async function processExcelData(jsonData, filename) {
   }
 }
 
-// 🚨 [복구 및 검증 완료] 발주 취소 글로벌 로직
+// 🚨 발주 취소 글로벌 로직
 window.cancelOrder = async function(batchId) {
   if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
 
@@ -765,8 +892,7 @@ function setupDragAndDrop() {
 // 🌟 시스템 엔진 가동 및 UI 라우팅 (VENDOR 권한 분리)
 // ============================================================================
 window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; 
-window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.saveHqOrder = saveHqOrder;
-window.handleExcelUpload = handleExcelUpload;
+window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.handleExcelUpload = handleExcelUpload;
 
 document.addEventListener('DOMContentLoaded', () => { 
   
@@ -776,13 +902,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (userRole === "VENDOR") navAdmin.innerText = "Logistics (HQ)";
   }
 
-  // 🌟 VENDOR 계정 전용 라우팅
+  // 1. 수기 입력창 ➔ 전산화 스마트 카트 폼으로 강제 변환
+  transformHqInputsToDigital();
+
+  // 2. VENDOR 계정 전용 라우팅
   if (userRole === "VENDOR") {
-      // 벤더는 가맹점 프로필, 매출 탭을 볼 수 없음 (강제 숨김)
       document.getElementById('tabBtn_profiles')?.classList.add('hidden');
       document.getElementById('tabBtn_sales')?.classList.add('hidden');
       
-      // HQ 발주 인풋창에 벤더 본인 이름 자동 세팅 및 잠금 (위조 방지)
       const hqVendorInput = document.getElementById('hqVendorInput');
       if (hqVendorInput) {
           hqVendorInput.value = clientName;
@@ -790,14 +917,10 @@ document.addEventListener('DOMContentLoaded', () => {
           hqVendorInput.classList.add('bg-gray-100', 'text-[#E84C60]', 'cursor-not-allowed', 'font-black');
       }
 
-      // 기본 탭을 HQ Orders로 강제 전환
       switchAdminTab('hqorders');
-      
-      // VENDOR는 마스터 전용 DB를 로드하지 않음
       setupDragAndDrop();
       fetchMappings().then(() => fetchCatalogForInbound()); 
   } else {
-      // MASTER 기본 파이프라인
       populateSalesYearSelector();
       setupDragAndDrop();
       switchAdminTab('profiles');
