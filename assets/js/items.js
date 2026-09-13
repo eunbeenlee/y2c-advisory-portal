@@ -1,15 +1,15 @@
 // assets/js/items.js
-// 🌟 V16.1 Ultimate - Zero Deletion (Original Preserved) + CRA Cross-Validation + Transparent RBAC
+// 🌟 V17.0 Ultimate Kernel - Zero Deletion, CORS/Offline Tracker, CRA Tax Engine, HTML Binding Safe
 
-// 글로벌 설정 안전 바인딩
-const CONFIG = window.SYSTEM_CONFIG || SYSTEM_CONFIG; 
-const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
-const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
+const CONFIG = window.SYSTEM_CONFIG || {};
+const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+const userRole = (localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
+const clientName = localStorage.getItem(STORAGE.CLIENT_NAME);
+const sessionToken = localStorage.getItem(STORAGE.USER_TOKEN);
 const cachedClientState = localStorage.getItem("y2c_premium_state") || "DEFAULT";
 
 // 🌟 [방화벽 1] 토큰 및 권한 무결성 검증
-if (!sessionToken || !clientName) { window.location.href = "index.html"; }
+if (!sessionToken || !clientName) { window.location.replace("index.html"); }
 
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName;
@@ -18,11 +18,34 @@ const badge = document.getElementById('userRoleBadge');
 if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => { 
-  localStorage.clear(); window.location.href = "index.html"; 
+  localStorage.clear(); window.location.replace("index.html"); 
 });
 
+const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+function formatTimestamp(isoString) {
+  if (!isoString) return "Never";
+  const d = new Date(isoString); 
+  return d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' });
+}
+
+// 🌟 상태 알림 토스트 (V17.0 신전 핑크 테마)
+function showToast(message, type = 'success') {
+  let container = document.getElementById('toastContainer');
+  if (!container) { 
+    container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container); 
+  }
+  const toast = document.createElement('div');
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
+  const icon = type === 'success' ? '✅' : '⚠️';
+  toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+  toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
+  setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
 // ============================================================================
-// 🔒 [V16.1 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (기존 삭제 방식 대체)
+// 🔒 [V17.0 핵심] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
 // ============================================================================
 function applyGlobalRbacNavigation() {
     const rbacRules = {
@@ -32,11 +55,13 @@ function applyGlobalRbacNavigation() {
         'navInvoice': ['MASTER']               
     };
 
-    Object.keys(rbacRules).forEach(id => {
+    // 1. 모든 GNB 탭 노출
+    ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('hidden');
     });
 
+    // 2. 권한 락(Lock) 및 이벤트 차단
     Object.keys(rbacRules).forEach(id => {
         const el = document.getElementById(id);
         const allowedRoles = rbacRules[id];
@@ -55,34 +80,11 @@ function applyGlobalRbacNavigation() {
         }
     });
 
-    // 벤더(VENDOR) 발주 입력 폼 차단
+    // VENDOR(물류사)는 카탈로그 발주 폼(주문) 완전 차단
     if (userRole === "VENDOR") {
         const orderAct = document.getElementById('orderActionContainer');
         if (orderAct) orderAct.remove(); 
     }
-}
-
-const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
-function formatTimestamp(isoString) {
-  if (!isoString) return "Never";
-  const d = new Date(isoString); 
-  return d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' });
-}
-
-// 🌟 상태 알림 토스트 (UI 피드백 - 신전 핑크 #E84C60 적용)
-function showToast(message, type = 'success') {
-  let container = document.getElementById('toastContainer');
-  if (!container) { 
-    container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container); 
-  }
-  const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
-  const icon = type === 'success' ? '✅' : '⚠️';
-  toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
-  toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
-  setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
 let cachedItems = [];
@@ -94,7 +96,7 @@ let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
 // ============================================================================
-// 🌟 [V16.1 업그레이드] 캐나다 CRA 세법 엔진 (상품명 + 카테고리 교차 검증)
+// 🌟 캐나다 CRA 세법 엔진 (상품명 + 카테고리 교차 검증)
 // ============================================================================
 function isZeroRatedItem(item) {
   if (!item) return false;
@@ -105,14 +107,12 @@ function isZeroRatedItem(item) {
   const name = String(item.name || '').toUpperCase().trim();
   const combinedSearchTarget = cat + " " + name;
 
-  // 1차: 명시적 과세 품목 (네거티브 필터링)
   const craTaxableKeywords = [
     'SNACK', 'CHIP', 'CANDY', 'CHOCOLATE', 'GUM', 'SODA', 'POP', 'CARBONATED', 'BEVERAGE', 'DRINK', 'LIQUOR', 'BEER', 'WINE', 'HOT FOOD', 'PREPARED MEAL', 'CATERING', 'EQUIPMENT', 'SUPPLY', 'PACKAGING', 'PLASTIC', 'PAPER', 'BAG', 'CUP', 'BOWL', 'UNIFORM',
     '스낵', '과자', '사탕', '캔디', '젤리', '초콜릿', '탄산', '음료', '주류', '맥주', '소주', '조리식품', '기기', '소모품', '포장재', '용기', '비닐', '쇼핑백', '유니폼', '장비', '비품'
   ];
   if (craTaxableKeywords.some(t => combinedSearchTarget.includes(t))) return false;
 
-  // 2차: 식자재 면세 품목 (포지티브 필터링)
   const craZeroRatedKeywords = [
     'FOOD', 'FROZEN', 'SAUCE', 'POWDER', 'GRAIN', 'RICE', 'INGREDIENTS', 'GROCERY', 'DISH', 'SEASONING', 'SPICE', 'MEAT', 'NOODLE', 'OIL', 'SYRUP', 'EXTRACT', 'SOUP', 'BROTH', 'BEEF', 'PORK', 'CHICKEN', 'FISH', 'SEAFOOD', 'VEGETABLE', 'FRUIT', 'FLOUR', 'SUGAR', 'SALT',
     '양념', '소스', '시즈닝', '떡', '면', '식품', '냉동', '원물', '조미료', '향신료', '가루', '분말', '파우더', '기름', '식용유', '시럽', '농축액', '엑기스', '고기', '해산물', '야채', '채소', '과일', '쌀', '밀가루', '육수', '국물', '육류', '생선'
@@ -121,9 +121,11 @@ function isZeroRatedItem(item) {
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] 세션 만료 강제 추방(Global Interceptor) & 지능형 백오프 엔진
+// 🌟 [방화벽 2] 세션 만료 강제 추방 & 지능형 백오프 엔진 (CORS / 오프라인 추적)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
+  if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
+
   let lastError;
   for (let i = 0; i <= retries; i++) {
     const controller = new AbortController();
@@ -142,10 +144,7 @@ async function executeApi(action, payload = {}, retries = 3) {
         const jsonResult = JSON.parse(rawText);
         if (!jsonResult.success) {
           if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
-            localStorage.clear();
-            alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
-            window.location.href = "index.html";
-            return;
+            localStorage.clear(); alert("보안 세션이 만료되었습니다. 다시 로그인해 주세요."); window.location.href = "index.html"; return;
           }
           if (jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
             throw new Error(jsonResult.message);
@@ -156,16 +155,20 @@ async function executeApi(action, payload = {}, retries = 3) {
         throw new Error("서버 응답 지연 현상. 재시도를 준비합니다.");
       }
     } catch (err) {
-      clearTimeout(timeoutId);
-      lastError = err;
+      clearTimeout(timeoutId); lastError = err;
+      
+      // 🚨 CORS(Failed to fetch) 에러 강제 추적
+      if (err.message && err.message.includes("Failed to fetch")) {
+          throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 '모든 사용자(Anyone)'로 변경하세요.</span>");
+      }
+
       if (i < retries) {
         const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
-        console.warn(`[통신 지연 우회] ${waitTime}ms 대기 후 ${action} 재시도... (${i+1}/${retries})`);
         await new Promise(res => setTimeout(res, waitTime));
       }
     }
   }
-  throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침 후 시도해주세요.");
+  throw new Error(lastError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다." : (lastError.message || "서버 통신 실패. 잠시 후 새로고침 해주세요."));
 }
 
 async function fetchMappings() {
@@ -173,9 +176,7 @@ async function fetchMappings() {
   try {
     const result = await executeApi("get_procurement_data");
     cachedMappings = (result && result.success && result.mappings) ? result.mappings : [];
-  } catch (error) { 
-    cachedMappings = [];
-  }
+  } catch (error) { cachedMappings = []; }
 }
 
 async function fetchItems() {
@@ -186,7 +187,7 @@ async function fetchItems() {
   try {
     const result = await executeApi("get_items", { clientState: currentClientState });
     if (result && result.success) {
-      cachedItems = result.items || [];
+      cachedItems = result.items || result.data || [];
       currentClientState = result.appliedState || "DEFAULT";
       taxRateObj = CONFIG.TAX_RATES[currentClientState.toUpperCase()] || CONFIG.TAX_RATES["DEFAULT"];
       
@@ -318,7 +319,7 @@ function renderTableItems() {
         orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
       } else {
         stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-        orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" oninput="calculateOrderTotal()" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all">`;
+        orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" oninput="calculateOrderTotal()" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all hover:shadow-md">`;
       }
     }
 
@@ -416,7 +417,7 @@ async function toggleStockEditMode() {
     });
     if (!hasChanges) {
       isStockEditMode = false; 
-      if(btn) { btn.innerHTML = "⚙️ MANAGE"; btn.classList.replace('bg-emerald-600', 'bg-gray-800'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
+      if(btn) { btn.innerHTML = "⚙️ MANAGE"; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
       renderTableItems(); return; 
     }
@@ -432,7 +433,7 @@ async function toggleStockEditMode() {
       if(err.message.includes("재고") || err.message.includes("부족")) { setTimeout(() => fetchItems(), 1500); }
     } finally {
       isStockEditMode = false; isSubmitting = false;
-      if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-gray-800'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
+      if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
     }
   }
@@ -701,7 +702,6 @@ function setupDragAndDrop() {
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
 }
 
-// 🌟 발주 취소 프론트엔드 엔진
 async function cancelOrder(batchId) {
     if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
 
@@ -732,8 +732,14 @@ async function cancelOrder(batchId) {
     }
 }
 
-window.submitOrder = submitOrder; window.fetchItems = fetchItems; window.toggleStockEditMode = toggleStockEditMode; 
-window.applyRegionFilter = applyRegionFilter; window.applyAiSuggestion = applyAiSuggestion; window.calculateOrderTotal = calculateOrderTotal; window.handleExcelUpload = handleExcelUpload;
+// 🚨 [핵심 보안] 동적 HTML onclick 바인딩을 위한 명시적 글로벌 스코프 할당
+window.submitOrder = submitOrder; 
+window.fetchItems = fetchItems; 
+window.toggleStockEditMode = toggleStockEditMode; 
+window.applyRegionFilter = applyRegionFilter; 
+window.applyAiSuggestion = applyAiSuggestion; 
+window.calculateOrderTotal = calculateOrderTotal; 
+window.handleExcelUpload = handleExcelUpload;
 window.cancelOrder = cancelOrder; 
 
 document.addEventListener('DOMContentLoaded', () => {
