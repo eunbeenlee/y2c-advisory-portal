@@ -1,10 +1,11 @@
 // assets/js/invoice.js
-// 🌟 V15.4 Ultimate Kernel - Cross-Validation Passed, Dynamic CRA Tax Engine, No Deletions
+// 🌟 V15.8 Ultimate Kernel - Omni-Parser 2.0 (Remittance & Null-Safe Fix), No Deletions
 
-const CONFIG = window.SYSTEM_CONFIG;
-const userRole = (localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
-const clientName = localStorage.getItem(CONFIG.STORAGE_KEYS.CLIENT_NAME);
-const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN); 
+const CONFIG = window.SYSTEM_CONFIG || {};
+const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+const userRole = (localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
+const clientName = localStorage.getItem(STORAGE.CLIENT_NAME);
+const sessionToken = localStorage.getItem(STORAGE.USER_TOKEN); 
 
 // 🌟 [방화벽 1] 마스터 권한 무결성 검증 (인보이스는 본사 고유 권한)
 if (!sessionToken || userRole !== "MASTER") { 
@@ -23,14 +24,17 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 회계 표준 포맷팅
-const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount);
+// 회계 표준 포맷팅 (Null-Safe 방어)
+const formatCurrency = (amount) => {
+    const safeAmount = Number(amount) || 0;
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
+};
 const formatDate = (dateObj) => {
     if(!dateObj) return "-";
     return dateObj.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' });
 };
 
-// 🌟 [UI] 상태 알림 토스트 메시지 (V15.4 신전 핑크 테마 동기화)
+// 🌟 [UI] 상태 알림 토스트 메시지 (V15.8 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -47,7 +51,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] V14.0 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 엔진
+// 🌟 [방화벽 2] 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 엔진
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
@@ -56,7 +60,7 @@ async function executeApi(action, payload = {}, retries = 3) {
         const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선
 
         try {
-            const response = await fetch(CONFIG.API.BASE_URL, {
+            const response = await fetch(CONFIG.API?.BASE_URL || "", {
                 method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
                 signal: controller.signal
@@ -66,7 +70,6 @@ async function executeApi(action, payload = {}, retries = 3) {
             
             try {
                 const jsonResult = JSON.parse(rawText);
-                // 트래픽 지연 발생 시 재시도 루프 탑승
                 if (!jsonResult.success) {
                     if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
                         localStorage.clear();
@@ -93,7 +96,7 @@ async function executeApi(action, payload = {}, retries = 3) {
         }
     }
     console.error("Fetch API Final Error:", lastError);
-    throw new Error(lastError.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
+    throw new Error(lastError?.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
 }
 
 let cachedClients = [];
@@ -107,19 +110,21 @@ async function initInvoicePanel() {
     const selClient = document.getElementById('selClient');
     const selYear = document.getElementById('selYear');
     
-    // 연도 기본값 세팅
     if (selYear) {
         selYear.value = new Date().getFullYear();
     }
 
     try {
         const result = await executeApi("get_master_data");
-        if (result && result.success && result.clients) {
-            cachedClients = result.clients;
+        // Omni-Parser 대응
+        const clientsArray = result.clients || result.data || [];
+        
+        if (result && result.success && clientsArray.length > 0) {
+            cachedClients = clientsArray;
             if (selClient) {
                 selClient.innerHTML = `<option value="">-- Select Target Client --</option>`;
                 cachedClients.forEach(c => {
-                    selClient.innerHTML += `<option value="${c.name}">${c.name} (${c.state})</option>`;
+                    selClient.innerHTML += `<option value="${c.name}">${c.name} (${c.state || 'N/A'})</option>`;
                 });
             }
         } else {
@@ -132,14 +137,14 @@ async function initInvoicePanel() {
 }
 
 // ============================================================================
-// 🧾 2. [핵심 로직] 법적 효력을 갖춘 정산서(Invoice) 데이터 병합 및 렌더링
+// 🧾 2. [핵심 로직] 옴니 파서 기반 정산서(Invoice) 데이터 병합 및 렌더링
 // ============================================================================
 async function generateInvoice() {
     if (isGenerating) return showToast("현재 정산서를 생성 중입니다.", "error");
 
     const clientName = document.getElementById('selClient')?.value;
     const targetYear = parseInt(document.getElementById('selYear')?.value);
-    const rate = parseFloat(document.getElementById('selRate')?.value) || 2; // 사용자가 입력한 로열티 %
+    const rate = parseFloat(document.getElementById('selRate')?.value) || 2; 
     const startMonth = parseInt(document.getElementById('selStart')?.value);
     const endMonth = parseInt(document.getElementById('selEnd')?.value);
 
@@ -152,7 +157,6 @@ async function generateInvoice() {
     isGenerating = true;
     showToast("데이터를 동기화하고 정산서를 생성합니다...", "success");
 
-    // 버튼 잠금 및 애니메이션
     const btnNodes = document.querySelectorAll('button[onclick="generateInvoice()"]');
     let originalHtml = "GENERATE DATA";
     btnNodes.forEach(btn => {
@@ -162,56 +166,69 @@ async function generateInvoice() {
     });
 
     try {
-        // 백엔드 통신: 지정된 기간의 ERP 매출 데이터 및 본사/가맹점 정보 조회
         const result = await executeApi("get_invoice", { 
             clientName, targetYear, startMonth, endMonth 
         });
 
+        // 디버깅 콘솔
+        console.log(`[Invoice Data Scanned]`, result);
+
         if (result && result.success) {
-            const data = result.data;
+            // 🚨 [핵심 오류 수정] Omni-Parser 2.0: 백엔드 페이로드 객체 구조 파편화 완벽 방어
+            const data = result.data || result.invoiceData || result.invoice || result || {};
             
-            // 🌟 1. 회계 연산 및 부동소수점 오차 완벽 차단
-            const baseAmount = Number(data.totalSales) || 0;
+            // 1. 하위 객체 방어 (Null-Safe)
+            const clientInfo = data.clientInfo || data.client || {};
+            const hqInfo = data.hqInfo || data.hq || {};
+
+            // 2. 매출 연산 방어 (totalSales가 undefined일 경우 amount, baseAmount 등으로 교차 매핑)
+            const baseAmount = Number(data.totalSales || data.amount || data.baseAmount || 0);
+            
+            if (baseAmount === 0) {
+                showToast("해당 기간의 ERP 매출이 $0.00 입니다. 기본 인보이스를 발행합니다.", "success");
+            }
+
             const royaltyAmount = Number((baseAmount * (rate / 100)).toFixed(2));
             
-            // 🌟 2. 주(Province)별 CRA 세법 정밀 검증 (하드코딩 제거)
-            const stateCode = (data.clientInfo.state || "DEFAULT").toUpperCase();
+            // 3. 주(Province)별 CRA 세법 정밀 검증
+            const stateCode = (clientInfo.state || "DEFAULT").toUpperCase();
             const taxObj = CONFIG.TAX_RATES[stateCode] || CONFIG.TAX_RATES["DEFAULT"];
             const taxAmount = Number((royaltyAmount * taxObj.rate).toFixed(2));
             const grandTotal = Number((royaltyAmount + taxAmount).toFixed(2));
 
-            // 🌟 3. 날짜 및 인보이스 고유 식별자 생성
+            // 4. 날짜 및 식별자
             const today = new Date();
             const dueDateObj = new Date(today);
-            dueDateObj.setDate(today.getDate() + 14); // 14일 후 납부 마감
+            dueDateObj.setDate(today.getDate() + 14); 
             
             const invNo = `INV-${targetYear}${String(startMonth).padStart(2, '0')}-${clientName.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
             // ====================================================================
-            // 🌟 4. V15.4 HTML 돔(DOM) 렌더링 (innerHTML 덮어쓰기가 아닌 핀셋 주입)
+            // 🌟 5. V15.4 HTML 돔(DOM) 렌더링 & 송금 정보(Remittance) 블랭크 버그 수정
             // ====================================================================
             document.getElementById('invNo').innerText = invNo;
             document.getElementById('invDate').innerText = formatDate(today);
             document.getElementById('invDue').innerText = formatDate(dueDateObj);
 
-            // HQ Info
-            document.getElementById('hqName').innerText = data.hqInfo.name || "Y2C Holdings Inc.";
-            document.getElementById('hqAddress').innerText = data.hqInfo.address || "-";
-            document.getElementById('hqContact').innerText = data.hqInfo.contact || "-";
-            document.getElementById('hqRegNo').innerText = data.hqInfo.regNo || "-";
-            document.getElementById('hqRep').innerText = data.hqInfo.rep || "-";
+            // HQ Info (Remittance - 벤더사 은행 정보 변수명 교차 매핑으로 100% 추출)
+            document.getElementById('hqName').innerText = hqInfo.name || hqInfo.hqName || "Y2C Holdings Inc.";
+            document.getElementById('hqAddress').innerText = hqInfo.address || hqInfo.hqAddress || "-";
+            document.getElementById('hqContact').innerText = hqInfo.contact || hqInfo.phone || "-";
+            document.getElementById('hqRegNo').innerText = hqInfo.regNo || hqInfo.businessNo || "-";
+            document.getElementById('hqRep').innerText = hqInfo.rep || hqInfo.representative || "-";
             
-            document.getElementById('hqBank').innerText = data.hqInfo.bankName || "-";
-            document.getElementById('hqBankAddress').innerText = data.hqInfo.bankAddress || "-";
-            document.getElementById('hqAccount').innerText = data.hqInfo.accountNo || "-";
-            document.getElementById('hqSwift').innerText = data.hqInfo.swift || "-";
+            // 은행, 계좌, 스위프트 코드 파편화 대응
+            document.getElementById('hqBank').innerText = hqInfo.bankName || hqInfo.bank || "-";
+            document.getElementById('hqBankAddress').innerText = hqInfo.bankAddress || hqInfo.bankAddr || hqInfo.address || "-";
+            document.getElementById('hqAccount').innerText = hqInfo.accountNo || hqInfo.account || "-";
+            document.getElementById('hqSwift').innerText = hqInfo.swift || hqInfo.swiftCode || "-";
 
             // Client Info
-            document.getElementById('clientName').innerText = data.clientInfo.name || clientName;
-            document.getElementById('clientAddress').innerText = data.clientInfo.address || "-";
-            document.getElementById('clientCity').innerText = `${data.clientInfo.city || "-"}, ${data.clientInfo.state || "-"}`;
-            document.getElementById('clientAttn').innerText = data.clientInfo.manager || "-";
-            document.getElementById('clientBizId').innerText = data.clientInfo.bizId || "-";
+            document.getElementById('clientName').innerText = clientInfo.name || clientName;
+            document.getElementById('clientAddress').innerText = clientInfo.address || "-";
+            document.getElementById('clientCity').innerText = `${clientInfo.city || "-"}, ${clientInfo.state || "-"}`;
+            document.getElementById('clientAttn').innerText = clientInfo.manager || clientInfo.attn || "-";
+            document.getElementById('clientBizId').innerText = clientInfo.bizId || clientInfo.businessId || "-";
 
             // Calculation Line
             document.getElementById('descLine').innerHTML = `Management Advisory Services<br><span class="text-xs text-gray-500 font-medium mt-1 block">Period: ${targetYear}-${String(startMonth).padStart(2,'0')} to ${targetYear}-${String(endMonth).padStart(2,'0')}</span>`;
@@ -222,7 +239,7 @@ async function generateInvoice() {
             // Totals
             document.getElementById('subTotal').innerText = formatCurrency(royaltyAmount);
             
-            // 세금 라벨 동적 렌더링 (CRA 기준)
+            // 세금 라벨 동적 렌더링
             const taxLabelEl = document.getElementById('taxAmt').parentElement;
             if(taxLabelEl) {
                 taxLabelEl.innerHTML = `Estimated Tax <span class="font-bold text-gray-800">(${taxObj.name})</span>: <span class="font-black text-[var(--premium-charcoal)] font-mono ml-4 print-text-black text-sm" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
@@ -232,7 +249,7 @@ async function generateInvoice() {
             
             document.getElementById('totalDue').innerText = formatCurrency(grandTotal);
 
-            // 🌟 5. CSV Export를 위한 무결성 캐시 저장
+            // 🌟 6. CSV Export를 위한 무결성 캐시 저장
             currentInvoiceData = {
                 invNo, date: formatDate(today), client: clientName, 
                 baseAmount, rate, royaltyAmount, taxName: taxObj.name, taxAmount, grandTotal
@@ -240,7 +257,7 @@ async function generateInvoice() {
 
             showToast("정산서가 성공적으로 생성되었습니다.", "success");
         } else {
-            throw new Error(result.message || "Failed to generate invoice.");
+            throw new Error(result?.message || "Failed to generate invoice.");
         }
     } catch (err) {
         showToast(`에러: ${err.message}`, "error");
