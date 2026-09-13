@@ -201,7 +201,7 @@
             <div class="mt-8 text-center border-t border-white/10 pt-5 cinematic-enter delay-400">
                 <p class="text-[9px] font-medium text-gray-500 tracking-widest leading-relaxed uppercase drop-shadow-sm">
                     Operated by Y2C Holdings Ltd.<br>
-                    System V15.2 Enterprise
+                    System V16.5 Enterprise
                 </p>
             </div>
         </form>
@@ -209,25 +209,28 @@
 
 <script>
 /**
- * 🌟 V15.2 Enterprise Login Core Logic
+ * 🌟 V16.5 Enterprise Login Core Logic
  * - 기능 100% 보존
  * - 흔들림(Shake), 마그네틱 호버 등 다이나믹 애니메이션 엔진 부활 적용
+ * - VENDOR 라우팅 동기화 및 네트워크 오류 예외 처리 강화
  */
 
+// 🚨 시스템 설정 백업 구조체 (config.js 누락 방어)
 const CONFIG = (typeof SYSTEM_CONFIG !== 'undefined') ? SYSTEM_CONFIG : {
     API: { BASE_URL: "https://script.google.com/macros/s/AKfycbzT-_ZIfaVv6hQ6L9mE-Q4L0g9a17Q2Bw34gT4wI3Q19586QpL_D7I09Z0Y090zXw/exec" }, 
     STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_ID: "y2c_id" }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. 보안 라우팅 (세션 스니핑 방어)
+    // 1. 보안 라우팅 (세션 스니핑 방어 및 VENDOR 라우팅 동기화)
     const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
     const userRole = localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE);
     if (sessionToken && userRole) {
         document.body.style.transition = "opacity 0.3s ease";
         document.body.style.opacity = '0';
         setTimeout(() => {
-            window.location.replace(userRole === "MASTER" ? "admin.html" : "items.html");
+            // 🚨 교차 검증 수정: VENDOR 역시 admin.html(물류 관제탑)로 즉각 라우팅
+            window.location.replace((userRole === "MASTER" || userRole === "VENDOR") ? "admin.html" : "items.html");
         }, 300);
         return;
     }
@@ -261,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 4. Jitter Backoff 기반 백엔드 통신 로직 (100% 기능 보존)
+    // 4. Jitter Backoff 기반 백엔드 통신 로직 (네트워크 오프라인 감지 강화)
     async function executeLogin(payload, retries = 3) {
         if (!navigator.onLine) throw new Error("네트워크 연결이 오프라인 상태입니다.");
 
@@ -292,6 +295,8 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (err) {
                 clearTimeout(timeoutId);
                 lastError = err;
+                
+                // 통신 자체 실패 또는 AbortError (타임아웃)
                 if (i < retries) {
                     const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 500); 
                     if (errorMsg) errorMsg.innerHTML = `<span class="animate-pulse text-amber-400 font-bold">보안 트래픽 우회 중... (${i+1}/3)</span>`;
@@ -299,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         }
-        throw new Error(lastError.message || "보안 연결이 거부되었습니다. 네트워크를 확인하세요.");
+        throw new Error(lastError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다." : (lastError.message || "보안 연결이 거부되었습니다."));
     }
 
     // 5. 폼 제출 메인 로직
@@ -350,7 +355,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 loginForm.style.opacity = "0";
                 
                 setTimeout(() => {
-                    window.location.replace(result.role === "MASTER" ? "admin.html" : "items.html");
+                    // 🚨 교차 검증: VENDOR도 admin.html(물류 관제탑)로 랜딩되도록 동기화
+                    window.location.replace((result.role === "MASTER" || result.role === "VENDOR") ? "admin.html" : "items.html");
                 }, 500);
 
             } else {
