@@ -1,5 +1,5 @@
 // assets/js/dashboard.js
-// 🌟 V16.4 Ultimate Kernel - Transparent RBAC + Omni-Parser 2.0 + Zero Deletion
+// 🌟 V17.1 Ultimate Kernel - Zero Deletion, i18n Translation Engine, Omni-Parser 2.0, CORS Shield
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -13,7 +13,7 @@ if (!sessionToken || userRole === "VENDOR") {
     window.location.replace("items.html");
 }
 
-// 🌟 상단 프로필 및 로그아웃 바인딩 (타 페이지와 완벽 동기화)
+// 🌟 상단 프로필 및 로그아웃 바인딩
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName || userRole;
 
@@ -31,7 +31,7 @@ const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
 };
 
-// 🌟 상태 알림 토스트 (V16.4 신전 핑크 테마 동기화)
+// 🌟 상태 알림 토스트
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -48,7 +48,59 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🔒 [V16.4 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// 🌐 글로벌 번역 (i18n) 엔진 탑재 
+// ============================================================================
+const I18N_DICT = {
+    en: {
+        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+        "logout": "LOGOUT",
+        "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time key performance indicators and sales analytics overview.",
+        "kpi_annual": "Total Annual Sales", "kpi_pos": "POS (Dine-in & Takeout)", "kpi_del": "Delivery Platforms",
+        "chart_title": "Monthly Revenue Trends", "btn_refresh": "Refresh Chart", "chart_label": "Total Revenue (CAD)",
+        "toast_sync_success": "Data synchronization complete", "toast_sync_fail": "Dashboard load error", "toast_no_data": "Unable to load data."
+    },
+    ko: {
+        "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+        "logout": "로그아웃",
+        "dash_title": "엔터프라이즈 대시보드", "dash_desc": "실시간 핵심 성과 지표(KPI) 및 가맹점 매출 분석 오버뷰.",
+        "kpi_annual": "연간 총 매출액", "kpi_pos": "홀 & 포장 (POS)", "kpi_del": "배달 플랫폼",
+        "chart_title": "월별 매출 동향 (트렌드)", "btn_refresh": "차트 새로고침", "chart_label": "총 매출액 (CAD)",
+        "toast_sync_success": "데이터 동기화 완료", "toast_sync_fail": "대시보드 로드 오류", "toast_no_data": "데이터를 불러올 수 없습니다."
+    }
+};
+
+let currentLang = localStorage.getItem('y2c_lang') || 'en';
+
+window.changeLanguage = function(lang) {
+    currentLang = lang;
+    localStorage.setItem('y2c_lang', lang);
+    
+    const btnEn = document.getElementById('lang_en');
+    const btnKo = document.getElementById('lang_ko');
+    if (btnEn && btnKo) {
+        btnEn.className = lang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = lang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+    }
+    if (window.applyTranslations) window.applyTranslations();
+    
+    // 언어 변경 시 차트 레이블 즉시 업데이트 (재렌더링 불필요)
+    if (salesChartInstance) {
+        salesChartInstance.data.datasets[0].label = I18N_DICT[currentLang]["chart_label"];
+        salesChartInstance.update();
+    }
+};
+
+window.applyTranslations = function() {
+    const dict = I18N_DICT[currentLang];
+    if(!dict) return;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.innerHTML = dict[key];
+    });
+};
+
+// ============================================================================
+// 🔒 [V17.1 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
 // ============================================================================
 function applyGlobalRbacNavigation() {
     const rbacRules = {
@@ -58,13 +110,11 @@ function applyGlobalRbacNavigation() {
         'navInvoice': ['MASTER']               
     };
 
-    // 1. 모든 GNB 탭 강제 노출 (시스템 스케일 증명)
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('hidden');
     });
 
-    // 2. 권한 락(Lock) 처리 및 이벤트 강제 탈취 (이벤트 복제)
     Object.keys(rbacRules).forEach(id => {
         const el = document.getElementById(id);
         const allowedRoles = rbacRules[id];
@@ -89,9 +139,11 @@ function applyGlobalRbacNavigation() {
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
+    if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
+
     for (let i = 0; i <= retries; i++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 한계선
+        const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
         try {
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
@@ -122,13 +174,19 @@ async function executeApi(action, payload = {}, retries = 3) {
         } catch (err) {
             clearTimeout(timeoutId);
             lastError = err;
+
+            // CORS 방어 추적
+            if (err.message && err.message.includes("Failed to fetch")) {
+                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 '모든 사용자(Anyone)'로 변경하세요.</span>");
+            }
+
             if (i < retries) {
                 const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
                 await new Promise(res => setTimeout(res, waitTime));
             }
         }
     }
-    throw new Error(lastError?.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
+    throw new Error(lastError?.message || "서버 통신 실패. 새로고침 해주세요.");
 }
 
 // ============================================================================
@@ -197,14 +255,17 @@ async function loadDashboardData() {
 
             renderSalesChart(chartArr);
             
-            showToast(`${targetYear}년도 데이터 동기화 완료`, "success");
+            const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
+            showToast(`${targetYear}: ${msgObj["toast_sync_success"]}`, "success");
         } else {
-            throw new Error(result?.message || "데이터를 불러올 수 없습니다.");
+            const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
+            throw new Error(result?.message || msgObj["toast_no_data"]);
         }
     } catch (err) {
         console.error("Dashboard Load Error:", err);
         renderSalesChart(Array(12).fill(0));
-        showToast("대시보드 데이터 로드 오류: " + (err.message || "알 수 없는 오류"), "error");
+        const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
+        showToast(`${msgObj["toast_sync_fail"]}: ${err.message}`, "error");
     } finally {
         if (refreshBtn) refreshBtn.classList.remove('animate-spin', 'text-[#E84C60]');
     }
@@ -226,13 +287,14 @@ function renderSalesChart(monthlyData) {
     gradient.addColorStop(1, 'rgba(232, 76, 96, 0.0)');
 
     Chart.defaults.font.family = "'Inter', sans-serif";
+    const currentLabel = I18N_DICT[currentLang] ? I18N_DICT[currentLang]["chart_label"] : "Total Revenue (CAD)";
 
     salesChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Total Revenue (CAD)',
+                label: currentLabel,
                 data: monthlyData,
                 borderColor: '#E84C60',
                 backgroundColor: gradient,
@@ -317,7 +379,8 @@ function populateDashYearSelector() {
 // 🌟 시스템 초기화 및 이벤트 리스너 바인딩
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 🌟 글로벌 투명성 보장 접근 제어 락 가동
+    // 🌟 글로벌 번역 및 투명성 보장 접근 제어 락 가동
+    window.changeLanguage(currentLang);
     applyGlobalRbacNavigation();
 
     // 1. 연도 셀렉터 동기화
