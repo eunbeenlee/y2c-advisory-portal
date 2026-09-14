@@ -1,5 +1,5 @@
 // assets/js/invoice.js
-// 🌟 V16.3 Ultimate Kernel - Transparent RBAC + Omni-Parser 2.0 + PDF Print Restored
+// 🌟 V17.1 Ultimate Kernel - Zero Deletion, i18n Translation Engine, PDF Print Restored, CORS Shield
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -12,6 +12,66 @@ if (!sessionToken || userRole !== "MASTER") {
     alert("재무/정산(Invoice) 데이터는 본사 마스터 계정만 접근 가능합니다.");
     window.location.replace("index.html"); 
 }
+
+// ============================================================================
+// 🌐 글로벌 번역 (i18n) 엔진 탑재
+// ============================================================================
+const I18N_DICT = {
+    en: {
+        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+        "logout": "LOGOUT",
+        "toast_generating": "Synchronizing data and generating invoice...",
+        "toast_success": "Invoice successfully generated.",
+        "toast_no_erp": "ERP sales for this period is $0.00. Generating basic invoice.",
+        "toast_err_client": "Please select a franchise client.",
+        "toast_err_year": "Please enter a valid year.",
+        "toast_err_month": "Start month cannot be greater than end month.",
+        "toast_err_month_range": "Months must be between 1 and 12.",
+        "btn_generate": "GENERATE DATA",
+        "desc_mas": "Management Advisory Services"
+    },
+    ko: {
+        "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+        "logout": "로그아웃",
+        "toast_generating": "데이터를 동기화하고 정산서를 생성합니다...",
+        "toast_success": "정산서가 성공적으로 생성되었습니다.",
+        "toast_no_erp": "해당 기간의 ERP 매출이 $0.00 입니다. 기본 인보이스를 발행합니다.",
+        "toast_err_client": "가맹점을 선택해 주세요.",
+        "toast_err_year": "정확한 연도를 입력해 주세요.",
+        "toast_err_month": "시작 월은 종료 월보다 클 수 없습니다.",
+        "toast_err_month_range": "월은 1~12 사이여야 합니다.",
+        "btn_generate": "정산서 생성",
+        "desc_mas": "경영 자문 수수료 (로열티)"
+    }
+};
+
+let currentLang = localStorage.getItem('y2c_lang') || 'en';
+
+window.changeLanguage = function(lang) {
+    currentLang = lang;
+    localStorage.setItem('y2c_lang', lang);
+    
+    const btnEn = document.getElementById('lang_en');
+    const btnKo = document.getElementById('lang_ko');
+    if (btnEn && btnKo) {
+        btnEn.className = lang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = lang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+    }
+    if (window.applyTranslations) window.applyTranslations();
+};
+
+window.applyTranslations = function() {
+    const dict = I18N_DICT[currentLang];
+    if(!dict) return;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.innerHTML = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.placeholder = dict[key];
+    });
+};
 
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName || "MASTER";
@@ -34,7 +94,7 @@ const formatDate = (dateObj) => {
     return dateObj.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' });
 };
 
-// 🌟 [UI] 상태 알림 토스트 메시지 (V16.3 핑크 테마 동기화)
+// 🌟 [UI] 상태 알림 토스트 메시지 (V17.1 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -51,7 +111,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🔒 [V16.3 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// 🔒 [V17.1 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
 // ============================================================================
 function applyGlobalRbacNavigation() {
     const rbacRules = {
@@ -92,6 +152,8 @@ function applyGlobalRbacNavigation() {
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
+    if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
+
     for (let i = 0; i <= retries; i++) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선
@@ -125,6 +187,12 @@ async function executeApi(action, payload = {}, retries = 3) {
         } catch (err) {
             clearTimeout(timeoutId);
             lastError = err;
+            
+            // 🚨 CORS 에러(Failed to fetch) 강제 추적
+            if (err.message && err.message.includes("Failed to fetch")) {
+                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 '모든 사용자(Anyone)'로 변경하세요.</span>");
+            }
+
             if (i < retries) {
                 const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
                 console.warn(`[재무 데이터 통신 지연 우회] ${waitTime}ms 대기 후 재시도... (${i+1}/${retries})`);
@@ -132,7 +200,6 @@ async function executeApi(action, payload = {}, retries = 3) {
             }
         }
     }
-    console.error("Fetch API Final Error:", lastError);
     throw new Error(lastError?.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
 }
 
@@ -177,7 +244,9 @@ async function initInvoicePanel() {
 // 🧾 2. [핵심 로직] 옴니 파서 기반 정산서(Invoice) 데이터 병합 및 렌더링
 // ============================================================================
 async function generateInvoice() {
-    if (isGenerating) return showToast("현재 정산서를 생성 중입니다.", "error");
+    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+    
+    if (isGenerating) return showToast(dict["toast_generating"], "error");
 
     const clientName = document.getElementById('selClient')?.value;
     const targetYear = parseInt(document.getElementById('selYear')?.value);
@@ -186,16 +255,16 @@ async function generateInvoice() {
     const endMonth = parseInt(document.getElementById('selEnd')?.value);
 
     // [방어벽] 입력값 무결성 검증
-    if (!clientName) return showToast("가맹점을 선택해 주세요.", "error");
-    if (!targetYear || targetYear < 2000) return showToast("정확한 연도를 입력해 주세요.", "error");
-    if (startMonth > endMonth) return showToast("시작 월은 종료 월보다 클 수 없습니다.", "error");
-    if (startMonth < 1 || endMonth > 12) return showToast("월은 1~12 사이여야 합니다.", "error");
+    if (!clientName) return showToast(dict["toast_err_client"], "error");
+    if (!targetYear || targetYear < 2000) return showToast(dict["toast_err_year"], "error");
+    if (startMonth > endMonth) return showToast(dict["toast_err_month"], "error");
+    if (startMonth < 1 || endMonth > 12) return showToast(dict["toast_err_month_range"], "error");
 
     isGenerating = true;
-    showToast("데이터를 동기화하고 정산서를 생성합니다...", "success");
+    showToast(dict["toast_generating"], "success");
 
     const btnNodes = document.querySelectorAll('button[onclick="generateInvoice()"]');
-    let originalHtml = "GENERATE DATA";
+    let originalHtml = btnNodes.length > 0 ? btnNodes[0].innerHTML : "GENERATE DATA";
     btnNodes.forEach(btn => {
         originalHtml = btn.innerHTML;
         btn.disabled = true;
@@ -221,7 +290,7 @@ async function generateInvoice() {
             const baseAmount = Number(data.totalSales || data.amount || data.baseAmount || 0);
             
             if (baseAmount === 0) {
-                showToast("해당 기간의 ERP 매출이 $0.00 입니다. 기본 인보이스를 발행합니다.", "success");
+                showToast(dict["toast_no_erp"], "success");
             }
 
             const royaltyAmount = Number((baseAmount * (rate / 100)).toFixed(2));
@@ -266,8 +335,8 @@ async function generateInvoice() {
             document.getElementById('clientAttn').innerText = clientInfo.manager || clientInfo.attn || "-";
             document.getElementById('clientBizId').innerText = clientInfo.bizId || clientInfo.businessId || "-";
 
-            // Calculation Line
-            document.getElementById('descLine').innerHTML = `Management Advisory Services<br><span class="text-xs text-gray-500 font-medium mt-1 block">Period: ${targetYear}-${String(startMonth).padStart(2,'0')} to ${targetYear}-${String(endMonth).padStart(2,'0')}</span>`;
+            // Calculation Line (번역 딕셔너리 연동)
+            document.getElementById('descLine').innerHTML = `${dict["desc_mas"]}<br><span class="text-xs text-gray-500 font-medium mt-1 block">Period: ${targetYear}-${String(startMonth).padStart(2,'0')} to ${targetYear}-${String(endMonth).padStart(2,'0')}</span>`;
             document.getElementById('baseLine').innerText = formatCurrency(baseAmount);
             document.getElementById('rateLine').innerText = `${rate}%`;
             document.getElementById('amtLine').innerText = formatCurrency(royaltyAmount);
@@ -291,12 +360,12 @@ async function generateInvoice() {
                 baseAmount, rate, royaltyAmount, taxName: taxObj.name, taxAmount, grandTotal
             };
 
-            showToast("정산서가 성공적으로 생성되었습니다.", "success");
+            showToast(dict["toast_success"], "success");
         } else {
             throw new Error(result?.message || "Failed to generate invoice.");
         }
     } catch (err) {
-        showToast(`에러: ${err.message}`, "error");
+        showToast(`Error: ${err.message}`, "error");
     } finally {
         isGenerating = false;
         btnNodes.forEach(btn => {
@@ -373,6 +442,7 @@ window.exportInvoiceCSV = exportInvoiceCSV;
 window.printInvoicePDF = printInvoicePDF; // 누락 복원 완료
 
 document.addEventListener('DOMContentLoaded', () => {
+    window.changeLanguage(currentLang);
     applyGlobalRbacNavigation(); // 글로벌 접근 통제 락 가동
     initInvoicePanel();
 });
