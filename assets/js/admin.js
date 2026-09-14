@@ -1,5 +1,5 @@
 // assets/js/admin.js
-// 🌟 V17.1 Ultimate Kernel - Zero Deletions, i18n Translation Engine, VENDOR Metric Blind, CORS Shield
+// 🌟 V17.2 Ultimate Kernel - Zero Deletions, i18n Translation Engine, VENDOR Metric Blind, CORS Auto-Recovery
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -24,7 +24,7 @@ const I18N_DICT = {
         "b2b_volume": "Total B2B Volume", "b2b_expenditure": "Total B2B Expenditure", "sys_health_scan": "🛡️ SYSTEM HEALTH SCAN",
         "profiles_title": "Franchise Database", "profiles_desc": "Master management center for franchise profiles, addresses, contacts, and business IDs.",
         "sales_title": "ERP Sales Sync", "sales_desc": "Monthly POS and delivery app sales data integration and royalty calculation basis.",
-        "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.1 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
+        "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.2 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
         "guide_title": "B2B Logistics Inventory Merge System Essential Guide",
         "guide_q1": "✅ What to upload?", "guide_a1_1": "• Excel receipt statements (.xlsx, .csv) issued by vendors (suppliers)", "guide_a1_2": "• Image files (.jpg, .png) of physical invoices and receipts (Auto Tesseract AI OCR Scan Engine activated)",
         "guide_q2": "⚠️ Precautions (Must Read)", "guide_a2_1": "• Uploaded quantities will be cumulatively added (+) to the live inventory of the selected Hub.", "guide_a2_2": "• Risk of duplicate receiving: Please be careful not to upload the same receiving file multiple times.",
@@ -45,7 +45,7 @@ const I18N_DICT = {
         "b2b_volume": "B2B 누적 물동량", "b2b_expenditure": "B2B 총 누적 지출액", "sys_health_scan": "🛡️ 시스템 헬스 스캔",
         "profiles_title": "가맹점 데이터베이스", "profiles_desc": "가맹점 프로필, 주소, 연락처 및 사업자 번호 마스터 관리 센터.",
         "sales_title": "ERP 매출 데이터 동기화", "sales_desc": "가맹점별 월간 POS 및 배달 매출 데이터 연동 및 로열티 산정 기반.",
-        "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.1 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
+        "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.2 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
         "guide_title": "B2B 물류 재고 병합 시스템 필수 가이드",
         "guide_q1": "무엇을 업로드하나요?", "guide_a1_1": "• 벤더사(공급업체)에서 발행한 엑셀 입고 명세서 (.xlsx, .csv)", "guide_a1_2": "• 실물 송장 및 영수증을 촬영한 이미지 파일 (.jpg, .png) (Tesseract AI OCR 스캔 엔진 자동 가동)",
         "guide_q2": "주의사항 (필독)", "guide_a2_1": "• 업로드된 수량은 선택하신 허브(Hub)의 라이브 재고에 누적 합산(+) 됩니다.", "guide_a2_2": "• 중복 입고 위험: 동일한 입고 파일을 여러 번 업로드하지 않도록 각별히 주의해 주세요.",
@@ -120,7 +120,7 @@ function showToast(message, type = 'success') {
   setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-// 🔒 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// 🔒 투명성 보장형 글로벌 권한 통제 엔진
 function applyGlobalRbacNavigation() {
     const rbacRules = {
         'navDashboard': ['MASTER', 'PARTNER'], 
@@ -172,7 +172,9 @@ function switchAdminTab(tab) {
 
 let cachedClients = [], cachedHqOrders = [], cachedItems = [], cachedMappings = [], isSubmitting = false; 
 
-// 🌟 [방화벽 2] 세션 만료 강제 추방 & 지능형 백오프 엔진
+// ============================================================================
+// 🌟 [방화벽 2] V17.2 백오프 엔진 (CORS Preflight 우회용 Header 변경)
+// ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
   if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
 
@@ -182,8 +184,9 @@ async function executeApi(action, payload = {}, retries = 3) {
     const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
     try {
+      // 🚨 브라우저의 엄격한 CORS Preflight를 우회하기 위해 charset 제외 (순수 text/plain 사용)
       const response = await fetch(CONFIG.API.BASE_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+        method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
         body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
         signal: controller.signal
       });
@@ -202,7 +205,7 @@ async function executeApi(action, payload = {}, retries = 3) {
     } catch (err) {
       clearTimeout(timeoutId); lastError = err;
       if (err.message && err.message.includes("Failed to fetch")) {
-          throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 '모든 사용자(Anyone)'로 변경하세요.</span>");
+          throw new Error("🚨 구글 서버 접근이 차단됨(CORS). 백엔드 배포를 '모든 사용자(Anyone)'로 변경하세요.");
       }
       if (i < retries) {
         const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
@@ -246,8 +249,10 @@ async function fetchMasterData() {
         tableBody.appendChild(tr);
       });
       populateSalesClientSelector(); 
-    } else if (result) throw new Error(result.message);
-  } catch (err) { tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">데이터 로드 실패</td></tr>`; }
+    } else {
+        throw new Error(result?.message || "데이터를 불러오지 못했습니다.");
+    }
+  } catch (err) { tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">데이터 로드 실패: ${err.message}</td></tr>`; }
 }
 
 async function saveClientData(rowIdx) {
@@ -303,7 +308,7 @@ async function loadSalesGrid() {
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
     if (result && result.success) renderSalesGrid(result.records); else if (result) throw new Error(result.message);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E84C60] font-black py-8">데이터 로드 실패</td></tr>`; }
+  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E84C60] font-black py-8">데이터 로드 실패: ${err.message}</td></tr>`; }
 }
 
 function renderSalesGrid(records) {
@@ -475,6 +480,12 @@ window.closeAlertModal = function() {
   if (modal) { document.getElementById('alertModalContent').classList.add('scale-95'); modal.classList.add('opacity-0', 'pointer-events-none'); }
 }
 
+// 🚨 [V17.2 에러 핸들링 및 UI 자동화 기능 강화]
+function renderHqOrdersError(msg) {
+    const tbody = document.getElementById('hqOrdersGridBody');
+    if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-[#E84C60] font-bold tracking-wide">Error: ${msg}</td></tr>`;
+}
+
 async function fetchMappings() {
   try {
     const result = await executeApi("get_procurement_data");
@@ -483,15 +494,30 @@ async function fetchMappings() {
       cachedHqOrders = result.hqOrders || [];
       renderHqOrders();
       if(result.orderMetrics) renderOrderMetrics(result.orderMetrics);
-    } else cachedMappings = [];
-  } catch (err) { cachedMappings = []; }
+    } else {
+        cachedMappings = [];
+        renderHqOrdersError(result?.message || "데이터를 불러오지 못했습니다.");
+    }
+  } catch (err) { 
+      cachedMappings = []; 
+      renderHqOrdersError(err.message);
+      showToast("조달 데이터 로드 실패: " + err.message, "error"); 
+  }
 }
 
 async function fetchCatalogForInbound() {
   try {
     const result = await executeApi("get_items", { clientState: "DEFAULT" });
-    if (result && result.success) cachedItems = result.items || result.data || [];
-  } catch (e) { console.error("Catalog load failed", e); }
+    if (result && result.success) {
+        cachedItems = result.items || result.data || [];
+    } else {
+        throw new Error("카탈로그 데이터를 불러오지 못했습니다.");
+    }
+  } catch (e) { 
+      console.error("Catalog load failed", e); 
+      cachedItems = []; // 실패 시 0으로 초기화하여 모달 오픈 시 재시도 트리거
+      // 배경 작업이므로 굳이 토스트 띄우지 않고, 사용자가 카트를 클릭할 때 안내
+  }
 }
 
 function renderHqOrders() {
@@ -531,8 +557,15 @@ function renderHqOrders() {
 // 🛒 [V16.0] 스마트 디지털 카트
 let hqCartData = {}; 
 
-window.openHqOrderCartModal = function() {
-    if(cachedItems.length === 0) return showToast("품목 카탈로그를 불러오는 중입니다. 잠시만 기다려주세요.", "error");
+// 🚨 [V17.2 핵심 패치] 카탈로그 로딩 실패(CORS) 시 카트 오픈하면 자동 재시도
+window.openHqOrderCartModal = async function() {
+    if(cachedItems.length === 0) {
+        showToast("백엔드와 데이터를 동기화 중입니다. 잠시만 기다려주세요...", "success");
+        await fetchCatalogForInbound();
+        if(cachedItems.length === 0) {
+            return showToast("🚨 구글 서버 접근이 차단되었습니다(CORS). 배포 권한 설정을 확인하세요.", "error");
+        }
+    }
 
     let modal = document.getElementById('hqCartModal');
     if(!modal) {
@@ -886,18 +919,24 @@ function setupDragAndDrop() {
 }
 
 // ============================================================================
-// 🌟 시스템 엔진 가동 및 UI 라우팅
+// 🌟 시스템 엔진 가동 및 UI 라우팅 (VENDOR 권한 분리 및 서브탭 락 다운)
 // ============================================================================
-window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; 
-window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.handleExcelUpload = handleExcelUpload;
+window.switchAdminTab = switchAdminTab; 
+window.saveClientData = saveClientData; 
+window.loadSalesGrid = loadSalesGrid; 
+window.recalcSalesRow = recalcSalesRow; 
+window.saveSalesGridData = saveSalesGridData; 
+window.handleExcelUpload = handleExcelUpload;
+window.saveHqOrder = saveHqOrder;
+window.updateHqOrderStatus = updateHqOrderStatus;
+window.cancelOrder = cancelOrder;
 
 document.addEventListener('DOMContentLoaded', () => { 
-  
   window.changeLanguage(currentLang);
   applyGlobalRbacNavigation();
+
   transformHqInputsToDigital();
 
-  // VENDOR 계정 전용 라우팅 및 락(Lock)
   if (userRole === "VENDOR") {
       ['tabBtn_profiles', 'tabBtn_sales'].forEach(id => {
           const btn = document.getElementById(id);
