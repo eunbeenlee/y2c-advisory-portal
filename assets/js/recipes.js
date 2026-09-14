@@ -1,5 +1,5 @@
 // assets/js/recipes.js
-// 🌟 V16.0 Ultimate Kernel - Transparent RBAC + Omni-Parser + Body Scroll Lock + Zero Deletion
+// 🌟 V17.1 Ultimate Kernel - Zero Deletion, i18n Translation Engine, Omni-Parser, Body Scroll Lock
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -14,6 +14,60 @@ if (userRole === "VENDOR") {
     window.location.replace("items.html"); 
 }
 
+// ============================================================================
+// 🌐 글로벌 번역 (i18n) 엔진 탑재
+// ============================================================================
+const I18N_DICT = {
+    en: {
+        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+        "logout": "LOGOUT", "cancel_order": "Cancel Order",
+        "recipe_title": "Standard Recipe Center", "recipe_desc": "Official cooking instructions, ingredient lists, and operational guidelines.",
+        "search_placeholder": "Search recipes by name or ingredient...",
+        "all_recipes": "All Recipes", "no_recipes": "No recipes found.", "uncategorized": "Uncategorized",
+        "btn_view": "View Instruction", "modal_close": "Close Recipe", "modal_ing": "Ingredients", "modal_inst": "Instructions", "modal_tips": "Pro Tips & Warnings"
+    },
+    ko: {
+        "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+        "logout": "로그아웃", "cancel_order": "발주 취소",
+        "recipe_title": "표준 레시피 센터", "recipe_desc": "공식 조리 매뉴얼, 식자재 정량 및 운영 가이드라인.",
+        "search_placeholder": "요리명 또는 식자재로 레시피 검색...",
+        "all_recipes": "전체 레시피", "no_recipes": "검색된 레시피가 없습니다.", "uncategorized": "미분류",
+        "btn_view": "레시피 보기", "modal_close": "닫기", "modal_ing": "식자재 및 정량", "modal_inst": "조리 순서", "modal_tips": "팁 & 주의사항"
+    }
+};
+
+let currentLang = localStorage.getItem('y2c_lang') || 'en';
+
+window.changeLanguage = function(lang) {
+    currentLang = lang;
+    localStorage.setItem('y2c_lang', lang);
+    
+    const btnEn = document.getElementById('lang_en');
+    const btnKo = document.getElementById('lang_ko');
+    if (btnEn && btnKo) {
+        btnEn.className = lang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = lang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+    }
+    
+    // 카테고리 필터와 레시피 목록도 언어 변경에 맞춰 리렌더링
+    if (window.applyTranslations) window.applyTranslations();
+    buildCategoryFilters();
+    filterRecipes();
+};
+
+window.applyTranslations = function() {
+    const dict = I18N_DICT[currentLang];
+    if(!dict) return;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.innerHTML = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.placeholder = dict[key];
+    });
+};
+
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName;
 
@@ -24,7 +78,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     localStorage.clear(); window.location.replace("index.html"); 
 });
 
-// 🌟 상태 알림 토스트 (V16.0 신전 핑크 테마 동기화)
+// 🌟 상태 알림 토스트 (V17.1 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -41,7 +95,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🔒 [V16.0 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// 🔒 [V17.1 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
 // ============================================================================
 function applyGlobalRbacNavigation() {
     const rbacRules = {
@@ -51,13 +105,11 @@ function applyGlobalRbacNavigation() {
         'navInvoice': ['MASTER']               
     };
 
-    // 1. 모든 GNB 탭 강제 노출 (시스템 스케일 증명)
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('hidden');
     });
 
-    // 2. 권한 락(Lock) 처리 및 이벤트 강제 탈취
     Object.keys(rbacRules).forEach(id => {
         const el = document.getElementById(id);
         const allowedRoles = rbacRules[id];
@@ -78,10 +130,12 @@ function applyGlobalRbacNavigation() {
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] 지능형 백오프(Jittered Backoff) 통신 엔진
+// 🌟 [방화벽 2] 지능형 백오프(Jittered Backoff) 통신 엔진 (CORS 추적)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
+    if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
+
     for (let i = 0; i <= retries; i++) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 20000); 
@@ -115,13 +169,18 @@ async function executeApi(action, payload = {}, retries = 3) {
         } catch (err) {
             clearTimeout(timeoutId);
             lastError = err;
+            
+            if (err.message && err.message.includes("Failed to fetch")) {
+                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 '모든 사용자(Anyone)'로 변경하세요.</span>");
+            }
+
             if (i < retries) {
                 const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
                 await new Promise(res => setTimeout(res, waitTime));
             }
         }
     }
-    throw new Error(lastError?.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 잠시 후 새로고침 해주세요.");
+    throw new Error(lastError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다." : (lastError.message || "서버 통신 실패. 잠시 후 새로고침 해주세요."));
 }
 
 // ============================================================================
@@ -139,9 +198,9 @@ async function fetchRecipes() {
         const result = await executeApi("get_recipes");
         
         if (result && result.success) {
-            // 🚨 Omni-Parser: 객체 뎁스 및 파편화 대응 (result.recipes -> result.data -> result 등)
+            // 🚨 Omni-Parser: 객체 뎁스 및 파편화 대응
             let dataPayload = result.recipes || result.data || result || [];
-            if (!Array.isArray(dataPayload)) dataPayload = []; // 배열이 아닐 경우 빈 배열로 강제 초기화
+            if (!Array.isArray(dataPayload)) dataPayload = []; 
             
             allRecipes = dataPayload;
             buildCategoryFilters();
@@ -160,10 +219,18 @@ function buildCategoryFilters() {
     const filterContainer = document.getElementById('recipeCategoryFilters');
     if (!filterContainer) return;
     
+    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+    const allRecipesLabel = dict["all_recipes"];
+    
     // 카테고리 추출 (중복 제거 및 Null 방어)
-    const categories = ["All Recipes", ...new Set(allRecipes.map(r => r.category || "Uncategorized"))];
+    const categories = [allRecipesLabel, ...new Set(allRecipes.map(r => r.category || dict["uncategorized"]))];
     filterContainer.innerHTML = '';
     
+    // 언어 변경 시 currentCategory가 "All Recipes"와 "전체 레시피" 사이에서 꼬이지 않도록 보정
+    if (currentCategory === "All Recipes" || currentCategory === "전체 레시피") {
+        currentCategory = allRecipesLabel;
+    }
+
     categories.forEach(cat => {
         const btn = document.createElement('button');
         btn.innerText = cat;
@@ -185,14 +252,16 @@ function buildCategoryFilters() {
 function filterRecipes() {
     const searchInput = document.getElementById('recipeSearchInput');
     const searchTerm = searchInput ? String(searchInput.value || "").toLowerCase().trim() : "";
+    
+    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+    const allRecipesLabel = dict["all_recipes"];
 
     const filtered = allRecipes.filter(r => {
-        // 데이터가 아예 비어있어도 시스템이 다운되지 않도록 예외 처리
         const safeTitle = String(r.title || "").toLowerCase();
         const safeIngredients = String(r.ingredients || "").toLowerCase();
-        const safeCategory = String(r.category || "Uncategorized");
+        const safeCategory = String(r.category || dict["uncategorized"]);
 
-        const matchCat = (currentCategory === "All Recipes" || safeCategory === currentCategory);
+        const matchCat = (currentCategory === allRecipesLabel || safeCategory === currentCategory);
         const matchSearch = (safeTitle.includes(searchTerm) || safeIngredients.includes(searchTerm));
         
         return matchCat && matchSearch;
@@ -206,8 +275,10 @@ function renderRecipes(recipes) {
     const grid = document.getElementById('recipeGrid');
     if (!grid) return;
     
+    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+
     if (recipes.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 font-bold tracking-widest uppercase">No recipes found.</div>`;
+        grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 font-bold tracking-widest uppercase">${dict["no_recipes"]}</div>`;
         return;
     }
     
@@ -222,7 +293,7 @@ function renderRecipes(recipes) {
         card.onclick = () => openRecipeModal(recipe);
         
         // Null-Safe 렌더링
-        const catText = recipe.category || 'General';
+        const catText = recipe.category || dict["uncategorized"];
         const titleText = recipe.title || 'Untitled Recipe';
         const ingText = recipe.ingredients || 'Details inside...';
 
@@ -233,7 +304,7 @@ function renderRecipes(recipes) {
             <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2 leading-tight">${titleText}</h3>
             <p class="text-xs font-medium text-gray-500 line-clamp-3 mb-4 flex-grow">${ingText}</p>
             <div class="mt-auto pt-4 border-t border-gray-100">
-                <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#E84C60] transition-colors">View Instruction <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#E84C60] transition-colors">${dict["btn_view"]} <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
             </div>
         `;
         grid.appendChild(card);
@@ -244,7 +315,9 @@ function renderRecipes(recipes) {
 // 🌟 레시피 상세 모달 (이중 스크롤 잠금 버그 완벽 수정)
 // ============================================================================
 function openRecipeModal(recipe) {
-    document.getElementById('recipeModalCategory').innerText = recipe.category || 'General';
+    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+    
+    document.getElementById('recipeModalCategory').innerText = recipe.category || dict["uncategorized"];
     document.getElementById('recipeModalTitle').innerText = recipe.title || 'Untitled';
     document.getElementById('recipeModalIngredients').innerText = recipe.ingredients || 'No ingredients listed.';
     document.getElementById('recipeModalInstructions').innerText = recipe.instructions || 'No instructions provided.';
@@ -276,7 +349,8 @@ window.closeRecipeModal = function() {
 // 🌟 시스템 초기화 및 이벤트 리스너 바인딩
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 🌟 글로벌 투명성 보장 접근 제어 락 가동
+    // 🌟 글로벌 번역 및 투명성 보장 접근 제어 락 가동
+    window.changeLanguage(currentLang);
     applyGlobalRbacNavigation();
 
     // 실시간 검색어 필터링 바인딩
