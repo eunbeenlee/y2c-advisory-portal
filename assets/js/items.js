@@ -1,5 +1,5 @@
 // assets/js/items.js
-// 🌟 V17.1 Ultimate Kernel - Zero Deletion, i18n Translation Engine, CORS/Offline Tracker, CRA Tax Engine
+// 🌟 V17.3 Ultimate Kernel - Zero Deletion, Idempotency Key(Double-Charge Prevention), i18n Translation Engine, CORS Shield, CRA Tax Engine
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -506,6 +506,11 @@ function attachImageHoverEffect() {
   tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
 }
 
+// 🌟 [V17.3 신규] 고유 식별자(UUID) 생성 함수 (중복 결제 방지용 Idempotency Key)
+const generateIdempotencyKey = () => {
+    return 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+};
+
 async function submitOrder() {
   if(userRole === "VENDOR" || isSubmitting) return;
   const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
@@ -543,16 +548,20 @@ async function submitOrder() {
   const submitBtn = document.querySelector('button[onclick="submitOrder()"]'), originalHTML = submitBtn ? submitBtn.innerHTML : "SUBMIT ORDER";
   if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span>⏳</span> DISPATCHING EMAIL..."; submitBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
 
+  // 🌟 [V17.3 신규] 프론트엔드 고유 배치 ID 생성 (Idempotency Key) 전송
+  const uniqueBatchId = generateIdempotencyKey();
+
   try {
     const result = await executeApi("save_order", { 
       clientName: clientName, 
       clientState: currentClientState, 
       items: orderItems,
-      taxSummary: currentOrderTaxSummary 
+      taxSummary: currentOrderTaxSummary,
+      batchId: uniqueBatchId
     });
     
     if (result && result.success) { 
-      showToast(`발주 완료 및 B2B 이메일 전송 성공 (번호: ${result.batchId})`, "success"); 
+      showToast(result.message || `발주 완료 및 B2B 이메일 전송 성공 (번호: ${result.batchId})`, "success"); 
       setTimeout(() => fetchItems(), 1500); 
     } else if (result) throw new Error(result.message);
   } catch (error) { 
@@ -733,8 +742,11 @@ async function processExcelData(jsonData, filename) {
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
+  // 🌟 [V17.3 신규] 엑셀 입고 시에도 Idempotency Key(고유 캐시 키)를 전송하여 더블클릭 중복 입고 원천 차단
+  const uniqueSyncId = 'SYNC-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+
   try {
-    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates });
+    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: uniqueSyncId });
     if (result && result.success) {
       showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
