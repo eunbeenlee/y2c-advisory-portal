@@ -7,11 +7,11 @@
     <meta name="theme-color" content="#1A1516">
     <title>SINJEON CANADA | Dashboard</title>
     
-    <!-- V15.2 통합 Tailwind CSS & Fonts -->
+    <!-- V17.1 통합 Tailwind CSS & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Chart.js (대시보드 차트 렌더링용) -->
+    <!-- Chart.js (대시보드 차트 렌더링용 무손실 보존) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- SYSTEM CONFIG (기능 소실 원천 차단) -->
@@ -24,12 +24,15 @@
             --sinjeon-pink-dark: #C23347;
             --premium-charcoal: #1A1516;
             --y2c-gold: #D4AF37;
+            --bg-light: #F8F9FA; /* 고급스러운 라이트 그레이 배경 */
         }
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #F8F6F6; 
+            background-color: var(--bg-light); 
+            color: #1f2937;
             -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale;
         }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
@@ -46,15 +49,9 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* 🌟 애니메이션 극대화: 시네마틱 렌더링 */
-        .cinematic-enter { opacity: 0; transform: translateY(30px) scale(0.99); animation: fadeUpCinematic 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-
-        @keyframes fadeUpCinematic { 
-            to { opacity: 1; transform: translateY(0) scale(1); } 
-        }
+        .cinematic-enter { opacity: 0; transform: translateY(20px) scale(0.99); animation: fadeUpCinematic 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; }
+        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) scale(1); } }
 
         /* 🌟 KPI 카드 호버 마그네틱 효과 */
         .kpi-card {
@@ -70,58 +67,71 @@
         }
         .kpi-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
         }
         .kpi-card:hover::after { transform: scaleY(1); }
+
+        /* 네비게이션 애니메이션 */
+        .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
+        .nav-link:hover { color: var(--premium-charcoal); }
+        .nav-link.active { color: var(--sinjeon-pink); }
+        .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
     </style>
 </head>
-<body class="text-gray-800 selection:bg-[#E84C60] selection:text-white">
+<body class="selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen">
     
-    <!-- 🌟 V15.2 프리미엄 통일 네비게이션 바 (크기/레이아웃 완벽 고정) -->
-    <nav class="bg-white/95 backdrop-blur-lg shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 cinematic-enter">
+    <!-- 🌟 V17.1 프리미엄 통일 네비게이션 바 -->
+    <nav class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
             
             <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
-                <img src="Sinjeon_Logo_Pink.png" onerror="this.onerror=null; this.src='favicon.png';" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
-                <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
-                    <span class="font-montserrat text-lg sm:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
-                    <span class="text-[9px] sm:text-[10px] text-[#E84C60] font-bold tracking-[0.2em] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
+                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png'; this.style.display='none';" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
+                <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
+                    <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1 font-montserrat">Enterprise Portal</h1>
+                    <p class="text-[9px] sm:text-[10px] text-[#E84C60] font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
                 </div>
             </div>
             
             <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
-                <a href="dashboard.html" id="navDashboard" class="text-[#E84C60] font-black border-b-2 border-[#E84C60] pb-1 transition-all duration-300 text-[13px] sm:text-sm tracking-wide">Dashboard</a>
-                <a href="items.html" class="text-gray-500 hover:text-[#E84C60] font-bold transition-all duration-300 text-[13px] sm:text-sm tracking-wide">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="text-gray-500 hover:text-[#E84C60] font-bold transition-all duration-300 text-[13px] sm:text-sm tracking-wide">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-all duration-300 text-[13px] sm:text-sm tracking-wide">Master DB</a>
-                <a href="invoice.html" id="navInvoice" class="hidden text-gray-500 hover:text-[#E84C60] font-bold transition-all duration-300 text-[13px] sm:text-sm tracking-wide">Advisory Invoice</a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" class="nav-link text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
                 
                 <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-                    <div class="flex items-center space-x-3 bg-gray-50 py-1 px-3 rounded-xl border border-gray-100 shadow-inner">
+                    <!-- 🌟 V17.1 글로벌 번역 토글 버튼 -->
+                    <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+                        <button onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                        <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
+                    </div>
+
+                    <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-4 rounded-full border border-gray-200 shadow-inner">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">USER</span>
-                        <span id="userRoleBadge" class="hidden px-1.5 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest"></span>
-                        <button id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95">LOGOUT</button>
+                        <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">Loading...</span>
+                        <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
+                        <button id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-2" data-i18n="logout">LOGOUT</button>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20">
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20">
         
         <!-- 🌟 헤더 컨트롤 영역 -->
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 cinematic-enter delay-100">
             <div>
                 <h2 class="font-montserrat text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="text-[#E84C60] drop-shadow-md">📊</span> Executive Dashboard
+                    <span class="text-[#E84C60] drop-shadow-md">📊</span> <span data-i18n="dash_title">Enterprise Dashboard</span>
                 </h2>
-                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide">Real-time performance metrics and sales synchronization.</p>
+                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide" data-i18n="dash_desc">Real-time performance metrics and sales synchronization.</p>
             </div>
             
             <div class="flex flex-wrap items-center gap-3">
-                <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
+                <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm hover:shadow-md transition-shadow">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-3 mr-2">Fiscal Year</label>
+                    <!-- JS 연동을 위해 ID 유지 -->
                     <select id="dashYearSelector" class="bg-gray-50 text-[var(--premium-charcoal)] text-sm font-bold rounded-lg focus:ring-[#E84C60] focus:border-[#E84C60] block px-4 py-2 outline-none cursor-pointer">
                         <option value="2026">2026</option>
                         <option value="2025">2025</option>
@@ -130,23 +140,23 @@
             </div>
         </div>
 
-        <!-- 🌟 KPI 하이라이트 카드 (ID 기능 보존) -->
+        <!-- 🌟 KPI 하이라이트 카드 (ID 기능 100% 보존) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 cinematic-enter delay-200">
             <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
                 <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100 shadow-inner text-xl">💰</div>
-                <p class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">YTD Total Sales</p>
+                <p class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_annual">Total Annual Sales</p>
                 <p id="dashYtdTotal" class="text-3xl sm:text-4xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">$0.00</p>
             </div>
             
             <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
                 <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4 border border-blue-100 shadow-inner text-xl">🍽️</div>
-                <p class="text-[11px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1">POS (Dine-in/Takeout)</p>
+                <p class="text-[11px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_pos">POS (Dine-in/Takeout)</p>
                 <p id="dashYtdPos" class="text-2xl sm:text-3xl font-black font-mono text-blue-600 tracking-tight">$0.00</p>
             </div>
             
             <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
                 <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-4 border border-emerald-100 shadow-inner text-xl">🛵</div>
-                <p class="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Delivery Platforms</p>
+                <p class="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_del">Delivery Platforms</p>
                 <p id="dashYtdDelivery" class="text-2xl sm:text-3xl font-black font-mono text-emerald-600 tracking-tight">$0.00</p>
             </div>
         </div>
@@ -157,8 +167,8 @@
             <!-- 왼쪽: 월별 매출 차트 -->
             <div class="lg:col-span-2 bg-white border border-gray-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight">Monthly Revenue Trend</h3>
-                    <button id="refreshChartBtn" class="text-gray-400 hover:text-[#E84C60] transition-colors p-2 rounded-full hover:bg-red-50">
+                    <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
+                    <button id="refreshChartBtn" class="text-gray-400 hover:text-[#E84C60] transition-colors p-2 rounded-full hover:bg-red-50" title="Refresh Chart">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     </button>
                 </div>
@@ -176,7 +186,7 @@
                     <h3 class="text-2xl font-black font-montserrat tracking-tight mb-2 relative z-10">Need Supplies?</h3>
                     <p class="text-sm font-medium text-red-100 mb-6 relative z-10">Order ingredients and items easily through our catalog system.</p>
                     <a href="items.html" class="inline-flex items-center gap-2 bg-white text-[#E84C60] px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 relative z-10 active:scale-95">
-                        Go to Catalog <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <span data-i18n="nav_catalog">Go to Catalog</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </a>
                 </div>
 
@@ -208,41 +218,8 @@
     <!-- UI 토스트 컨테이너 -->
     <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
-    <!-- 🌟 JS 엔진 연동 -->
+    <!-- 🌟 JS 엔진 연동 (V17.1 엔진 실행) -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/dashboard.js"></script>
-    <script>
-        // 권한에 따른 라우팅 보안 검증 및 UI 표시
-        const role = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE);
-        if(!role) window.location.replace("index.html");
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const userName = localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.CLIENT_NAME) || "USER";
-            const userNameDisplay = document.getElementById('userNameDisplay');
-            const badge = document.getElementById('userRoleBadge');
-            
-            if (userNameDisplay) userNameDisplay.innerText = userName;
-            if (badge) {
-                badge.classList.remove('hidden');
-                badge.innerText = role;
-            }
-            
-            // 마스터 전용 탭 활성화
-            if(role === "MASTER") {
-                document.getElementById('navAdmin')?.classList.remove('hidden');
-                document.getElementById('navInvoice')?.classList.remove('hidden');
-            }
-            
-            // 벤더는 대시보드 접근 불가
-            if(role === "VENDOR") {
-                window.location.replace("items.html");
-            }
-
-            document.getElementById('logoutBtn')?.addEventListener('click', () => { 
-                localStorage.clear(); 
-                window.location.replace("index.html"); 
-            });
-        });
-    </script>
 </body>
 </html>
