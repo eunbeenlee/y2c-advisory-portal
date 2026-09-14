@@ -1,5 +1,5 @@
 // assets/js/items.js
-// 🌟 V17.0 Ultimate Kernel - Zero Deletion, CORS/Offline Tracker, CRA Tax Engine, HTML Binding Safe
+// 🌟 V17.1 Ultimate Kernel - Zero Deletion, i18n Translation Engine, CORS/Offline Tracker, CRA Tax Engine
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -10,6 +10,60 @@ const cachedClientState = localStorage.getItem("y2c_premium_state") || "DEFAULT"
 
 // 🌟 [방화벽 1] 토큰 및 권한 무결성 검증
 if (!sessionToken || !clientName) { window.location.replace("index.html"); }
+
+// ============================================================================
+// 🌐 글로벌 번역 (i18n) 엔진 탑재
+// ============================================================================
+const I18N_DICT = {
+    en: {
+        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+        "logout": "LOGOUT", "cancel_order": "Cancel Order",
+        "catalog_title": "Inventory & Catalog", "catalog_desc": "Select items and quantities to request procurement.",
+        "btn_ai": "Auto-Fill AI", "hub_view": "Hub View:", "btn_manage": "MANAGE INVENTORY",
+        "kpi_skus": "Total SKUs", "kpi_value": "Inventory Value", "kpi_warning": "Low Stock Warning", "kpi_synced": "Last Synced",
+        "th_code": "Item Code", "th_product": "Product Name", "th_category": "Category / Tax", "th_price": "Unit Price", "th_qty": "Order Qty",
+        "loading_catalog": "Securely loading SCM data...",
+        "order_sub": "Subtotal", "order_tax": "Estimated Tax", "order_total": "Total Due", "btn_submit": "Submit Order"
+    },
+    ko: {
+        "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+        "logout": "로그아웃", "cancel_order": "발주 취소",
+        "catalog_title": "카탈로그 및 발주", "catalog_desc": "품목과 수량을 선택하여 본사 조달을 요청하세요.",
+        "btn_ai": "AI 자동완성", "hub_view": "허브 보기:", "btn_manage": "재고 관리",
+        "kpi_skus": "전체 품목 수", "kpi_value": "총 재고 자산", "kpi_warning": "재고 부족 경고", "kpi_synced": "마지막 동기화",
+        "th_code": "품번", "th_product": "품명", "th_category": "카테고리/세금", "th_price": "단가", "th_qty": "발주 수량",
+        "loading_catalog": "SCM 데이터를 안전하게 불러오는 중입니다...",
+        "order_sub": "소계", "order_tax": "예상 세금", "order_total": "최종 결제액", "btn_submit": "발주서 제출"
+    }
+};
+
+let currentLang = localStorage.getItem('y2c_lang') || 'en';
+
+window.changeLanguage = function(lang) {
+    currentLang = lang;
+    localStorage.setItem('y2c_lang', lang);
+    
+    const btnEn = document.getElementById('lang_en');
+    const btnKo = document.getElementById('lang_ko');
+    if (btnEn && btnKo) {
+        btnEn.className = lang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = lang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+    }
+    if (window.applyTranslations) window.applyTranslations();
+};
+
+window.applyTranslations = function() {
+    const dict = I18N_DICT[currentLang];
+    if(!dict) return;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.innerHTML = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.placeholder = dict[key];
+    });
+};
 
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName;
@@ -28,7 +82,7 @@ function formatTimestamp(isoString) {
   return d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' });
 }
 
-// 🌟 상태 알림 토스트 (V17.0 신전 핑크 테마)
+// 🌟 상태 알림 토스트 (V17.1 신전 핑크 테마)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -45,7 +99,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🔒 [V17.0 핵심] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// 🔒 [V17.1 핵심] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
 // ============================================================================
 function applyGlobalRbacNavigation() {
     const rbacRules = {
@@ -55,13 +109,11 @@ function applyGlobalRbacNavigation() {
         'navInvoice': ['MASTER']               
     };
 
-    // 1. 모든 GNB 탭 노출
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('hidden');
     });
 
-    // 2. 권한 락(Lock) 및 이벤트 차단
     Object.keys(rbacRules).forEach(id => {
         const el = document.getElementById(id);
         const allowedRoles = rbacRules[id];
@@ -80,7 +132,7 @@ function applyGlobalRbacNavigation() {
         }
     });
 
-    // VENDOR(물류사)는 카탈로그 발주 폼(주문) 완전 차단
+    // 🚨 VENDOR(물류사)는 카탈로그 발주 폼(주문결제창) 완전 차단
     if (userRole === "VENDOR") {
         const orderAct = document.getElementById('orderActionContainer');
         if (orderAct) orderAct.remove(); 
@@ -182,7 +234,8 @@ async function fetchMappings() {
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody');
   if (!tableBody) return;
-  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide">Securely loading SCM data...</p></div></td></tr>`;
+  tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-24 text-center"><div class="flex flex-col items-center justify-center space-y-4"><svg class="animate-spin h-10 w-10 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="text-[13px] font-bold text-gray-400 tracking-wide" data-i18n="loading_catalog">Securely loading SCM data...</p></div></td></tr>`;
+  if (window.applyTranslations) window.applyTranslations();
 
   try {
     const result = await executeApi("get_items", { clientState: currentClientState });
@@ -192,7 +245,7 @@ async function fetchItems() {
       taxRateObj = CONFIG.TAX_RATES[currentClientState.toUpperCase()] || CONFIG.TAX_RATES["DEFAULT"];
       
       const headerTitle = document.getElementById('catalogHeaderTitle');
-      if (headerTitle) headerTitle.innerHTML = `<span class="text-2xl">📦</span> Inventory & Catalog ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E84C60]/10 text-[#E84C60] px-3 py-1.5 rounded-lg border border-[#E84C60]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
+      if (headerTitle) headerTitle.innerHTML = `<span class="text-[#E84C60] drop-shadow-md">📦</span> <span data-i18n="catalog_title">Inventory & Catalog</span> ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E84C60]/10 text-[#E84C60] px-3 py-1.5 rounded-lg border border-[#E84C60]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${currentClientState === "DEFAULT" ? "Standard" : currentClientState} Pricing</span>`}`;
       
       const kpiDash = document.getElementById('kpiDashboard');
       if (kpiDash) kpiDash.classList.remove('hidden');
@@ -213,6 +266,8 @@ async function fetchItems() {
       renderTableItems(); 
       attachImageHoverEffect(); 
       if(userRole !== "VENDOR") calculateOrderTotal(); 
+      
+      if (window.applyTranslations) window.applyTranslations(); // 번역 최종 렌더링
     } else if (result) {
       throw new Error(result.message);
     }
@@ -329,8 +384,12 @@ function renderTableItems() {
   });
 
   if (document.getElementById('kpiTotalSkus')) document.getElementById('kpiTotalSkus').innerText = cachedItems.length;
+  
+  // 🚨 [핵심 보안] VENDOR(물류사)는 총 재고 자산액(Inventory Value) 완전 블라인드 처리
   if (document.getElementById('kpiTotalValue')) document.getElementById('kpiTotalValue').innerText = userRole === "VENDOR" ? "N/A" : formatCurrency(totalValue);
+  
   if (document.getElementById('kpiLowStock')) document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
+  if (window.applyTranslations) window.applyTranslations();
 }
 
 function applyAiSuggestion() {
@@ -417,7 +476,7 @@ async function toggleStockEditMode() {
     });
     if (!hasChanges) {
       isStockEditMode = false; 
-      if(btn) { btn.innerHTML = "⚙️ MANAGE"; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
+      if(btn) { btn.innerHTML = `⚙️ <span data-i18n="btn_manage">MANAGE INVENTORY</span>`; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
       renderTableItems(); return; 
     }
@@ -433,7 +492,7 @@ async function toggleStockEditMode() {
       if(err.message.includes("재고") || err.message.includes("부족")) { setTimeout(() => fetchItems(), 1500); }
     } finally {
       isStockEditMode = false; isSubmitting = false;
-      if(btn) { btn.disabled = false; btn.innerHTML = "⚙️ MANAGE"; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
+      if(btn) { btn.disabled = false; btn.innerHTML = `⚙️ <span data-i18n="btn_manage">MANAGE INVENTORY</span>`; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
       if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
     }
   }
@@ -743,6 +802,7 @@ window.handleExcelUpload = handleExcelUpload;
 window.cancelOrder = cancelOrder; 
 
 document.addEventListener('DOMContentLoaded', () => {
+  window.changeLanguage(currentLang);
   applyGlobalRbacNavigation(); // 🌟 글로벌 네비게이션 RBAC 엔진 구동
   setupDragAndDrop();
   if (userRole === "MASTER" || userRole === "VENDOR") {
