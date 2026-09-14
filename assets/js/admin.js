@@ -1,5 +1,5 @@
 // assets/js/admin.js
-// 🌟 V17.4 Ultimate Kernel - Zero Deletions, Dynamic i18n Engine, Idempotency Key, CORS Auto-Recovery
+// 🌟 V17.7 Ultimate Kernel - Zero Deletions, Progressive Rendering, Lazy Library Loading, Dynamic i18n, Idempotency Key
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -23,7 +23,7 @@ const I18N_DICT = {
         "b2b_volume": "Total B2B Volume", "b2b_expenditure": "Total B2B Expenditure", "sys_health_scan": "🛡️ SYSTEM HEALTH SCAN",
         "profiles_title": "Franchise Database", "profiles_desc": "Master management center for franchise profiles, addresses, contacts, and business IDs.",
         "sales_title": "ERP Sales Sync", "sales_desc": "Monthly POS and delivery app sales data integration and royalty calculation basis.",
-        "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.4 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
+        "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.7 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
         "guide_title": "B2B Logistics Inventory Merge System Essential Guide",
         "guide_q1": "✅ What to upload?", "guide_a1_1": "• Excel receipt statements (.xlsx, .csv) issued by vendors (suppliers)", "guide_a1_2": "• Image files (.jpg, .png) of physical invoices and receipts (Auto Tesseract AI OCR Scan Engine activated)",
         "guide_q2": "⚠️ Precautions (Must Read)", "guide_a2_1": "• Uploaded quantities will be cumulatively added (+) to the live inventory of the selected Hub.", "guide_a2_2": "• Risk of duplicate receiving: Please be careful not to upload the same receiving file multiple times.",
@@ -44,7 +44,7 @@ const I18N_DICT = {
         "b2b_volume": "B2B 누적 물동량", "b2b_expenditure": "B2B 총 누적 지출액", "sys_health_scan": "🛡️ 시스템 헬스 스캔",
         "profiles_title": "가맹점 데이터베이스", "profiles_desc": "가맹점 프로필, 주소, 연락처 및 사업자 번호 마스터 관리 센터.",
         "sales_title": "ERP 매출 데이터 동기화", "sales_desc": "가맹점별 월간 POS 및 배달 매출 데이터 연동 및 로열티 산정 기반.",
-        "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.4 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
+        "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.7 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
         "guide_title": "B2B 물류 재고 병합 시스템 필수 가이드",
         "guide_q1": "무엇을 업로드하나요?", "guide_a1_1": "• 벤더사(공급업체)에서 발행한 엑셀 입고 명세서 (.xlsx, .csv)", "guide_a1_2": "• 실물 송장 및 영수증을 촬영한 이미지 파일 (.jpg, .png) (Tesseract AI OCR 스캔 엔진 자동 가동)",
         "guide_q2": "주의사항 (필독)", "guide_a2_1": "• 업로드된 수량은 선택하신 허브(Hub)의 라이브 재고에 누적 합산(+) 됩니다.", "guide_a2_2": "• 중복 입고 위험: 동일한 입고 파일을 여러 번 업로드하지 않도록 각별히 주의해 주세요.",
@@ -59,7 +59,6 @@ const I18N_DICT = {
     }
 };
 
-// 동적 데이터(시트 값)를 위한 번역 딕셔너리
 const DYNAMIC_I18N = {
     category: {
         en: { "떡": "Rice Cake", "떡류": "Rice Cake", "소스": "Sauce", "양념": "Sauce", "면": "Noodles", "면류": "Noodles", "식품": "Food", "냉동": "Frozen", "냉동식품": "Frozen", "파우더": "Powder", "포장재": "Packaging", "비품": "Equipment" },
@@ -80,9 +79,7 @@ window.changeLanguage = function(lang) {
         btnKo.className = lang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (window.applyTranslations) window.applyTranslations();
-    
-    // 언어 변경 시 테이블 및 장바구니 리렌더링 (동적 데이터 번역 반영)
-    if(typeof renderHqOrders === 'function') renderHqOrders();
+    if (typeof renderHqOrders === 'function') renderHqOrders();
 };
 
 window.applyTranslations = function() {
@@ -103,9 +100,7 @@ function translateDynamic(text, type) {
     const tStr = String(text).trim().toUpperCase();
     const map = DYNAMIC_I18N[type] && DYNAMIC_I18N[type][currentLang];
     if(map) {
-        for(let key in map) {
-            if(tStr.includes(key.toUpperCase())) return map[key];
-        }
+        for(let key in map) { if(tStr.includes(key.toUpperCase())) return map[key]; }
     }
     return text;
 }
@@ -126,7 +121,7 @@ const formatDate = (isoStr) => {
   return new Date(isoStr).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: '2-digit' });
 };
 
-// 🌟 [V17.4 고유 식별자 생성기 (중복방어용)]
+// 🌟 고유 식별자 생성 (중복 차단용)
 const generateIdempotencyKey = () => {
     return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 };
@@ -222,7 +217,9 @@ async function executeApi(action, payload = {}, retries = 3) {
   throw new Error(lastError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다." : (lastError.message || "서버 통신 실패. 새로고침 해주세요."));
 }
 
-// (마스터/세일즈 로직 생략 없이 100% 유지)
+// ============================================================================
+// ⚡ [V17.7 신규] Master DB 점진적 렌더링 (Progressive Rendering)
+// ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR") return; 
   const tableBody = document.getElementById('masterTableBody');
@@ -235,22 +232,40 @@ async function fetchMasterData() {
       if (cachedClients.length === 0) return tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 가맹점 정보가 없습니다.</td></tr>`;
 
       const inputClass = "w-full bg-white/70 border border-gray-200 rounded-xl px-3 py-2 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm transition-all";
-      cachedClients.forEach(c => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-pink-50/40 transition-colors duration-200";
-        tr.innerHTML = `
-          <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${c.name}</td>
-          <td class="px-3 py-4 text-center"><input type="text" id="state_${c.rowIdx}" value="${c.state || ''}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
-          <td class="px-3 py-4"><input type="text" id="city_${c.rowIdx}" value="${c.city || ''}" class="${inputClass}" placeholder="City"></td>
-          <td class="px-3 py-4"><input type="text" id="addr_${c.rowIdx}" value="${c.address || ''}" class="${inputClass}" placeholder="Full Address"></td>
-          <td class="px-3 py-4"><input type="text" id="attn_${c.rowIdx}" value="${c.attn || ''}" class="${inputClass}" placeholder="Manager Name"></td>
-          <td class="px-3 py-4"><input type="text" id="email_${c.rowIdx}" value="${c.email || ''}" class="${inputClass}" placeholder="Email"></td>
-          <td class="px-3 py-4"><input type="text" id="biz_${c.rowIdx}" value="${c.bizId || ''}" class="${inputClass} font-mono" placeholder="Business ID"></td>
-          <td class="px-5 py-4 text-center bg-gray-50 border-l border-gray-100"><button id="saveBtn_${c.rowIdx}" onclick="saveClientData(${c.rowIdx})" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
-        `;
-        tableBody.appendChild(tr);
-      });
-      populateSalesClientSelector(); 
+      
+      let chunkIndex = 0;
+      const CHUNK_SIZE = 20;
+
+      function renderChunk() {
+          const fragment = document.createDocumentFragment();
+          const endIdx = Math.min(chunkIndex + CHUNK_SIZE, cachedClients.length);
+          
+          for (; chunkIndex < endIdx; chunkIndex++) {
+              const c = cachedClients[chunkIndex];
+              const tr = document.createElement('tr');
+              tr.className = "hover:bg-pink-50/40 transition-colors duration-200";
+              tr.innerHTML = `
+                <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${c.name}</td>
+                <td class="px-3 py-4 text-center"><input type="text" id="state_${c.rowIdx}" value="${c.state || ''}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
+                <td class="px-3 py-4"><input type="text" id="city_${c.rowIdx}" value="${c.city || ''}" class="${inputClass}" placeholder="City"></td>
+                <td class="px-3 py-4"><input type="text" id="addr_${c.rowIdx}" value="${c.address || ''}" class="${inputClass}" placeholder="Full Address"></td>
+                <td class="px-3 py-4"><input type="text" id="attn_${c.rowIdx}" value="${c.attn || ''}" class="${inputClass}" placeholder="Manager Name"></td>
+                <td class="px-3 py-4"><input type="text" id="email_${c.rowIdx}" value="${c.email || ''}" class="${inputClass}" placeholder="Email"></td>
+                <td class="px-3 py-4"><input type="text" id="biz_${c.rowIdx}" value="${c.bizId || ''}" class="${inputClass} font-mono" placeholder="Business ID"></td>
+                <td class="px-5 py-4 text-center bg-gray-50 border-l border-gray-100"><button id="saveBtn_${c.rowIdx}" onclick="saveClientData(${c.rowIdx})" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
+              `;
+              fragment.appendChild(tr);
+          }
+          tableBody.appendChild(fragment);
+
+          if (chunkIndex < cachedClients.length) {
+              requestAnimationFrame(renderChunk);
+          } else {
+              populateSalesClientSelector(); 
+          }
+      }
+      renderChunk();
+
     } else { throw new Error(result?.message || "데이터를 불러오지 못했습니다."); }
   } catch (err) { tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">데이터 로드 실패: ${err.message}</td></tr>`; }
 }
@@ -372,9 +387,6 @@ async function saveSalesGridData() {
   } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; }
 }
 
-// ========================================================
-// [3] 본사 조달 관제(HQ Orders) 및 스마트 카트 (Digital Cart)
-// ========================================================
 function renderOrderMetrics(metrics) {
   if(!metrics) return;
   const table = document.getElementById('hqOrdersGridBody')?.closest('table');
@@ -511,41 +523,64 @@ async function fetchCatalogForInbound() {
   }
 }
 
+// ============================================================================
+// ⚡ [V17.7 신규] HQ 조달 데이터 점진적 렌더링 (Progressive Rendering)
+// ============================================================================
 function renderHqOrders() {
   const tbody = document.getElementById('hqOrdersGridBody');
   if(!tbody) return;
   tbody.innerHTML = '';
-  if(cachedHqOrders.length === 0) return tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 내역이 없습니다.</td></tr>`;
+  
+  if(cachedHqOrders.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 내역이 없습니다.</td></tr>`;
+      return;
+  }
 
   const sortedOrders = cachedHqOrders.sort((a,b) => new Date(b.date) - new Date(a.date));
-  sortedOrders.forEach(o => {
-    let statusClass = "bg-gray-100 text-gray-500", statusText = o.status;
-    if(o.status === "HQ_PENDING") { statusClass = "bg-purple-100 text-purple-700"; statusText = "접수 대기"; }
-    else if(o.status === "SHIPPED") { statusClass = "bg-blue-100 text-blue-700"; statusText = "선적 완료"; }
-    else if(o.status === "ARRIVED") { statusClass = "bg-emerald-100 text-emerald-700"; statusText = "캐나다 입항"; }
+  
+  let chunkIndex = 0;
+  const CHUNK_SIZE = 30; // 프레임당 30개씩 분할 렌더링
 
-    const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors";
-    tr.innerHTML = `
-      <td class="px-5 py-4 font-mono text-[11px] font-black text-gray-500">${o.id}</td>
-      <td class="px-5 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
-      <td class="px-5 py-4 text-[12px] font-black text-[#E84C60]">${o.vendor}</td>
-      <td class="px-5 py-4 text-[11px] font-bold text-gray-600">${o.region}</td>
-      <td class="px-5 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate" title="${o.items}">${o.items}</td>
-      <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${o.eta}</td>
-      <td class="px-5 py-4 text-center">
-        <select onchange="updateHqOrderStatus('${o.id}', this.value)" class="text-[10px] font-black rounded border border-gray-300 p-1 outline-none focus:border-[#E84C60] ${o.status === 'SHIPPED' ? 'text-blue-600' : 'text-gray-500'} cursor-pointer">
-          <option value="HQ_PENDING" ${o.status === 'HQ_PENDING' ? 'selected' : ''}>PREPARING</option>
-          <option value="SHIPPED" ${o.status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
-          <option value="ARRIVED" ${o.status === 'ARRIVED' ? 'selected' : ''}>ARRIVED</option>
-          <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>COMPLETED</option>
-        </select>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+  function renderChunk() {
+      const fragment = document.createDocumentFragment();
+      const endIdx = Math.min(chunkIndex + CHUNK_SIZE, sortedOrders.length);
+      
+      for (; chunkIndex < endIdx; chunkIndex++) {
+          const o = sortedOrders[chunkIndex];
+          let statusClass = "bg-gray-100 text-gray-500", statusText = o.status;
+          if(o.status === "HQ_PENDING") { statusClass = "bg-purple-100 text-purple-700"; statusText = "접수 대기"; }
+          else if(o.status === "SHIPPED") { statusClass = "bg-blue-100 text-blue-700"; statusText = "선적 완료"; }
+          else if(o.status === "ARRIVED") { statusClass = "bg-emerald-100 text-emerald-700"; statusText = "캐나다 입항"; }
+
+          const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors";
+          tr.innerHTML = `
+            <td class="px-5 py-4 font-mono text-[11px] font-black text-gray-500">${o.id}</td>
+            <td class="px-5 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
+            <td class="px-5 py-4 text-[12px] font-black text-[#E84C60]">${o.vendor}</td>
+            <td class="px-5 py-4 text-[11px] font-bold text-gray-600">${o.region}</td>
+            <td class="px-5 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate" title="${o.items}">${o.items}</td>
+            <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${o.eta}</td>
+            <td class="px-5 py-4 text-center">
+              <select onchange="updateHqOrderStatus('${o.id}', this.value)" class="text-[10px] font-black rounded border border-gray-300 p-1 outline-none focus:border-[#E84C60] ${o.status === 'SHIPPED' ? 'text-blue-600' : 'text-gray-500'} cursor-pointer">
+                <option value="HQ_PENDING" ${o.status === 'HQ_PENDING' ? 'selected' : ''}>PREPARING</option>
+                <option value="SHIPPED" ${o.status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+                <option value="ARRIVED" ${o.status === 'ARRIVED' ? 'selected' : ''}>ARRIVED</option>
+                <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>COMPLETED</option>
+              </select>
+            </td>
+          `;
+          fragment.appendChild(tr);
+      }
+      
+      tbody.appendChild(fragment);
+
+      if (chunkIndex < sortedOrders.length) {
+          requestAnimationFrame(renderChunk);
+      }
+  }
+  renderChunk();
 }
 
-// 🛒 [V16.0] 스마트 디지털 카트 (동적 언어 연동)
 let hqCartData = {}; 
 
 window.openHqOrderCartModal = async function() {
@@ -567,7 +602,6 @@ window.openHqOrderCartModal = async function() {
     let itemsHtml = '';
     cachedItems.forEach(item => {
         let currentQty = hqCartData[item.code] || "";
-        // 🌟 동적 카테고리 번역 적용
         let translatedCat = translateDynamic(item.category, 'category');
         
         itemsHtml += `
@@ -669,7 +703,6 @@ window.saveHqOrder = async function() {
   let originalHtml = "ADD";
   if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; }
 
-  // 🌟 [V17.4 신규] HQ 주문 고유 키 생성 및 전송 (중복 제출 완벽 방어)
   const uniqueBatchId = generateIdempotencyKey();
 
   const payload = { id: uniqueBatchId, date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
@@ -691,12 +724,23 @@ window.updateHqOrderStatus = async function(orderId, status) {
   } catch (err) { showToast(err.message, "error"); fetchMappings(); }
 }
 
-// ========================================================
-// [4] V14.0 통합 엑셀/OCR 및 원자성(Atomic) 엔진
-// ========================================================
+// ============================================================================
+// ⚡ [V17.7 신규] 무거운 외부 라이브러리 지연 로딩 (Lazy Loading Code Splitting)
+// ============================================================================
+async function loadHeavyLibrary(url, objName) {
+    if (window[objName] !== undefined) return true;
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = () => resolve(true);
+        script.onerror = () => reject(false);
+        document.head.appendChild(script);
+    });
+}
+
 async function handleExcelUpload(event) {
   event.preventDefault();
-  if (isSubmitting) return showToast("현재 처리 중입니다. 잠시 기다려주세요.", "error");
+  if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시 기다려주세요.", "error");
 
   const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0];
   if (!file) return;
@@ -707,12 +751,13 @@ async function handleExcelUpload(event) {
   const statusText = document.getElementById('uploadStatusText');
 
   if (validExcelExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Loading Excel Engine...</span>`;
+    
+    try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
+    catch(e) { isSubmitting = false; return showToast("엑셀 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
+
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
     
-    if (typeof XLSX === 'undefined') {
-      isSubmitting = false; return showToast("엑셀 분석 엔진(XLSX)을 로드 중입니다. 새로고침 후 다시 시도해주세요.", "error");
-    }
-
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
@@ -733,12 +778,13 @@ async function handleExcelUpload(event) {
     reader.readAsArrayBuffer(file);
   } 
   else if (validImgExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">Loading AI OCR Engine...</span>`;
+    
+    try { await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js", "Tesseract"); } 
+    catch(e) { isSubmitting = false; return showToast("AI 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
+
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
     
-    if (typeof Tesseract === 'undefined') {
-      isSubmitting = false; return showToast("AI 엔진(Tesseract)을 로드 중입니다. 잠시 후 시도해주세요.", "error");
-    }
-
     try {
       const result = await Tesseract.recognize(file, 'eng+kor', {
         logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`; } }
@@ -861,7 +907,6 @@ async function processExcelData(jsonData, filename) {
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
-  // 🌟 [V17.4 신규] 엑셀 입고 시에도 Idempotency Key(고유 캐시 키)를 전송하여 더블클릭 중복 입고 원천 차단
   const uniqueSyncId = generateIdempotencyKey();
 
   try {
@@ -876,7 +921,7 @@ async function processExcelData(jsonData, filename) {
     showToast(err.message, "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
     if(err.message.includes("트래픽") || err.message.includes("동기화")) {
-      setTimeout(() => { fetchCatalogForInbound(); }, 2000);
+      setTimeout(() => { fetchItems(); }, 2000);
     }
   }
 }
@@ -900,7 +945,7 @@ async function cancelOrder(batchId) {
         if (!batchId) return;
     }
 
-    const confirmMsg = `정말 주문 [${batchId.trim()}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 원복되며 출고 중지 메일이 발송됩니다.`;
+    const confirmMsg = `정말 주문 [${batchId.trim()}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 100% 복구됩니다.\n✔️ 물류사 및 본사로 [출고 중지 알림 이메일]이 자동 전송됩니다.`;
     if (!confirm(confirmMsg)) return;
 
     isSubmitting = true;
@@ -908,7 +953,7 @@ async function cancelOrder(batchId) {
 
     try {
         const result = await executeApi("cancel_order", { batchId: batchId.trim() });
-        if (result && result.success) { showToast(`✅ ${result.message}`, "success"); } 
+        if (result && result.success) { showToast(`✅ ${result.message}`, "success"); setTimeout(() => fetchItems(), 1500); } 
         else throw new Error(result.message);
     } catch (err) {
         showToast(`❌ 취소 실패: ${err.message}`, "error");
@@ -917,52 +962,30 @@ async function cancelOrder(batchId) {
     }
 }
 
-// 🚨 [핵심 보안] 동적 HTML onclick 바인딩을 위한 명시적 글로벌 스코프 할당
-window.switchAdminTab = switchAdminTab; 
-window.saveClientData = saveClientData; 
-window.loadSalesGrid = loadSalesGrid; 
-window.recalcSalesRow = recalcSalesRow; 
-window.saveSalesGridData = saveSalesGridData; 
+window.submitOrder = submitOrder; 
+window.fetchItems = fetchItems; 
+window.toggleStockEditMode = toggleStockEditMode; 
+window.applyRegionFilter = applyRegionFilter; 
+window.applyAiSuggestion = applyAiSuggestion; 
+window.calculateOrderTotal = calculateOrderTotal; 
 window.handleExcelUpload = handleExcelUpload;
-window.saveHqOrder = saveHqOrder;
-window.updateHqOrderStatus = updateHqOrderStatus;
-window.cancelOrder = cancelOrder;
+window.cancelOrder = cancelOrder; 
 
-document.addEventListener('DOMContentLoaded', () => { 
+// 🌟 [V17.7 신규] 프론트엔드 에러 텔레메트리 (글로벌 락/멈춤 추적기)
+window.addEventListener('error', function(event) {
+    console.error("[Y2C Telemetry Error]", event.message);
+    showToast("화면 렌더링 중 일시적인 지연이 발생했습니다.", "error");
+});
+window.addEventListener('unhandledrejection', function(event) {
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang);
-  applyGlobalRbacNavigation();
-
-  transformHqInputsToDigital();
-
-  if (userRole === "VENDOR") {
-      ['tabBtn_profiles', 'tabBtn_sales'].forEach(id => {
-          const btn = document.getElementById(id);
-          if (btn) {
-              btn.classList.add('opacity-40', 'cursor-not-allowed');
-              btn.innerHTML += ' <span class="text-xs ml-1">🔒</span>';
-              const clone = btn.cloneNode(true);
-              clone.addEventListener('click', (e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  showToast("본사(MASTER) 전용 데이터입니다.", "error");
-              });
-              btn.parentNode.replaceChild(clone, btn);
-          }
-      });
-      
-      const hqVendorInput = document.getElementById('hqVendorInput');
-      if (hqVendorInput) {
-          hqVendorInput.value = clientName;
-          hqVendorInput.readOnly = true;
-          hqVendorInput.classList.add('bg-gray-100', 'text-[#E84C60]', 'cursor-not-allowed', 'font-black');
-      }
-
-      switchAdminTab('hqorders');
-      setupDragAndDrop();
-      fetchMappings().then(() => fetchCatalogForInbound()); 
-  } else {
-      populateSalesYearSelector();
-      setupDragAndDrop();
-      switchAdminTab('profiles');
-      fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
-  }
+  applyGlobalRbacNavigation(); 
+  setupDragAndDrop();
+  
+  if (userRole === "MASTER" || userRole === "VENDOR") {
+    fetchMappings().then(() => fetchItems());
+  } else { fetchItems(); }
 });
