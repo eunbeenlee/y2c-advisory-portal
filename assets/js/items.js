@@ -1,5 +1,5 @@
 // assets/js/items.js
-// 🌟 V17.3 Ultimate Kernel - Zero Deletion, Idempotency Key(Double-Charge Prevention), i18n Translation Engine, CORS Shield, CRA Tax Engine
+// 🌟 V17.4 Ultimate Kernel - Zero Deletion, Dynamic i18n Engine, Idempotency Key(Double-Charge Prevention), CORS Shield, CRA Tax Engine
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -12,7 +12,7 @@ const cachedClientState = localStorage.getItem("y2c_premium_state") || "DEFAULT"
 if (!sessionToken || !clientName) { window.location.replace("index.html"); }
 
 // ============================================================================
-// 🌐 글로벌 번역 (i18n) 엔진 탑재
+// 🌐 글로벌 & 동적 데이터 번역 (i18n) 엔진 탑재
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -37,6 +37,14 @@ const I18N_DICT = {
     }
 };
 
+// 🌟 [V17.4 신규] 동적 데이터(DB 원본 값)를 위한 번역 딕셔너리
+const DYNAMIC_I18N = {
+    category: {
+        en: { "떡": "Rice Cake", "떡류": "Rice Cake", "소스": "Sauce", "양념": "Sauce", "면": "Noodles", "면류": "Noodles", "식품": "Food", "냉동": "Frozen", "냉동식품": "Frozen", "파우더": "Powder", "포장재": "Packaging", "비품": "Equipment" },
+        ko: { "SAUCE": "소스/양념", "NOODLE": "면류", "RICE CAKE": "떡류", "FROZEN": "냉동식품", "POWDER": "파우더/가루", "PACKAGING": "포장재", "EQUIPMENT": "비품/기기", "GENERAL": "일반/기타" }
+    }
+};
+
 let currentLang = localStorage.getItem('y2c_lang') || 'en';
 
 window.changeLanguage = function(lang) {
@@ -50,6 +58,11 @@ window.changeLanguage = function(lang) {
         btnKo.className = lang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (window.applyTranslations) window.applyTranslations();
+
+    // 언어 변경 시 테이블 리렌더링 (동적 데이터 카테고리 번역 즉각 반영)
+    if(typeof renderTableItems === 'function' && cachedItems.length > 0) {
+        renderTableItems();
+    }
 };
 
 window.applyTranslations = function() {
@@ -64,6 +77,19 @@ window.applyTranslations = function() {
         if (dict[key]) el.placeholder = dict[key];
     });
 };
+
+// 🌟 [V17.4 신규] 동적 데이터 번역기 (원자성 무손실)
+function translateDynamic(text, type) {
+    if(!text) return text;
+    const tStr = String(text).trim().toUpperCase();
+    const map = DYNAMIC_I18N[type] && DYNAMIC_I18N[type][currentLang];
+    if(map) {
+        for(let key in map) {
+            if(tStr.includes(key.toUpperCase())) return map[key];
+        }
+    }
+    return text;
+}
 
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName;
@@ -184,8 +210,9 @@ async function executeApi(action, payload = {}, retries = 3) {
     const timeoutId = setTimeout(() => controller.abort(), 25000); 
 
     try {
+      // 🚨 CORS Preflight 원천 우회를 위한 text/plain 사용 (V17.4 스탠다드)
       const response = await fetch(CONFIG.API.BASE_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+        method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
         body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
         signal: controller.signal
       });
@@ -267,7 +294,7 @@ async function fetchItems() {
       attachImageHoverEffect(); 
       if(userRole !== "VENDOR") calculateOrderTotal(); 
       
-      if (window.applyTranslations) window.applyTranslations(); // 번역 최종 렌더링
+      if (window.applyTranslations) window.applyTranslations(); 
     } else if (result) {
       throw new Error(result.message);
     }
@@ -331,6 +358,9 @@ function renderTableItems() {
       ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-100 text-emerald-700 border border-emerald-200" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
       : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-100 text-blue-700 border border-blue-200" title="Standard Taxable Goods">TAXABLE</span>`;
 
+    // 🌟 [V17.4 신규] 동적 카테고리 번역 엔진 연동
+    const translatedCategory = translateDynamic(item.category || 'General', 'category');
+
     let expDisplayHTML = '';
     
     if (isMasterOrVendor && masterViewRegion === "ALL") {
@@ -379,7 +409,7 @@ function renderTableItems() {
     }
 
     const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-800 font-black text-right font-mono">${formatCurrency(item.price || 0)}</td>`;
-    row.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${item.code || '-'}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-gray-800 font-extrabold tracking-tight whitespace-normal break-keep">${item.name || '-'}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E84C60]/10 text-[#E84C60] border border-[#E84C60]/20 uppercase tracking-[0.15em] shadow-sm">${item.category || 'General'}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E84C60]/5 border-l border-[#E84C60]/10 align-middle">${orderInputHTML}</td>`;
+    row.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${item.code || '-'}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-gray-800 font-extrabold tracking-tight whitespace-normal break-keep">${item.name || '-'}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E84C60]/10 text-[#E84C60] border border-[#E84C60]/20 uppercase tracking-[0.15em] shadow-sm">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E84C60]/5 border-l border-[#E84C60]/10 align-middle">${orderInputHTML}</td>`;
     tableBody.appendChild(row);
   });
 
@@ -506,7 +536,7 @@ function attachImageHoverEffect() {
   tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
 }
 
-// 🌟 [V17.3 신규] 고유 식별자(UUID) 생성 함수 (중복 결제 방지용 Idempotency Key)
+// 🌟 [V17.4 신규] 고유 식별자(UUID) 생성 함수 (중복 결제 방지용 Idempotency Key)
 const generateIdempotencyKey = () => {
     return 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 };
@@ -548,7 +578,7 @@ async function submitOrder() {
   const submitBtn = document.querySelector('button[onclick="submitOrder()"]'), originalHTML = submitBtn ? submitBtn.innerHTML : "SUBMIT ORDER";
   if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span>⏳</span> DISPATCHING EMAIL..."; submitBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
 
-  // 🌟 [V17.3 신규] 프론트엔드 고유 배치 ID 생성 (Idempotency Key) 전송
+  // 🌟 [V17.4 신규] 프론트엔드 고유 배치 ID 생성 (Idempotency Key) 전송
   const uniqueBatchId = generateIdempotencyKey();
 
   try {
@@ -742,8 +772,8 @@ async function processExcelData(jsonData, filename) {
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
-  // 🌟 [V17.3 신규] 엑셀 입고 시에도 Idempotency Key(고유 캐시 키)를 전송하여 더블클릭 중복 입고 원천 차단
-  const uniqueSyncId = 'SYNC-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+  // 🌟 [V17.4 신규] 엑셀 입고 시에도 Idempotency Key(고유 캐시 키)를 전송하여 더블클릭 중복 입고 원천 차단
+  const uniqueSyncId = generateIdempotencyKey();
 
   try {
     const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: uniqueSyncId });
@@ -789,13 +819,8 @@ async function cancelOrder(batchId) {
 
     try {
         const result = await executeApi("cancel_order", { batchId: batchId.trim() });
-        
-        if (result && result.success) {
-            showToast(`✅ ${result.message}`, "success");
-            setTimeout(() => fetchItems(), 1500);
-        } else if (result) {
-            throw new Error(result.message);
-        }
+        if (result && result.success) { showToast(`✅ ${result.message}`, "success"); } 
+        else throw new Error(result.message);
     } catch (err) {
         showToast(`❌ 취소 실패: ${err.message}`, "error");
     } finally {
@@ -803,7 +828,6 @@ async function cancelOrder(batchId) {
     }
 }
 
-// 🚨 [핵심 보안] 동적 HTML onclick 바인딩을 위한 명시적 글로벌 스코프 할당
 window.submitOrder = submitOrder; 
 window.fetchItems = fetchItems; 
 window.toggleStockEditMode = toggleStockEditMode; 
@@ -815,7 +839,7 @@ window.cancelOrder = cancelOrder;
 
 document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang);
-  applyGlobalRbacNavigation(); // 🌟 글로벌 네비게이션 RBAC 엔진 구동
+  applyGlobalRbacNavigation(); 
   setupDragAndDrop();
   if (userRole === "MASTER" || userRole === "VENDOR") {
     fetchMappings().then(() => fetchItems());
