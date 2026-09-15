@@ -1,17 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- 🌟 V17.11 FOUC 방어 및 다국어 렌더링 최적화 돔(DOM) 적용 -->
+<html lang="en" class="opacity-0 transition-opacity duration-300">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 모바일 고급화 전략: iOS 자동 확대(Zoom) 완벽 차단 및 화면 고정 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- 📱 모바일 네이티브 앱 UX 최적화: 확대/바운스 방어 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#1A1516">
     <title>SINJEON CANADA | Recipe Center</title>
     
-    <!-- V17.1 통합 Tailwind CSS & Fonts -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ⚡ 리소스 터널링 (네트워크 Preconnect) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    
+    <!-- V17.11 통합 Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- SYSTEM CONFIG (무손실 보존) -->
+    <!-- ⚡ Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- SYSTEM CONFIG -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <style>
@@ -24,6 +32,12 @@
             --bg-light: #F8F9FA;
         }
         
+        /* 📱 스크롤 바운스 및 터치 딜레이 방어 */
+        html, body {
+            overscroll-behavior-y: none;
+            touch-action: manipulation;
+        }
+
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-light); 
@@ -218,5 +232,11 @@
     <!-- 🌟 JS 엔진 연동 -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/recipes.js"></script>
+    <script>
+        // 🌟 FOUC 방어: JS 엔진 로드가 완료되고 DOM이 준비되면 화면을 서서히 밝힘 (깜빡임 완벽 제거)
+        document.addEventListener("DOMContentLoaded", () => {
+            document.documentElement.classList.remove("opacity-0");
+        });
+    </script>
 </body>
 </html>
