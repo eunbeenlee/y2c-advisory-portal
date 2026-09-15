@@ -1,5 +1,5 @@
 // assets/js/admin.js
-// 🌟 V17.7.1 Ultimate Kernel - Zero Deletions, Bug Fix (ReferenceError Resolved), Progressive Rendering, Lazy Library Loading, Dynamic i18n, Idempotency Key
+// 🌟 V17.12 Ultimate Kernel - Zero Deletions, Bug Fix (ReferenceError & DOM Conflict Resolved), Progressive Rendering, Lazy Library Loading, Dynamic i18n, Idempotency Key
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -7,6 +7,7 @@ const userRole = (localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
 const clientName = localStorage.getItem(STORAGE.CLIENT_NAME);
 const sessionToken = localStorage.getItem(STORAGE.USER_TOKEN); 
 
+// 🌟 [방화벽 1] 토큰 및 권한 무결성 검증
 if (!sessionToken || (userRole !== "MASTER" && userRole !== "VENDOR")) { 
   alert("비정상적인 접근입니다."); window.location.replace("index.html"); 
 }
@@ -23,7 +24,7 @@ const I18N_DICT = {
         "b2b_volume": "Total B2B Volume", "b2b_expenditure": "Total B2B Expenditure", "sys_health_scan": "🛡️ SYSTEM HEALTH SCAN",
         "profiles_title": "Franchise Database", "profiles_desc": "Master management center for franchise profiles, addresses, contacts, and business IDs.",
         "sales_title": "ERP Sales Sync", "sales_desc": "Monthly POS and delivery app sales data integration and royalty calculation basis.",
-        "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.7 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
+        "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.12 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
         "guide_title": "B2B Logistics Inventory Merge System Essential Guide",
         "guide_q1": "✅ What to upload?", "guide_a1_1": "• Excel receipt statements (.xlsx, .csv) issued by vendors (suppliers)", "guide_a1_2": "• Image files (.jpg, .png) of physical invoices and receipts (Auto Tesseract AI OCR Scan Engine activated)",
         "guide_q2": "⚠️ Precautions (Must Read)", "guide_a2_1": "• Uploaded quantities will be cumulatively added (+) to the live inventory of the selected Hub.", "guide_a2_2": "• Risk of duplicate receiving: Please be careful not to upload the same receiving file multiple times.",
@@ -44,7 +45,7 @@ const I18N_DICT = {
         "b2b_volume": "B2B 누적 물동량", "b2b_expenditure": "B2B 총 누적 지출액", "sys_health_scan": "🛡️ 시스템 헬스 스캔",
         "profiles_title": "가맹점 데이터베이스", "profiles_desc": "가맹점 프로필, 주소, 연락처 및 사업자 번호 마스터 관리 센터.",
         "sales_title": "ERP 매출 데이터 동기화", "sales_desc": "가맹점별 월간 POS 및 배달 매출 데이터 연동 및 로열티 산정 기반.",
-        "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.7 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
+        "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.12 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
         "guide_title": "B2B 물류 재고 병합 시스템 필수 가이드",
         "guide_q1": "무엇을 업로드하나요?", "guide_a1_1": "• 벤더사(공급업체)에서 발행한 엑셀 입고 명세서 (.xlsx, .csv)", "guide_a1_2": "• 실물 송장 및 영수증을 촬영한 이미지 파일 (.jpg, .png) (Tesseract AI OCR 스캔 엔진 자동 가동)",
         "guide_q2": "주의사항 (필독)", "guide_a2_1": "• 업로드된 수량은 선택하신 허브(Hub)의 라이브 재고에 누적 합산(+) 됩니다.", "guide_a2_2": "• 중복 입고 위험: 동일한 입고 파일을 여러 번 업로드하지 않도록 각별히 주의해 주세요.",
@@ -121,7 +122,7 @@ const formatDate = (isoStr) => {
   return new Date(isoStr).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: '2-digit' });
 };
 
-// 🌟 고유 식별자 생성 (중복 차단용)
+// 🌟 고유 식별자 생성 (중복 차단용 Idempotency Key)
 const generateIdempotencyKey = () => {
     return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 };
@@ -177,6 +178,9 @@ function switchAdminTab(tab) {
 
 let cachedClients = [], cachedHqOrders = [], cachedItems = [], cachedMappings = [], isSubmitting = false; 
 
+// ============================================================================
+// 🌟 [방화벽 2] 지능형 백오프(Jittered Backoff) 엔진 (CORS 방어 포함)
+// ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
   if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
 
@@ -218,7 +222,7 @@ async function executeApi(action, payload = {}, retries = 3) {
 }
 
 // ============================================================================
-// ⚡ [V17.7 신규] Master DB 점진적 렌더링 (Progressive Rendering)
+// ⚡ [TAB 1] Master DB 점진적 렌더링 (Progressive Rendering)
 // ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR") return; 
@@ -291,6 +295,9 @@ async function saveClientData(rowIdx) {
   } catch (err) { showToast(err.message, "error"); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerText = originalText; saveBtn.classList.remove('animate-pulse'); } } finally { isSubmitting = false; }
 }
 
+// ============================================================================
+// 📊 [TAB 2] ERP Sales Database
+// ============================================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
 function populateSalesYearSelector() {
@@ -480,11 +487,14 @@ function displayAlertModal(alerts) {
   setTimeout(() => document.getElementById('alertModalContent').classList.remove('scale-95'), 50);
 }
 
-window.closeAlertModal = function() {
+function closeAlertModal() {
   const modal = document.getElementById('alertModal');
   if (modal) { document.getElementById('alertModalContent').classList.add('scale-95'); modal.classList.add('opacity-0', 'pointer-events-none'); }
 }
 
+// ============================================================================
+// 🚢 [TAB 3 & 4] HQ Procurement & Inbound Gateway (Lazy Load)
+// ============================================================================
 function renderHqOrdersError(msg) {
     const tbody = document.getElementById('hqOrdersGridBody');
     if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-[#E84C60] font-bold tracking-wide">Error: ${msg}</td></tr>`;
@@ -509,6 +519,7 @@ async function fetchMappings() {
   }
 }
 
+// 🚨 [핵심 버그 픽스 완료] items.js의 fetchItems가 아닌, 백그라운드용 데이터만 불러옴
 async function fetchCatalogForInbound() {
   try {
     const result = await executeApi("get_items", { clientState: "DEFAULT" });
@@ -523,9 +534,7 @@ async function fetchCatalogForInbound() {
   }
 }
 
-// ============================================================================
 // ⚡ [V17.7 신규] HQ 조달 데이터 점진적 렌더링 (Progressive Rendering)
-// ============================================================================
 function renderHqOrders() {
   const tbody = document.getElementById('hqOrdersGridBody');
   if(!tbody) return;
@@ -537,7 +546,6 @@ function renderHqOrders() {
   }
 
   const sortedOrders = cachedHqOrders.sort((a,b) => new Date(b.date) - new Date(a.date));
-  
   let chunkIndex = 0;
   const CHUNK_SIZE = 30; // 프레임당 30개씩 분할 렌더링
 
@@ -571,19 +579,15 @@ function renderHqOrders() {
           `;
           fragment.appendChild(tr);
       }
-      
       tbody.appendChild(fragment);
-
-      if (chunkIndex < sortedOrders.length) {
-          requestAnimationFrame(renderChunk);
-      }
+      if (chunkIndex < sortedOrders.length) requestAnimationFrame(renderChunk);
   }
   renderChunk();
 }
 
 let hqCartData = {}; 
 
-window.openHqOrderCartModal = async function() {
+async function openHqOrderCartModal() {
     if(cachedItems.length === 0) {
         showToast("백엔드와 데이터를 동기화 중입니다. 잠시만 기다려주세요...", "success");
         await fetchCatalogForInbound();
@@ -636,19 +640,19 @@ window.openHqOrderCartModal = async function() {
     setTimeout(() => document.getElementById('hqCartModalContent').classList.remove('scale-95'), 50);
 }
 
-window.closeHqCartModal = function() {
+function closeHqCartModal() {
     const modal = document.getElementById('hqCartModal');
     if (modal) { document.getElementById('hqCartModalContent').classList.add('scale-95'); modal.classList.add('opacity-0', 'pointer-events-none'); }
 }
 
-window.filterHqCart = function(query) {
+function filterHqCart(query) {
     const term = query.toLowerCase();
     document.querySelectorAll('.hq-cart-item-row').forEach(row => {
         row.style.display = row.getAttribute('data-name').includes(term) ? 'flex' : 'none';
     });
 }
 
-window.confirmHqCart = function() {
+function confirmHqCart() {
     const inputs = document.querySelectorAll('.hq-cart-item-row input[type="number"]');
     hqCartData = {}; 
     let formattedStrings = [];
@@ -685,11 +689,11 @@ function transformHqInputsToDigital() {
     if (itemsInput) {
         itemsInput.readOnly = true;
         itemsInput.classList.add('cursor-pointer', 'bg-pink-50', 'text-[#E84C60]', 'font-bold', 'hover:border-[#E84C60]', 'transition-colors');
-        itemsInput.addEventListener('click', window.openHqOrderCartModal);
+        itemsInput.addEventListener('click', openHqOrderCartModal);
     }
 }
 
-window.saveHqOrder = async function() {
+async function saveHqOrder() {
   if (isSubmitting) return;
   const vendorInput = document.getElementById('hqVendorInput');
   const vendorName = vendorInput ? vendorInput.value.trim() : clientName;
@@ -703,9 +707,7 @@ window.saveHqOrder = async function() {
   let originalHtml = "ADD";
   if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; }
 
-  const uniqueBatchId = generateIdempotencyKey();
-
-  const payload = { id: uniqueBatchId, date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
+  const payload = { id: generateIdempotencyKey(), date: new Date().toISOString().split('T')[0], vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
   try {
     const result = await executeApi("upsert_hq_order", { order: payload });
     if (result && result.success) { 
@@ -715,7 +717,7 @@ window.saveHqOrder = async function() {
   } catch (err) { showToast("등록 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; }
 }
 
-window.updateHqOrderStatus = async function(orderId, status) {
+async function updateHqOrderStatus(orderId, status) {
   if (!orderId) return;
   try {
     let finalStatus = status === "PREPARING" ? "HQ_PENDING" : status;
@@ -724,9 +726,7 @@ window.updateHqOrderStatus = async function(orderId, status) {
   } catch (err) { showToast(err.message, "error"); fetchMappings(); }
 }
 
-// ============================================================================
 // ⚡ [V17.7 신규] 무거운 외부 라이브러리 지연 로딩 (Lazy Loading Code Splitting)
-// ============================================================================
 async function loadHeavyLibrary(url, objName) {
     if (window[objName] !== undefined) return true;
     return new Promise((resolve, reject) => {
@@ -752,7 +752,6 @@ async function handleExcelUpload(event) {
 
   if (validExcelExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Loading Excel Engine...</span>`;
-    
     try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
     catch(e) { isSubmitting = false; return showToast("엑셀 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
 
@@ -779,7 +778,6 @@ async function handleExcelUpload(event) {
   } 
   else if (validImgExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">Loading AI OCR Engine...</span>`;
-    
     try { await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js", "Tesseract"); } 
     catch(e) { isSubmitting = false; return showToast("AI 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
 
@@ -796,8 +794,7 @@ async function handleExcelUpload(event) {
       if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
     }
   } else { 
-    isSubmitting = false;
-    return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); 
+    isSubmitting = false; return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); 
   }
 }
 
@@ -810,7 +807,6 @@ function processOCRText(text, filename) {
     const barcodeMatch = line.match(/\b\d{13,14}\b/);
     const codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
-
     let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGgLlMmCc]+\*\d+\b/g, ''); 
     const nums = cleanLine.match(/\b\d+\b/g); 
     let qty = 0;
@@ -851,11 +847,9 @@ async function processExcelData(jsonData, filename) {
 
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = "";
-    
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
       let valStr = String(row[k] || "").trim();
-
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
       if (!vItemCode && cleanK === 'barcode') vItemCode = valStr;
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') vQty = Math.max(0, parseInt(valStr) || 0);
@@ -868,13 +862,10 @@ async function processExcelData(jsonData, filename) {
     if (vItemCode.length >= 3 && !Number.isNaN(vQty) && vQty > 0) {
       let hqCode = null;
       const mapObj = cachedMappings.find(m => m.vendorCode.toUpperCase() === vItemCode.toUpperCase());
-      if (mapObj) {
-        hqCode = mapObj.hqCode;
-      } else {
+      if (mapObj) { hqCode = mapObj.hqCode; } else {
         const directMatch = cachedItems.find(item => item.code.toUpperCase() === vItemCode.toUpperCase());
         if (directMatch) hqCode = directMatch.code;
       }
-
       if (hqCode) {
         if (!inboundMap[hqCode]) inboundMap[hqCode] = { totalQty: 0, batches: {} };
         inboundMap[hqCode].totalQty += vQty;
@@ -885,44 +876,31 @@ async function processExcelData(jsonData, filename) {
   });
 
   if (successCount === 0) {
-    isSubmitting = false;
-    document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
+    isSubmitting = false; document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
     showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
   }
 
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
     let newExpArr = [];
     let sortedDates = Object.keys(inboundMap[hqCode].batches).sort();
-    sortedDates.forEach(d => {
-      newExpArr.push(`${d}:${inboundMap[hqCode].batches[d]}`);
-    });
+    sortedDates.forEach(d => { newExpArr.push(`${d}:${inboundMap[hqCode].batches[d]}`); });
     const addedExpStr = newExpArr.join(' | ');
-
-    return { 
-      code: hqCode, 
-      stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, 
-      expBreakdown: { [regionVal]: addedExpStr } 
-    };
+    return { code: hqCode, stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, expBreakdown: { [regionVal]: addedExpStr } };
   });
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
-  const uniqueSyncId = generateIdempotencyKey();
-
   try {
-    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: uniqueSyncId });
+    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: generateIdempotencyKey() });
     if (result && result.success) {
       showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
       document.getElementById('uploadStatusText').innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${filename}</span>`;
       setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); 
     } else if (result) throw new Error(result.message);
   } catch (err) {
-    isSubmitting = false;
-    showToast(err.message, "error");
+    isSubmitting = false; showToast(err.message, "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here";
-    if(err.message.includes("트래픽") || err.message.includes("동기화")) {
-      setTimeout(() => { fetchItems(); }, 2000);
-    }
+    if(err.message.includes("트래픽") || err.message.includes("동기화")) { setTimeout(() => { fetchCatalogForInbound(); }, 2000); }
   }
 }
 
@@ -932,19 +910,16 @@ function setupDragAndDrop() {
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
   dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
   dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
-  
   const fileInput = document.getElementById('excelFileInput');
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
 }
 
 async function cancelOrder(batchId) {
     if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
-
     if (!batchId) {
         batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: ORD-123456)");
         if (!batchId) return;
     }
-
     const confirmMsg = `정말 주문 [${batchId.trim()}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 100% 복구됩니다.\n✔️ 물류사 및 본사로 [출고 중지 알림 이메일]이 자동 전송됩니다.`;
     if (!confirm(confirmMsg)) return;
 
@@ -953,16 +928,20 @@ async function cancelOrder(batchId) {
 
     try {
         const result = await executeApi("cancel_order", { batchId: batchId.trim() });
-        if (result && result.success) { showToast(`✅ ${result.message}`, "success"); setTimeout(() => fetchItems(), 1500); } 
+        if (result && result.success) { 
+            showToast(`✅ ${result.message}`, "success"); 
+            // 🚨 취소 성공 후, admin 탭 성격에 맞춰 데이터 리프레시 분기
+            setTimeout(() => {
+                fetchMappings(); 
+                fetchCatalogForInbound(); 
+            }, 1500); 
+        } 
         else throw new Error(result.message);
-    } catch (err) {
-        showToast(`❌ 취소 실패: ${err.message}`, "error");
-    } finally {
-        isSubmitting = false;
-    }
+    } catch (err) { showToast(`❌ 취소 실패: ${err.message}`, "error"); } 
+    finally { isSubmitting = false; }
 }
 
-// 🌟 [V17.7.1] 글로벌 명시적 스코프 할당 (ReferenceError 원천 방지)
+// 🌟 글로벌 명시적 스코프 할당 (ReferenceError 원천 차단)
 window.switchAdminTab = switchAdminTab; 
 window.saveClientData = saveClientData; 
 window.loadSalesGrid = loadSalesGrid; 
@@ -979,21 +958,37 @@ window.closeHqCartModal = closeHqCartModal;
 window.filterHqCart = filterHqCart;
 window.confirmHqCart = confirmHqCart;
 
-// 🌟 [V17.7 신규] 프론트엔드 에러 텔레메트리 (글로벌 락/멈춤 추적기)
-window.addEventListener('error', function(event) {
-    console.error("[Y2C Telemetry Error]", event.message);
-});
-window.addEventListener('unhandledrejection', function(event) {
-    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
-});
+window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
+window.addEventListener('unhandledrejection', function(event) { console.error("[Y2C Telemetry Promise Rejection]", event.reason); });
 
 document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang);
   applyGlobalRbacNavigation(); 
   setupDragAndDrop();
+  transformHqInputsToDigital();
   
-  if (userRole === "MASTER" || userRole === "VENDOR") {
-    fetchMappings().then(() => fetchItems());
-  } else { fetchItems(); }
+  if (userRole === "VENDOR") {
+      ['tabBtn_profiles', 'tabBtn_sales'].forEach(id => {
+          const btn = document.getElementById(id);
+          if (btn) {
+              btn.classList.add('opacity-40', 'cursor-not-allowed');
+              btn.innerHTML += ' <span class="text-xs ml-1">🔒</span>';
+              const clone = btn.cloneNode(true);
+              clone.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showToast("본사(MASTER) 전용 데이터입니다.", "error"); });
+              btn.parentNode.replaceChild(clone, btn);
+          }
+      });
+      const hqVendorInput = document.getElementById('hqVendorInput');
+      if (hqVendorInput) {
+          hqVendorInput.value = clientName;
+          hqVendorInput.readOnly = true;
+          hqVendorInput.classList.add('bg-gray-100', 'text-[#E84C60]', 'cursor-not-allowed', 'font-black');
+      }
+      switchAdminTab('hqorders');
+      fetchMappings().then(() => fetchCatalogForInbound()); 
+  } else {
+      populateSalesYearSelector();
+      switchAdminTab('profiles');
+      fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
+  }
 });
- 기반으로 다시 확인후 무손실 업그레이드 전체 검증 테스트. 조건 3번 확인해서 오류방지. 이거때문에 계속 오류나는걸수도있어.
