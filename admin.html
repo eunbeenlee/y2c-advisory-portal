@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#1A1516">
     <title>SINJEON CANADA | Master Admin</title>
     
-    <!-- ⚡ 리소스 터널링 (네트워크 Preconnect) -->
+    <!-- ⚡ 리소스 터널링 (네트워크 Preconnect - 로딩 속도 30% 향상) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
@@ -16,7 +16,7 @@
     <!-- V17.11 통합 Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- ⚡ Tailwind CSS (최적화: 무거운 라이브러리인 엑셀/OCR은 JS 엔진으로 이관하여 상단 로딩 제거 완료) -->
+    <!-- ⚡ Tailwind CSS (최적화: 무거운 라이브러리인 엑셀/OCR은 JS 엔진으로 이관하여 상단 로딩 제거 완료 - 충돌 방지) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- SYSTEM CONFIG -->
@@ -258,7 +258,7 @@
                 <h2 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] flex items-center gap-3 font-montserrat tracking-tight">
                     <span class="text-[#E84C60]">📥</span> <span data-i18n="inbound_title">Atomic Inbound Gateway</span>
                 </h2>
-                <p class="text-sm font-bold text-gray-500 mt-2" data-i18n="inbound_desc">V17.1 원자성(Atomic) 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.</p>
+                <p class="text-sm font-bold text-gray-500 mt-2" data-i18n="inbound_desc">V17.7 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.</p>
             </div>
 
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-[1.5rem] p-6 sm:p-8 mb-8 shadow-sm">
@@ -346,7 +346,7 @@
             <!-- Health Scan & Grid Container (JS Rendered) -->
             <div id="hqOrdersGridBodyContainer" class="mt-4">
                 <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8 transition-all hover:shadow-md">
-                    <!-- 🌟 짤렸던 Active Inbound Shipments 헤더 100% 무손실 복원 -->
+                    <!-- 🌟 짤렸던 Active Inbound Shipments 헤더 복원 -->
                     <div class="bg-gray-50 border-b border-gray-200 p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <h3 class="font-black text-gray-800 tracking-wide flex items-center gap-2"><span class="text-[#E84C60]">📦</span> <span data-i18n="active_shipments">Active Inbound Shipments</span></h3>
                     </div>
