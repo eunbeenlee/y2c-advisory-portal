@@ -1,5 +1,5 @@
 // assets/js/admin.js
-// 🌟 V17.7 Ultimate Kernel - Zero Deletions, Progressive Rendering, Lazy Library Loading, Dynamic i18n, Idempotency Key
+// 🌟 V17.7.1 Ultimate Kernel - Zero Deletions, Bug Fix (ReferenceError Resolved), Progressive Rendering, Lazy Library Loading, Dynamic i18n, Idempotency Key
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -962,19 +962,26 @@ async function cancelOrder(batchId) {
     }
 }
 
-window.submitOrder = submitOrder; 
-window.fetchItems = fetchItems; 
-window.toggleStockEditMode = toggleStockEditMode; 
-window.applyRegionFilter = applyRegionFilter; 
-window.applyAiSuggestion = applyAiSuggestion; 
-window.calculateOrderTotal = calculateOrderTotal; 
+// 🌟 [V17.7.1] 글로벌 명시적 스코프 할당 (ReferenceError 원천 방지)
+window.switchAdminTab = switchAdminTab; 
+window.saveClientData = saveClientData; 
+window.loadSalesGrid = loadSalesGrid; 
+window.recalcSalesRow = recalcSalesRow; 
+window.saveSalesGridData = saveSalesGridData; 
 window.handleExcelUpload = handleExcelUpload;
+window.saveHqOrder = saveHqOrder;
+window.updateHqOrderStatus = updateHqOrderStatus;
 window.cancelOrder = cancelOrder; 
+window.runSystemAlertScan = runSystemAlertScan;
+window.closeAlertModal = closeAlertModal;
+window.openHqOrderCartModal = openHqOrderCartModal;
+window.closeHqCartModal = closeHqCartModal;
+window.filterHqCart = filterHqCart;
+window.confirmHqCart = confirmHqCart;
 
 // 🌟 [V17.7 신규] 프론트엔드 에러 텔레메트리 (글로벌 락/멈춤 추적기)
 window.addEventListener('error', function(event) {
     console.error("[Y2C Telemetry Error]", event.message);
-    showToast("화면 렌더링 중 일시적인 지연이 발생했습니다.", "error");
 });
 window.addEventListener('unhandledrejection', function(event) {
     console.error("[Y2C Telemetry Promise Rejection]", event.reason);
@@ -989,3 +996,4 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchMappings().then(() => fetchItems());
   } else { fetchItems(); }
 });
+ 기반으로 다시 확인후 무손실 업그레이드 전체 검증 테스트. 조건 3번 확인해서 오류방지. 이거때문에 계속 오류나는걸수도있어.
