@@ -1,5 +1,5 @@
 // assets/js/recipes.js
-// 🌟 V17.1 Ultimate Kernel - Zero Deletion, i18n Translation Engine, Omni-Parser, Body Scroll Lock
+// 🌟 V17.8 Ultimate Kernel - Zero Deletion, Progressive Rendering, Dynamic i18n Engine, CORS Shield, Telemetry
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -15,7 +15,7 @@ if (userRole === "VENDOR") {
 }
 
 // ============================================================================
-// 🌐 글로벌 번역 (i18n) 엔진 탑재
+// 🌐 글로벌 & 동적 데이터 번역 (i18n) 엔진 탑재
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -36,6 +36,14 @@ const I18N_DICT = {
     }
 };
 
+// 🌟 [V17.8 신규] DB에 저장된 한글/영문 카테고리를 동적으로 상호 번역
+const DYNAMIC_I18N = {
+    recipeCategory: {
+        en: { "떡볶이": "Tteokbokki", "튀김": "Fried Items", "튀김류": "Fried Items", "면": "Noodles", "면류": "Noodles", "일반": "General", "음료": "Beverages" },
+        ko: { "TTEOKBOKKI": "떡볶이", "FRIED": "튀김류", "NOODLE": "면류", "GENERAL": "일반/기타", "BEVERAGE": "음료" }
+    }
+};
+
 let currentLang = localStorage.getItem('y2c_lang') || 'en';
 
 window.changeLanguage = function(lang) {
@@ -49,10 +57,13 @@ window.changeLanguage = function(lang) {
         btnKo.className = lang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     
-    // 카테고리 필터와 레시피 목록도 언어 변경에 맞춰 리렌더링
     if (window.applyTranslations) window.applyTranslations();
-    buildCategoryFilters();
-    filterRecipes();
+    
+    // 언어 변경 시 카테고리 필터와 레시피 목록도 무손실 재렌더링
+    if(allRecipes && allRecipes.length > 0) {
+        buildCategoryFilters();
+        filterRecipes();
+    }
 };
 
 window.applyTranslations = function() {
@@ -68,6 +79,18 @@ window.applyTranslations = function() {
     });
 };
 
+function translateDynamic(text, type) {
+    if(!text) return text;
+    const tStr = String(text).trim().toUpperCase();
+    const map = DYNAMIC_I18N[type] && DYNAMIC_I18N[type][currentLang];
+    if(map) {
+        for(let key in map) {
+            if(tStr.includes(key.toUpperCase())) return map[key];
+        }
+    }
+    return text;
+}
+
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.innerText = clientName;
 
@@ -78,7 +101,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     localStorage.clear(); window.location.replace("index.html"); 
 });
 
-// 🌟 상태 알림 토스트 (V17.1 신전 핑크 테마 동기화)
+// 🌟 상태 알림 토스트 (V17.8 신전 핑크 테마 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -95,7 +118,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🔒 [V17.1 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// 🔒 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
 // ============================================================================
 function applyGlobalRbacNavigation() {
     const rbacRules = {
@@ -130,7 +153,7 @@ function applyGlobalRbacNavigation() {
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] 지능형 백오프(Jittered Backoff) 통신 엔진 (CORS 추적)
+// 🌟 [방화벽 2] 지능형 백오프(Jittered Backoff) 통신 엔진 (CORS 방어 포함)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
@@ -141,8 +164,9 @@ async function executeApi(action, payload = {}, retries = 3) {
         const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
         try {
+            // 🚨 CORS Preflight 원천 우회를 위한 text/plain 강제 사용
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
-                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+                method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
                 signal: controller.signal
             });
@@ -180,7 +204,7 @@ async function executeApi(action, payload = {}, retries = 3) {
             }
         }
     }
-    throw new Error(lastError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다." : (lastError.message || "서버 통신 실패. 잠시 후 새로고침 해주세요."));
+    throw new Error(lastError?.message || "서버 통신 실패. 잠시 후 새로고침 해주세요.");
 }
 
 // ============================================================================
@@ -189,7 +213,6 @@ async function executeApi(action, payload = {}, retries = 3) {
 let allRecipes = [];
 let currentCategory = "All Recipes";
 
-// 데이터 불러오기
 async function fetchRecipes() {
     const grid = document.getElementById('recipeGrid');
     if (!grid) return;
@@ -204,7 +227,7 @@ async function fetchRecipes() {
             
             allRecipes = dataPayload;
             buildCategoryFilters();
-            renderRecipes(allRecipes);
+            filterRecipes(); // 초기 필터 및 렌더링 호출
         } else {
             throw new Error(result?.message || "Failed to load recipes.");
         }
@@ -214,7 +237,6 @@ async function fetchRecipes() {
     }
 }
 
-// 🌟 동적 카테고리 필터 생성
 function buildCategoryFilters() {
     const filterContainer = document.getElementById('recipeCategoryFilters');
     if (!filterContainer) return;
@@ -226,14 +248,15 @@ function buildCategoryFilters() {
     const categories = [allRecipesLabel, ...new Set(allRecipes.map(r => r.category || dict["uncategorized"]))];
     filterContainer.innerHTML = '';
     
-    // 언어 변경 시 currentCategory가 "All Recipes"와 "전체 레시피" 사이에서 꼬이지 않도록 보정
     if (currentCategory === "All Recipes" || currentCategory === "전체 레시피") {
         currentCategory = allRecipesLabel;
     }
 
     categories.forEach(cat => {
         const btn = document.createElement('button');
-        btn.innerText = cat;
+        // 'All Recipes'가 아닌 경우에만 동적 번역 적용
+        btn.innerText = (cat === allRecipesLabel) ? cat : translateDynamic(cat, 'recipeCategory');
+        
         if (cat === currentCategory) {
             btn.className = "bg-[#E84C60] text-white px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-md whitespace-nowrap transition-all";
         } else {
@@ -241,14 +264,13 @@ function buildCategoryFilters() {
         }
         btn.onclick = () => { 
             currentCategory = cat; 
-            buildCategoryFilters(); // 액티브 상태 재렌더링
+            buildCategoryFilters(); // 탭 액티브 상태 재렌더링
             filterRecipes(); 
         };
         filterContainer.appendChild(btn);
     });
 }
 
-// 🌟 [보안 및 안정성 강화] Null-Safe 검색 필터링 엔진
 function filterRecipes() {
     const searchInput = document.getElementById('recipeSearchInput');
     const searchTerm = searchInput ? String(searchInput.value || "").toLowerCase().trim() : "";
@@ -270,7 +292,9 @@ function filterRecipes() {
     renderRecipes(filtered);
 }
 
-// 🌟 시네마틱 레시피 카드 렌더링
+// ============================================================================
+// ⚡ [V17.8 신규] 점진적 렌더링 엔진 (Progressive Rendering)
+// ============================================================================
 function renderRecipes(recipes) {
     const grid = document.getElementById('recipeGrid');
     if (!grid) return;
@@ -283,32 +307,51 @@ function renderRecipes(recipes) {
     }
     
     grid.innerHTML = '';
-    recipes.forEach((recipe, index) => {
-        // 시네마틱 순차 등장 이펙트
-        const delay = (index % 12) * 50;
-        const card = document.createElement('div');
-        
-        card.className = `recipe-card bg-white border border-gray-200 rounded-[1.5rem] p-6 shadow-sm flex flex-col h-full cinematic-enter cursor-pointer group`;
-        card.style.animationDelay = `${delay}ms`;
-        card.onclick = () => openRecipeModal(recipe);
-        
-        // Null-Safe 렌더링
-        const catText = recipe.category || dict["uncategorized"];
-        const titleText = recipe.title || 'Untitled Recipe';
-        const ingText = recipe.ingredients || 'Details inside...';
+    let chunkIndex = 0;
+    const CHUNK_SIZE = 12; // 그리드 레이아웃에 최적화된 청크 사이즈
 
-        card.innerHTML = `
-            <div class="mb-4">
-                <span class="px-2.5 py-1 bg-[#E84C60]/10 text-[#E84C60] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E84C60]/20">${catText}</span>
-            </div>
-            <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2 leading-tight">${titleText}</h3>
-            <p class="text-xs font-medium text-gray-500 line-clamp-3 mb-4 flex-grow">${ingText}</p>
-            <div class="mt-auto pt-4 border-t border-gray-100">
-                <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#E84C60] transition-colors">${dict["btn_view"]} <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
+    function renderChunk() {
+        const fragment = document.createDocumentFragment();
+        const endIdx = Math.min(chunkIndex + CHUNK_SIZE, recipes.length);
+
+        for (; chunkIndex < endIdx; chunkIndex++) {
+            const recipe = recipes[chunkIndex];
+            const index = chunkIndex;
+            const delay = (index % 12) * 50;
+            const card = document.createElement('div');
+            
+            card.className = `recipe-card bg-white border border-gray-200 rounded-[1.5rem] p-6 shadow-sm flex flex-col h-full cinematic-enter cursor-pointer group`;
+            card.style.animationDelay = `${delay}ms`;
+            
+            // 클로저 버그 방지를 위해 즉시 실행 함수 또는 직접 바인딩
+            card.onclick = (function(r) { return function() { openRecipeModal(r); }; })(recipe);
+            
+            const catText = recipe.category || dict["uncategorized"];
+            const translatedCat = translateDynamic(catText, 'recipeCategory');
+            const titleText = recipe.title || 'Untitled Recipe';
+            const ingText = recipe.ingredients || 'Details inside...';
+
+            card.innerHTML = `
+                <div class="mb-4">
+                    <span class="px-2.5 py-1 bg-[#E84C60]/10 text-[#E84C60] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E84C60]/20">${translatedCat}</span>
+                </div>
+                <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2 leading-tight">${titleText}</h3>
+                <p class="text-xs font-medium text-gray-500 line-clamp-3 mb-4 flex-grow">${ingText}</p>
+                <div class="mt-auto pt-4 border-t border-gray-100">
+                    <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#E84C60] transition-colors">${dict["btn_view"]} <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                </div>
+            `;
+            fragment.appendChild(card);
+        }
+        
+        grid.appendChild(fragment);
+
+        if (chunkIndex < recipes.length) {
+            requestAnimationFrame(renderChunk);
+        }
+    }
+    
+    renderChunk();
 }
 
 // ============================================================================
@@ -317,7 +360,9 @@ function renderRecipes(recipes) {
 function openRecipeModal(recipe) {
     const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
     
-    document.getElementById('recipeModalCategory').innerText = recipe.category || dict["uncategorized"];
+    const catText = recipe.category || dict["uncategorized"];
+    document.getElementById('recipeModalCategory').innerText = translateDynamic(catText, 'recipeCategory');
+    
     document.getElementById('recipeModalTitle').innerText = recipe.title || 'Untitled';
     document.getElementById('recipeModalIngredients').innerText = recipe.ingredients || 'No ingredients listed.';
     document.getElementById('recipeModalInstructions').innerText = recipe.instructions || 'No instructions provided.';
@@ -328,7 +373,7 @@ function openRecipeModal(recipe) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         
-        // 🚨 모달 오픈 시 배경 화면 스크롤 강제 잠금 (모바일 UX 최적화)
+        // 🚨 모달 오픈 시 배경 화면 스크롤 강제 잠금 (모바일 UX 최적화 무손실 보존)
         document.body.style.overflow = 'hidden';
     }
 }
@@ -344,6 +389,18 @@ window.closeRecipeModal = function() {
         document.body.style.overflow = '';
     }
 }
+
+// ============================================================================
+// 🚨 [V17.8 신규] 프론트엔드 에러 텔레메트리 (글로벌 락/멈춤 추적기)
+// ============================================================================
+window.addEventListener('error', function(event) {
+    console.error("[Y2C Telemetry Error]", event.message);
+    // 조용히 콘솔에만 남기거나, 심각할 경우 토스트
+    // showToast("시스템 처리 중 일시적인 지연이 발생했습니다.", "error");
+});
+window.addEventListener('unhandledrejection', function(event) {
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
+});
 
 // ============================================================================
 // 🌟 시스템 초기화 및 이벤트 리스너 바인딩
