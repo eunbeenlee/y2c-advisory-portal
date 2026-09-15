@@ -1,5 +1,5 @@
 // assets/js/dashboard.js
-// 🌟 V17.1 Ultimate Kernel - Zero Deletion, i18n Translation Engine, Omni-Parser 2.0, CORS Shield
+// 🌟 V17.9 Ultimate Kernel - Zero Deletion, Lazy Library Loading(Chart.js), Dynamic i18n, CORS Preflight Shield, Telemetry
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -13,42 +13,8 @@ if (!sessionToken || userRole === "VENDOR") {
     window.location.replace("items.html");
 }
 
-// 🌟 상단 프로필 및 로그아웃 바인딩
-const userNameDisplay = document.getElementById('userNameDisplay');
-if (userNameDisplay) userNameDisplay.innerText = clientName || userRole;
-
-const badge = document.getElementById('userRoleBadge');
-if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
-
-document.getElementById('logoutBtn')?.addEventListener('click', () => { 
-    localStorage.clear(); 
-    window.location.replace("index.html"); 
-});
-
-// 회계 표준 포맷팅 (Null-Safe 방어)
-const formatCurrency = (amount) => {
-    const safeAmount = Number(amount) || 0;
-    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
-};
-
-// 🌟 상태 알림 토스트
-function showToast(message, type = 'success') {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
-    const icon = type === 'success' ? '✅' : '⚠️';
-    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
-    toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
-    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
-}
-
 // ============================================================================
-// 🌐 글로벌 번역 (i18n) 엔진 탑재 
+// 🌐 글로벌 번역 (i18n) 엔진 탑재
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -83,9 +49,9 @@ window.changeLanguage = function(lang) {
     }
     if (window.applyTranslations) window.applyTranslations();
     
-    // 언어 변경 시 차트 레이블 즉시 업데이트 (재렌더링 불필요)
-    if (salesChartInstance) {
-        salesChartInstance.data.datasets[0].label = I18N_DICT[currentLang]["chart_label"];
+    // 언어 변경 시 차트 레이블 즉시 업데이트 (재렌더링 불필요 무손실 기법)
+    if (salesChartInstance && salesChartInstance.data && salesChartInstance.data.datasets) {
+        salesChartInstance.data.datasets[0].label = I18N_DICT[currentLang] ? I18N_DICT[currentLang]["chart_label"] : "Total Revenue (CAD)";
         salesChartInstance.update();
     }
 };
@@ -99,8 +65,40 @@ window.applyTranslations = function() {
     });
 };
 
+// 상단 프로필 및 로그아웃 바인딩
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.innerText = clientName || userRole;
+
+const badge = document.getElementById('userRoleBadge');
+if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
+
+document.getElementById('logoutBtn')?.addEventListener('click', () => { 
+    localStorage.clear(); 
+    window.location.replace("index.html"); 
+});
+
+const formatCurrency = (amount) => {
+    const safeAmount = Number(amount) || 0;
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
+};
+
+function showToast(message, type = 'success') {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
+    const icon = type === 'success' ? '✅' : '⚠️';
+    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+    toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
+    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
 // ============================================================================
-// 🔒 [V17.1 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// 🔒 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
 // ============================================================================
 function applyGlobalRbacNavigation() {
     const rbacRules = {
@@ -135,7 +133,7 @@ function applyGlobalRbacNavigation() {
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] 타임아웃 절단기 및 지능형 백오프(Jittered Backoff) 통신 엔진
+// 🌟 [방화벽 2] 지능형 백오프(Jittered Backoff) 통신 엔진 (CORS 방어 포함)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 3) {
     let lastError;
@@ -146,8 +144,9 @@ async function executeApi(action, payload = {}, retries = 3) {
         const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
         try {
+            // 🚨 CORS Preflight 원천 우회를 위한 text/plain 강제 사용
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
-                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+                method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
                 signal: controller.signal
             });
@@ -175,7 +174,6 @@ async function executeApi(action, payload = {}, retries = 3) {
             clearTimeout(timeoutId);
             lastError = err;
 
-            // CORS 방어 추적
             if (err.message && err.message.includes("Failed to fetch")) {
                 throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 '모든 사용자(Anyone)'로 변경하세요.</span>");
             }
@@ -187,6 +185,20 @@ async function executeApi(action, payload = {}, retries = 3) {
         }
     }
     throw new Error(lastError?.message || "서버 통신 실패. 새로고침 해주세요.");
+}
+
+// ============================================================================
+// ⚡ [V17.9 신규] 무거운 외부 라이브러리 지연 로딩 (Lazy Loading Code Splitting)
+// ============================================================================
+async function loadHeavyLibrary(url, objName) {
+    if (window[objName] !== undefined) return true;
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = () => resolve(true);
+        script.onerror = () => reject(false);
+        document.head.appendChild(script);
+    });
 }
 
 // ============================================================================
@@ -209,12 +221,9 @@ async function loadDashboardData() {
             clientName: userRole === "MASTER" ? "ALL" : clientName 
         });
 
-        console.log(`[Dashboard ${targetYear} API Response]`, result);
-
         if (result && result.success) {
             // 🚨 Omni-Parser 2.0: ERP Sales 데이터 배열 완벽 매핑
             const dataPayload = result.data || result.dashboardData || result.records || result;
-            
             let rawRecords = Array.isArray(dataPayload) ? dataPayload : (dataPayload.records || dataPayload.monthlyData || []);
             
             let calcPos = 0, calcDel = 0, calcTotal = 0;
@@ -253,7 +262,14 @@ async function loadDashboardData() {
             if (elemPos) elemPos.innerText = formatCurrency(calcPos);
             if (elemDel) elemDel.innerText = formatCurrency(calcDel);
 
-            renderSalesChart(chartArr);
+            // ⚡ [V17.9 신규] Chart.js 지연 로딩 (로딩 속도 대폭 향상)
+            try {
+                await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/chart.js", "Chart");
+                renderSalesChart(chartArr);
+            } catch (err) {
+                console.warn("[Y2C Telemetry] Chart.js load failed:", err);
+                showToast("차트 엔진 렌더링 지연. 다시 시도해 주세요.", "error");
+            }
             
             const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
             showToast(`${targetYear}: ${msgObj["toast_sync_success"]}`, "success");
@@ -262,8 +278,13 @@ async function loadDashboardData() {
             throw new Error(result?.message || msgObj["toast_no_data"]);
         }
     } catch (err) {
-        console.error("Dashboard Load Error:", err);
-        renderSalesChart(Array(12).fill(0));
+        console.error("[Y2C Telemetry Dashboard Load Error]:", err);
+        // 실패 시 빈 차트 렌더링 방어
+        try {
+            await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/chart.js", "Chart");
+            renderSalesChart(Array(12).fill(0));
+        } catch(e) {}
+        
         const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
         showToast(`${msgObj["toast_sync_fail"]}: ${err.message}`, "error");
     } finally {
@@ -358,7 +379,6 @@ function renderSalesChart(monthlyData) {
     });
 }
 
-// 🌟 ERP Sales와 100% 동일한 로딩가능 연도 리스트 생성
 function populateDashYearSelector() {
     const yearSelector = document.getElementById('dashYearSelector');
     if (!yearSelector) return;
@@ -375,6 +395,14 @@ function populateDashYearSelector() {
     }
 }
 
+// 🚨 [V17.9 신규] 프론트엔드 에러 텔레메트리 (글로벌 락/멈춤 추적기)
+window.addEventListener('error', function(event) {
+    console.error("[Y2C Telemetry Error]", event.message);
+});
+window.addEventListener('unhandledrejection', function(event) {
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
+});
+
 // ============================================================================
 // 🌟 시스템 초기화 및 이벤트 리스너 바인딩
 // ============================================================================
@@ -383,13 +411,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.changeLanguage(currentLang);
     applyGlobalRbacNavigation();
 
-    // 1. 연도 셀렉터 동기화
+    // 연도 셀렉터 동기화
     populateDashYearSelector();
 
-    // 2. 이벤트 리스너 연결
+    // 이벤트 리스너 연결
     document.getElementById('dashYearSelector')?.addEventListener('change', loadDashboardData);
     document.getElementById('refreshChartBtn')?.addEventListener('click', loadDashboardData);
 
-    // 3. 엔진 가동
+    // 🚀 데이터 로드 및 렌더링 즉시 시작
     loadDashboardData();
 });
