@@ -1,33 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- 🌟 V17.11 FOUC 방어 및 다국어 렌더링 최적화 돔(DOM) 적용 -->
+<html lang="en" class="opacity-0 transition-opacity duration-300">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 모바일 고급화 전략: iOS 자동 확대(Zoom) 완벽 차단 및 화면 고정 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- 📱 모바일 네이티브 앱 UX 최적화: 확대/바운스 방어 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#1A1516">
     <title>SINJEON CANADA | Master Admin</title>
     
-    <!-- V17.1 통합 Tailwind CSS & Fonts -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ⚡ 리소스 터널링 (네트워크 Preconnect) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    
+    <!-- V17.11 통합 Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 🌟 필수 라이브러리: 엑셀(SheetJS) 및 AI OCR(Tesseract.js) 엔진 (무손실 보존) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <!-- ⚡ Tailwind CSS (최적화: 무거운 라이브러리인 엑셀/OCR은 JS 엔진으로 이관하여 상단 로딩 제거 완료) -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- SYSTEM CONFIG (안전망 연동) -->
+    <!-- SYSTEM CONFIG -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <style>
         :root {
-            /* 🌟 신전 핑크 & 프리미엄 차콜 (통일 테마) */
             --sinjeon-pink: #E84C60; 
             --sinjeon-pink-dark: #C23347;
             --premium-charcoal: #1A1516;
             --y2c-gold: #D4AF37;
-            --bg-light: #F8F9FA; /* 고급스러운 라이트 그레이 배경 */
+            --bg-light: #F8F9FA;
         }
         
+        /* 📱 스크롤 바운스 및 터치 딜레이 방어 */
+        html, body {
+            overscroll-behavior-y: none;
+            touch-action: manipulation;
+        }
+
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-light); 
@@ -38,13 +47,11 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 숫자 입력 화살표(Spinner) 제거 및 iOS 줌 방어(16px 강제) */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -53,64 +60,28 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🌟 애니메이션 극대화 1: 시네마틱 렌더링 (순차적 페이드 업) */
         .cinematic-enter { opacity: 0; transform: translateY(20px) scale(0.99); animation: fadeUpCinematic 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
+        .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; } .delay-400 { animation-delay: 0.4s; }
+        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) scale(1); } }
 
-        @keyframes fadeUpCinematic { 
-            to { opacity: 1; transform: translateY(0) scale(1); } 
-        }
-
-        /* 탭 내부 전환 애니메이션 */
         .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 애니메이션 극대화 2: 버튼 호버 빛 반사(Shine) 및 마그네틱 이펙트 */
-        .btn-gradient-pink {
-            background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .btn-gradient-pink::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: all 0.7s ease;
-        }
-        .btn-gradient-pink:hover {
-            box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4);
-            transform: translateY(-3px) scale(1.01);
-        }
+        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-gradient-pink::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: all 0.7s ease; }
+        .btn-gradient-pink:hover { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
         .btn-gradient-pink:hover::before { left: 100%; }
         .btn-gradient-pink:active { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
 
-        /* 마스터 차콜 버튼 이펙트 */
-        .btn-charcoal {
-            background: var(--premium-charcoal);
-            color: white;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .btn-charcoal:hover {
-            background: black;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-            transform: translateY(-3px) scale(1.01);
-        }
+        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-charcoal:hover { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
         .btn-charcoal:active { transform: translateY(1px) scale(0.98); }
 
-        /* GNB 활성화 하단 라인 애니메이션 */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        /* 드래그 앤 드롭 존 애니메이션 */
         .drop-zone-active { background-color: rgba(232, 76, 96, 0.05); border-color: var(--sinjeon-pink) !important; transform: scale(1.01); }
     </style>
 </head>
@@ -136,7 +107,6 @@
                 <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
                 
                 <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-                    <!-- 🌟 V17.1 글로벌 번역 토글 버튼 추가 -->
                     <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
                         <button onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
                         <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
@@ -376,7 +346,7 @@
             <!-- Health Scan & Grid Container (JS Rendered) -->
             <div id="hqOrdersGridBodyContainer" class="mt-4">
                 <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8 transition-all hover:shadow-md">
-                    <!-- 🌟 짤렸던 Active Inbound Shipments 헤더 복원 -->
+                    <!-- 🌟 짤렸던 Active Inbound Shipments 헤더 100% 무손실 복원 -->
                     <div class="bg-gray-50 border-b border-gray-200 p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <h3 class="font-black text-gray-800 tracking-wide flex items-center gap-2"><span class="text-[#E84C60]">📦</span> <span data-i18n="active_shipments">Active Inbound Shipments</span></h3>
                     </div>
@@ -407,5 +377,11 @@
     <div class="h-24 sm:h-0 w-full block"></div>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/admin.js"></script>
+    <script>
+        // 🌟 FOUC 방어: JS 엔진 로드가 완료되고 DOM이 준비되면 화면을 서서히 밝힘
+        document.addEventListener("DOMContentLoaded", () => {
+            document.documentElement.classList.remove("opacity-0");
+        });
+    </script>
 </body>
 </html>
