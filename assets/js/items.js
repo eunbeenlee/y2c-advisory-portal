@@ -1,5 +1,5 @@
 // assets/js/items.js
-// 🌟 V17.6 Ultimate Kernel - Zero Deletion, Progressive Rendering, Lazy Library Loading, Idempotency Key, Dynamic i18n Engine, CORS Shield
+// 🌟 V17.13 Ultimate Kernel - Zero Deletion, Auto-Save Cart State, OCR Image Compression, Progressive Rendering, Lazy Load, Idempotency Key, i18n, CORS Shield
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -166,6 +166,7 @@ let masterViewRegion = "ALL";
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 
+// 🌟 캐나다 CRA 세법 엔진 
 function isZeroRatedItem(item) {
   if (!item) return false;
   if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
@@ -267,9 +268,9 @@ async function fetchItems() {
         if (aiBtn) aiBtn.classList.remove('hidden');
       }
 
-      // 🌟 [V17.6] 점진적 렌더링 호출
       renderTableItems(); 
       if(userRole !== "VENDOR") calculateOrderTotal(); 
+      
     } else if (result) {
       throw new Error(result.message);
     }
@@ -303,8 +304,24 @@ function checkExpWarning(expDateStr) {
   return (diffDays <= 30); 
 }
 
+// 🌟 [V17.13 신규] 브라우저 새로고침/튕김 방지용 카트 자동 임시저장 (Auto-Save)
+window.saveCartState = function() {
+    if (userRole === "VENDOR") return;
+    const qtyInputs = document.querySelectorAll('.order-qty');
+    const cartState = {};
+    qtyInputs.forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        if (qty > 0) {
+            const code = input.getAttribute('data-code');
+            cartState[code] = qty;
+        }
+    });
+    // 로컬 스토리지에 클라이언트 이름으로 저장하여 계정 간 충돌 방지
+    localStorage.setItem(`Y2C_CART_STATE_${clientName}`, JSON.stringify(cartState));
+};
+
 // ============================================================================
-// ⚡ [V17.6 신규] 점진적 렌더링 엔진 (Progressive Rendering)
+// ⚡ 점진적 렌더링 엔진 (Progressive Rendering)
 // ============================================================================
 function renderTableItems() {
   const tableBody = document.getElementById('itemTableBody');
@@ -315,15 +332,19 @@ function renderTableItems() {
       return;
   }
   
-  tableBody.innerHTML = ''; // 초기화
+  tableBody.innerHTML = ''; 
 
   let totalValue = 0, lowStockCount = 0;
   const isMasterOrVendor = (userRole === "MASTER" || userRole === "VENDOR");
   const sLabel = document.getElementById('stockHeaderLabel');
   if (sLabel) sLabel.innerText = isMasterOrVendor ? (masterViewRegion === "ALL" ? "Total Hub Stock" : `Hub Stock (${masterViewRegion})`) : `Local Hub (${currentClientState})`;
 
+  // 🌟 [V17.13] 임시저장된 카트 상태 불러오기
+  let savedCart = {};
+  try { savedCart = JSON.parse(localStorage.getItem(`Y2C_CART_STATE_${clientName}`)) || {}; } catch(e){}
+
   let chunkIndex = 0;
-  const CHUNK_SIZE = 30; // 프레임 당 30개씩 분할하여 브라우저 다운 방어
+  const CHUNK_SIZE = 30;
 
   function renderChunk() {
       const fragment = document.createDocumentFragment();
@@ -335,7 +356,6 @@ function renderTableItems() {
           
           const row = document.createElement('tr'); row.className = "hover:bg-gray-50/50 transition-colors duration-200";
           
-          // ⚡ [V17.6] 이미지 Lazy Loading 속성 추가
           const imgTag = item.image && item.image.trim() !== '' ? `<img src="${item.image}" alt="${item.code}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors" loading="lazy">` : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
           
           let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown[masterViewRegion] || 0)) : item.regionalStock;
@@ -393,8 +413,10 @@ function renderTableItems() {
               stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap">Sold Out</span>${expDisplayHTML}</div>`;
               orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
             } else {
+              // 🌟 [V17.13] 이전에 임시저장된 수량이 있다면 복구
+              let currentQty = savedCart[item.code] || 0;
               stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-              orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="0" data-index="${index}" oninput="calculateOrderTotal()" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all hover:shadow-md">`;
+              orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="${currentQty}" data-index="${index}" data-code="${item.code}" oninput="calculateOrderTotal(); window.saveCartState();" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all hover:shadow-md">`;
             }
           }
 
@@ -407,9 +429,8 @@ function renderTableItems() {
       tableBody.appendChild(fragment);
 
       if (chunkIndex < cachedItems.length) {
-          requestAnimationFrame(renderChunk); // 다음 애니메이션 프레임에 이어서 렌더링
+          requestAnimationFrame(renderChunk);
       } else {
-          // 모든 렌더링 완료 후 후속 작업 처리
           if (document.getElementById('kpiTotalSkus')) document.getElementById('kpiTotalSkus').innerText = cachedItems.length;
           if (document.getElementById('kpiTotalValue')) document.getElementById('kpiTotalValue').innerText = userRole === "VENDOR" ? "N/A" : formatCurrency(totalValue);
           if (document.getElementById('kpiLowStock')) document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
@@ -419,7 +440,7 @@ function renderTableItems() {
       }
   }
 
-  renderChunk(); // 렌더링 트리거
+  renderChunk(); 
 }
 
 function applyAiSuggestion() {
@@ -431,8 +452,11 @@ function applyAiSuggestion() {
       if (targetQty > 0) { input.value = targetQty; appliedCount++; }
     }
   });
-  if (appliedCount > 0) { showToast(`AI 분석: ${appliedCount}개 품목 세팅 완료`, "success"); calculateOrderTotal(); } 
-  else { showToast("적용할 추천 데이터가 없습니다.", "error"); }
+  if (appliedCount > 0) { 
+      showToast(`AI 분석: ${appliedCount}개 품목 세팅 완료`, "success"); 
+      calculateOrderTotal(); 
+      window.saveCartState(); // 🌟 AI 자동완성 결과도 임시저장
+  } else { showToast("적용할 추천 데이터가 없습니다.", "error"); }
 }
 
 let currentOrderTaxSummary = { subtotal: 0, foodSubtotal: 0, taxableSubtotal: 0, taxAmount: 0, grandTotal: 0 };
@@ -529,7 +553,6 @@ function attachImageHoverEffect() {
   tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
 }
 
-// 고유 식별자(UUID) 생성 함수 (중복 결제 방지용 Idempotency Key)
 const generateIdempotencyKey = () => { return 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase(); };
 
 async function submitOrder() {
@@ -561,7 +584,12 @@ async function submitOrder() {
 
   try {
     const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems, taxSummary: currentOrderTaxSummary, batchId: uniqueBatchId });
-    if (result && result.success) { showToast(result.message || `발주 완료 및 B2B 이메일 전송 성공 (번호: ${result.batchId})`, "success"); setTimeout(() => fetchItems(), 1500); } 
+    if (result && result.success) { 
+        showToast(result.message || `발주 완료 및 B2B 이메일 전송 성공 (번호: ${result.batchId})`, "success"); 
+        // 🌟 [V17.13] 발주가 서버에 완전히 접수된 이후에만 임시저장 캐시를 비워줍니다.
+        localStorage.removeItem(`Y2C_CART_STATE_${clientName}`);
+        setTimeout(() => fetchItems(), 1500); 
+    } 
     else if (result) throw new Error(result.message);
   } catch (error) { 
     showToast(error.message, "error"); 
@@ -572,7 +600,50 @@ async function submitOrder() {
   }
 }
 
-// 🌟 [V17.6 신규] 무거운 외부 라이브러리 지연 로딩 (Code Splitting)
+// ============================================================================
+// ⚡ [V17.13 신규] 모바일 크래시 방어용 클라이언트 사이드 이미지 압축 엔진
+// ============================================================================
+function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                // 해상도가 한계치를 초과할 경우 비율을 유지하며 Downscale 연산
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) {
+                        height = Math.round((height *= maxWidth / width));
+                        width = maxWidth;
+                    } else {
+                        width = Math.round((width *= maxHeight / height));
+                        height = maxHeight;
+                    }
+                }
+
+                // 메모리상에 압축을 진행할 캔버스 생성
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // 0.8(80%) 퀄리티의 최적화된 JPEG 포맷으로 변환하여 반환
+                canvas.toBlob(blob => {
+                    resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() }));
+                }, 'image/jpeg', 0.8); 
+            };
+            img.onerror = error => reject(error);
+        };
+        reader.onerror = error => reject(error);
+    });
+}
+
+// 외부 라이브러리 지연 로딩
 async function loadHeavyLibrary(url, objName) {
     if (window[objName] !== undefined) return true;
     return new Promise((resolve, reject) => {
@@ -600,6 +671,7 @@ async function handleExcelUpload(event) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Loading Excel Engine...</span>`;
     try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
     catch(e) { isSubmitting = false; return showToast("엑셀 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
+
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
     
     const reader = new FileReader();
@@ -610,28 +682,42 @@ async function handleExcelUpload(event) {
         const firstSheetName = workbook.SheetNames[0]; 
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
-        if (jsonData.length === 0) throw new Error("엑셀 파일에 처리할 데이터가 없습니다.");
+        
+        if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다.");
         processExcelData(jsonData, file.name);
       } catch(err) {
-        isSubmitting = false; showToast("파일 파싱 중 오류 발생: " + err.message, "error"); 
+        isSubmitting = false;
+        showToast("엑셀 파일 파싱 중 오류 발생: " + err.message, "error"); 
         if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
       }
     };
     reader.readAsArrayBuffer(file);
   } 
   else if (validImgExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">Compressing Image...</span>`;
+    
+    // 🌟 [V17.13 신규] 모바일 브라우저 크래시(RAM 초과) 방지를 위한 전처리 압축
+    let targetFile = file;
+    try { 
+        targetFile = await compressImage(file); 
+    } catch(e) { 
+        console.warn("[Y2C Telemetry] Image compression failed, fallback to original file.", e); 
+    }
+
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">Loading AI OCR Engine...</span>`;
     try { await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js", "Tesseract"); } 
     catch(e) { isSubmitting = false; return showToast("AI 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
 
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
+    
     try {
-      const result = await Tesseract.recognize(file, 'eng+kor', {
+      const result = await Tesseract.recognize(targetFile, 'eng+kor', {
         logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`; } }
       });
       processOCRText(result.data.text, file.name);
     } catch(err) {
-      isSubmitting = false; showToast("이미지 인식 실패: " + err.message, "error"); 
+      isSubmitting = false;
+      showToast("이미지 인식 실패: " + err.message, "error"); 
       if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
     }
   } else { 
@@ -662,7 +748,8 @@ function processOCRText(text, filename) {
   });
 
   if (jsonData.length === 0) {
-    isSubmitting = false; showToast("이미지에서 품번 및 수량을 찾지 못했습니다.", "error");
+    isSubmitting = false;
+    showToast("이미지에서 품번 및 수량을 찾지 못했습니다.", "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here"; return;
   }
   processExcelData(jsonData, filename + " (OCR)");
@@ -671,13 +758,15 @@ function processOCRText(text, filename) {
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector');
   if (!targetRegion || !targetRegion.value) {
-    isSubmitting = false; showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
+    isSubmitting = false;
+    showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
     document.getElementById('uploadStatusText').innerHTML = "Drag & Drop vendor document here"; return;
   }
   const regionVal = targetRegion.value;
 
   if (cachedItems.length === 0) {
-    isSubmitting = false; showToast("카탈로그 데이터를 불러오는 중입니다. 잠시 후 시도하세요.", "error"); return;
+    isSubmitting = false;
+    showToast("카탈로그 데이터를 불러오는 중입니다. 잠시 후 시도하세요.", "error"); return;
   }
 
   let inboundMap = {};
@@ -728,7 +817,7 @@ async function processExcelData(jsonData, filename) {
 
   document.getElementById('uploadStatusText').innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
-  const uniqueSyncId = 'SYNC-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+  const uniqueSyncId = generateIdempotencyKey();
 
   try {
     const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: uniqueSyncId });
@@ -747,9 +836,9 @@ async function processExcelData(jsonData, filename) {
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone');
   if(!dropZone) return;
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-[#E84C60]/10', 'border-[#E84C60]'); });
-  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E84C60]/10', 'border-[#E84C60]'); });
-  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-[#E84C60]/10', 'border-[#E84C60]'); handleExcelUpload(e); });
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
+  dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
+  dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
   const fileInput = document.getElementById('excelFileInput');
   if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
 }
@@ -782,6 +871,10 @@ window.applyAiSuggestion = applyAiSuggestion;
 window.calculateOrderTotal = calculateOrderTotal; 
 window.handleExcelUpload = handleExcelUpload;
 window.cancelOrder = cancelOrder; 
+
+// 프론트엔드 에러 텔레메트리
+window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
+window.addEventListener('unhandledrejection', function(event) { console.error("[Y2C Telemetry Promise Rejection]", event.reason); });
 
 document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang);
