@@ -1,5 +1,5 @@
 // assets/js/invoice.js
-// 🌟 V17.1 Ultimate Kernel - Zero Deletion, i18n Translation Engine, PDF Print Restored, CORS Shield
+// 🌟 V17.10 Ultimate Kernel - Zero Deletion, Strict CORS Preflight Shield, Dynamic i18n, PDF Print Restored, Telemetry
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
@@ -94,7 +94,7 @@ const formatDate = (dateObj) => {
     return dateObj.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' });
 };
 
-// 🌟 [UI] 상태 알림 토스트 메시지 (V17.1 신전 핑크 테마 동기화)
+// 🌟 [UI] 상태 알림 토스트 메시지
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -111,7 +111,7 @@ function showToast(message, type = 'success') {
 }
 
 // ============================================================================
-// 🔒 [V17.1 업그레이드] 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
+// 🔒 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
 // ============================================================================
 function applyGlobalRbacNavigation() {
     const rbacRules = {
@@ -121,13 +121,11 @@ function applyGlobalRbacNavigation() {
         'navInvoice': ['MASTER']               
     };
 
-    // 1. 모든 GNB 탭 강제 노출 (시스템 스케일 증명)
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('hidden');
     });
 
-    // 2. 권한 락(Lock) 처리 및 이벤트 강제 탈취 (이벤트 복제)
     Object.keys(rbacRules).forEach(id => {
         const el = document.getElementById(id);
         const allowedRoles = rbacRules[id];
@@ -156,11 +154,12 @@ async function executeApi(action, payload = {}, retries = 3) {
 
     for (let i = 0; i <= retries; i++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 응답 대기 한계선
+        const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
         try {
+            // 🚨 CORS Preflight 원천 우회를 위한 text/plain 강제 사용
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
-                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, redirect: "follow",
+                method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
                 signal: controller.signal
             });
@@ -188,19 +187,19 @@ async function executeApi(action, payload = {}, retries = 3) {
             clearTimeout(timeoutId);
             lastError = err;
             
-            // 🚨 CORS 에러(Failed to fetch) 강제 추적
+            // 🚨 CORS 강제 추적
             if (err.message && err.message.includes("Failed to fetch")) {
                 throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 '모든 사용자(Anyone)'로 변경하세요.</span>");
             }
 
             if (i < retries) {
                 const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
-                console.warn(`[재무 데이터 통신 지연 우회] ${waitTime}ms 대기 후 재시도... (${i+1}/${retries})`);
+                console.warn(`[Y2C Telemetry] 백오프 우회 중... (${i+1}/${retries})`);
                 await new Promise(res => setTimeout(res, waitTime));
             }
         }
     }
-    throw new Error(lastError?.message || "서버 트래픽이 혼잡하여 처리되지 않았습니다. 새로고침 후 다시 시도해주세요.");
+    throw new Error(lastError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다." : (lastError.message || "서버 통신 실패. 잠시 후 새로고침 해주세요."));
 }
 
 let cachedClients = [];
@@ -276,8 +275,6 @@ async function generateInvoice() {
             clientName, targetYear, startMonth, endMonth 
         });
 
-        console.log(`[Invoice Data Scanned]`, result);
-
         if (result && result.success) {
             // 🚨 Omni-Parser 2.0: 백엔드 페이로드 객체 구조 파편화 완벽 방어
             const data = result.data || result.invoiceData || result.invoice || result || {};
@@ -309,20 +306,19 @@ async function generateInvoice() {
             const invNo = `INV-${targetYear}${String(startMonth).padStart(2, '0')}-${clientName.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
             // ====================================================================
-            // 🌟 5. V15.4 HTML 돔(DOM) 렌더링 & 송금 정보(Remittance) 블랭크 버그 수정
+            // 🌟 5. DOM 렌더링 & 무손실 변수 매핑
             // ====================================================================
             document.getElementById('invNo').innerText = invNo;
             document.getElementById('invDate').innerText = formatDate(today);
             document.getElementById('invDue').innerText = formatDate(dueDateObj);
 
-            // HQ Info (Remittance - 벤더사 은행 정보 변수명 교차 매핑으로 100% 추출)
+            // HQ Info
             document.getElementById('hqName').innerText = hqInfo.name || hqInfo.hqName || "Y2C Holdings Inc.";
             document.getElementById('hqAddress').innerText = hqInfo.address || hqInfo.hqAddress || "-";
             document.getElementById('hqContact').innerText = hqInfo.contact || hqInfo.phone || "-";
             document.getElementById('hqRegNo').innerText = hqInfo.regNo || hqInfo.businessNo || "-";
             document.getElementById('hqRep').innerText = hqInfo.rep || hqInfo.representative || "-";
             
-            // 은행, 계좌, 스위프트 코드 파편화 대응
             document.getElementById('hqBank').innerText = hqInfo.bankName || hqInfo.bank || "-";
             document.getElementById('hqBankAddress').innerText = hqInfo.bankAddress || hqInfo.bankAddr || hqInfo.address || "-";
             document.getElementById('hqAccount').innerText = hqInfo.accountNo || hqInfo.account || "-";
@@ -335,7 +331,7 @@ async function generateInvoice() {
             document.getElementById('clientAttn').innerText = clientInfo.manager || clientInfo.attn || "-";
             document.getElementById('clientBizId').innerText = clientInfo.bizId || clientInfo.businessId || "-";
 
-            // Calculation Line (번역 딕셔너리 연동)
+            // Calculation Line
             document.getElementById('descLine').innerHTML = `${dict["desc_mas"]}<br><span class="text-xs text-gray-500 font-medium mt-1 block">Period: ${targetYear}-${String(startMonth).padStart(2,'0')} to ${targetYear}-${String(endMonth).padStart(2,'0')}</span>`;
             document.getElementById('baseLine').innerText = formatCurrency(baseAmount);
             document.getElementById('rateLine').innerText = `${rate}%`;
@@ -344,7 +340,6 @@ async function generateInvoice() {
             // Totals
             document.getElementById('subTotal').innerText = formatCurrency(royaltyAmount);
             
-            // 세금 라벨 동적 렌더링
             const taxLabelEl = document.getElementById('taxAmt').parentElement;
             if(taxLabelEl) {
                 taxLabelEl.innerHTML = `Estimated Tax <span class="font-bold text-gray-800">(${taxObj.name})</span>: <span class="font-black text-[var(--premium-charcoal)] font-mono ml-4 print-text-black text-sm" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
@@ -354,7 +349,7 @@ async function generateInvoice() {
             
             document.getElementById('totalDue').innerText = formatCurrency(grandTotal);
 
-            // 🌟 6. CSV Export를 위한 무결성 캐시 저장
+            // 🌟 6. CSV Export 무결성 캐시 저장
             currentInvoiceData = {
                 invNo, date: formatDate(today), client: clientName, 
                 baseAmount, rate, royaltyAmount, taxName: taxObj.name, taxAmount, grandTotal
@@ -376,10 +371,9 @@ async function generateInvoice() {
 }
 
 // ============================================================================
-// 🖨️ [누락 복구 완벽 완료] 브라우저 네이티브 PDF 인쇄 엔진
+// 🖨️ 브라우저 네이티브 PDF 인쇄 엔진 (무손실 보존)
 // ============================================================================
 window.printInvoicePDF = function() {
-    // 인쇄 시 CSS 조작을 위해 잠시 스타일 추가 (인보이스 영역만 렌더링)
     const style = document.createElement('style');
     style.id = 'printOverrideStyle';
     style.innerHTML = `
@@ -393,10 +387,8 @@ window.printInvoicePDF = function() {
     `;
     document.head.appendChild(style);
     
-    // 인쇄(PDF 저장) 대화상자 호출
     window.print();
     
-    // 인쇄 창이 닫힌 후 원래대로 복구
     setTimeout(() => {
         const override = document.getElementById('printOverrideStyle');
         if (override) override.remove();
@@ -404,7 +396,7 @@ window.printInvoicePDF = function() {
 };
 
 // ============================================================================
-// 📥 3. CSV 데이터 추출 엔진 (무결성 검증)
+// 📥 3. CSV 데이터 추출 엔진 (무결성 보존)
 // ============================================================================
 function exportInvoiceCSV() {
     if (!currentInvoiceData) {
@@ -439,10 +431,20 @@ function exportInvoiceCSV() {
 // 글로벌 함수 노출
 window.generateInvoice = generateInvoice;
 window.exportInvoiceCSV = exportInvoiceCSV;
-window.printInvoicePDF = printInvoicePDF; // 누락 복원 완료
+window.printInvoicePDF = printInvoicePDF; 
+
+// ============================================================================
+// 🚨 [V17.10 신규] 프론트엔드 에러 텔레메트리 (글로벌 락/멈춤 추적기)
+// ============================================================================
+window.addEventListener('error', function(event) {
+    console.error("[Y2C Telemetry Error]", event.message);
+});
+window.addEventListener('unhandledrejection', function(event) {
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     window.changeLanguage(currentLang);
-    applyGlobalRbacNavigation(); // 글로벌 접근 통제 락 가동
+    applyGlobalRbacNavigation();
     initInvoicePanel();
 });
