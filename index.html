@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.30 Production Hardening - FOUC 방어, 메모리 누수 방지, 네트워크 탄력성 100% 적용 + 웹 표준 Meta 최적화 -->
+<!-- 🌟 V17.31 Production Hardening - FOUC 방어, 검은 화면 탈출 안전장치, 네트워크 탄력성 100% 적용 + 웹 표준 Meta 최적화 -->
 <html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#0a0a0a">
     
-    <!-- 🌟 [V17.30 패치] 콘솔 Deprecated 경고 해결을 위한 웹 표준 메타 태그 적용 -->
+    <!-- 🌟 [V17.31 패치] 콘솔 Deprecated 경고 해결을 위한 웹 표준 메타 태그 적용 -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -232,7 +232,7 @@
             <div class="mt-8 text-center border-t border-white/5 pt-6 cinematic-enter delay-400">
                 <p class="text-[9px] font-bold text-gray-500 tracking-widest leading-relaxed uppercase">
                     Operated by Y2C Holdings Ltd.<br>
-                    <span class="text-gray-400 font-black">System V17.30 Enterprise</span>
+                    <span class="text-gray-400 font-black">System V17.31 Enterprise</span>
                 </p>
             </div>
         </form>
@@ -240,8 +240,9 @@
 
 <script>
 /**
- * 🌟 V17.30 Production Hardening - Login Module (Freeze-Proof & Brute-Force Sync)
- * - 100% 무손실 보존 + 10초 강제 타임아웃(AbortController)으로 모바일 멈춤(Freezing) 현상 완벽 방어
+ * 🌟 V17.31 Production Hardening - Login Module (Anti-Black-Screen & Freeze-Proof)
+ * - 어떤 예외 상황에서도 절대 검은 화면이 멈춰있지 않도록 FOUC 방어막 안전 해제 보장
+ * - 10초 타임아웃 백오프 엔진 및 V29.1.2 백엔드와 완벽 동기화
  */
 
 const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
@@ -254,20 +255,27 @@ function escapeHtml(value) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 🌟 FOUC(깜빡임) 방어막 해제: 화면을 부드럽게 켬
-    document.documentElement.classList.remove("opacity-0");
+    // 🌟 [핵심 방어] 절대 검은 화면으로 멈추지 않도록 무조건 방어막 즉시 해제
+    try {
+        document.documentElement.classList.remove("opacity-0");
+        document.body.style.opacity = "1";
+    } catch(e) {}
 
     // 1. 보안 라우팅 (세션 스니핑/Prototype Pollution 방어)
-    const sessionToken = String(localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN) || "").trim();
-    const userRole = String(localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
-    
-    if (sessionToken && userRole) {
-        document.body.style.transition = "opacity 0.3s ease";
-        document.body.style.opacity = '0';
-        setTimeout(() => {
-            window.location.replace((userRole === "MASTER" || userRole === "VENDOR") ? "admin.html" : "items.html");
-        }, 300);
-        return;
+    try {
+        const sessionToken = String(localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN) || "").trim();
+        const userRole = String(localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
+        
+        if (sessionToken && userRole) {
+            document.body.style.transition = "opacity 0.3s ease";
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                window.location.replace((userRole === "MASTER" || userRole === "VENDOR") ? "admin.html" : "items.html");
+            }, 300);
+            return;
+        }
+    } catch (e) {
+        console.error("[Y2C Storage Error]", e);
     }
 
     const loginForm = document.getElementById("loginForm");
@@ -312,12 +320,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 🌟 CSS 네이티브 진동(Shake) 트리거 함수
     function triggerShake() {
+        if (!loginForm) return;
         loginForm.classList.remove('shake-animation');
         void loginForm.offsetWidth; // DOM Reflow 강제 발생 (애니메이션 리셋)
         loginForm.classList.add('shake-animation');
     }
 
-    // 4. [V17.30 패치] 10초 강제 타임아웃 적용 및 브라우저 프리징 방어 백오프 엔진
+    // 4. [V17.31 패치] 10초 강제 타임아웃 적용 및 브라우저 프리징 방어 백오프 엔진
     async function executeLogin(payload, retries = 2) {
         if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
 
@@ -397,7 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         isAuthenticating = true;
-        const originalBtnText = loginBtn.innerHTML;
+        const originalBtnText = loginBtn ? loginBtn.innerHTML : "Secure Login";
         if (loginBtn) {
             loginBtn.disabled = true;
             loginBtn.style.background = "var(--premium-bg)";
@@ -414,16 +423,20 @@ document.addEventListener("DOMContentLoaded", () => {
             if (result && result.success) {
                 if (errorMsg) errorMsg.innerHTML = `<span class="text-emerald-400 font-bold drop-shadow-md">✅ SECURE SESSION ESTABLISHED</span>`;
                 
-                localStorage.clear();
-                localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, result.token);
-                localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, result.role);
-                localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, result.clientName);
-                localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, id);
-                localStorage.setItem("y2c_premium_state", result.clientState || "DEFAULT");
+                try {
+                    localStorage.clear();
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, result.token);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, result.role);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, result.clientName);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, id);
+                    localStorage.setItem("y2c_premium_state", result.clientState || "DEFAULT");
+                } catch(stErr) {}
 
-                loginForm.style.transition = "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
-                loginForm.style.transform = "scale(1.05) translateY(-10px)";
-                loginForm.style.opacity = "0";
+                if (loginForm) {
+                    loginForm.style.transition = "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
+                    loginForm.style.transform = "scale(1.05) translateY(-10px)";
+                    loginForm.style.opacity = "0";
+                }
                 
                 setTimeout(() => {
                     window.location.replace((result.role === "MASTER" || result.role === "VENDOR") ? "admin.html" : "items.html");
@@ -439,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             triggerShake(); 
         } finally {
-            if (!loginForm.style.opacity || loginForm.style.opacity !== "0") {
+            if (!loginForm || !loginForm.style.opacity || loginForm.style.opacity !== "0") {
                 isAuthenticating = false;
                 if (loginBtn) {
                     loginBtn.disabled = false; 
