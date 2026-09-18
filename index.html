@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.11 FOUC 방어: JS 로드 전까지 화면을 숨겨 깜빡임(쌩얼 노출) 완벽 차단 -->
+<!-- 🌟 V17.27 FOUC 방어: JS 로드 전까지 화면을 숨겨 깜빡임(쌩얼 노출) 완벽 차단 -->
 <html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
-    <!-- V17.11 통합 Fonts -->
+    <!-- V17.27 통합 Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,7 +99,7 @@
         }
         .premium-input::placeholder { color: rgba(255, 255, 255, 0.3); font-weight: 500; letter-spacing: 0.05em; }
 
-        /* 🌟 [요청사항 반영] 힙(Hip)하고 타격감 있는 마그네틱 스프링 버튼 */
+        /* 🌟 힙(Hip)하고 타격감 있는 마그네틱 스프링 버튼 */
         .btn-hip {
             position: relative;
             background: #ffffff;
@@ -141,7 +141,7 @@
         .floating-logo { animation: floating 6s ease-in-out infinite; will-change: transform; }
         @keyframes floating { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
 
-        /* 🌟 에러 발생 시 GPU 가속 네이티브 Shake 효과 (무손실 보존) */
+        /* 🌟 에러 발생 시 GPU 가속 네이티브 Shake 효과 */
         @keyframes error-shake {
             0%, 100% { transform: translateX(0); }
             20% { transform: translateX(-8px); }
@@ -151,7 +151,7 @@
         }
         .shake-animation { animation: error-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
-        /* 🌟 캡스락 & 에러 메시지 트랜지션 (무손실 보존) */
+        /* 🌟 캡스락 & 에러 메시지 트랜지션 */
         .alert-slide { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; max-height: 0; overflow: hidden; transform: translateY(-5px); }
         .alert-slide.active { opacity: 1; max-height: 40px; margin-top: 8px; transform: translateY(0); }
         
@@ -233,7 +233,7 @@
             <div class="mt-8 text-center border-t border-white/5 pt-6 cinematic-enter delay-400">
                 <p class="text-[9px] font-bold text-gray-500 tracking-widest leading-relaxed uppercase">
                     Operated by Y2C Holdings Ltd.<br>
-                    <span class="text-gray-400 font-black">System V17.11 Enterprise</span>
+                    <span class="text-gray-400 font-black">System V17.27 Enterprise</span>
                 </p>
             </div>
         </form>
@@ -241,27 +241,64 @@
 
 <script>
 /**
- * 🌟 V17.11 Enterprise Login Core Logic (Zero-Deletion Guarantee)
- * - 100% 무손실 보존: 백오프 엔진, 세션 스니핑 방어, CORS 차단 감지기, 네이티브 Shake 이펙트
+ * 🌟 V17.27 Enterprise Login Core Logic (Zero-Loss Standardization)
+ * - Prototype Pollution Defense, Strict Offline Monitoring, HTTP 429/503 Handlers, 
+ *   Unhandled Rejection Shield, Memory-safe AbortControllers.
  */
 
-const CONFIG = (typeof SYSTEM_CONFIG !== 'undefined') ? SYSTEM_CONFIG : {
+const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
     API: { BASE_URL: "https://script.google.com/macros/s/AKfycbzT-_ZIfaVv6hQ6L9mE-Q4L0g9a17Q2Bw34gT4wI3Q19586QpL_D7I09Z0Y090zXw/exec" }, 
     STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_ID: "y2c_id" }
 };
 
+// 🌟 [V17.27] 글로벌 시스템 토스트 알림 엔진 (네트워크 상태 및 시스템 에러용)
+function showToast(message, type = 'success') {
+    let container = document.getElementById('toastContainer');
+    if (!container) { 
+        container = document.createElement('div'); container.id = 'toastContainer'; 
+        container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
+        document.body.appendChild(container); 
+    }
+    if (container.childNodes.length >= 3) container.firstChild.remove();
+
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]', icon = type === 'success' ? '✅' : '⚠️';
+    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+    toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
+    toast.querySelector('.toast-msg').textContent = String(message);
+    container.appendChild(toast);
+    
+    requestAnimationFrame(() => {
+        setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
+    });
+
+    setTimeout(() => { 
+        toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); 
+        setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
+    }, 3500);
+}
+
+// 🌟 [V17.27] 강력한 네트워크 & 시스템 전역 보호막
+window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
+window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
+window.addEventListener('unhandledrejection', function(event) { 
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
+    showToast("일시적인 시스템 에러가 발생했습니다. 잠시 후 다시 시도해주세요.", "error"); 
+});
+
 document.addEventListener("DOMContentLoaded", () => {
-    // 🌟 V17.11 FOUC(깜빡임) 방어막 해제: 화면을 부드럽게 켬
+    // 🌟 V17.27 FOUC(깜빡임) 방어막 해제: 화면을 부드럽게 켬
     document.documentElement.classList.remove("opacity-0");
 
-    // 1. 보안 라우팅 (세션 스니핑 방어 및 VENDOR 다이렉트 라우팅)
-    const sessionToken = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN);
-    const userRole = localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE);
+    // 🌟 1. 보안 라우팅 (프로토타입 오염 방어)
+    const sessionToken = String(localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN) || "").trim();
+    const userRole = String(localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").trim().toUpperCase();
+    
     if (sessionToken && userRole) {
         document.body.style.transition = "opacity 0.3s ease";
         document.body.style.opacity = '0';
         setTimeout(() => {
-            window.location.replace((userRole === "MASTER" || userRole === "VENDOR") ? "admin.html" : "items.html");
+            window.location.replace(["MASTER", "VENDOR", "PARTNER"].includes(userRole) && userRole !== "PARTNER" ? "admin.html" : "items.html");
         }, 300);
         return;
     }
@@ -301,11 +338,14 @@ document.addEventListener("DOMContentLoaded", () => {
         loginForm.classList.add('shake-animation');
     }
 
-    // 4. CORS 및 백엔드 단절 감지 특화 백오프(Backoff) 엔진
+    // 🌟 4. [V17.27] CORS, HTTP 429/503 단절 감지 특화 백오프(Backoff) 엔진
     async function executeLogin(payload, retries = 3) {
-        if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
+        if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 오프라인 상태입니다.");
 
-        let lastError;
+        // 페이로드 무결성 방어
+        const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
+        let lastNetworkError;
+
         for (let i = 0; i <= retries; i++) {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 20000); 
@@ -313,15 +353,25 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const response = await fetch(CONFIG.API.BASE_URL, {
                     method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-                    redirect: "follow", body: JSON.stringify({ action: "login", ...payload }),
+                    redirect: "follow", body: JSON.stringify({ action: "login", ...safePayload }),
                     signal: controller.signal
                 });
                 
                 clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const httpError = new Error(`서버 통신 오류 (HTTP ${response.status})`);
+                    httpError.httpStatus = response.status;
+                    throw httpError;
+                }
+                
                 const rawText = await response.text();
                 
                 try {
                     const jsonResult = JSON.parse(rawText);
+                    if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) {
+                        throw new Error("서버 응답 형식이 시스템 포맷과 일치하지 않습니다.");
+                    }
                     if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("지연"))) {
                         throw new Error(jsonResult.message);
                     }
@@ -331,7 +381,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (err) {
                 clearTimeout(timeoutId);
-                lastError = err;
+                lastNetworkError = err;
+                
+                if (err.httpStatus === 429) throw new Error("서버에 요청이 집중되어 지연 중입니다. 잠시 후 시도해주세요. (HTTP 429)");
+                if (err.httpStatus === 503) throw new Error("서버가 일시적으로 점검 중이거나 응답할 수 없습니다. (HTTP 503)");
                 
                 // 🚨 CORS 에러(Failed to fetch) 강제 추적
                 if (err.message && err.message.includes("Failed to fetch")) {
@@ -345,7 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         }
-        throw new Error(lastError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다." : (lastError.message || "보안 연결이 거부되었습니다."));
+        throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다." : (lastNetworkError?.message || "보안 연결이 거부되었습니다."));
     }
 
     // 5. 폼 제출 메인 로직
@@ -354,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isAuthenticating) return;
 
         const id = idInput ? String(idInput.value).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '') : "";
-        const pw = pwInput ? pwInput.value.trim() : "";
+        const pw = pwInput ? String(pwInput.value).trim() : "";
 
         // 🌟 에러 시 네이티브 Shake 호출
         if (!id || !pw) {
@@ -367,7 +420,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const originalBtnText = loginBtn.innerHTML;
         if (loginBtn) {
             loginBtn.disabled = true;
-            // 로딩 시에는 화려한 아우라 대신 정적인 피드백
             loginBtn.style.background = "var(--premium-bg)";
             loginBtn.style.color = "var(--sinjeon-pink)";
             loginBtn.style.border = "1px solid var(--sinjeon-pink)";
@@ -395,16 +447,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 loginForm.style.opacity = "0";
                 
                 setTimeout(() => {
-                    window.location.replace((result.role === "MASTER" || result.role === "VENDOR") ? "admin.html" : "items.html");
+                    window.location.replace(["MASTER", "VENDOR", "PARTNER"].includes(result.role) && result.role !== "PARTNER" ? "admin.html" : "items.html");
                 }, 500);
 
             } else {
                 if (errorMsg) errorMsg.innerHTML = `<span class="text-[var(--sinjeon-vibrant)] drop-shadow-md">⚠️ ${result.message || "인증에 실패했습니다."}</span>`;
-                triggerShake(); // 네이티브 Shake
+                triggerShake(); 
             }
         } catch (err) {
             if (errorMsg) errorMsg.innerHTML = `<span class="text-[var(--sinjeon-vibrant)] drop-shadow-md">${err.message}</span>`;
-            triggerShake(); // 네이티브 Shake
+            triggerShake(); 
         } finally {
             if (!loginForm.style.opacity || loginForm.style.opacity !== "0") {
                 isAuthenticating = false;
