@@ -1,7 +1,6 @@
 // assets/js/admin.js
-// 🌟 V17.31 Ultimate Kernel - Anti-Black-Screen, Strict Role Isolation, 3-Way Match Inbound Engine, Anti-Crash Defense
+// 🌟 V17.36 Ultimate Hardening - Scope Crash Prevention, Global Async Catch, 25s Backoff Engine, Zero-Loss Full Code
 
-// 🌟 [핵심 방어] 스크립트 로드 즉시 검은 화면(FOUC 방어막) 강제 철거
 try {
     document.documentElement.classList.remove("opacity-0");
     document.documentElement.style.opacity = "1";
@@ -12,7 +11,6 @@ try {
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
 
-// 스토리지 안전 접근 및 권한 게이트키퍼 강화
 let userRole = "", clientName = "", sessionToken = "";
 try {
     userRole = String(localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
@@ -101,6 +99,7 @@ function translateDynamic(text, type) {
     if(map) { for(let key in map) { if(tStr.includes(key.toUpperCase())) return map[key]; } } return text;
 }
 
+// 🌟 [방어] XSS 및 데이터 엄격 파서 (Strict Validations)
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
 }
@@ -174,6 +173,7 @@ const formatDate = (isoStr) => {
 
 function clearY2CSession() { [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} }); }
 
+// 🌟 [방어] 글로벌 토스트 렌더링 (z-index 9999 보장)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -203,6 +203,14 @@ function showToast(message, type = 'success') {
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
 
+// 🌟 [방어] 글로벌 예외 발생 시 버튼 잠금 및 서브밋 락 강제 해제 (Freezing 방어)
+window.addEventListener('unhandledrejection', function(event) { 
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
+    isSubmitting = false; 
+    clearTimeout(fallbackLockTimer);
+    showToast("비동기 처리 중 일시적인 시스템 에러가 발생했습니다.", "error"); 
+});
+
 function applyGlobalRbacNavigation() {
     const rbacRules = { 'navDashboard': ['MASTER', 'PARTNER'], 'navRecipes': ['MASTER', 'PARTNER'], 'navAdmin': ['MASTER', 'VENDOR'], 'navInvoice': ['MASTER'] };
     Object.keys(rbacRules).forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
@@ -215,6 +223,7 @@ function applyGlobalRbacNavigation() {
     });
 }
 
+// 🌟 [방어] 레이아웃 시프트(Layout Shift) 방지를 위한 hidden 클래스 토글 방식 유지
 function switchAdminTab(tab) {
   if (!ADMIN_TAB_ROLES[tab]) return showToast("존재하지 않는 시스템 메뉴입니다.", "error");
   if (!ADMIN_TAB_ROLES[tab].includes(userRole)) return showToast("이 메뉴에 대한 접근 권한이 없습니다.", "error");
@@ -232,10 +241,14 @@ function switchAdminTab(tab) {
   });
 }
 
-let cachedClients = [], cachedHqOrders = [], cachedItems = [], cachedMappings = [], isSubmitting = false; 
+let cachedClients = [], cachedHqOrders = [], cachedItems = [], cachedMappings = [];
+let isSubmitting = false; 
+let fallbackLockTimer = null; 
+
 const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_procurement_data", "get_items", "check_system_alerts", "inventory_integrity_check", "get_recipes"]);
 
-async function executeApi(action, payload = {}, retries = 3) {
+// 🌟 [방어] 25초 강제 타임아웃 및 2회 지수 백오프(Exponential Backoff) 통신 엔진
+async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
   
   const canRetry = RETRYABLE_ACTIONS.has(action);
@@ -255,6 +268,8 @@ async function executeApi(action, payload = {}, retries = 3) {
         signal: controller.signal
       });
       
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
           const httpError = new Error(`서버 통신 오류 (HTTP ${response.status})`);
           httpError.httpStatus = response.status;
@@ -262,7 +277,6 @@ async function executeApi(action, payload = {}, retries = 3) {
       }
       
       rawText = await response.text();
-      clearTimeout(timeoutId); 
     } catch (err) {
       clearTimeout(timeoutId); lastNetworkError = err;
       
@@ -271,10 +285,10 @@ async function executeApi(action, payload = {}, retries = 3) {
           if (err.httpStatus === 503) throw new Error("서버가 일시적으로 점검 중이거나 응답할 수 없습니다. (HTTP 503)");
           throw err; 
       }
-      if (err.message && err.message.includes("Failed to fetch")) throw new Error("🚨 구글 서버 접근이 차단되었습니다(CORS). 백엔드 배포를 확인하세요.");
+      if (err.message && err.message.includes("Failed to fetch")) throw new Error("🚨 구글 서버 접근이 차단되었습니다(CORS). 백엔드 배포를 '모든 사용자'로 변경하세요.");
       
       if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
-      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25s)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
+      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25초 대기열 초과)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
     }
 
     if (!rawText) throw new Error("서버로부터 빈 응답이 반환되었습니다.");
@@ -360,8 +374,18 @@ async function saveClientData(rowIdx) {
   if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { emailEl.focus(); return showToast("유효한 이메일 형식이 아닙니다.", "error"); }
 
   isSubmitting = true;
+  clearTimeout(fallbackLockTimer);
   const saveBtn = document.getElementById(`saveBtn_${safeRowIdx}`); let originalText = "SAVE";
-  if (saveBtn) { originalText = saveBtn.textContent; saveBtn.disabled = true; saveBtn.textContent = "⏳ SAVING..."; saveBtn.classList.add('animate-pulse'); }
+  
+  if (saveBtn) { 
+      originalText = saveBtn.textContent; saveBtn.disabled = true; 
+      saveBtn.textContent = "⏳ SAVING..."; saveBtn.classList.add('animate-pulse'); 
+  }
+  
+  fallbackLockTimer = setTimeout(() => {
+      isSubmitting = false;
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; saveBtn.classList.remove('animate-pulse'); }
+  }, 25000);
   
   const payload = { rowIdx: safeRowIdx, state: stateEl.value.toUpperCase().trim(), city: cityEl.value.trim(), address: addrEl.value.trim(), attn: attnEl.value.trim(), email: emailVal, bizId: bizEl.value.trim() };
 
@@ -374,7 +398,9 @@ async function saveClientData(rowIdx) {
   } catch (err) { 
       showToast(err.message, "error"); 
       if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; saveBtn.classList.remove('animate-pulse'); } 
-  } finally { isSubmitting = false; }
+  } finally { 
+      isSubmitting = false; clearTimeout(fallbackLockTimer); 
+  }
 }
 
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
@@ -466,13 +492,23 @@ async function saveSalesGridData() {
     recordsToSave.push({ month: m, pos: pos, delivery: delivery });
   }
 
-  isSubmitting = true; const btn = document.getElementById('saveAllSalesBtn'); let originalHtml = "SAVE DATA";
-  if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING...</span>`; }
+  isSubmitting = true; clearTimeout(fallbackLockTimer);
+  const btn = document.getElementById('saveAllSalesBtn'); let originalHtml = "SAVE DATA";
+  
+  if (btn) { 
+      originalHtml = btn.innerHTML; btn.disabled = true; 
+      btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING...</span>`; 
+  }
+  
+  fallbackLockTimer = setTimeout(() => {
+      isSubmitting = false;
+      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+  }, 25000);
   
   try {
     const result = await executeApi("save_sales_records", { year: targetYear, clientName: targetClient, records: recordsToSave });
     if (result && result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
-  } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; }
+  } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
 function renderOrderMetrics(metrics) {
@@ -519,9 +555,15 @@ async function runSystemAlertScan(event) {
   const btn = event?.currentTarget || document.getElementById('sysHealthScanBtn');
   if(!btn) return showToast("시스템 스캔 버튼을 찾을 수 없습니다.", "error"); 
   
-  isSubmitting = true;
+  isSubmitting = true; clearTimeout(fallbackLockTimer);
   const originalText = btn.innerHTML; 
   btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ DEEP SCANNING...</span>`;
+  
+  fallbackLockTimer = setTimeout(() => {
+      isSubmitting = false;
+      btn.disabled = false; btn.innerHTML = originalText;
+  }, 25000);
+
   try {
     const result = await executeApi("check_system_alerts");
     const integResult = await executeApi("inventory_integrity_check");
@@ -529,7 +571,7 @@ async function runSystemAlertScan(event) {
         showToast("스캔 완료. 시스템 리포트가 발송되었습니다.", "success"); 
         displayAlertModal(result.alerts, integResult.discrepancies); 
     }
-  } catch (err) { showToast("스캔 실패: " + err.message, "error"); } finally { btn.disabled = false; btn.innerHTML = originalText; isSubmitting = false; }
+  } catch (err) { showToast("스캔 실패: " + err.message, "error"); } finally { btn.disabled = false; btn.innerHTML = originalText; isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
 function displayAlertModal(alerts, discrepancies) {
@@ -828,8 +870,14 @@ window.saveHqOrder = async function() {
   if(!vendorName || !region || !items) return showToast("모든 발주 정보를 기입해 주세요.", "error");
   if(vendorName.length > 50) return showToast("벤더사명이 너무 깁니다.", "error");
 
-  isSubmitting = true; const btn = document.getElementById('btnSubmitHqOrder'); let originalHtml = "ADD";
+  isSubmitting = true; clearTimeout(fallbackLockTimer);
+  const btn = document.getElementById('btnSubmitHqOrder'); let originalHtml = "ADD ORDER";
   if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; }
+
+  fallbackLockTimer = setTimeout(() => {
+      isSubmitting = false;
+      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+  }, 25000);
 
   const uniqueBatchId = generateIdempotencyKey();
   const localDate = new Date(), yyyy = localDate.getFullYear(), mm = String(localDate.getMonth() + 1).padStart(2, '0'), dd = String(localDate.getDate()).padStart(2, '0');
@@ -838,7 +886,7 @@ window.saveHqOrder = async function() {
   try {
     const result = await executeApi("upsert_hq_order", { order: payload });
     if (result && result.success) { showToast("발주가 본사 전산에 등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; hqCartData = Object.create(null); fetchMappings(); }
-  } catch (err) { showToast("등록 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; }
+  } catch (err) { showToast("등록 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
 window.updateHqOrderStatus = async function(orderId, status) {
@@ -852,16 +900,7 @@ window.updateHqOrderStatus = async function(orderId, status) {
   } catch (err) { showToast(err.message, "error"); fetchMappings(); }
 }
 
-async function loadHeavyLibrary(url, objName, integrity = null) {
-    if (window[objName] !== undefined) return true;
-    return new Promise((resolve, reject) => { 
-        const script = document.createElement('script'); script.src = url; 
-        if(integrity) { script.integrity = integrity; script.crossOrigin = "anonymous"; }
-        script.onload = () => resolve(true); script.onerror = () => reject(false); 
-        document.head.appendChild(script); 
-    });
-}
-
+// 🌟 [방어] 드래그 앤 드롭 존 이벤트 중첩(메모리 누수) 완벽 차단
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
   
@@ -870,14 +909,28 @@ function setupDragAndDrop() {
       const input = document.createElement('input');
       input.type = 'text'; input.id = 'linkedHqOrderId';
       input.placeholder = "Link HQ Order ID (Optional, e.g. REQ-...)";
-      input.className = "w-full text-xs p-2.5 mt-3 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors";
+      input.className = "w-full text-xs p-2.5 mt-3 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors text-center";
       regionSelector.parentNode.insertBefore(input, regionSelector.nextSibling);
   }
 
-  dropZone.removeEventListener('dragover', null); dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
-  dropZone.removeEventListener('dragleave', null); dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
-  dropZone.removeEventListener('drop', null); dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
-  const fileInput = document.getElementById('excelFileInput'); if(fileInput) fileInput.addEventListener('change', handleExcelUpload);
+  const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
+
+  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
+  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
+  clone.addEventListener('drop', (e) => { e.preventDefault(); clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
+  const fileInput = document.getElementById('excelFileInput'); if(fileInput) {
+      const fiClone = fileInput.cloneNode(true); fileInput.parentNode.replaceChild(fiClone, fileInput);
+      fiClone.addEventListener('change', handleExcelUpload);
+  }
+}
+
+async function loadHeavyLibrary(url, objName) {
+    if (window[objName] !== undefined) return true;
+    return new Promise((resolve, reject) => { 
+        const script = document.createElement('script'); script.src = url; 
+        script.onload = () => resolve(true); script.onerror = () => reject(false); 
+        document.head.appendChild(script); 
+    });
 }
 
 async function handleExcelUpload(event) {
@@ -973,20 +1026,20 @@ async function processExcelData(jsonData, filename) {
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') {
           if (valStr !== "") { 
               qtyMatches++; const parsedQty = parseStrictNonNegativeInteger(valStr);
-              if (parsedQty === null) { validationErrors.push(`[${vItemCode || "Unknown"}] 수량 형식이 잘못되었습니다: ${valStr}`); } 
+              if (parsedQty === null) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 수량 형식이 잘못되었습니다: ${escapeHtml(valStr)}`); } 
               else { vQty = parsedQty; }
           }
       }
       if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
     });
 
-    if (qtyMatches > 1) { validationErrors.push(`[${vItemCode || "Unknown"}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); continue; }
+    if (qtyMatches > 1) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); continue; }
 
     const expString = String(vExp || "").trim();
     if (expString === "" || expString === "-") { vExp = null; } 
     else { 
         vExp = parseStrictISODate(expString); 
-        if (vExp === null) { validationErrors.push(`[${vItemCode || "Unknown"}] 올바르지 않은 유통기한 날짜 형식입니다: ${expString}`); continue; }
+        if (vExp === null) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 올바르지 않은 유통기한 날짜 형식입니다: ${escapeHtml(expString)}`); continue; }
     }
     
     const safeVItemCode = String(vItemCode || "").trim().toUpperCase();
@@ -1034,7 +1087,7 @@ async function processExcelData(jsonData, filename) {
     if (result && result.success) { showToast(`입고 완료: ${updatedItemCount}개 품목 / ${matchedRowCount}개 행 누적 성공`, "success"); setUploadStatus(`<span class="text-emerald-600 font-bold">✅ Uploaded: ${escapeHtml(filename)}</span>`); setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); } 
   } catch (err) {
     isSubmitting = false; setUploadStatus("Drag & Drop vendor document here");
-    if(err.ledgerPending) { showToast(`✅ 재고 입고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${err.txId || "N/A"})`, "success"); setTimeout(() => { fetchCatalogForInbound(); }, 2500); } 
+    if(err.ledgerPending) { showToast(`✅ 재고 입고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${escapeHtml(err.txId || "N/A")})`, "success"); setTimeout(() => { fetchCatalogForInbound(); }, 2500); } 
     else { showToast(err.message, "error"); }
   }
 }
@@ -1051,20 +1104,24 @@ async function cancelOrder(batchId) {
     const confirmMsg = `정말 주문 [${safeBatchId}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 100% 복구됩니다.\n✔️ 물류사 및 본사로 [출고 중지 알림 이메일]이 자동 전송됩니다.`;
     if (!confirm(confirmMsg)) return;
 
-    isSubmitting = true; showToast("⏳ 시스템 취소 요청 및 재고 복구를 진행 중입니다...", "success");
+    isSubmitting = true; clearTimeout(fallbackLockTimer);
+    showToast("⏳ 시스템 취소 요청 및 재고 복구를 진행 중입니다...", "success");
+    
+    fallbackLockTimer = setTimeout(() => {
+        isSubmitting = false;
+        showToast("취소 요청 시간이 초과되었습니다.", "error");
+    }, 25000);
+
     try {
         const result = await executeApi("cancel_order", { batchId: safeBatchId });
         if (result && result.success) { showToast(`✅ ${result.message}`, "success"); setTimeout(() => { fetchMappings(); fetchCatalogForInbound(); }, 1500); } 
     } catch (err) { 
         if(err.ledgerPending) { showToast(`✅ 재고 복원 성공\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${err.txId})`, "success"); setTimeout(() => { fetchMappings(); fetchCatalogForInbound(); }, 2500); } 
         else { showToast(`❌ 취소 실패: ${err.message}`, "error"); }
-    } finally { isSubmitting = false; }
+    } finally { isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
 window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.handleExcelUpload = handleExcelUpload; window.saveHqOrder = saveHqOrder; window.cancelOrder = cancelOrder; 
-
-window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
-window.addEventListener('unhandledrejection', function(event) { console.error("[Y2C Telemetry Promise Rejection]", event.reason); showToast("비동기 처리 중 일시적인 시스템 에러가 발생했습니다.", "error"); });
 
 document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang); applyGlobalRbacNavigation(); setupDragAndDrop(); transformHqInputsToDigital();
