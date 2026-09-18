@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.11 FOUC 방어 및 다국어 렌더링 최적화 돔(DOM) 적용 -->
-<html lang="en" class="opacity-0 transition-opacity duration-300">
+<!-- 🌟 V17.27 Ultimate Kernel - FOUC 방어 완벽 동기화 및 렌더링 최적화 돔(DOM) 적용 -->
+<html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
     <!-- 📱 모바일 네이티브 앱 UX 최적화: 확대/바운스 방어 (무손실 보존) -->
@@ -13,10 +13,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
-    <!-- V17.11 통합 Fonts -->
+    <!-- V17.27 통합 Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- ⚡ 실시간 CDN 연산 부하 제거: 빌드된 Tailwind CSS 정적 링크로 전환 권장, 현재는 CDN 호환 유지하되 script 위치 상단 고정 -->
+    <!-- ⚡ Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- SYSTEM CONFIG -->
@@ -29,6 +29,7 @@
             --premium-charcoal: #1A1516;
             --y2c-gold: #D4AF37;
             --bg-light: #F8F9FA;
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
         
         /* 📱 스크롤 바운스 및 터치 딜레이 방어 */
@@ -52,27 +53,39 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
+        /* 🌟 숫자 인풋 스피너 완벽 제거 및 커스텀 스타일 지원 */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        input, select, button { font-size: 16px !important; }
+        input, select, button { font-size: 16px !important; /* 모바일 자동 줌인 방지 */ }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* 🌟 시네마틱 렌더링 동기화 */
         .cinematic-enter { opacity: 0; transform: translateY(20px) scale(0.99); animation: fadeUpCinematic 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; } .delay-400 { animation-delay: 0.4s; }
         @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) scale(1); } }
 
+        /* 🌟 V17.27 에러/경고 네이티브 Shake 효과 (Validation 피드백용) */
+        @keyframes error-shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .shake-animation { animation: error-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
         .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .btn-gradient-pink::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: all 0.7s ease; }
-        .btn-gradient-pink:hover { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
-        .btn-gradient-pink:hover::before { left: 100%; }
-        .btn-gradient-pink:active { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
+        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
+        .btn-gradient-pink:hover:not(:disabled)::before { left: 100%; }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
 
         .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-charcoal:hover { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
-        .btn-charcoal:active { transform: translateY(1px) scale(0.98); }
+        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
+        .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
 
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
         .nav-link:hover { color: var(--premium-charcoal); }
@@ -82,7 +95,7 @@
 </head>
 <body class="text-gray-800 selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen">
     
-    <!-- 🌟 V17.1 프리미엄 통일 네비게이션 바 -->
+    <!-- 🌟 V17.27 프리미엄 통일 네비게이션 바 -->
     <nav class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
             
@@ -102,7 +115,7 @@
                 <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
                 
                 <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-                    <!-- 🌟 V17.1 글로벌 번역 토글 버튼 -->
+                    <!-- 🌟 V17.27 글로벌 번역 토글 버튼 -->
                     <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
                         <button onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
                         <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
@@ -236,6 +249,7 @@
     <!-- 🌟 JS 엔진 연동 -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/items.js"></script>
+    
     <script>
         // 🌟 FOUC 방어: JS 엔진 로드가 완료되고 DOM이 준비되면 화면을 서서히 밝힘 (깜빡임 완벽 제거)
         document.addEventListener("DOMContentLoaded", () => {
