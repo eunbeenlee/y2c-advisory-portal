@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.34 Production Hardening (Solid State) - GPU 크래시 원천 차단 및 무조건 렌더링 보장 규격 -->
+<!-- 🌟 V17.35 Production Hardening (Solid State) - 변수 참조(Scope) 오류 100% 방어 및 UI 프리징 해결 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -29,7 +29,6 @@
         
         html, body { overscroll-behavior-y: none; touch-action: manipulation; background-color: var(--premium-bg); color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; padding: 0; height: 100%; }
 
-        /* 🌟 [렌더링 보장] GPU 부하를 일으키는 backdrop-filter 제거 및 단색(Solid) 배경 적용 */
         .solid-panel {
             background: #151515;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -85,7 +84,6 @@
 
     <main class="w-full max-w-[420px] z-10 block relative mt-10 sm:mt-0">
         
-        <!-- 🌟 듀얼 로고 & 브랜드 타이포그래피 -->
         <div class="text-center mb-10 block">
             <div class="flex items-center justify-center gap-6 mb-6">
                 <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png'; this.style.display='none';" alt="Sinjeon Logo" class="h-16 sm:h-20 object-contain drop-shadow-2xl z-10">
@@ -105,7 +103,6 @@
             </div>
         </div>
 
-        <!-- 🌟 로그인 폼 (무조건 렌더링 보장형 솔리드 패널) -->
         <form id="loginForm" class="solid-panel p-7 sm:p-10 w-full relative z-20">
             <div class="space-y-6">
                 
@@ -144,7 +141,7 @@
             <div class="mt-8 text-center border-t border-white/10 pt-6">
                 <p class="text-[9px] font-bold text-gray-500 tracking-widest uppercase">
                     Operated by Y2C Holdings Ltd.<br>
-                    <span class="text-gray-400 font-black">System V17.34 Enterprise</span>
+                    <span class="text-gray-400 font-black">System V17.35 Enterprise</span>
                 </p>
             </div>
         </form>
@@ -152,8 +149,8 @@
 
 <script>
 /**
- * 🌟 V17.34 Production Hardening - Login Module (Solid State)
- * - 100% 무손실 보존 + 10초 강제 타임아웃(AbortController) 및 Brute-Force 방어 연동
+ * 🌟 V17.35 Production Hardening (Solid State)
+ * - 100% 무손실 보존 + 변수 참조(Scope) 오류 해결 및 UI 프리징 완벽 차단
  */
 
 const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
@@ -166,7 +163,6 @@ function escapeHtml(value) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. 보안 라우팅 (자동 로그인 확인)
     try {
         const sessionToken = String(localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN) || "").trim();
         const userRole = String(localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
@@ -196,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if(errorMsg) errorMsg.innerHTML = `<span class="text-emerald-400">✅ 네트워크가 복구되었습니다.</span>`; 
     });
 
-    // 모바일 가상 키보드 가림 방어
     [idInput, pwInput].forEach(input => {
         if(!input) return;
         input.addEventListener('focus', () => { setTimeout(() => { window.scrollTo({ top: 100, behavior: 'smooth' }); }, 300); });
@@ -209,7 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 🌟 10초 강제 타임아웃 적용 및 브라우저 프리징 방어 백오프 엔진
     async function executeLogin(payload, retries = 2) {
         if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
 
@@ -218,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         for (let i = 0; i <= retries; i++) {
             let controller = new AbortController();
-            let timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃 제한
+            let timeoutId = setTimeout(() => controller.abort(), 10000); 
 
             try {
                 const response = await fetch(CONFIG.API.BASE_URL, {
@@ -236,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const rawText = await response.text();
-                controller = null; // GC 가비지 컬렉터 지원
+                controller = null; 
                 
                 let jsonResult;
                 try {
@@ -274,7 +268,6 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(lastError?.name === 'AbortError' ? "서버 응답 시간 초과 (10초 지연)<br><span class='text-[10px] text-gray-400'>콜드 스타트 중일 수 있으니 잠시 후 시도하세요.</span>" : (lastError?.message || "서버 통신 실패."));
     }
 
-    // 폼 제출 메인 로직
     async function handleLogin(e) {
         if (e) e.preventDefault();
         if (isAuthenticating) return;
@@ -298,42 +291,48 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (errorMsg) errorMsg.innerText = "";
 
-        try {
-            const result = await executeLogin({ id: id, pw: pw });
+        // 🌟 [핵심 방어] result 변수 스코프 문제(ReferenceError) 완전 해결
+        let loginResult = null; 
 
-            if (result && result.success) {
+        try {
+            loginResult = await executeLogin({ id: id, pw: pw });
+
+            if (loginResult && loginResult.success) {
                 if (errorMsg) errorMsg.innerHTML = `<span class="text-emerald-400 font-bold">✅ SECURE SESSION ESTABLISHED</span>`;
                 
                 try {
                     localStorage.clear();
-                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, result.token);
-                    localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, result.role);
-                    localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, result.clientName);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, loginResult.token);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, loginResult.role);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, loginResult.clientName);
                     localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, id);
-                    localStorage.setItem("y2c_premium_state", result.clientState || "DEFAULT");
+                    localStorage.setItem("y2c_premium_state", loginResult.clientState || "DEFAULT");
                 } catch(stErr) {}
 
                 if (loginForm) { loginForm.style.opacity = "0.5"; }
                 
                 setTimeout(() => {
-                    window.location.replace((result.role === "MASTER" || result.role === "VENDOR") ? "admin.html" : "items.html");
+                    window.location.replace((loginResult.role === "MASTER" || loginResult.role === "VENDOR") ? "admin.html" : "items.html");
                 }, 300);
 
             } else {
-                if (errorMsg) errorMsg.innerHTML = `<span class="text-[#FF3B5C]">⚠️ ${escapeHtml(result?.message || "인증에 실패했습니다.")}</span>`;
+                if (errorMsg) errorMsg.innerHTML = `<span class="text-[#FF3B5C]">⚠️ ${escapeHtml(loginResult?.message || "인증에 실패했습니다.")}</span>`;
             }
         } catch (err) {
             if (errorMsg) {
-                errorMsg.innerHTML = `<span class="text-[#FF3B5C]">${err.message}</span>`;
+                errorMsg.innerHTML = `<span class="text-[#FF3B5C]">${escapeHtml(err.message)}</span>`;
             }
         } finally {
-            isAuthenticating = false;
-            if (loginBtn && (!result || !result.success)) {
-                loginBtn.disabled = false; 
-                loginBtn.innerHTML = originalBtnText; 
-                loginBtn.style.background = ""; 
-                loginBtn.style.color = "";
-                loginBtn.style.border = "";
+            if (!loginForm || !loginForm.style.opacity || loginForm.style.opacity !== "0") {
+                isAuthenticating = false;
+                // 에러 발생 시 버튼 완벽 복구
+                if (loginBtn && (!loginResult || !loginResult.success)) {
+                    loginBtn.disabled = false; 
+                    loginBtn.innerHTML = originalBtnText; 
+                    loginBtn.style.background = ""; 
+                    loginBtn.style.color = "";
+                    loginBtn.style.border = "";
+                }
             }
         }
     }
