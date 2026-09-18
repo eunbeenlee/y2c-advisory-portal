@@ -1,10 +1,18 @@
 // assets/js/admin.js
-// 🌟 V17.30 Ultimate Kernel - PARTNER UX Optimization, Strict Role Isolation, 3-Way Match Inbound Engine, Anti-Crash Defense
+// 🌟 V17.31 Ultimate Kernel - Anti-Black-Screen, Strict Role Isolation, 3-Way Match Inbound Engine, Anti-Crash Defense
+
+// 🌟 [핵심 방어] 스크립트 로드 즉시 검은 화면(FOUC 방어막) 강제 철거
+try {
+    document.documentElement.classList.remove("opacity-0");
+    document.documentElement.style.opacity = "1";
+    document.body.classList.remove("opacity-0");
+    document.body.style.opacity = "1";
+} catch(e) {}
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
 
-// 🌟 [V17.30 패치] 스토리지 안전 접근 및 권한 게이트키퍼 강화
+// 스토리지 안전 접근 및 권한 게이트키퍼 강화
 let userRole = "", clientName = "", sessionToken = "";
 try {
     userRole = String(localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
