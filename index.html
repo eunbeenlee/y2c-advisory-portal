@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.28 Ultimate Kernel - FOUC 방어, 메모리 누수 방지, 네트워크 탄력성 100% 적용 + 웹 표준 Meta 최적화 -->
+<!-- 🌟 V17.29 Production Hardening - FOUC 방어, 메모리 누수 방지, 네트워크 탄력성 100% 적용 + 웹 표준 Meta 최적화 -->
 <html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#0a0a0a">
     
-    <!-- 🌟 [V17.28 패치] 콘솔 Deprecated 경고 해결을 위한 웹 표준 메타 태그 적용 -->
+    <!-- 🌟 [V17.29 패치] 콘솔 Deprecated 경고 해결을 위한 웹 표준 메타 태그 적용 -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -232,7 +232,7 @@
             <div class="mt-8 text-center border-t border-white/5 pt-6 cinematic-enter delay-400">
                 <p class="text-[9px] font-bold text-gray-500 tracking-widest leading-relaxed uppercase">
                     Operated by Y2C Holdings Ltd.<br>
-                    <span class="text-gray-400 font-black">System V17.28 Enterprise</span>
+                    <span class="text-gray-400 font-black">System V17.29 Enterprise</span>
                 </p>
             </div>
         </form>
@@ -240,8 +240,9 @@
 
 <script>
 /**
- * 🌟 V17.28 Ultimate Kernel - Login Module
- * - 100% 무손실 보존 + 50+ Hardening Fixes: Network Resilience, Prototype Pollution Defense, Strict Parsing, Offline Sync
+ * 🌟 V17.29 Production Hardening - Login Module
+ * - 100% 무손실 보존 + Hardening Fixes: Network Resilience, Strict Parsing, Offline Sync, Unhandled Rejection Catch
+ * - V29.1.2 백엔드의 Brute-force Lockout 및 Sanitized Error 처리 완벽 동기화
  */
 
 const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
@@ -359,6 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     throw new Error("서버 응답 형식이 올바르지 않습니다.");
                 }
 
+                // 🌟 백엔드 V29.1.2 연동: 트래픽 제어 및 병목 알림 지원
                 if (!jsonResult.success && jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("지연"))) {
                     throw new Error(jsonResult.message);
                 }
@@ -422,6 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (result.success) {
                 if (errorMsg) errorMsg.innerHTML = `<span class="text-emerald-400 font-bold drop-shadow-md">✅ SECURE SESSION ESTABLISHED</span>`;
                 
+                // 🌟 이전 세션 완전 소각 후 신규 세션 발급
                 localStorage.clear();
                 localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, result.token);
                 localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, result.role);
@@ -439,11 +442,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }, 500);
 
             } else {
+                // 백엔드 V29.1.2의 정제된 메세지(Brute-force 잠금 등) 출력
                 if (errorMsg) errorMsg.innerHTML = `<span class="text-[var(--sinjeon-vibrant)] drop-shadow-md">⚠️ ${escapeHtml(result.message) || "인증에 실패했습니다."}</span>`;
                 triggerShake(); 
             }
         } catch (err) {
             if (errorMsg) {
+                // 커스텀 HTML 태그(CORS 안내 등)를 허용하기 위해 에러 메시지는 서버/클라이언트 코어가 던지는 문자열만 출력
                 errorMsg.innerHTML = `<span class="text-[var(--sinjeon-vibrant)] drop-shadow-md">${err.message}</span>`;
             }
             triggerShake(); 
