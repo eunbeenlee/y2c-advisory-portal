@@ -1,16 +1,30 @@
 // assets/js/dashboard.js
-// 🌟 V17.9 Ultimate Kernel - Zero Deletion, Lazy Library Loading(Chart.js), Dynamic i18n, CORS Preflight Shield, Telemetry
+// 🌟 V17.36 Ultimate Hardening - Chart.js OOM Defense, Strict Decimal Parser, 25s Backoff Engine, Zero-Loss
+
+// 🌟 [핵심 방어] 스크립트 로드 즉시 검은 화면(FOUC 방어막) 강제 철거
+try {
+    document.documentElement.classList.remove("opacity-0");
+    document.documentElement.style.opacity = "1";
+    document.body.classList.remove("opacity-0");
+    document.body.style.opacity = "1";
+} catch(e) {}
 
 const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
-const userRole = (localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
-const sessionToken = localStorage.getItem(STORAGE.USER_TOKEN);
-const clientName = localStorage.getItem(STORAGE.CLIENT_NAME);
 
-// 🌟 [방화벽 1] 토큰 및 권한 무결성 검증 (VENDOR 접근 원천 차단)
+let userRole = "", clientName = "", sessionToken = "";
+try {
+    userRole = String(localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
+    clientName = String(localStorage.getItem(STORAGE.CLIENT_NAME) || "").trim();
+    sessionToken = String(localStorage.getItem(STORAGE.USER_TOKEN) || "").trim();
+} catch (e) {
+    console.error("[Y2C Storage Error]", e);
+}
+
+// 🌟 [방화벽 1] 토큰 및 권한 무결성 1차 검증 (VENDOR 원천 차단)
 if (!sessionToken || userRole === "VENDOR") {
-    alert("권한이 없습니다. 카탈로그 화면으로 이동합니다.");
-    window.location.replace("items.html");
+    alert("보안 세션이 유효하지 않거나 해당 메뉴의 열람 권한이 없습니다.");
+    window.location.replace("index.html");
 }
 
 // ============================================================================
@@ -35,19 +49,21 @@ const I18N_DICT = {
     }
 };
 
-let currentLang = localStorage.getItem('y2c_lang') || 'en';
+let currentLang = 'en';
+try { currentLang = localStorage.getItem('y2c_lang') === 'ko' ? 'ko' : 'en'; } catch(e){}
 
 window.changeLanguage = function(lang) {
-    currentLang = lang;
-    localStorage.setItem('y2c_lang', lang);
+    const safeLang = lang === "ko" ? "ko" : "en";
+    currentLang = safeLang; 
+    try { localStorage.setItem('y2c_lang', safeLang); } catch(e){}
     
     const btnEn = document.getElementById('lang_en');
     const btnKo = document.getElementById('lang_ko');
     if (btnEn && btnKo) {
-        btnEn.className = lang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
-        btnKo.className = lang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnEn.className = safeLang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = safeLang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
-    if (window.applyTranslations) window.applyTranslations();
+    if (typeof window.applyTranslations === 'function') window.applyTranslations();
     
     // 언어 변경 시 차트 레이블 즉시 업데이트 (재렌더링 불필요 무손실 기법)
     if (salesChartInstance && salesChartInstance.data && salesChartInstance.data.datasets) {
@@ -65,36 +81,58 @@ window.applyTranslations = function() {
     });
 };
 
-// 상단 프로필 및 로그아웃 바인딩
-const userNameDisplay = document.getElementById('userNameDisplay');
-if (userNameDisplay) userNameDisplay.innerText = clientName || userRole;
+// 🌟 [방어] XSS 및 재무 데이터 엄격 파서 (Strict Decimals)
+function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
 
-const badge = document.getElementById('userRoleBadge');
-if(badge) { badge.classList.remove('hidden'); badge.innerText = userRole; }
-
-document.getElementById('logoutBtn')?.addEventListener('click', () => { 
-    localStorage.clear(); 
-    window.location.replace("index.html"); 
-});
+function parseStrictDecimal(value) {
+    let str = String(value ?? "").trim();
+    if (str === "") return 0; 
+    if (str.startsWith('.')) str = '0' + str; 
+    if (!/^\d+(?:\.\d{1,2})?$/.test(str)) return null;
+    const num = Number(str);
+    if (!Number.isFinite(num) || num < 0) return null;
+    return num;
+}
 
 const formatCurrency = (amount) => {
-    const safeAmount = Number(amount) || 0;
-    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeAmount);
+    const num = Number(amount);
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(Number.isFinite(num) ? num : 0);
 };
+
+// 상단 프로필 및 로그아웃 바인딩
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.textContent = escapeHtml(clientName || userRole);
+
+const badge = document.getElementById('userRoleBadge');
+if(badge) { badge.classList.remove('hidden'); badge.textContent = escapeHtml(userRole); }
+
+document.getElementById('logoutBtn')?.addEventListener('click', () => { 
+    [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
+    window.location.replace("index.html"); 
+});
 
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
         container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
     }
+    if (container.childNodes.length >= 5) container.firstChild.remove(); // 스팸 방지
+
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
     const icon = type === 'success' ? '✅' : '⚠️';
     toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
-    toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${message}</span>`;
+    toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
+    toast.querySelector('.toast-msg').textContent = String(message);
     container.appendChild(toast);
-    setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
-    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+    
+    requestAnimationFrame(() => { setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10); });
+    setTimeout(() => { 
+        toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); 
+        setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
+    }, 3500);
 }
 
 // ============================================================================
@@ -105,7 +143,7 @@ function applyGlobalRbacNavigation() {
         'navDashboard': ['MASTER', 'PARTNER'], 
         'navRecipes': ['MASTER', 'PARTNER'],   
         'navAdmin': ['MASTER', 'VENDOR'],      
-        'navInvoice': ['MASTER']               
+        'navInvoice': ['MASTER']                
     };
 
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
@@ -133,49 +171,65 @@ function applyGlobalRbacNavigation() {
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] 지능형 백오프(Jittered Backoff) 통신 엔진 (CORS 방어 포함)
+// 🌟 [방화벽 2] 25초 백오프 통신 엔진 (CORS 방어 및 429/503 처리)
 // ============================================================================
-async function executeApi(action, payload = {}, retries = 3) {
-    let lastError;
+async function executeApi(action, payload = {}, retries = 2) {
     if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
 
+    let lastNetworkError;
+    const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
+
     for (let i = 0; i <= retries; i++) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); 
+        let controller = new AbortController();
+        let timeoutId = setTimeout(() => controller.abort(), 25000); // 🌟 25초 타임아웃 보장
 
         try {
-            // 🚨 CORS Preflight 원천 우회를 위한 text/plain 강제 사용
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
                 method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
-                body: JSON.stringify({ action: action, token: sessionToken, ...payload }),
+                body: JSON.stringify({ action: action, token: sessionToken, ...safePayload }),
                 signal: controller.signal
             });
-            clearTimeout(timeoutId);
-            const rawText = await response.text();
             
-            try {
-                const jsonResult = JSON.parse(rawText);
-                if (!jsonResult.success) {
-                    if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
-                        localStorage.clear();
-                        alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
-                        window.location.replace("index.html");
-                        return;
-                    }
-                    if (jsonResult.message && (jsonResult.message.includes("트래픽") || jsonResult.message.includes("병목") || jsonResult.message.includes("초과") || jsonResult.message.includes("지연"))) {
-                        throw new Error(jsonResult.message);
-                    }
-                }
-                return jsonResult;
-            } catch (parseErr) {
-                throw new Error("서버 응답 지연 현상. 재시도를 준비합니다.");
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const httpError = new Error(`HTTP ${response.status}`);
+                httpError.httpStatus = response.status;
+                throw httpError;
             }
+
+            const rawText = await response.text();
+            controller = null; // GC 가비지 컬렉터 지원
+            
+            let jsonResult;
+            try { jsonResult = JSON.parse(rawText); } 
+            catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷과 일치하지 않습니다."); }
+
+            if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 형식이 올바르지 않습니다.");
+
+            if (!jsonResult.success) {
+                if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
+                    [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
+                    alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
+                    window.location.replace("index.html");
+                    return;
+                }
+                const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
+                throw err;
+            }
+            return jsonResult;
         } catch (err) {
             clearTimeout(timeoutId);
-            lastError = err;
+            lastNetworkError = err;
+
+            if (err && err.httpStatus) {
+                if (err.httpStatus === 429) throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)");
+                if (err.httpStatus === 503) throw new Error("서버가 점검 중입니다. (HTTP 503)");
+                throw err;
+            }
 
             if (err.message && err.message.includes("Failed to fetch")) {
-                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 '모든 사용자(Anyone)'로 변경하세요.</span>");
+                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 배포 설정을 확인하세요.</span>");
             }
 
             if (i < retries) {
@@ -184,11 +238,11 @@ async function executeApi(action, payload = {}, retries = 3) {
             }
         }
     }
-    throw new Error(lastError?.message || "서버 통신 실패. 새로고침 해주세요.");
+    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25s 대기열 초과)" : (lastNetworkError?.message || "서버 통신 실패."));
 }
 
 // ============================================================================
-// ⚡ [V17.9 신규] 무거운 외부 라이브러리 지연 로딩 (Lazy Loading Code Splitting)
+// ⚡ 무거운 외부 라이브러리 지연 로딩 (Lazy Loading Code Splitting)
 // ============================================================================
 async function loadHeavyLibrary(url, objName) {
     if (window[objName] !== undefined) return true;
@@ -204,7 +258,7 @@ async function loadHeavyLibrary(url, objName) {
 // ============================================================================
 // 📊 대시보드 핵심 데이터 로드 및 렌더링 엔진 (Omni-Parser 2.0 방어탑재)
 // ============================================================================
-let salesChartInstance = null; // 메모리 누수 방지용
+let salesChartInstance = null; // 🌟 메모리 누수 방지용 전역 변수
 
 async function loadDashboardData() {
     const yearSelector = document.getElementById('dashYearSelector');
@@ -222,19 +276,19 @@ async function loadDashboardData() {
         });
 
         if (result && result.success) {
-            // 🚨 Omni-Parser 2.0: ERP Sales 데이터 배열 완벽 매핑
             const dataPayload = result.data || result.dashboardData || result.records || result;
             let rawRecords = Array.isArray(dataPayload) ? dataPayload : (dataPayload.records || dataPayload.monthlyData || []);
             
             let calcPos = 0, calcDel = 0, calcTotal = 0;
             let chartArr = Array(12).fill(0);
 
+            // 🌟 [방화벽 3] 재무 데이터 Strict 파싱 적용 (부동소수점 오차 방어)
             if (rawRecords.length > 0 && typeof rawRecords[0] === 'object') {
                 rawRecords.forEach(r => {
                     const m = (parseInt(r.month) || 1) - 1;
-                    const p = Number(r.pos || r.posSales || 0);
-                    const d = Number(r.delivery || r.deliverySales || 0);
-                    const t = Number(r.total || r.totalSales || r.amount || (p + d) || 0);
+                    const p = parseStrictDecimal(r.pos || r.posSales || 0) || 0;
+                    const d = parseStrictDecimal(r.delivery || r.deliverySales || 0) || 0;
+                    const t = parseStrictDecimal(r.total || r.totalSales || r.amount || (p + d) || 0) || 0;
                     
                     if (m >= 0 && m < 12) {
                         chartArr[m] = t;
@@ -244,25 +298,25 @@ async function loadDashboardData() {
                     }
                 });
             } else if (rawRecords.length > 0 && typeof rawRecords[0] === 'number') {
-                chartArr = rawRecords.slice(0, 12).map(v => Number(v)||0);
+                chartArr = rawRecords.slice(0, 12).map(v => parseStrictDecimal(v) || 0);
                 calcTotal = chartArr.reduce((a,b) => a+b, 0);
             }
 
-            if (calcTotal === 0) {
-                calcPos = Number(dataPayload.ytdPos || dataPayload.posSales || dataPayload.pos || 0);
-                calcDel = Number(dataPayload.ytdDelivery || dataPayload.deliverySales || dataPayload.delivery || 0);
-                calcTotal = Number(dataPayload.ytdTotal || dataPayload.totalSales || dataPayload.total || (calcPos + calcDel));
+            if (calcTotal === 0 && dataPayload && typeof dataPayload === 'object') {
+                calcPos = parseStrictDecimal(dataPayload.ytdPos || dataPayload.posSales || dataPayload.pos || 0) || 0;
+                calcDel = parseStrictDecimal(dataPayload.ytdDelivery || dataPayload.deliverySales || dataPayload.delivery || 0) || 0;
+                calcTotal = parseStrictDecimal(dataPayload.ytdTotal || dataPayload.totalSales || dataPayload.total || (calcPos + calcDel)) || 0;
             }
 
             const elemTotal = document.getElementById('dashYtdTotal');
             const elemPos = document.getElementById('dashYtdPos');
             const elemDel = document.getElementById('dashYtdDelivery');
 
-            if (elemTotal) elemTotal.innerText = formatCurrency(calcTotal);
-            if (elemPos) elemPos.innerText = formatCurrency(calcPos);
-            if (elemDel) elemDel.innerText = formatCurrency(calcDel);
+            if (elemTotal) elemTotal.textContent = formatCurrency(calcTotal);
+            if (elemPos) elemPos.textContent = formatCurrency(calcPos);
+            if (elemDel) elemDel.textContent = formatCurrency(calcDel);
 
-            // ⚡ [V17.9 신규] Chart.js 지연 로딩 (로딩 속도 대폭 향상)
+            // ⚡ Chart.js 지연 로딩 및 렌더링
             try {
                 await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/chart.js", "Chart");
                 renderSalesChart(chartArr);
@@ -272,14 +326,13 @@ async function loadDashboardData() {
             }
             
             const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
-            showToast(`${targetYear}: ${msgObj["toast_sync_success"]}`, "success");
+            showToast(`${escapeHtml(targetYear)}: ${msgObj["toast_sync_success"]}`, "success");
         } else {
             const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
             throw new Error(result?.message || msgObj["toast_no_data"]);
         }
     } catch (err) {
         console.error("[Y2C Telemetry Dashboard Load Error]:", err);
-        // 실패 시 빈 차트 렌더링 방어
         try {
             await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/chart.js", "Chart");
             renderSalesChart(Array(12).fill(0));
@@ -292,13 +345,13 @@ async function loadDashboardData() {
     }
 }
 
-// 🌟 [메모리 누수 완벽 방어] Chart.js 시네마틱 렌더링
+// 🌟 [방화벽 4] Chart.js 인스턴스 명시적 파괴 (OOM 100% 방어)
 function renderSalesChart(monthlyData) {
     const ctx = document.getElementById('salesChartCanvas');
     if (!ctx) return;
 
     if (salesChartInstance) {
-        salesChartInstance.destroy();
+        salesChartInstance.destroy(); // 메모리 누수 방어
     }
 
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -389,13 +442,15 @@ function populateDashYearSelector() {
     for (let y = currentYear + 2; y >= 2022; y--) {
         const opt = document.createElement('option');
         opt.value = y;
-        opt.innerText = y + " Fiscal Year";
+        opt.textContent = y + " Fiscal Year";
         if (y === currentYear) opt.selected = true;
         yearSelector.appendChild(opt);
     }
 }
 
-// 🚨 [V17.9 신규] 프론트엔드 에러 텔레메트리 (글로벌 락/멈춤 추적기)
+// 🚨 프론트엔드 에러 텔레메트리 (글로벌 캐치)
+window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다.", "error"));
+window.addEventListener('online', () => showToast("네트워크 복구 완료.", "success"));
 window.addEventListener('error', function(event) {
     console.error("[Y2C Telemetry Error]", event.message);
 });
@@ -407,17 +462,13 @@ window.addEventListener('unhandledrejection', function(event) {
 // 🌟 시스템 초기화 및 이벤트 리스너 바인딩
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 🌟 글로벌 번역 및 투명성 보장 접근 제어 락 가동
     window.changeLanguage(currentLang);
     applyGlobalRbacNavigation();
 
-    // 연도 셀렉터 동기화
     populateDashYearSelector();
 
-    // 이벤트 리스너 연결
     document.getElementById('dashYearSelector')?.addEventListener('change', loadDashboardData);
     document.getElementById('refreshChartBtn')?.addEventListener('click', loadDashboardData);
 
-    // 🚀 데이터 로드 및 렌더링 즉시 시작
     loadDashboardData();
 });
