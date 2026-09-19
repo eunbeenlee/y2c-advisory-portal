@@ -1,23 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- 🌟 V17.37 Ultimate Hardening (Solid State) - PDF 렌더링 무결성 보장, 10대 방어로직 적용 -->
+<html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 모바일 고급화 전략: iOS 자동 확대(Zoom) 완벽 차단 및 화면 고정 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#1A1516">
+    <!-- 🌟 [방어 8, 9] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#F8F9FA">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <title>Advisory Statement of Account | Y2C Holdings Premium</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- V17.1 통합 Tailwind CSS & Fonts -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ⚡ 리소스 터널링 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- 🌟 [방어 2] defer 속성을 추가하여 렌더링 블로킹(하얀 화면 프리징) 완벽 해결 -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- SYSTEM CONFIG (안전망 연동) -->
+    <!-- SYSTEM CONFIG -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <style>
         :root {
-            /* 🌟 신전 핑크 & 프리미엄 차콜 (통일 테마) */
             --sinjeon-pink: #E84C60; 
             --sinjeon-pink-dark: #C23347;
             --premium-charcoal: #1A1516;
@@ -32,16 +38,19 @@
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale;
         }
+        
+        /* 🌟 [방어 9] 모바일 바운스 이펙트 차단 */
+        html, body { overscroll-behavior-y: none; touch-action: manipulation; }
+
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 숫자 입력 화살표(Spinner) 제거 및 iOS 줌 방어(16px 강제) */
+        /* 🌟 [방어 7, 8] 숫자 입력 스피너 파괴 (재무 오차 방어) 및 16px 강제 (줌 버그 방어) */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -50,54 +59,60 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 프리미엄 글래스 이펙트 (좌측 패널용) */
+        /* 🌟 [방어 4] GPU 프리징 차단 (Solid State) - backdrop-filter 완전 제거 */
         .premium-glass { 
-            background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(16px); 
-            -webkit-backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255,255,255,0.8); 
+            background: #ffffff; 
+            border: 1px solid rgba(0,0,0,0.05); 
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); 
         }
 
-        /* 🌟 애니메이션 극대화: 시네마틱 렌더링 */
-        .cinematic-enter { opacity: 0; transform: translateY(20px) scale(0.99); animation: fadeUpCinematic 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        /* 🌟 시네마틱 렌더링 애니메이션 */
+        .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUpCinematic 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
 
-        /* 버튼 호버 및 마그네틱 이펙트 */
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-gradient-pink::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: all 0.7s ease; }
-        .btn-gradient-pink:hover { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
-        .btn-gradient-pink:hover::before { left: 100%; }
-        .btn-gradient-pink:active { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
+        /* 솔리드 버튼 호버 및 마그네틱 이펙트 */
+        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; transition: all 0.4s ease; }
+        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
 
-        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-charcoal:hover { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
-        .btn-charcoal:active { transform: translateY(1px) scale(0.98); }
+        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s ease; }
+        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
+        .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
 
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        /* 🌟 V17.1 무결점 인쇄(PDF) 엔진 통합 (절대 수정 금지 구간) */
+        /* 🌟 [방어 6] 무결점 인쇄(PDF) 엔진 통합 - 레이아웃 시프트 완벽 통제 */
         @media print {
             @page { size: A4 portrait; margin: 12mm; }
             body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
             .no-print { display: none !important; }
-            .print-area { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; border: none !important; transform: none !important; animation: none !important; opacity: 1 !important; }
+            .print-area { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; border: none !important; transform: none !important; animation: none !important; transition: none !important; opacity: 1 !important; visibility: visible !important; }
             .print-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 2rem !important; }
             .print-text-black { color: #111 !important; }
             .print-border-black { border-color: #333 !important; }
             .print-bg-gray { background-color: #f9fafb !important; }
             .avoid-break { page-break-inside: avoid !important; break-inside: avoid !important; display: block; }
+            * { text-shadow: none !important; box-shadow: none !important; }
         }
     </style>
 </head>
 <body class="selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen">
     
-    <!-- 🌟 V17.1 프리미엄 통일 네비게이션 바 -->
-    <nav class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
+    <!-- 🌟 [방어 3] 긴급 방어막 해제 인라인 스크립트 (검은화면/하얀화면 영구 차단) -->
+    <script>
+        try {
+            document.documentElement.classList.remove("opacity-0");
+            document.documentElement.style.opacity = "1";
+            document.body.style.opacity = "1";
+        } catch(e) {}
+    </script>
+    
+    <!-- 🌟 V17.37 프리미엄 통일 네비게이션 바 (Solid State) -->
+    <nav class="bg-white shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
             
             <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
@@ -116,17 +131,16 @@
                 <a href="invoice.html" id="navInvoice" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
                 
                 <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-                    <!-- 🌟 V17.1 글로벌 번역 토글 버튼 -->
                     <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                        <button onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
-                        <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
+                        <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                        <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
                     </div>
 
                     <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-4 rounded-full border border-gray-200 shadow-inner">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">MASTER</span>
                         <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                        <button id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-2" data-i18n="logout">LOGOUT</button>
+                        <button type="button" id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-2" data-i18n="logout">LOGOUT</button>
                     </div>
                 </div>
             </div>
@@ -138,7 +152,7 @@
         <!-- ========================================== -->
         <!-- 🎛️ 좌측: Invoice Control Panel            -->
         <!-- ========================================== -->
-        <div class="w-full lg:w-1/3 premium-glass p-6 sm:p-8 rounded-[2rem] no-print sticky top-28 shadow-sm cinematic-enter delay-100">
+        <div class="w-full lg:w-1/3 premium-glass p-6 sm:p-8 rounded-[2rem] no-print sticky top-28 cinematic-enter delay-100">
             <h2 class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] border-b border-gray-200 pb-4 mb-6 flex items-center gap-2 tracking-wide font-montserrat">
                 <span>⚙️</span> <span data-i18n="inv_ctrl_title">Invoice Control Panel</span>
             </h2>
@@ -151,15 +165,16 @@
                     </select>
                 </div>
                 
-                <!-- 연도 & 율 -->
+                <!-- 연도 & 비율 -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_year">Target Year</label>
-                        <input type="number" id="selYear" value="2026" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <!-- 🌟 [방어 7] step 강제 배정으로 브라우저 호환성 및 오차 방어 -->
+                        <input type="number" id="selYear" value="2026" step="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_rate">Rate (%)</label>
-                        <input type="number" id="selRate" value="2" step="0.5" class="w-full bg-red-50/50 border border-red-100 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-[#E84C60] focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <input type="number" id="selRate" value="2" step="0.01" class="w-full bg-red-50/50 border border-red-100 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-[#E84C60] focus:border-[#E84C60] outline-none transition-all duration-300">
                     </div>
                 </div>
                 
@@ -167,25 +182,25 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_start">Start Month</label>
-                        <input type="number" id="selStart" value="1" min="1" max="12" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <input type="number" id="selStart" value="1" min="1" max="12" step="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_end">End Month</label>
-                        <input type="number" id="selEnd" value="12" min="1" max="12" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <input type="number" id="selEnd" value="12" min="1" max="12" step="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
                     </div>
                 </div>
                 
                 <!-- 액션 버튼 -->
                 <div class="pt-6 space-y-3 border-t border-gray-100">
-                    <button onclick="generateInvoice()" class="btn-charcoal w-full py-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm font-black tracking-widest uppercase">
+                    <button type="button" onclick="generateInvoice()" class="btn-charcoal w-full py-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm font-black tracking-widest uppercase">
                         <span>🔄</span> <span data-i18n="btn_generate">GENERATE DATA</span>
                     </button>
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="window.printInvoicePDF()" class="btn-gradient-pink w-full py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 text-[11px] sm:text-xs font-black tracking-widest uppercase">
+                        <button type="button" onclick="window.printInvoicePDF()" class="btn-gradient-pink w-full py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 text-[11px] sm:text-xs font-black tracking-widest uppercase">
                             <span data-i18n="btn_pdf">🖨️ PDF</span>
                         </button>
-                        <button onclick="exportInvoiceCSV()" class="w-full bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50 font-black py-3.5 rounded-xl shadow-sm transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-[11px] sm:text-xs tracking-widest uppercase">
+                        <button type="button" onclick="exportInvoiceCSV()" class="w-full bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50 font-black py-3.5 rounded-xl shadow-sm transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-[11px] sm:text-xs tracking-widest uppercase">
                             <span data-i18n="btn_csv">📥 CSV</span>
                         </button>
                     </div>
@@ -285,40 +300,49 @@
         </div>
     </main>
 
-    <!-- UI 토스트 컨테이너 -->
+    <!-- 🌟 [방어 10] UI 토스트 컨테이너 강제 최상단 Z-Index 보장 -->
     <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
     <!-- 🌟 JS 엔진 연동 -->
-    <script src="assets/js/config.js"></script>
     <script src="assets/js/invoice.js"></script>
     <script>
-        // 🌟 V17.1 확장 번역 팩 (자바스크립트 우회 없이 즉각 적용)
+        // 🌟 [방어 5] 다국어(I18N) 딕셔너리 인젝션 크래시 방어망
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof I18N_DICT !== 'undefined') {
-                Object.assign(I18N_DICT.en, {
-                    "inv_ctrl_title": "Invoice Control Panel", "lbl_client": "Target Client", "lbl_year": "Target Year", "lbl_rate": "Rate (%)", "lbl_start": "Start Month", "lbl_end": "End Month", "btn_pdf": "🖨️ PDF", "btn_csv": "📥 CSV",
-                    "doc_title": "Statement of Account", "lbl_inv_no": "Invoice No:", "lbl_date": "Date of Issue:", "lbl_due": "Due Date:",
-                    "lbl_issued_by": "Issued By (Master)", "lbl_prep_for": "Prepared For (Franchisee)",
-                    "th_desc": "Description of Services", "th_base": "Calculated Base", "th_rate": "Rate", "th_amt": "Amount",
-                    "lbl_remit": "Remittance Details", "lbl_bank": "Bank:", "lbl_address": "Address:", "lbl_account": "Account No:", "lbl_swift": "SWIFT Code:", "lbl_memo_warn": "⚠️ Please include <strong class='font-black underline'>Invoice Number</strong> in transfer memo.",
-                    "lbl_subtotal": "Subtotal:", "lbl_tax": "Estimated Tax (HST/GST):", "lbl_total_due": "TOTAL AMOUNT DUE", "lbl_thanks": "Thank you for your partnership"
-                });
-                Object.assign(I18N_DICT.ko, {
-                    "inv_ctrl_title": "정산 제어 패널", "lbl_client": "대상 가맹점", "lbl_year": "정산 연도", "lbl_rate": "수수료율 (%)", "lbl_start": "시작 월", "lbl_end": "종료 월", "btn_pdf": "🖨️ PDF 인쇄", "btn_csv": "📥 CSV 다운로드",
-                    "doc_title": "정산 청구서", "lbl_inv_no": "청구 번호:", "lbl_date": "발행일:", "lbl_due": "납부 기한:",
-                    "lbl_issued_by": "발신 (본사)", "lbl_prep_for": "수신 (가맹점)",
-                    "th_desc": "청구 내역", "th_base": "기준 금액", "th_rate": "비율", "th_amt": "청구액",
-                    "lbl_remit": "송금 계좌 정보", "lbl_bank": "은행명:", "lbl_address": "은행 주소:", "lbl_account": "계좌번호:", "lbl_swift": "스위프트 코드:", "lbl_memo_warn": "⚠️ 송금 메모에 반드시 <strong class='font-black underline'>청구 번호(Invoice No)</strong>를 기재해 주세요.",
-                    "lbl_subtotal": "소계:", "lbl_tax": "예상 세금 (HST/GST):", "lbl_total_due": "최종 납부 금액", "lbl_thanks": "귀하의 노고와 파트너십에 감사드립니다"
-                });
-                if (window.applyTranslations) window.applyTranslations();
+            try {
+                if (typeof I18N_DICT !== 'undefined') {
+                    Object.assign(I18N_DICT.en, {
+                        "inv_ctrl_title": "Invoice Control Panel", "lbl_client": "Target Client", "lbl_year": "Target Year", "lbl_rate": "Rate (%)", "lbl_start": "Start Month", "lbl_end": "End Month", "btn_pdf": "🖨️ PDF", "btn_csv": "📥 CSV",
+                        "doc_title": "Statement of Account", "lbl_inv_no": "Invoice No:", "lbl_date": "Date of Issue:", "lbl_due": "Due Date:",
+                        "lbl_issued_by": "Issued By (Master)", "lbl_prep_for": "Prepared For (Franchisee)",
+                        "th_desc": "Description of Services", "th_base": "Calculated Base", "th_rate": "Rate", "th_amt": "Amount",
+                        "lbl_remit": "Remittance Details", "lbl_bank": "Bank:", "lbl_address": "Address:", "lbl_account": "Account No:", "lbl_swift": "SWIFT Code:", "lbl_memo_warn": "⚠️ Please include <strong class='font-black underline'>Invoice Number</strong> in transfer memo.",
+                        "lbl_subtotal": "Subtotal:", "lbl_tax": "Estimated Tax (HST/GST):", "lbl_total_due": "TOTAL AMOUNT DUE", "lbl_thanks": "Thank you for your partnership"
+                    });
+                    Object.assign(I18N_DICT.ko, {
+                        "inv_ctrl_title": "정산 제어 패널", "lbl_client": "대상 가맹점", "lbl_year": "정산 연도", "lbl_rate": "수수료율 (%)", "lbl_start": "시작 월", "lbl_end": "종료 월", "btn_pdf": "🖨️ PDF 인쇄", "btn_csv": "📥 CSV 다운로드",
+                        "doc_title": "정산 청구서", "lbl_inv_no": "청구 번호:", "lbl_date": "발행일:", "lbl_due": "납부 기한:",
+                        "lbl_issued_by": "발신 (본사)", "lbl_prep_for": "수신 (가맹점)",
+                        "th_desc": "청구 내역", "th_base": "기준 금액", "th_rate": "비율", "th_amt": "청구액",
+                        "lbl_remit": "송금 계좌 정보", "lbl_bank": "은행명:", "lbl_address": "은행 주소:", "lbl_account": "계좌번호:", "lbl_swift": "스위프트 코드:", "lbl_memo_warn": "⚠️ 송금 메모에 반드시 <strong class='font-black underline'>청구 번호(Invoice No)</strong>를 기재해 주세요.",
+                        "lbl_subtotal": "소계:", "lbl_tax": "예상 세금 (HST/GST):", "lbl_total_due": "최종 납부 금액", "lbl_thanks": "귀하의 노고와 파트너십에 감사드립니다"
+                    });
+                    if (window.applyTranslations) window.applyTranslations();
+                }
+            } catch (err) {
+                console.error("[Y2C Telemetry] I18N Extension Error", err);
             }
 
-            // 권한 보안 검증
-            if(localStorage.getItem(SYSTEM_CONFIG.STORAGE_KEYS.ROLE) === "MASTER") {
-                document.getElementById('navAdmin')?.classList.remove('hidden');
-                document.getElementById('navInvoice')?.classList.remove('hidden');
-            } else {
+            // 🌟 [방어 1] 권한 보안 검증 시 ReferenceError 방지 폴백
+            try {
+                const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
+                if (localStorage.getItem(conf.STORAGE_KEYS.ROLE) === "MASTER") {
+                    document.getElementById('navAdmin')?.classList.remove('hidden');
+                    document.getElementById('navInvoice')?.classList.remove('hidden');
+                } else {
+                    window.location.replace("index.html");
+                }
+            } catch(authErr) {
+                console.error("[Y2C Telemetry] Auth Validation Error", authErr);
                 window.location.replace("index.html");
             }
         });
