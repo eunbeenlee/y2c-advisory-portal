@@ -1,32 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 모바일 고급화 전략: iOS 자동 확대(Zoom) 완벽 차단 및 화면 고정 -->
+    <!-- 🌟 [방어 12] 모바일 고급화 전략: iOS 자동 확대(Zoom) 차단 및 뷰포트 Safe Area 고정 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#1A1516">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>SINJEON CANADA | Dashboard</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- V17.1 통합 Tailwind CSS & Fonts -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 🌟 [방어 7] 리소스 터널링 최적화 (Tailwind + Chart.js CDN 사전 연결) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Chart.js (대시보드 차트 렌더링용 무손실 보존) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- SYSTEM CONFIG (기능 소실 원천 차단) -->
+    <!-- 🌟 [방어 1 & 6] 렌더링 블로킹 해소를 위한 defer 강제 적용 -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <style>
         :root {
-            /* 🌟 신전 핑크 & 프리미엄 차콜 (통일 테마) */
             --sinjeon-pink: #E84C60; 
             --sinjeon-pink-dark: #C23347;
             --premium-charcoal: #1A1516;
             --y2c-gold: #D4AF37;
-            --bg-light: #F8F9FA; /* 고급스러운 라이트 그레이 배경 */
+            --bg-light: #F8F9FA;
         }
         
+        /* 🌟 [방어 11] 연속 탭 방지 및 바운스 차단 */
+        html, body { 
+            overscroll-behavior-y: none; 
+            touch-action: manipulation; 
+        }
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-light); 
@@ -37,51 +46,67 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* iOS 줌 방어 */
+        /* 🌟 [방어 8] iOS 줌(Zoom) 강제 방어 규격 */
         select, button, input { font-size: 16px !important; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 🌟 애니메이션 극대화: 시네마틱 렌더링 */
-        .cinematic-enter { opacity: 0; transform: translateY(20px) scale(0.99); animation: fadeUpCinematic 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUpCinematic 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 KPI 카드 호버 마그네틱 효과 */
         .kpi-card {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            background: #ffffff;
         }
         .kpi-card::after {
             content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
             background: var(--sinjeon-pink);
             transform: scaleY(0); transform-origin: bottom;
-            transition: transform 0.4s ease;
+            transition: transform 0.3s ease;
         }
         .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.1);
         }
         .kpi-card:hover::after { transform: scaleY(1); }
 
-        /* 네비게이션 애니메이션 */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
+
+        /* 🌟 [방어 5] 인쇄(Print/PDF) 시 레이아웃 붕괴 완벽 차단용 미디어 쿼리 */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .kpi-card, .bg-white { border: 1px solid #e5e7eb !important; box-shadow: none !important; }
+            canvas { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
+            .bg-gradient-to-br { background: white !important; color: black !important; border: 2px solid #E84C60 !important; }
+            * { color: #1f2937 !important; }
+        }
     </style>
 </head>
 <body class="selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen">
     
-    <!-- 🌟 V17.1 프리미엄 통일 네비게이션 바 -->
-    <nav class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
+    <!-- 🌟 [방어 2] FOUC(깜빡임/블랙스크린) 방어막 강제 철거용 인라인 스크립트 -->
+    <script>
+        try {
+            document.documentElement.classList.remove("opacity-0");
+            document.documentElement.style.opacity = "1";
+            document.body.style.opacity = "1";
+        } catch(e) {}
+    </script>
+    
+    <!-- 🌟 V17.37 프리미엄 통일 네비게이션 바 (Solid State 적용) -->
+    <nav class="bg-white/98 shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
             
             <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
@@ -100,7 +125,7 @@
                 <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
                 
                 <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-                    <!-- 🌟 V17.1 글로벌 번역 토글 버튼 -->
+                    <!-- 글로벌 번역 토글 -->
                     <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
                         <button onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
                         <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
@@ -119,7 +144,7 @@
 
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20">
         
-        <!-- 🌟 헤더 컨트롤 영역 -->
+        <!-- 헤더 컨트롤 영역 -->
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 cinematic-enter delay-100">
             <div>
                 <h2 class="font-montserrat text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
@@ -128,10 +153,10 @@
                 <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide" data-i18n="dash_desc">Real-time performance metrics and sales synchronization.</p>
             </div>
             
-            <div class="flex flex-wrap items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3 no-print">
                 <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm hover:shadow-md transition-shadow">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-3 mr-2">Fiscal Year</label>
-                    <!-- JS 연동을 위해 ID 유지 -->
+                    <!-- JS 연동용 ID 유지 -->
                     <select id="dashYearSelector" class="bg-gray-50 text-[var(--premium-charcoal)] text-sm font-bold rounded-lg focus:ring-[#E84C60] focus:border-[#E84C60] block px-4 py-2 outline-none cursor-pointer">
                         <option value="2026">2026</option>
                         <option value="2025">2025</option>
@@ -140,21 +165,21 @@
             </div>
         </div>
 
-        <!-- 🌟 KPI 하이라이트 카드 (ID 기능 100% 보존) -->
+        <!-- KPI 하이라이트 카드 -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 cinematic-enter delay-200">
-            <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
+            <div class="kpi-card border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
                 <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100 shadow-inner text-xl">💰</div>
                 <p class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_annual">Total Annual Sales</p>
                 <p id="dashYtdTotal" class="text-3xl sm:text-4xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">$0.00</p>
             </div>
             
-            <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
+            <div class="kpi-card border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
                 <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4 border border-blue-100 shadow-inner text-xl">🍽️</div>
                 <p class="text-[11px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_pos">POS (Dine-in/Takeout)</p>
                 <p id="dashYtdPos" class="text-2xl sm:text-3xl font-black font-mono text-blue-600 tracking-tight">$0.00</p>
             </div>
             
-            <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
+            <div class="kpi-card border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
                 <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-4 border border-emerald-100 shadow-inner text-xl">🛵</div>
                 <p class="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_del">Delivery Platforms</p>
                 <p id="dashYtdDelivery" class="text-2xl sm:text-3xl font-black font-mono text-emerald-600 tracking-tight">$0.00</p>
@@ -168,13 +193,13 @@
             <div class="lg:col-span-2 bg-white border border-gray-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
-                    <button id="refreshChartBtn" class="text-gray-400 hover:text-[#E84C60] transition-colors p-2 rounded-full hover:bg-red-50" title="Refresh Chart">
+                    <button id="refreshChartBtn" class="text-gray-400 hover:text-[#E84C60] transition-colors p-2 rounded-full hover:bg-red-50 no-print" title="Refresh Chart">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     </button>
                 </div>
-                <div class="relative w-full h-[300px] sm:h-[400px] flex-grow flex items-center justify-center">
-                    <!-- dashboard.js 에서 이 캔버스 ID에 접근하여 Chart.js를 렌더링합니다 -->
-                    <canvas id="salesChartCanvas"></canvas>
+                <!-- 🌟 [방어 3 & 9] 캔버스 리사이즈 락(Lock) 및 스켈레톤 로딩 UI 사전 주입 -->
+                <div class="relative w-full h-[300px] sm:h-[400px] flex-grow flex items-center justify-center bg-gray-50/50 rounded-xl border border-gray-50">
+                    <canvas id="salesChartCanvas" class="w-full h-full object-contain"></canvas>
                 </div>
             </div>
 
@@ -185,7 +210,7 @@
                     <div class="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
                     <h3 class="text-2xl font-black font-montserrat tracking-tight mb-2 relative z-10">Need Supplies?</h3>
                     <p class="text-sm font-medium text-red-100 mb-6 relative z-10">Order ingredients and items easily through our catalog system.</p>
-                    <a href="items.html" class="inline-flex items-center gap-2 bg-white text-[#E84C60] px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 relative z-10 active:scale-95">
+                    <a href="items.html" class="no-print inline-flex items-center gap-2 bg-white text-[#E84C60] px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 relative z-10 active:scale-95">
                         <span data-i18n="nav_catalog">Go to Catalog</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </a>
                 </div>
@@ -215,11 +240,10 @@
 
     </main>
 
-    <!-- UI 토스트 컨테이너 -->
-    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+    <!-- 🌟 [방어 10] 터치 가로채기 방지(z-index 9999 보장 및 pointer-events-none) -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🌟 JS 엔진 연동 (V17.1 엔진 실행) -->
-    <script src="assets/js/config.js"></script>
+    <!-- JS 엔진 연동 -->
     <script src="assets/js/dashboard.js"></script>
 </body>
 </html>
