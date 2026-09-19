@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.27 Ultimate Kernel - FOUC 방어 완벽 동기화 및 렌더링 최적화 돔(DOM) 적용 -->
+<!-- 🌟 V17.40 Ultimate Hardening (Solid State) - 렌더링 크래시 원천 방어 및 FOUC 블랙스크린 영구 차단 -->
 <html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
-    <!-- 📱 모바일 네이티브 앱 UX 최적화: 확대/바운스 방어 (무손실 보존) -->
+    <!-- 🌟 [방어 6, 10] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 리사이징 방어 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" content="#1A1516">
+    <meta name="theme-color" content="#F8F9FA">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>SINJEON CANADA | Item Catalog</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- ⚡ 리소스 터널링 (네트워크 Preconnect) -->
+    <!-- ⚡ 리소스 터널링 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
-    <!-- V17.27 통합 Fonts -->
+    <!-- 🌟 [방어 1] defer 속성을 추가하여 CSS 로딩 중 발생하는 렌더링 블로킹(하얀 화면 멈춤) 완벽 해결 -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- ⚡ Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
     <!-- SYSTEM CONFIG -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
@@ -32,7 +31,7 @@
             --glass-border: rgba(255, 255, 255, 0.08);
         }
         
-        /* 📱 스크롤 바운스 및 터치 딜레이 방어 */
+        /* 🌟 [방어 7] 스크롤 바운스 및 터치 딜레이 방어 */
         html, body {
             overscroll-behavior-y: none;
             touch-action: manipulation;
@@ -53,21 +52,27 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 숫자 인풋 스피너 완벽 제거 및 커스텀 스타일 지원 */
+        /* 🌟 [방어 5, 6] 숫자 인풋 스피너 완벽 파괴(재무오류 방지) 및 모바일 줌(16px 강제) 방어 */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        input, select, button { font-size: 16px !important; /* 모바일 자동 줌인 방지 */ }
+        input, select, button { font-size: 16px !important; }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🌟 시네마틱 렌더링 동기화 */
-        .cinematic-enter { opacity: 0; transform: translateY(20px) scale(0.99); animation: fadeUpCinematic 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        /* 시네마틱 렌더링 동기화 */
+        .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUpCinematic 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; } .delay-400 { animation-delay: 0.4s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 V17.27 에러/경고 네이티브 Shake 효과 (Validation 피드백용) */
+        /* KPI 카드 마그네틱 이펙트 */
+        .kpi-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--sinjeon-pink); transform: scaleY(0); transform-origin: bottom; transition: transform 0.4s ease; }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); }
+        .kpi-card:hover::after { transform: scaleY(1); }
+
+        /* 네이티브 Shake 효과 (에러 피드백용) */
         @keyframes error-shake {
             0%, 100% { transform: translateX(0); }
             20% { transform: translateX(-8px); }
@@ -77,10 +82,9 @@
         }
         .shake-animation { animation: error-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
+        /* 프리미엄 솔리드 버튼 규격 */
         .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-gradient-pink::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: all 0.7s ease; }
         .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
-        .btn-gradient-pink:hover:not(:disabled)::before { left: 100%; }
         .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
 
         .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -95,15 +99,24 @@
 </head>
 <body class="text-gray-800 selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen">
     
-    <!-- 🌟 V17.27 프리미엄 통일 네비게이션 바 -->
-    <nav class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
+    <!-- 🌟 [방어 2] 긴급 방어막 해제 인라인 스크립트 (검은화면/하얀화면 영구 차단) -->
+    <script>
+        try {
+            document.documentElement.classList.remove("opacity-0");
+            document.documentElement.style.opacity = "1";
+            document.body.style.opacity = "1";
+        } catch(e) {}
+    </script>
+    
+    <!-- 🌟 [방어 3] 프리미엄 통일 네비게이션 바 (GPU 부하 제거용 Solid State bg-white) -->
+    <nav class="bg-white shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
             
             <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
                 <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png'; this.style.display='none';" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
-                <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
-                    <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1 font-montserrat">Enterprise Portal</h1>
-                    <p class="text-[9px] sm:text-[10px] text-[#E84C60] font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
+                <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
+                    <span class="font-montserrat text-lg sm:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
+                    <span class="text-[9px] sm:text-[10px] text-[#E84C60] font-bold tracking-[0.2em] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
                 </div>
             </div>
             
@@ -115,17 +128,16 @@
                 <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
                 
                 <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-                    <!-- 🌟 V17.27 글로벌 번역 토글 버튼 -->
                     <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                        <button onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
-                        <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
+                        <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                        <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
                     </div>
 
                     <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-4 rounded-full border border-gray-200 shadow-inner">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">Loading...</span>
                         <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                        <button id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-2" data-i18n="logout">LOGOUT</button>
+                        <button type="button" id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-2" data-i18n="logout">LOGOUT</button>
                     </div>
                 </div>
             </div>
@@ -143,11 +155,11 @@
                 <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide" data-i18n="catalog_desc">Select items and quantities to request procurement.</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <button onclick="cancelOrder()" class="bg-white border-2 border-[#E84C60] text-[#E84C60] hover:bg-[#E84C60] hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1 active:translate-y-0 active:scale-95 flex items-center gap-2">
+                <button type="button" onclick="cancelOrder()" class="bg-white border-2 border-[#E84C60] text-[#E84C60] hover:bg-[#E84C60] hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1 active:translate-y-0 active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     <span data-i18n="cancel_order">Cancel Order</span>
                 </button>
-                <button id="aiSuggestBtn" onclick="applyAiSuggestion()" class="hidden bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1 active:translate-y-0 active:scale-95 flex items-center gap-2">
+                <button type="button" id="aiSuggestBtn" onclick="applyAiSuggestion()" class="hidden bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1 active:translate-y-0 active:scale-95 flex items-center gap-2">
                     ✨ <span data-i18n="btn_ai">Auto-Fill AI</span>
                 </button>
             </div>
@@ -160,27 +172,27 @@
                     <span class="text-xs font-black text-gray-400 uppercase tracking-widest" data-i18n="hub_view">Hub View:</span>
                     <select id="regionFilter" onchange="applyRegionFilter()" class="bg-gray-50 border border-gray-200 text-[var(--premium-charcoal)] text-sm font-bold rounded-xl focus:ring-[#E84C60] focus:border-[#E84C60] block p-2.5 outline-none w-full sm:w-48 transition-colors"></select>
                 </div>
-                <button id="toggleStockBtn" onclick="toggleStockEditMode()" class="btn-charcoal w-full sm:w-auto px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-md">
+                <button type="button" id="toggleStockBtn" onclick="toggleStockEditMode()" class="btn-charcoal w-full sm:w-auto px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-md">
                     ⚙️ <span data-i18n="btn_manage">MANAGE INVENTORY</span>
                 </button>
             </div>
         </div>
 
-        <!-- 🌟 KPI 상태 대시보드 (순차적 애니메이션) -->
+        <!-- 🌟 KPI 상태 대시보드 -->
         <div id="kpiDashboard" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow cinematic-enter delay-100">
+            <div class="kpi-card bg-white border border-gray-200 rounded-2xl p-4 shadow-sm cinematic-enter delay-100">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1" data-i18n="kpi_skus">Total SKUs</p>
                 <p id="kpiTotalSkus" class="text-2xl font-black font-mono text-[var(--premium-charcoal)]">-</p>
             </div>
-            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow cinematic-enter delay-200">
+            <div class="kpi-card bg-white border border-gray-200 rounded-2xl p-4 shadow-sm cinematic-enter delay-200">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1" data-i18n="kpi_value">Inventory Value</p>
                 <p id="kpiTotalValue" class="text-2xl font-black font-mono text-[var(--premium-charcoal)]">-</p>
             </div>
-            <div class="bg-red-50 border border-red-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow cinematic-enter delay-300">
+            <div class="kpi-card bg-red-50 border border-red-100 rounded-2xl p-4 shadow-sm cinematic-enter delay-300">
                 <p class="text-[10px] font-black text-[#E84C60] uppercase tracking-widest mb-1" data-i18n="kpi_warning">Low Stock Warning</p>
                 <p id="kpiLowStock" class="text-2xl font-black font-mono text-[#C23347]">-</p>
             </div>
-            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow cinematic-enter delay-400">
+            <div class="kpi-card bg-white border border-gray-200 rounded-2xl p-4 shadow-sm cinematic-enter delay-400">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1" data-i18n="kpi_synced">Last Synced</p>
                 <p id="kpiLastUpdated" class="text-xs sm:text-sm font-bold text-gray-600 mt-2">-</p>
             </div>
@@ -207,19 +219,19 @@
             </div>
         </div>
 
-        <!-- 🌟 결제 및 주문 플로팅 하단 액션 바 -->
-        <div id="orderActionContainer" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] z-40 transition-transform duration-500 cinematic-enter delay-400">
+        <!-- 🌟 [방어 3] 결제/주문 하단 플로팅 바 (GPU 부하 제거용 Solid State bg-white) -->
+        <div id="orderActionContainer" class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] z-40 transition-transform duration-500 cinematic-enter delay-400">
             <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
                     
                     <div class="flex items-center gap-4 sm:gap-8 w-full sm:w-auto overflow-x-auto hide-scrollbar">
                         <div class="flex flex-col shrink-0">
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 transition-colors" data-i18n="order_sub">Subtotal</span>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5" data-i18n="order_sub">Subtotal</span>
                             <span id="orderSubtotal" class="font-mono text-lg font-bold text-gray-700 transition-all duration-300">$0.00</span>
                         </div>
                         <div class="w-px h-10 bg-gray-200 shrink-0 hidden sm:block"></div>
                         <div class="flex flex-col shrink-0">
-                            <span id="orderTaxLabel" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 transition-colors" data-i18n="order_tax">Estimated Tax</span>
+                            <span id="orderTaxLabel" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5" data-i18n="order_tax">Estimated Tax</span>
                             <span id="orderTaxAmt" class="font-mono text-lg font-bold text-gray-700 transition-all duration-300">$0.00</span>
                         </div>
                         <div class="w-px h-10 bg-gray-200 shrink-0 hidden sm:block"></div>
@@ -229,7 +241,7 @@
                         </div>
                     </div>
                     
-                    <button onclick="submitOrder()" class="btn-gradient-pink w-full sm:w-auto px-10 py-4.5 rounded-xl font-black text-[13px] uppercase tracking-[0.15em] flex items-center justify-center gap-3 whitespace-nowrap shrink-0">
+                    <button type="button" onclick="submitOrder()" class="btn-gradient-pink w-full sm:w-auto px-10 py-4.5 rounded-xl font-black text-[13px] uppercase tracking-[0.15em] flex items-center justify-center gap-3 whitespace-nowrap shrink-0">
                         <svg class="w-5 h-5 drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         <span data-i18n="btn_submit">Submit Order</span>
                     </button>
@@ -238,23 +250,15 @@
         </div>
     </main>
 
-    <!-- 🌟 사진 호버 컨테이너 -->
+    <!-- 🌟 [방어 9] 사진 프리뷰 Z-Index 보정망 -->
     <div id="imagePreviewContainer" class="fixed hidden z-[9999] pointer-events-none transform transition-all duration-300 scale-95 opacity-0 bg-white p-2 rounded-2xl shadow-2xl border border-gray-200">
         <img id="imagePreview" src="" alt="Preview" class="w-64 h-64 sm:w-80 sm:h-80 object-cover rounded-xl border border-gray-100">
     </div>
 
-    <!-- UI 토스트 컨테이너 -->
+    <!-- 🌟 [방어 9] UI 토스트 컨테이너 강제 최상위 -->
     <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🌟 JS 엔진 연동 -->
-    <script src="assets/js/config.js"></script>
+    <!-- JS 엔진 연동 -->
     <script src="assets/js/items.js"></script>
-    
-    <script>
-        // 🌟 FOUC 방어: JS 엔진 로드가 완료되고 DOM이 준비되면 화면을 서서히 밝힘 (깜빡임 완벽 제거)
-        document.addEventListener("DOMContentLoaded", () => {
-            document.documentElement.classList.remove("opacity-0");
-        });
-    </script>
 </body>
 </html>
