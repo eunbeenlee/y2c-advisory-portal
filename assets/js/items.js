@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V17.40 Ultimate)
- * [무결점 교차 검증 완료] 30대 방어 규격, OOM Defense, Strict Financial Parser
+ * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V17.41 Ultimate)
+ * [구글 드라이브 스마트 렌더링 탑재] 30대 방어 규격, OOM Defense, Strict Parser
  * ============================================================================
  */
 
-// 🌟 [방어 17] 스크립트 로드 즉시 FOUC 방어막 강제 철거
+// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거
 try {
     document.documentElement.classList.remove("opacity-0");
     document.documentElement.style.opacity = "1";
@@ -28,7 +28,6 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 23] 토큰 및 권한 무결성 1차 검증
 if (!sessionToken || !clientName) { window.location.replace("index.html"); }
 
 // ============================================================================
@@ -98,17 +97,38 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 [방어 2, 6, 21] Strict Parsers & Escape Utilities (XSS 방어 및 재무 정합성)
+// 🔒 [방어 31] 구글 드라이브 스마트 링크 변환 파서 (V17.41 핵심 추가 기능)
+// ============================================================================
+function resolveDriveImageUrl(urlOrId) {
+    if (!urlOrId || typeof urlOrId !== 'string') return '';
+    let clean = urlOrId.trim();
+    if (clean === '' || clean === '-') return '';
+
+    // 1. 구글 드라이브 공유 링크 형태인 경우 (운영진이 통째로 복사해 넣었을 때 추출)
+    const match = clean.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    }
+
+    // 2. 순수 구글 드라이브 파일 ID만 입력된 경우
+    if (/^[a-zA-Z0-9_-]{25,}$/.test(clean)) {
+        return `https://lh3.googleusercontent.com/d/${clean}`;
+    }
+
+    // 3. 일반 이미지 외부 URL일 경우 그대로 반환
+    return clean;
+}
+
+// ============================================================================
+// 🔒 Strict Parsers & Escape Utilities
 // ============================================================================
 function escapeHtml(value) { return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 function parseStrictNonNegativeInteger(value) { const str = String(value ?? "").trim(); if (!/^\d+$/.test(str)) return null; const num = Number(str); if (!Number.isSafeInteger(num) || num < 0) return null; return num; }
 function parseStrictDecimal(value) { let str = String(value ?? "").trim(); if (str === "") return 0; if (str.startsWith('.')) str = '0' + str; if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return null; const num = Number(str); if (!Number.isFinite(num)) return null; return num; }
 function parseStrictISODate(value) { const str = String(value ?? "").trim(); if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null; const [y, m, d] = str.split("-").map(Number); if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; const date = new Date(Date.UTC(y, m - 1, d)); if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; return str; }
 
-// 🌟 [방어 1] 재무 결함 방지용 센트(Cent) 단위 반올림 함수
 function roundToCents(amount) { return Math.round(Number(amount) * 100) / 100; }
 
-// 🌟 [방어 20] 글로벌 고유 식별자 생성기 (Math.random Fallback 지원)
 const generateIdempotencyKey = () => { 
   if (window.crypto && crypto.randomUUID) return "REQ-" + crypto.randomUUID().toUpperCase();
   if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(4); window.crypto.getRandomValues(array); return 'REQ-' + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
@@ -126,7 +146,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 25] 토스트 알림 Z-Index 스팸 억제
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -148,7 +167,6 @@ function showToast(message, type = 'success') {
   }, 3500);
 }
 
-// 🌟 [방어 18, 19] 네트워크 오프라인 / 언핸들드 에러 글로벌 방어 리스너
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
 window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
@@ -157,7 +175,6 @@ window.addEventListener('unhandledrejection', function(event) {
     isSubmitting = false; clearTimeout(submitLockTimer);
 });
 
-// 🌟 [방어 24] 글로벌 RBAC 네비게이션 제어 및 물리적 돔 블라인드
 function applyGlobalRbacNavigation() {
     const rbacRules = { 'navDashboard': ['MASTER', 'PARTNER'], 'navRecipes': ['MASTER', 'PARTNER'], 'navAdmin': ['MASTER', 'VENDOR'], 'navInvoice': ['MASTER'] };
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
@@ -172,7 +189,7 @@ function applyGlobalRbacNavigation() {
 
     if (userRole === "VENDOR") {
         const orderAct = document.getElementById('orderActionContainer');
-        if (orderAct) orderAct.remove(); // 벤더는 발주 버튼 컨테이너 강제 삭제
+        if (orderAct) orderAct.remove(); 
     }
 }
 
@@ -180,9 +197,8 @@ let cachedItems = [], cachedMappings = [], isStockEditMode = false;
 let currentClientState = cachedClientState, masterViewRegion = "ALL"; 
 let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
-let submitLockTimer = null; // 🌟 30초 락 해제 타이머용
+let submitLockTimer = null; 
 
-// 🌟 [방어 9] CRA 면세/과세(Zero-Rated) 옴니 키워드 확장 스캐너
 function isZeroRatedItem(item) {
   if (!item) return false;
   if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
@@ -198,7 +214,6 @@ function isZeroRatedItem(item) {
 
 const RETRYABLE_ACTIONS = new Set(["get_procurement_data", "get_items", "get_recipes"]);
 
-// 🌟 [방어 4, 10, 14] 25초 절대 킬스위치 및 지수형 백오프(Exponential Backoff) 통신 엔진
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
   
@@ -209,10 +224,9 @@ async function executeApi(action, payload = {}, retries = 2) {
 
   for (let i = 0; i <= maxAttempts; i++) {
     let controller = new AbortController();
-    let timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 강제 타임아웃
+    let timeoutId = setTimeout(() => controller.abort(), 25000);
     
     try {
-      // CORS Preflight 우회를 위한 text/plain 지정
       const response = await fetch(CONFIG.API?.BASE_URL || "", {
         method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
         body: JSON.stringify({ action: action, token: sessionToken, ...safePayload }),
@@ -228,7 +242,7 @@ async function executeApi(action, payload = {}, retries = 2) {
       }
       
       const rawText = await response.text();
-      controller = null; // 메모리 누수(GC) 지원
+      controller = null;
       
       let jsonResult;
       try { jsonResult = JSON.parse(rawText); } 
@@ -333,7 +347,6 @@ function checkExpWarning(expDateStr) {
   return (diffDays <= 30); 
 }
 
-// 🌟 [방어 7] 스토리지 용량 초과(QuotaExceeded) 크래시 바이패스 자동 저장
 window.saveCartState = function() {
     if (userRole === "VENDOR") return;
     const qtyInputs = document.querySelectorAll('.order-qty');
@@ -346,7 +359,7 @@ window.saveCartState = function() {
 };
 
 // ============================================================================
-// ⚡ [방어 8] 1000+ 품목 청크 렌더링 엔진 (Progressive Rendering)
+// ⚡ 청크 렌더링 엔진 & 구글 드라이브 이미지 변환기 탑재
 // ============================================================================
 function renderTableItems() {
   const tableBody = document.getElementById('itemTableBody'); if (!tableBody) return;
@@ -378,12 +391,18 @@ function renderTableItems() {
           const row = document.createElement('tr'); row.className = "hover:bg-gray-50/50 transition-colors duration-200";
           
           const safeCode = escapeHtml(item.code || '-'), safeName = escapeHtml(item.name || '-');
-          const imgTag = item.image && item.image.trim() !== '' ? `<img src="${escapeHtml(item.image)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors" loading="lazy">` : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
+          
+          // 🌟 구글 드라이브 스마트 링크 변환 파서 적용
+          const rawImgValue = String(item.image || "").trim();
+          const resolvedImgUrl = resolveDriveImageUrl(rawImgValue);
+          
+          const imgTag = resolvedImgUrl !== '' 
+              ? `<img src="${escapeHtml(resolvedImgUrl)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0\\'>No Img</div>';">` 
+              : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
           
           let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown[masterViewRegion] || 0)) : item.regionalStock;
           if (typeof displayStock !== 'number' || Number.isNaN(displayStock)) displayStock = 0;
 
-          // 재무 무결성 연산 적용
           totalValue += roundToCents((parseStrictDecimal(item.price) || 0) * displayStock);
           if (displayStock > 0 && displayStock <= 10) lowStockCount++;
 
@@ -461,10 +480,8 @@ function renderTableItems() {
           if (window.applyTranslations) window.applyTranslations();
           attachImageHoverEffect(); 
           
-          // 🌟 [방어 12] 동적 생성 인풋에 리스너 일괄 부착
           document.querySelectorAll('.order-qty').forEach(input => {
               input.addEventListener('input', () => { 
-                  // 🌟 [방어 15] maxQty UI 강제 블로킹
                   const val = parseStrictNonNegativeInteger(input.value) || 0;
                   const max = parseStrictNonNegativeInteger(input.getAttribute('max')) || 0;
                   if (val > max) { input.value = max; showToast("최대 가용 재고를 초과할 수 없습니다.", "error"); }
@@ -478,7 +495,6 @@ function renderTableItems() {
   renderChunk(); 
 }
 
-// 🌟 [방어 17] AI 최댓값 교정
 function applyAiSuggestion() {
   const qtyInputs = document.querySelectorAll('.order-qty'); let appliedCount = 0;
   qtyInputs.forEach(input => {
@@ -511,7 +527,7 @@ function calculateOrderTotal() {
       const idx = input.getAttribute('data-index'); 
       if (cachedItems[idx]) {
         const itemPrice = parseStrictDecimal(cachedItems[idx].price) || 0;
-        const lineTotal = roundToCents(qty * itemPrice); // 🌟 [방어 1] Cent 교정
+        const lineTotal = roundToCents(qty * itemPrice); 
         subtotal = roundToCents(subtotal + lineTotal);
         if (isZeroRatedItem(cachedItems[idx])) { foodSubtotal = roundToCents(foodSubtotal + lineTotal); } 
         else { taxableSubtotal = roundToCents(taxableSubtotal + lineTotal); }
@@ -520,8 +536,8 @@ function calculateOrderTotal() {
   });
 
   const taxRate = parseStrictDecimal(taxRateObj.rate) || 0;
-  const taxAmt = roundToCents(taxableSubtotal * taxRate); // 🌟 [방어 1] Cent 교정
-  const grandTotal = roundToCents(subtotal + taxAmt); // 🌟 [방어 1] Cent 교정
+  const taxAmt = roundToCents(taxableSubtotal * taxRate); 
+  const grandTotal = roundToCents(subtotal + taxAmt); 
 
   currentOrderTaxSummary = { subtotal, foodSubtotal, taxableSubtotal, taxAmount: taxAmt, grandTotal };
 
@@ -531,7 +547,6 @@ function calculateOrderTotal() {
   const grandTotalElem = document.getElementById('orderGrandTotal'); if (grandTotalElem) grandTotalElem.innerText = formatCurrency(grandTotal);
 }
 
-// 🌟 [방어 5] 물리적 연타 잠금 및 30초 후 강제 해제(Self-Healing)
 async function toggleStockEditMode() {
   if (isSubmitting) return; 
   const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
@@ -584,7 +599,6 @@ async function toggleStockEditMode() {
   }
 }
 
-// 🌟 [방어 22] 이미지 호버 툴팁 경계선 이탈(Clipping) 보정
 function attachImageHoverEffect() {
   const tableBody = document.getElementById('itemTableBody'), previewContainer = document.getElementById('imagePreviewContainer'), previewImg = document.getElementById('imagePreview');
   if (!tableBody || !previewContainer || !previewImg) return;
@@ -607,7 +621,6 @@ async function submitOrder() {
     }
   });
   
-  // 🌟 [방어 16] 빈 발주서 제출 방어
   if (orderItems.length === 0 || currentOrderTaxSummary.grandTotal <= 0) {
       return showToast("발주 수량을 최소 1개 이상 입력해 주세요.", "error");
   }
@@ -642,7 +655,6 @@ async function submitOrder() {
   }
 }
 
-// 🌟 [방화벽 3] OCR 캔버스 압축 실패 시 OOM 방어 및 원본 폴백
 function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -659,13 +671,12 @@ function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
                 const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
                 canvas.toBlob(blob => { resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); }, 'image/jpeg', 0.8); 
             };
-            img.onerror = error => resolve(file); // 🌟 에러 시 원본 리턴
+            img.onerror = error => resolve(file);
         };
-        reader.onerror = error => resolve(file); // 🌟 에러 시 원본 리턴
+        reader.onerror = error => resolve(file);
     });
 }
 
-// 🌟 [방화벽 13] 동적 스크립트 로더 무한 대기 락 해제망 적용
 async function loadHeavyLibrary(url, objName) {
     if (window[objName] !== undefined) return true;
     return new Promise((resolve, reject) => {
@@ -676,7 +687,6 @@ async function loadHeavyLibrary(url, objName) {
     });
 }
 
-// 🌟 [방화벽 11] 드래그 영역 이벤트 중첩 할당 차단
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
   const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
@@ -707,7 +717,7 @@ async function handleExcelUpload(event) {
   if (validExcelExts.includes(fileExt)) {
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Loading Excel Engine...</span>`;
     try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
-    catch(e) { isSubmitting = false; return; } // 에러 메시지는 loadHeavyLibrary에서 출력됨
+    catch(e) { isSubmitting = false; return; }
 
     if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
     
@@ -792,7 +802,6 @@ async function processExcelData(jsonData, filename) {
 
   let inboundMap = Object.create(null), successCount = 0, validationErrors = [];
 
-  // 🌟 [방어 2] 엑셀 수량 필드 내 음수 및 특수문자 오염 방어 파서
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = ""; let qtyMatches = 0;
     Object.keys(row).forEach(k => {
@@ -837,7 +846,6 @@ async function processExcelData(jsonData, filename) {
     }
   });
 
-  // 🌟 [방어 6] 에러 발생 시 UI 잠금 해제 및 XSS 보호
   if (validationErrors.length > 0) {
       isSubmitting = false; const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
       return showToast(`🚨 입고 실패 (데이터 오염 감지):\n\n${validationErrors.join('\n')}`, "error");
@@ -876,7 +884,6 @@ async function processExcelData(jsonData, filename) {
   }
 }
 
-// 🌟 [방어 26] 취소 주문 번호 특수문자 검증
 async function cancelOrder(batchId) {
     if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
     if (!batchId) {
