@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V17.41 Ultimate)
- * [구글 드라이브 스마트 렌더링 탑재] 30대 방어 규격, OOM Defense, Strict Parser
+ * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V17.42 Ultimate)
+ * [Absolute Null-Safe] 빈칸, 쉼표, 오염 데이터 완벽 방어 및 30+ 크래시 제로화
  * ============================================================================
  */
 
@@ -31,7 +31,7 @@ try {
 if (!sessionToken || !clientName) { window.location.replace("index.html"); }
 
 // ============================================================================
-// 🌐 글로벌 & 동적 데이터 번역 (i18n) 엔진 탑재
+// 🌐 다국어(i18n) 딕셔너리
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -71,8 +71,7 @@ window.changeLanguage = function(lang) {
     currentLang = safeLang; 
     try { localStorage.setItem('y2c_lang', safeLang); } catch(e){}
     
-    const btnEn = document.getElementById('lang_en');
-    const btnKo = document.getElementById('lang_ko');
+    const btnEn = document.getElementById('lang_en'), btnKo = document.getElementById('lang_ko');
     if (btnEn && btnKo) {
         btnEn.className = safeLang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
         btnKo.className = safeLang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
@@ -82,8 +81,7 @@ window.changeLanguage = function(lang) {
 };
 
 window.applyTranslations = function() {
-    const dict = I18N_DICT[currentLang]; 
-    if(!dict) return;
+    const dict = I18N_DICT[currentLang]; if(!dict) return;
     document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[key]) el.innerHTML = dict[key]; });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[key]) el.placeholder = dict[key]; });
 };
@@ -97,37 +95,72 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 [방어 31] 구글 드라이브 스마트 링크 변환 파서 (V17.41 핵심 추가 기능)
+// 🔒 [방어 V17.42] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
 // ============================================================================
+function escapeHtml(value) { 
+    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+}
+
+// 🌟 화면 출력 전용 안전 파서: 빈칸이나 "null" 텍스트를 깔끔한 "-" 로 치환
+function safeDisplay(value, fallback = "-") {
+    if (value == null) return fallback;
+    const str = String(value).trim();
+    if (str === "" || str.toLowerCase() === "null" || str.toLowerCase() === "nan") return fallback;
+    return escapeHtml(str);
+}
+
+// 🌟 구글 드라이브 링크 빈칸 완벽 대응 파서
 function resolveDriveImageUrl(urlOrId) {
-    if (!urlOrId || typeof urlOrId !== 'string') return '';
+    if (urlOrId == null || typeof urlOrId !== 'string') return '';
     let clean = urlOrId.trim();
-    if (clean === '' || clean === '-') return '';
+    if (clean === '' || clean === '-' || clean.toLowerCase() === 'null') return '';
 
-    // 1. 구글 드라이브 공유 링크 형태인 경우 (운영진이 통째로 복사해 넣었을 때 추출)
     const match = clean.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-    if (match && match[1]) {
-        return `https://lh3.googleusercontent.com/d/${match[1]}`;
-    }
-
-    // 2. 순수 구글 드라이브 파일 ID만 입력된 경우
-    if (/^[a-zA-Z0-9_-]{25,}$/.test(clean)) {
-        return `https://lh3.googleusercontent.com/d/${clean}`;
-    }
-
-    // 3. 일반 이미지 외부 URL일 경우 그대로 반환
+    if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    if (/^[a-zA-Z0-9_-]{25,}$/.test(clean)) return `https://lh3.googleusercontent.com/d/${clean}`;
     return clean;
 }
 
-// ============================================================================
-// 🔒 Strict Parsers & Escape Utilities
-// ============================================================================
-function escapeHtml(value) { return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
-function parseStrictNonNegativeInteger(value) { const str = String(value ?? "").trim(); if (!/^\d+$/.test(str)) return null; const num = Number(str); if (!Number.isSafeInteger(num) || num < 0) return null; return num; }
-function parseStrictDecimal(value) { let str = String(value ?? "").trim(); if (str === "") return 0; if (str.startsWith('.')) str = '0' + str; if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return null; const num = Number(str); if (!Number.isFinite(num)) return null; return num; }
-function parseStrictISODate(value) { const str = String(value ?? "").trim(); if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null; const [y, m, d] = str.split("-").map(Number); if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; const date = new Date(Date.UTC(y, m - 1, d)); if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; return str; }
+// 🌟 재무/수량 정수 파서: 완전한 빈칸, 스페이스바 공백, 쉼표(,) 모두 0 방어
+function parseStrictNonNegativeInteger(value) { 
+    if (value == null) return 0; 
+    let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
+    if (!/^\d+$/.test(str)) return 0; 
+    const num = Number(str); 
+    if (!Number.isSafeInteger(num) || num < 0) return 0; 
+    return num; 
+}
 
-function roundToCents(amount) { return Math.round(Number(amount) * 100) / 100; }
+// 🌟 재무 소수점 파서: 가격/세율 등에 쉼표가 들어와도 완벽 필터링
+function parseStrictDecimal(value) { 
+    if (value == null) return 0; 
+    let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
+    if (str.startsWith('.')) str = '0' + str; 
+    if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
+    const num = Number(str); 
+    if (!Number.isFinite(num)) return 0; 
+    return num; 
+}
+
+// 🌟 날짜 파서: 빈칸이거나 null 텍스트면 멈추지 않고 조용히 제외시킴
+function parseStrictISODate(value) { 
+    if (value == null) return null;
+    const str = String(value).trim().toLowerCase(); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return null; 
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null; 
+    const [y, m, d] = str.split("-").map(Number); 
+    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; 
+    const date = new Date(Date.UTC(y, m - 1, d)); 
+    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; 
+    return str; 
+}
+
+// 🌟 센트(Cent) 단위 재무 오차 강제 교정 
+function roundToCents(amount) { 
+    return Math.round(parseStrictDecimal(amount) * 100) / 100; 
+}
 
 const generateIdempotencyKey = () => { 
   if (window.crypto && crypto.randomUUID) return "REQ-" + crypto.randomUUID().toUpperCase();
@@ -135,11 +168,11 @@ const generateIdempotencyKey = () => {
   return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 10).toUpperCase(); 
 };
 
-const formatCurrency = (amount) => { const num = Number(amount); return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(Number.isFinite(num) ? num : 0); };
+const formatCurrency = (amount) => { return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount)); };
 function formatTimestamp(isoString) { if (!isoString) return "Never"; const d = new Date(isoString); return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' }); }
 
-const userNameDisplay = document.getElementById('userNameDisplay'); if (userNameDisplay) userNameDisplay.innerText = escapeHtml(clientName);
-const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.innerText = escapeHtml(userRole); }
+const userNameDisplay = document.getElementById('userNameDisplay'); if (userNameDisplay) userNameDisplay.innerText = safeDisplay(clientName);
+const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.innerText = safeDisplay(userRole); }
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => { 
     [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
@@ -161,10 +194,7 @@ function showToast(message, type = 'success') {
   container.appendChild(toast);
   
   requestAnimationFrame(() => { setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10); });
-  setTimeout(() => { 
-      toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); 
-      setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
-  }, 3500);
+  setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); }, 3500);
 }
 
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
@@ -258,7 +288,7 @@ async function executeApi(action, payload = {}, retries = 2) {
         const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
         err.ledgerPending = jsonResult.ledgerPending === true; 
         err.inventoryCommitted = jsonResult.inventoryCommitted === true; 
-        err.txId = jsonResult.txId ? String(jsonResult.txId) : null;
+        err.txId = safeDisplay(jsonResult.txId, null);
         throw err;
       }
       return jsonResult;
@@ -298,7 +328,7 @@ async function fetchItems() {
     const result = await executeApi("get_items", { clientState: currentClientState });
     if (result && result.success) {
       cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
-      currentClientState = String(result.appliedState || "DEFAULT").trim();
+      currentClientState = safeDisplay(result.appliedState, "DEFAULT").trim();
       taxRateObj = CONFIG.TAX_RATES[currentClientState.toUpperCase()] || CONFIG.TAX_RATES["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
       
       const headerTitle = document.getElementById('catalogHeaderTitle');
@@ -339,7 +369,7 @@ function populateRegionFilter() {
 function applyRegionFilter() { masterViewRegion = document.getElementById('regionFilter').value; renderTableItems(); }
 
 function checkExpWarning(expDateStr) {
-  if (!expDateStr || expDateStr === "-") return false;
+  if (!expDateStr || expDateStr === "-" || expDateStr === "null") return false;
   const firstDateStr = String(expDateStr).split('|')[0].split(':')[0].trim();
   const dateMatch = firstDateStr.match(/\d{4}-\d{2}-\d{2}/); if (!dateMatch) return false;
   const expDate = new Date(dateMatch[0] + "T00:00:00"), today = new Date();
@@ -352,14 +382,14 @@ window.saveCartState = function() {
     const qtyInputs = document.querySelectorAll('.order-qty');
     const cartState = {};
     qtyInputs.forEach(input => {
-        const qty = parseStrictNonNegativeInteger(input.value) || 0;
+        const qty = parseStrictNonNegativeInteger(input.value);
         if (qty > 0) { const code = input.getAttribute('data-code'); if(code) cartState[code] = qty; }
     });
     try { localStorage.setItem(`Y2C_CART_STATE_${clientName}`, JSON.stringify(cartState)); } catch(e) { console.warn("Storage Quota Exceeded bypassed"); }
 };
 
 // ============================================================================
-// ⚡ 청크 렌더링 엔진 & 구글 드라이브 이미지 변환기 탑재
+// ⚡ 청크 렌더링 엔진 (Absolute Null-Safe SafeDisplay 탑재)
 // ============================================================================
 function renderTableItems() {
   const tableBody = document.getElementById('itemTableBody'); if (!tableBody) return;
@@ -390,9 +420,11 @@ function renderTableItems() {
           
           const row = document.createElement('tr'); row.className = "hover:bg-gray-50/50 transition-colors duration-200";
           
-          const safeCode = escapeHtml(item.code || '-'), safeName = escapeHtml(item.name || '-');
+          // 🌟 [방어 1] Null-Safe 화면 출력 파서 적용 (빈칸은 - 로 깔끔하게 렌더링)
+          const safeCode = safeDisplay(item.code);
+          const safeName = safeDisplay(item.name);
           
-          // 🌟 구글 드라이브 스마트 링크 변환 파서 적용
+          // 🌟 구글 드라이브 스마트 링크 빈칸 완벽 대응 (null 텍스트 방어)
           const rawImgValue = String(item.image || "").trim();
           const resolvedImgUrl = resolveDriveImageUrl(rawImgValue);
           
@@ -400,28 +432,31 @@ function renderTableItems() {
               ? `<img src="${escapeHtml(resolvedImgUrl)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0\\'>No Img</div>';">` 
               : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
           
-          let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown[masterViewRegion] || 0)) : item.regionalStock;
+          let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown?.[masterViewRegion] || 0)) : item.regionalStock;
           if (typeof displayStock !== 'number' || Number.isNaN(displayStock)) displayStock = 0;
 
-          totalValue += roundToCents((parseStrictDecimal(item.price) || 0) * displayStock);
+          // 재무 무결성 연산
+          const safePrice = parseStrictDecimal(item.price);
+          totalValue += roundToCents(safePrice * displayStock);
+          
           if (displayStock > 0 && displayStock <= 10) lowStockCount++;
 
           const isLowStock = displayStock > 0 && displayStock <= 10, isSoldOut = displayStock <= 0;
           let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E84C60]/10 px-2 py-0.5 rounded shadow-sm border border-[#E84C60]/20 low-stock-pulse" : (isLowStock ? "text-[#E84C60] font-extrabold" : "text-gray-800");
-          let aiBadgeHTML = (userRole === "PARTNER" && item.aiSuggestedQty > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${escapeHtml(item.aiSuggestedQty)}</span></div>` : '';
+          let aiBadgeHTML = (userRole === "PARTNER" && parseStrictNonNegativeInteger(item.aiSuggestedQty) > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${escapeHtml(item.aiSuggestedQty)}</span></div>` : '';
 
           const isZeroRated = isZeroRatedItem(item);
           const taxTag = isZeroRated 
             ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-100 text-emerald-700 border border-emerald-200" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
             : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-100 text-blue-700 border border-blue-200" title="Standard Taxable Goods">TAXABLE</span>`;
 
-          const translatedCategory = escapeHtml(translateDynamic(item.category || 'General', 'category'));
+          const translatedCategory = safeDisplay(translateDynamic(item.category || 'General', 'category'));
 
           let expDisplayHTML = '';
           if (isMasterOrVendor && masterViewRegion === "ALL") {
             let expLines = [];
-            for (let reg in item.expBreakdown) {
-              let regExp = item.expBreakdown[reg];
+            for (let reg in item.expBreakdown || {}) {
+              let regExp = safeDisplay(item.expBreakdown[reg], "");
               if (regExp && regExp !== "-") {
                 const isExpWarn = checkExpWarning(regExp);
                 const expColorClass = isExpWarn ? "text-[#E84C60] bg-[#E84C60]/10 border-[#E84C60]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
@@ -430,7 +465,7 @@ function renderTableItems() {
             }
             if (expLines.length > 0) { expDisplayHTML = `<div class="mt-2 flex flex-col w-full max-w-[150px] mx-auto">${expLines.join('')}</div>`; }
           } else {
-            let expDateVal = isMasterOrVendor ? (item.expBreakdown && item.expBreakdown[masterViewRegion] ? item.expBreakdown[masterViewRegion] : "") : (item.expBreakdown && item.expBreakdown[currentClientState] ? item.expBreakdown[currentClientState] : "");
+            let expDateVal = isMasterOrVendor ? safeDisplay(item.expBreakdown?.[masterViewRegion], "") : safeDisplay(item.expBreakdown?.[currentClientState], "");
             if (expDateVal && expDateVal !== "-") {
               const isExpWarn = checkExpWarning(expDateVal);
               const expColorClass = isExpWarn ? "text-[#E84C60] bg-[#E84C60]/10 border-[#E84C60]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
@@ -441,10 +476,10 @@ function renderTableItems() {
           let stockDisplayHTML = '', orderInputHTML = '';
           if (isStockEditMode && isMasterOrVendor) {
             let editInputs = '';
-            for (const reg in item.stockBreakdown) {
-              const currentRegStock = parseStrictNonNegativeInteger(item.stockBreakdown[reg]) || 0; 
-              const currentRegExp = escapeHtml(item.expBreakdown && item.expBreakdown[reg] ? item.expBreakdown[reg] : "");
-              editInputs += `<div class="flex flex-col gap-1 bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-100 mb-1.5"><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800">${escapeHtml(reg)} STOCK</span><input type="number" min="0" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-14 bg-white border border-emerald-400 rounded px-1 text-center text-[11px] font-bold focus:outline-none"></div><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800">${escapeHtml(reg)} EXP</span><input type="text" placeholder="YYYY-MM-DD:Qty" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp}" class="exp-region-input w-full bg-white border border-emerald-400 rounded px-1 text-center text-[10px] font-bold focus:outline-none placeholder-emerald-200"></div></div>`;
+            for (const reg in item.stockBreakdown || {}) {
+              const currentRegStock = parseStrictNonNegativeInteger(item.stockBreakdown[reg]); 
+              const currentRegExp = safeDisplay(item.expBreakdown?.[reg], "");
+              editInputs += `<div class="flex flex-col gap-1 bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-100 mb-1.5"><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800">${escapeHtml(reg)} STOCK</span><input type="number" min="0" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-14 bg-white border border-emerald-400 rounded px-1 text-center text-[11px] font-bold focus:outline-none"></div><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800">${escapeHtml(reg)} EXP</span><input type="text" placeholder="YYYY-MM-DD:Qty" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp === '-' ? '' : currentRegExp}" class="exp-region-input w-full bg-white border border-emerald-400 rounded px-1 text-center text-[10px] font-bold focus:outline-none placeholder-emerald-200"></div></div>`;
             }
             stockDisplayHTML = `<div class="flex flex-col w-full">${editInputs}</div>`;
             orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
@@ -456,13 +491,13 @@ function renderTableItems() {
               stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap">Sold Out</span>${expDisplayHTML}</div>`;
               orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
             } else {
-              let currentQty = parseStrictNonNegativeInteger(savedCart[item.code]) || 0;
+              let currentQty = parseStrictNonNegativeInteger(savedCart[item.code]);
               stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-              orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="${currentQty}" data-index="${index}" data-code="${safeCode}" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all hover:shadow-md">`;
+              orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="${currentQty === 0 ? '' : currentQty}" placeholder="0" data-index="${index}" data-code="${safeCode}" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all hover:shadow-md">`;
             }
           }
 
-          const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-800 font-black text-right font-mono">${formatCurrency(item.price || 0)}</td>`;
+          const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-800 font-black text-right font-mono">${safePrice === 0 ? '-' : formatCurrency(safePrice)}</td>`;
           row.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-gray-800 font-extrabold tracking-tight whitespace-normal break-keep">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E84C60]/10 text-[#E84C60] border border-[#E84C60]/20 uppercase tracking-[0.15em] shadow-sm">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E84C60]/5 border-l border-[#E84C60]/10 align-middle">${orderInputHTML}</td>`;
           
           fragment.appendChild(row);
@@ -482,8 +517,8 @@ function renderTableItems() {
           
           document.querySelectorAll('.order-qty').forEach(input => {
               input.addEventListener('input', () => { 
-                  const val = parseStrictNonNegativeInteger(input.value) || 0;
-                  const max = parseStrictNonNegativeInteger(input.getAttribute('max')) || 0;
+                  const val = parseStrictNonNegativeInteger(input.value);
+                  const max = parseStrictNonNegativeInteger(input.getAttribute('max'));
                   if (val > max) { input.value = max; showToast("최대 가용 재고를 초과할 수 없습니다.", "error"); }
                   calculateOrderTotal(); 
                   window.saveCartState(); 
@@ -500,7 +535,7 @@ function applyAiSuggestion() {
   qtyInputs.forEach(input => {
     const idx = input.getAttribute('data-index');
     if (cachedItems[idx] && parseStrictNonNegativeInteger(cachedItems[idx].aiSuggestedQty) > 0) {
-      const maxQty = parseStrictNonNegativeInteger(input.getAttribute('max')) || 0; 
+      const maxQty = parseStrictNonNegativeInteger(input.getAttribute('max')); 
       const targetQty = Math.min(cachedItems[idx].aiSuggestedQty, maxQty);
       if (targetQty > 0) { input.value = targetQty; appliedCount++; }
     }
@@ -519,14 +554,14 @@ function calculateOrderTotal() {
   let subtotal = 0, foodSubtotal = 0, taxableSubtotal = 0;   
 
   qtyInputs.forEach(input => {
-    const qty = Math.max(0, parseStrictNonNegativeInteger(input.value) || 0);
-    const maxQty = parseStrictNonNegativeInteger(input.getAttribute('max')) || 999;
+    const qty = parseStrictNonNegativeInteger(input.value);
+    const maxQty = parseStrictNonNegativeInteger(input.getAttribute('max'));
     if (qty > maxQty) { input.value = maxQty; showToast("재고 수량을 초과할 수 없습니다.", "error"); return; }
     
     if (qty > 0) { 
       const idx = input.getAttribute('data-index'); 
       if (cachedItems[idx]) {
-        const itemPrice = parseStrictDecimal(cachedItems[idx].price) || 0;
+        const itemPrice = parseStrictDecimal(cachedItems[idx].price);
         const lineTotal = roundToCents(qty * itemPrice); 
         subtotal = roundToCents(subtotal + lineTotal);
         if (isZeroRatedItem(cachedItems[idx])) { foodSubtotal = roundToCents(foodSubtotal + lineTotal); } 
@@ -535,7 +570,7 @@ function calculateOrderTotal() {
     }
   });
 
-  const taxRate = parseStrictDecimal(taxRateObj.rate) || 0;
+  const taxRate = parseStrictDecimal(taxRateObj.rate);
   const taxAmt = roundToCents(taxableSubtotal * taxRate); 
   const grandTotal = roundToCents(subtotal + taxAmt); 
 
@@ -560,12 +595,14 @@ async function toggleStockEditMode() {
     const updateMap = {}; let hasChanges = false;
     
     stockInputs.forEach(input => {
-      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region'), v = Math.max(0, parseStrictNonNegativeInteger(input.value) || 0), original = parseStrictNonNegativeInteger(input.getAttribute('data-original')) || 0;
+      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region');
+      const v = parseStrictNonNegativeInteger(input.value), original = parseStrictNonNegativeInteger(input.getAttribute('data-original'));
       if (v !== original) { if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} }; updateMap[c].stockBreakdown[r] = v; hasChanges = true; }
     });
     
     expInputs.forEach(input => {
-      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region'), v = String(input.value).trim(), original = String(input.getAttribute('data-original')).trim();
+      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region');
+      const v = safeDisplay(input.value, ""), original = safeDisplay(input.getAttribute('data-original'), "");
       if (v !== original) { if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} }; updateMap[c].expBreakdown[r] = v; hasChanges = true; }
     });
     
@@ -589,7 +626,7 @@ async function toggleStockEditMode() {
       const result = await executeApi("update_stock", { mode: "SET", stockUpdates: updates, syncId: uniqueSyncId });
       if (result && result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
     } catch (err) { 
-      if(err.ledgerPending) { showToast(`⚠️ 원장 기록 지연: 관리자 확인 필요 (TX: ${escapeHtml(err.txId)})`, "success"); setTimeout(() => fetchItems(), 1500); }
+      if(err.ledgerPending) { showToast(`⚠️ 원장 기록 지연: 관리자 확인 필요 (TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 1500); }
       else { showToast(err.message, "error"); if(err.message.includes("재고") || err.message.includes("부족") || err.message.includes("일치")) { setTimeout(() => fetchItems(), 1500); } }
     } finally {
       isStockEditMode = false; isSubmitting = false; clearTimeout(submitLockTimer);
@@ -612,11 +649,11 @@ async function submitOrder() {
   const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
   
   qtyInputs.forEach(input => {
-    const qty = Math.max(0, parseStrictNonNegativeInteger(input.value) || 0); 
+    const qty = parseStrictNonNegativeInteger(input.value); 
     if (qty > 0) { 
       const idx = input.getAttribute('data-index'); 
       if (cachedItems[idx]) {
-        orderItems.push({ code: cachedItems[idx].code, name: cachedItems[idx].name, price: cachedItems[idx].price, qty: qty, category: cachedItems[idx].category, isZeroRated: isZeroRatedItem(cachedItems[idx]) }); 
+        orderItems.push({ code: safeDisplay(cachedItems[idx].code), name: safeDisplay(cachedItems[idx].name), price: parseStrictDecimal(cachedItems[idx].price), qty: qty, category: safeDisplay(cachedItems[idx].category), isZeroRated: isZeroRatedItem(cachedItems[idx]) }); 
       }
     }
   });
@@ -647,7 +684,7 @@ async function submitOrder() {
         setTimeout(() => fetchItems(), 1500); 
     } 
   } catch (error) { 
-    if(error.ledgerPending) { showToast(`⚠️ 원장 기록 지연: 관리자 확인 필요 (TX: ${escapeHtml(error.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); }
+    if(error.ledgerPending) { showToast(`⚠️ 원장 기록 지연: 관리자 확인 필요 (TX: ${safeDisplay(error.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); }
     else { showToast(error.message, "error"); if(error.message.includes("재고") || error.message.includes("변동") || error.message.includes("취소") || error.message.includes("단가")) { setTimeout(() => fetchItems(), 1500); } }
   } finally { 
     isSubmitting = false; clearTimeout(submitLockTimer);
@@ -775,7 +812,7 @@ function processOCRText(text, filename) {
     if (nums && nums.length > 0) {
       for(let i = nums.length - 1; i >= 0; i--) {
         const n = parseStrictNonNegativeInteger(nums[i]);
-        if(n !== null && n < 10000 && String(n) !== itemCode) { qty = n; break; }
+        if(n !== 0 && n < 10000 && String(n) !== itemCode) { qty = n; break; }
       }
     }
     if(itemCode && itemCode.length >= 3 && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
@@ -802,6 +839,7 @@ async function processExcelData(jsonData, filename) {
 
   let inboundMap = Object.create(null), successCount = 0, validationErrors = [];
 
+  // 🌟 [방어 2] 엑셀 수량 필드 내 음수 및 특수문자 오염 방어 파서 
   jsonData.forEach(row => {
     let vItemCode = "", vQty = 0, vExp = ""; let qtyMatches = 0;
     Object.keys(row).forEach(k => {
@@ -812,20 +850,20 @@ async function processExcelData(jsonData, filename) {
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') {
           if (valStr !== "") { 
               qtyMatches++; const parsedQty = parseStrictNonNegativeInteger(valStr);
-              if (parsedQty === null) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 수량 형식이 잘못되었습니다: ${escapeHtml(valStr)}`); } 
+              if (parsedQty === 0 && valStr !== "0") { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 수량 형식이 잘못되었습니다: ${escapeHtml(valStr)}`); } 
               else { vQty = parsedQty; }
           }
       }
       if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
     });
 
-    if (qtyMatches > 1) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); return; }
+    if (qtyMatches > 1) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); return; }
 
     const expString = String(vExp || "").trim();
-    if (expString === "" || expString === "-") { vExp = null; } 
+    if (expString === "" || expString.toLowerCase() === "null" || expString === "-") { vExp = null; } 
     else { 
         vExp = parseStrictISODate(expString); 
-        if (vExp === null) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 올바르지 않은 유통기한 형식입니다: ${escapeHtml(expString)}`); return; }
+        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 올바르지 않은 유통기한 형식입니다: ${escapeHtml(expString)}`); return; }
     }
 
     const safeVItemCode = String(vItemCode || "").trim().toUpperCase();
@@ -879,7 +917,7 @@ async function processExcelData(jsonData, filename) {
   } catch (err) {
     isSubmitting = false; 
     if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
-    if(err.ledgerPending) { showToast(`✅ 재고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${escapeHtml(err.txId || "N/A")})`, "success"); setTimeout(() => fetchItems(), 2500); }
+    if(err.ledgerPending) { showToast(`✅ 재고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); }
     else { showToast(err.message, "error"); if(err.message.includes("트래픽") || err.message.includes("동기화") || err.message.includes("일치")) { setTimeout(() => fetchItems(), 2000); } }
   }
 }
@@ -905,7 +943,7 @@ async function cancelOrder(batchId) {
         const result = await executeApi("cancel_order", { batchId: safeBatchId });
         if (result && result.success) { showToast(`✅ ${escapeHtml(result.message)}`, "success"); setTimeout(() => fetchItems(), 1500); } 
     } catch (err) { 
-        if(err.ledgerPending) { showToast(`✅ 재고 복원 성공\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${escapeHtml(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); } 
+        if(err.ledgerPending) { showToast(`✅ 재고 복원 성공\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); } 
         else { showToast(`❌ 취소 실패: ${escapeHtml(err.message)}`, "error"); }
     } finally { isSubmitting = false; clearTimeout(submitLockTimer); }
 }
