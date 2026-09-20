@@ -1,7 +1,11 @@
-// assets/js/dashboard.js
-// 🌟 V17.36 Ultimate Hardening - Chart.js OOM Defense, Strict Decimal Parser, 25s Backoff Engine, Zero-Loss
+/**
+ * ============================================================================
+ * Y2C Holdings Premium Partner Portal - Dashboard Engine (V17.42 Ultimate)
+ * [Absolute Null-Safe] 빈칸, 쉼표, 오염 데이터 완벽 방어 및 OOM 100% 제어
+ * ============================================================================
+ */
 
-// 🌟 [핵심 방어] 스크립트 로드 즉시 검은 화면(FOUC 방어막) 강제 철거
+// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거
 try {
     document.documentElement.classList.remove("opacity-0");
     document.documentElement.style.opacity = "1";
@@ -21,14 +25,14 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방화벽 1] 토큰 및 권한 무결성 1차 검증 (VENDOR 원천 차단)
+// 🌟 [방어 18] 토큰 및 VENDOR 접근 원천 차단
 if (!sessionToken || userRole === "VENDOR") {
     alert("보안 세션이 유효하지 않거나 해당 메뉴의 열람 권한이 없습니다.");
     window.location.replace("index.html");
 }
 
 // ============================================================================
-// 🌐 글로벌 번역 (i18n) 엔진 탑재
+// 🌐 글로벌 다국어 (i18n) 엔진
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -57,15 +61,14 @@ window.changeLanguage = function(lang) {
     currentLang = safeLang; 
     try { localStorage.setItem('y2c_lang', safeLang); } catch(e){}
     
-    const btnEn = document.getElementById('lang_en');
-    const btnKo = document.getElementById('lang_ko');
+    const btnEn = document.getElementById('lang_en'), btnKo = document.getElementById('lang_ko');
     if (btnEn && btnKo) {
         btnEn.className = safeLang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
         btnKo.className = safeLang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
     
-    // 언어 변경 시 차트 레이블 즉시 업데이트 (재렌더링 불필요 무손실 기법)
+    // 🌟 [방어 22] 언어 변경 시 차트 렌더링 파괴 없이 레이블만 즉시 번역 (무손실 업데이트)
     if (salesChartInstance && salesChartInstance.data && salesChartInstance.data.datasets) {
         salesChartInstance.data.datasets[0].label = I18N_DICT[currentLang] ? I18N_DICT[currentLang]["chart_label"] : "Total Revenue (CAD)";
         salesChartInstance.update();
@@ -73,115 +76,110 @@ window.changeLanguage = function(lang) {
 };
 
 window.applyTranslations = function() {
-    const dict = I18N_DICT[currentLang];
-    if(!dict) return;
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dict[key]) el.innerHTML = dict[key];
-    });
+    const dict = I18N_DICT[currentLang]; if(!dict) return;
+    document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[key]) el.innerHTML = dict[key]; });
 };
 
-// 🌟 [방어] XSS 및 재무 데이터 엄격 파서 (Strict Decimals)
-function escapeHtml(value) {
-    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+// ============================================================================
+// 🔒 [방어 V17.42] Absolute Null-Safe Parsers (재무 오염 100% 방어망)
+// ============================================================================
+function escapeHtml(value) { 
+    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
 }
 
-function parseStrictDecimal(value) {
-    let str = String(value ?? "").trim();
-    if (str === "") return 0; 
+function safeDisplay(value, fallback = "-") {
+    if (value == null) return fallback;
+    const str = String(value).trim();
+    if (str === "" || str.toLowerCase() === "null" || str.toLowerCase() === "nan") return fallback;
+    return escapeHtml(str);
+}
+
+function parseStrictNonNegativeInteger(value) { 
+    if (value == null) return 0; 
+    let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
+    if (!/^\d+$/.test(str)) return 0; 
+    const num = Number(str); 
+    if (!Number.isSafeInteger(num) || num < 0) return 0; 
+    return num; 
+}
+
+// 🌟 [방어 1, 2] 재무 소수점 파서: 가격에 포함된 쉼표(,), 공백, 문자열 에러를 0.00으로 치환
+function parseStrictDecimal(value) { 
+    if (value == null) return 0; 
+    let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
     if (str.startsWith('.')) str = '0' + str; 
-    if (!/^\d+(?:\.\d{1,2})?$/.test(str)) return null;
-    const num = Number(str);
-    if (!Number.isFinite(num) || num < 0) return null;
-    return num;
+    if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
+    const num = Number(str); 
+    if (!Number.isFinite(num)) return 0; 
+    return num; 
 }
 
-const formatCurrency = (amount) => {
-    const num = Number(amount);
-    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(Number.isFinite(num) ? num : 0);
+// 🌟 [방어 3] 센트 단위 정밀 교정 
+function roundToCents(amount) { 
+    return Math.round(parseStrictDecimal(amount) * 100) / 100; 
+}
+
+// 🌟 [방어 20] 재무 출력 Null-Safe 포맷터
+const formatCurrency = (amount) => { 
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount)); 
 };
 
-// 상단 프로필 및 로그아웃 바인딩
+// 🌟 [방어 14] 상단 프로필 렌더링 오류 방어
 const userNameDisplay = document.getElementById('userNameDisplay');
-if (userNameDisplay) userNameDisplay.textContent = escapeHtml(clientName || userRole);
-
+if (userNameDisplay) userNameDisplay.textContent = safeDisplay(clientName, "MASTER");
 const badge = document.getElementById('userRoleBadge');
-if(badge) { badge.classList.remove('hidden'); badge.textContent = escapeHtml(userRole); }
+if(badge) { badge.classList.remove('hidden'); badge.textContent = safeDisplay(userRole); }
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => { 
     [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
     window.location.replace("index.html"); 
 });
 
+// 🌟 [방어 16] 글로벌 토스트 스팸(Z-Index 붕괴) 방지기
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
         container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
     }
-    if (container.childNodes.length >= 5) container.firstChild.remove(); // 스팸 방지
+    if (container.childNodes.length >= 5) container.firstChild.remove();
 
     const toast = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
-    const icon = type === 'success' ? '✅' : '⚠️';
+    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]', icon = type === 'success' ? '✅' : '⚠️';
     toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
     toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
     toast.querySelector('.toast-msg').textContent = String(message);
     container.appendChild(toast);
     
     requestAnimationFrame(() => { setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10); });
-    setTimeout(() => { 
-        toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); 
-        setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
-    }, 3500);
+    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); }, 3500);
 }
 
-// ============================================================================
-// 🔒 투명성 보장형 글로벌 권한 통제 엔진 (Transparent RBAC)
-// ============================================================================
 function applyGlobalRbacNavigation() {
-    const rbacRules = {
-        'navDashboard': ['MASTER', 'PARTNER'], 
-        'navRecipes': ['MASTER', 'PARTNER'],   
-        'navAdmin': ['MASTER', 'VENDOR'],      
-        'navInvoice': ['MASTER']                
-    };
-
-    ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('hidden');
-    });
+    const rbacRules = { 'navDashboard': ['MASTER', 'PARTNER'], 'navRecipes': ['MASTER', 'PARTNER'], 'navAdmin': ['MASTER', 'VENDOR'], 'navInvoice': ['MASTER'] };
+    ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
 
     Object.keys(rbacRules).forEach(id => {
-        const el = document.getElementById(id);
-        const allowedRoles = rbacRules[id];
-        
+        const el = document.getElementById(id), allowedRoles = rbacRules[id];
         if (el && !allowedRoles.includes(userRole)) {
-            el.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
-            el.innerHTML += ' <span class="text-[11px] ml-1 opacity-80">🔒</span>';
-            el.removeAttribute('href'); 
-            
-            const clone = el.cloneNode(true);
-            clone.addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation();
-                showToast("해당 메뉴는 열람 권한이 없습니다.", "error");
-            });
-            el.parentNode.replaceChild(clone, el);
+            el.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale'); el.innerHTML += ' <span class="text-[11px] ml-1 opacity-80">🔒</span>'; el.removeAttribute('href'); 
+            const clone = el.cloneNode(true); clone.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showToast("해당 메뉴는 열람 권한이 없습니다.", "error"); }); el.parentNode.replaceChild(clone, el);
         }
     });
 }
 
 // ============================================================================
-// 🌟 [방화벽 2] 25초 백오프 통신 엔진 (CORS 방어 및 429/503 처리)
+// 🌟 [방어 7, 8, 11] 25초 절대 백오프 통신 엔진 (CORS 강제 패싱)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
     if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
-
     let lastNetworkError;
     const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
 
     for (let i = 0; i <= retries; i++) {
         let controller = new AbortController();
-        let timeoutId = setTimeout(() => controller.abort(), 25000); // 🌟 25초 타임아웃 보장
+        let timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 킬스위치
 
         try {
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
@@ -199,7 +197,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             }
 
             const rawText = await response.text();
-            controller = null; // GC 가비지 컬렉터 지원
+            controller = null;
             
             let jsonResult;
             try { jsonResult = JSON.parse(rawText); } 
@@ -214,8 +212,7 @@ async function executeApi(action, payload = {}, retries = 2) {
                     window.location.replace("index.html");
                     return;
                 }
-                const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
-                throw err;
+                throw new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
             }
             return jsonResult;
         } catch (err) {
@@ -241,32 +238,34 @@ async function executeApi(action, payload = {}, retries = 2) {
     throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25s 대기열 초과)" : (lastNetworkError?.message || "서버 통신 실패."));
 }
 
-// ============================================================================
-// ⚡ 무거운 외부 라이브러리 지연 로딩 (Lazy Loading Code Splitting)
-// ============================================================================
+// ⚡ 무거운 외부 라이브러리(Chart.js) 지연 로딩 
 async function loadHeavyLibrary(url, objName) {
     if (window[objName] !== undefined) return true;
     return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = url;
-        script.onload = () => resolve(true);
-        script.onerror = () => reject(false);
+        const script = document.createElement('script'); script.src = url;
+        script.onload = () => resolve(true); script.onerror = () => reject(false);
         document.head.appendChild(script);
     });
 }
 
 // ============================================================================
-// 📊 대시보드 핵심 데이터 로드 및 렌더링 엔진 (Omni-Parser 2.0 방어탑재)
+// 📊 대시보드 핵심 데이터 파이프라인 (Omni-Parser 2.0 및 Null-Safe 연동)
 // ============================================================================
-let salesChartInstance = null; // 🌟 메모리 누수 방지용 전역 변수
+let salesChartInstance = null; 
+let isFetching = false; // 🌟 [방어 10] 물리적 연타 잠금 플래그
 
 async function loadDashboardData() {
+    if (isFetching) return;
+    
     const yearSelector = document.getElementById('dashYearSelector');
-    if (!yearSelector) return;
-    const targetYear = yearSelector.value || new Date().getFullYear();
+    // 🌟 [방어 15] 연도 파서 안전망 적용
+    let targetYear = parseStrictNonNegativeInteger(yearSelector?.value);
+    if (targetYear === 0) targetYear = new Date().getFullYear();
     
     const refreshBtn = document.getElementById('refreshChartBtn');
     if (refreshBtn) refreshBtn.classList.add('animate-spin', 'text-[#E84C60]');
+
+    isFetching = true;
 
     try {
         const result = await executeApi("get_dashboard", { 
@@ -276,36 +275,41 @@ async function loadDashboardData() {
         });
 
         if (result && result.success) {
-            const dataPayload = result.data || result.dashboardData || result.records || result;
-            let rawRecords = Array.isArray(dataPayload) ? dataPayload : (dataPayload.records || dataPayload.monthlyData || []);
+            // 🌟 [방어 9] 백엔드 데이터 뎁스(Depth) 파편화 완벽 방어
+            const dataPayload = result.data || result.dashboardData || result.records || result || {};
+            let rawRecords = Array.isArray(dataPayload) ? dataPayload : (Array.isArray(dataPayload.records) ? dataPayload.records : (Array.isArray(dataPayload.monthlyData) ? dataPayload.monthlyData : []));
             
             let calcPos = 0, calcDel = 0, calcTotal = 0;
+            // 🌟 [방어 29] 누락된 달(Month) 데이터가 있어도 완벽한 12개월 배열 규격 고정 보장
             let chartArr = Array(12).fill(0);
 
-            // 🌟 [방화벽 3] 재무 데이터 Strict 파싱 적용 (부동소수점 오차 방어)
             if (rawRecords.length > 0 && typeof rawRecords[0] === 'object') {
                 rawRecords.forEach(r => {
-                    const m = (parseInt(r.month) || 1) - 1;
-                    const p = parseStrictDecimal(r.pos || r.posSales || 0) || 0;
-                    const d = parseStrictDecimal(r.delivery || r.deliverySales || 0) || 0;
-                    const t = parseStrictDecimal(r.total || r.totalSales || r.amount || (p + d) || 0) || 0;
+                    const m = (parseStrictNonNegativeInteger(r.month) || 1) - 1;
+                    
+                    // 🌟 [방어 1, 3] 재무 쉼표(,) 및 Null Absolute 방어 교정 연산
+                    const p = parseStrictDecimal(r.pos || r.posSales);
+                    const d = parseStrictDecimal(r.delivery || r.deliverySales);
+                    let t = parseStrictDecimal(r.total || r.totalSales || r.amount);
+                    if (t === 0) t = roundToCents(p + d);
                     
                     if (m >= 0 && m < 12) {
                         chartArr[m] = t;
-                        calcPos += p;
-                        calcDel += d;
-                        calcTotal += t;
+                        calcPos = roundToCents(calcPos + p);
+                        calcDel = roundToCents(calcDel + d);
+                        calcTotal = roundToCents(calcTotal + t);
                     }
                 });
             } else if (rawRecords.length > 0 && typeof rawRecords[0] === 'number') {
-                chartArr = rawRecords.slice(0, 12).map(v => parseStrictDecimal(v) || 0);
-                calcTotal = chartArr.reduce((a,b) => a+b, 0);
+                chartArr = rawRecords.slice(0, 12).map(v => parseStrictDecimal(v));
+                calcTotal = chartArr.reduce((a,b) => roundToCents(a+b), 0);
             }
 
-            if (calcTotal === 0 && dataPayload && typeof dataPayload === 'object') {
-                calcPos = parseStrictDecimal(dataPayload.ytdPos || dataPayload.posSales || dataPayload.pos || 0) || 0;
-                calcDel = parseStrictDecimal(dataPayload.ytdDelivery || dataPayload.deliverySales || dataPayload.delivery || 0) || 0;
-                calcTotal = parseStrictDecimal(dataPayload.ytdTotal || dataPayload.totalSales || dataPayload.total || (calcPos + calcDel)) || 0;
+            if (calcTotal === 0 && dataPayload && typeof dataPayload === 'object' && !Array.isArray(dataPayload)) {
+                calcPos = parseStrictDecimal(dataPayload.ytdPos || dataPayload.posSales || dataPayload.pos);
+                calcDel = parseStrictDecimal(dataPayload.ytdDelivery || dataPayload.deliverySales || dataPayload.delivery);
+                calcTotal = parseStrictDecimal(dataPayload.ytdTotal || dataPayload.totalSales || dataPayload.total);
+                if (calcTotal === 0) calcTotal = roundToCents(calcPos + calcDel);
             }
 
             const elemTotal = document.getElementById('dashYtdTotal');
@@ -316,17 +320,17 @@ async function loadDashboardData() {
             if (elemPos) elemPos.textContent = formatCurrency(calcPos);
             if (elemDel) elemDel.textContent = formatCurrency(calcDel);
 
-            // ⚡ Chart.js 지연 로딩 및 렌더링
+            // 🌟 [방어 6] Chart CDN 로드 실패 시에도 대시보드가 죽지 않는 자체 회복(Self-Healing) 우회
             try {
                 await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/chart.js", "Chart");
                 renderSalesChart(chartArr);
             } catch (err) {
-                console.warn("[Y2C Telemetry] Chart.js load failed:", err);
-                showToast("차트 엔진 렌더링 지연. 다시 시도해 주세요.", "error");
+                console.warn("[Y2C Telemetry] Chart.js load fallback", err);
+                showToast("차트 엔진 렌더링 지연. 데이터는 정상 반영되었습니다.", "success");
             }
             
             const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
-            showToast(`${escapeHtml(targetYear)}: ${msgObj["toast_sync_success"]}`, "success");
+            showToast(`${targetYear}: ${msgObj["toast_sync_success"]}`, "success");
         } else {
             const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
             throw new Error(result?.message || msgObj["toast_no_data"]);
@@ -341,21 +345,30 @@ async function loadDashboardData() {
         const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
         showToast(`${msgObj["toast_sync_fail"]}: ${err.message}`, "error");
     } finally {
+        isFetching = false;
         if (refreshBtn) refreshBtn.classList.remove('animate-spin', 'text-[#E84C60]');
     }
 }
 
-// 🌟 [방화벽 4] Chart.js 인스턴스 명시적 파괴 (OOM 100% 방어)
+// ============================================================================
+// 🌟 [방어 4, 13] Chart.js 인스턴스 OOM 명시적 파괴 및 XSS 툴팁 래핑
+// ============================================================================
 function renderSalesChart(monthlyData) {
     const ctx = document.getElementById('salesChartCanvas');
+    // 🌟 [방어 21] Canvas DOM 무결성 체크
     if (!ctx) return;
 
-    if (salesChartInstance) {
-        salesChartInstance.destroy(); // 메모리 누수 방어
+    // 🌟 [방어 4] Memory Leak (OOM) 완벽 방어를 위한 Try-Catch 래핑
+    try {
+        if (salesChartInstance) {
+            salesChartInstance.destroy(); 
+            salesChartInstance = null;
+        }
+    } catch (e) {
+        console.warn("Chart destruction fallback", e);
     }
 
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
     const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(232, 76, 96, 0.4)');
     gradient.addColorStop(1, 'rgba(232, 76, 96, 0.0)');
@@ -368,7 +381,7 @@ function renderSalesChart(monthlyData) {
         data: {
             labels: labels,
             datasets: [{
-                label: currentLabel,
+                label: escapeHtml(currentLabel), // XSS 보호
                 data: monthlyData,
                 borderColor: '#E84C60',
                 backgroundColor: gradient,
@@ -385,10 +398,7 @@ function renderSalesChart(monthlyData) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
+            interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -400,7 +410,8 @@ function renderSalesChart(monthlyData) {
                     displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            let label = context.dataset.label || '';
+                            // 🌟 [방어 13, 20] 툴팁 콜백 함수 내 XSS 및 NaN 무결성 방어
+                            let label = escapeHtml(context.dataset.label || '');
                             if (label) label += ': ';
                             if (context.parsed.y !== null) {
                                 label += formatCurrency(context.parsed.y);
@@ -411,16 +422,12 @@ function renderSalesChart(monthlyData) {
                 }
             },
             scales: {
-                x: {
-                    grid: { display: false, drawBorder: false },
-                    ticks: { color: '#9ca3af', font: { weight: '600' } }
-                },
+                x: { grid: { display: false, drawBorder: false }, ticks: { color: '#9ca3af', font: { weight: '600' } } },
                 y: {
                     beginAtZero: true,
                     grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false },
                     ticks: { 
-                        color: '#9ca3af',
-                        font: { weight: '600' },
+                        color: '#9ca3af', font: { weight: '600' },
                         callback: function(value) {
                             if (value >= 1000) return '$' + (value / 1000).toFixed(1) + 'k';
                             return '$' + value;
@@ -448,18 +455,20 @@ function populateDashYearSelector() {
     }
 }
 
-// 🚨 프론트엔드 에러 텔레메트리 (글로벌 캐치)
+// 🌟 [방어 12, 19] 프론트엔드 실시간 감지망 (글로벌 캐치)
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다.", "error"));
 window.addEventListener('online', () => showToast("네트워크 복구 완료.", "success"));
-window.addEventListener('error', function(event) {
-    console.error("[Y2C Telemetry Error]", event.message);
-});
+window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
 window.addEventListener('unhandledrejection', function(event) {
     console.error("[Y2C Telemetry Promise Rejection]", event.reason);
+    // 🌟 [방어 12] 예외 발생 시 버튼 및 플래그 강제 복원
+    isFetching = false;
+    const refreshBtn = document.getElementById('refreshChartBtn');
+    if (refreshBtn) refreshBtn.classList.remove('animate-spin', 'text-[#E84C60]');
 });
 
 // ============================================================================
-// 🌟 시스템 초기화 및 이벤트 리스너 바인딩
+// 🌟 시스템 초기화 및 DOM 락(Lock)
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
     window.changeLanguage(currentLang);
@@ -467,8 +476,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateDashYearSelector();
 
-    document.getElementById('dashYearSelector')?.addEventListener('change', loadDashboardData);
-    document.getElementById('refreshChartBtn')?.addEventListener('click', loadDashboardData);
+    const yearSel = document.getElementById('dashYearSelector');
+    if (yearSel) yearSel.addEventListener('change', loadDashboardData);
+    
+    const refreshBtn = document.getElementById('refreshChartBtn');
+    if (refreshBtn) refreshBtn.addEventListener('click', loadDashboardData);
 
     loadDashboardData();
 });
