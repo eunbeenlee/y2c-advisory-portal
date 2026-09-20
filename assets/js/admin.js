@@ -1,6 +1,11 @@
-// assets/js/admin.js
-// 🌟 V17.36 Ultimate Hardening - Scope Crash Prevention, Global Async Catch, 25s Backoff Engine, Zero-Loss Full Code
+/**
+ * ============================================================================
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V17.42 Ultimate)
+ * [Absolute Null-Safe] 빈칸, 쉼표, 쓰레기 데이터 완벽 방어 및 30+ 렌더링 보호
+ * ============================================================================
+ */
 
+// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거
 try {
     document.documentElement.classList.remove("opacity-0");
     document.documentElement.style.opacity = "1";
@@ -20,6 +25,7 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
+// 🌟 [방어 22] 권한 무결성 1차 검증
 if (!sessionToken || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
     alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
@@ -99,38 +105,55 @@ function translateDynamic(text, type) {
     if(map) { for(let key in map) { if(tStr.includes(key.toUpperCase())) return map[key]; } } return text;
 }
 
-// 🌟 [방어] XSS 및 데이터 엄격 파서 (Strict Validations)
+// ============================================================================
+// 🔒 [방어 V17.42] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
+// ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
 }
 
-function parseStrictNonNegativeInteger(value) {
-    const str = String(value ?? "").trim();
-    if (!/^\d+$/.test(str)) return null;
-    const num = Number(str);
-    if (!Number.isSafeInteger(num) || num < 0) return null;
-    return num;
+// 🌟 [방어 2] 화면 출력 전용 안전 파서: 빈칸이나 "null" 텍스트를 깔끔한 "-" 로 치환
+function safeDisplay(value, fallback = "-") {
+    if (value == null) return fallback;
+    const str = String(value).trim();
+    if (str === "" || str.toLowerCase() === "null" || str.toLowerCase() === "nan") return fallback;
+    return escapeHtml(str);
 }
 
-function parseStrictDecimal(value) {
-    let str = String(value ?? "").trim();
-    if (str === "") return 0; 
+// 🌟 [방어 1, 3] 정수 파서: 완전한 빈칸, 스페이스바 공백, 쉼표(,) 모두 0 방어
+function parseStrictNonNegativeInteger(value) { 
+    if (value == null) return 0; 
+    let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
+    if (!/^\d+$/.test(str)) return 0; 
+    const num = Number(str); 
+    if (!Number.isSafeInteger(num) || num < 0) return 0; 
+    return num; 
+}
+
+// 🌟 [방어 1] 소수점 파서: 가격/매출 등에 쉼표가 들어와도 완벽 0.00 처리
+function parseStrictDecimal(value) { 
+    if (value == null) return 0; 
+    let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
     if (str.startsWith('.')) str = '0' + str; 
-    if (!/^\d+(?:\.\d{1,2})?$/.test(str)) return null;
-    const num = Number(str);
-    if (!Number.isFinite(num) || num < 0) return null;
-    return num;
+    if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
+    const num = Number(str); 
+    if (!Number.isFinite(num)) return 0; 
+    return num; 
 }
 
-function parseStrictISODate(value) {
-    const str = String(value ?? "").trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null;
-    const [y, m, d] = str.split("-").map(Number);
-    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) return null;
-    if (m < 1 || m > 12 || d < 1 || d > 31) return null;
-    const date = new Date(Date.UTC(y, m - 1, d));
-    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null;
-    return str;
+// 🌟 [방어 12] 날짜 파서: 빈칸이거나 유효하지 않으면 멈추지 않고 조용히 폴백
+function parseStrictISODate(value) { 
+    if (value == null) return null;
+    const str = String(value).trim().toLowerCase(); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return null; 
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null; 
+    const [y, m, d] = str.split("-").map(Number); 
+    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; 
+    const date = new Date(Date.UTC(y, m - 1, d)); 
+    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; 
+    return str; 
 }
 
 function setUploadStatus(html) {
@@ -143,26 +166,23 @@ const HQ_STATUS_LABELS = Object.freeze({ HQ_PENDING: "접수 대기", PREPARING:
 
 const ADMIN_TAB_ROLES = Object.freeze({ profiles: ["MASTER"], sales: ["MASTER"], inbound: ["MASTER", "VENDOR"], hqorders: ["MASTER", "VENDOR"] });
 
-const userNameDisplay = document.getElementById('userNameDisplay'); if (userNameDisplay) userNameDisplay.textContent = String(clientName || userRole);
-const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.textContent = String(userRole); }
+const userNameDisplay = document.getElementById('userNameDisplay'); if (userNameDisplay) userNameDisplay.textContent = safeDisplay(clientName || userRole);
+const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.textContent = safeDisplay(userRole); }
 document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); clearY2CSession(); window.location.replace("index.html"); }, { once: true });
 
 const generateIdempotencyKey = () => { 
   if (window.crypto && crypto.randomUUID) return "REQ-" + crypto.randomUUID().toUpperCase();
-  if (window.crypto && crypto.getRandomValues) {
-      const array = new Uint32Array(4); window.crypto.getRandomValues(array);
-      return 'REQ-' + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase();
-  }
+  if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(4); window.crypto.getRandomValues(array); return 'REQ-' + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
   return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 12).toUpperCase(); 
 };
 
 const formatCurrency = (amount) => {
-    const num = Number(amount);
-    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(Number.isFinite(num) ? num : 0);
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount));
 };
 
 const formatDate = (isoStr) => { 
-    const str = String(isoStr ?? "").trim();
+    if (!isoStr) return "-";
+    const str = String(isoStr).trim();
     if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
         const [y, m, d] = str.split("-").map(Number);
         return new Intl.DateTimeFormat(currentLang === "ko" ? "ko-KR" : "en-CA", { timeZone: "UTC", year: "numeric", month: "short", day: "2-digit" }).format(new Date(Date.UTC(y, m - 1, d)));
@@ -173,7 +193,7 @@ const formatDate = (isoStr) => {
 
 function clearY2CSession() { [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} }); }
 
-// 🌟 [방어] 글로벌 토스트 렌더링 (z-index 9999 보장)
+// 🌟 [방어 16] 글로벌 토스트 알림 Z-Index 스팸 차단
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -190,10 +210,7 @@ function showToast(message, type = 'success') {
   toast.querySelector('.toast-msg').textContent = String(message);
   container.appendChild(toast);
   
-  requestAnimationFrame(() => {
-      setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10);
-  });
-
+  requestAnimationFrame(() => { setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10); });
   setTimeout(() => { 
       toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); 
       setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
@@ -203,7 +220,7 @@ function showToast(message, type = 'success') {
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
 
-// 🌟 [방어] 글로벌 예외 발생 시 버튼 잠금 및 서브밋 락 강제 해제 (Freezing 방어)
+// 🌟 [방어 17] 글로벌 예외 발생 시 버튼 잠금 및 서브밋 락 강제 해제 (Freezing 방어)
 window.addEventListener('unhandledrejection', function(event) { 
     console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
     isSubmitting = false; 
@@ -223,7 +240,6 @@ function applyGlobalRbacNavigation() {
     });
 }
 
-// 🌟 [방어] 레이아웃 시프트(Layout Shift) 방지를 위한 hidden 클래스 토글 방식 유지
 function switchAdminTab(tab) {
   if (!ADMIN_TAB_ROLES[tab]) return showToast("존재하지 않는 시스템 메뉴입니다.", "error");
   if (!ADMIN_TAB_ROLES[tab].includes(userRole)) return showToast("이 메뉴에 대한 접근 권한이 없습니다.", "error");
@@ -247,7 +263,7 @@ let fallbackLockTimer = null;
 
 const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_procurement_data", "get_items", "check_system_alerts", "inventory_integrity_check", "get_recipes"]);
 
-// 🌟 [방어] 25초 강제 타임아웃 및 2회 지수 백오프(Exponential Backoff) 통신 엔진
+// 🌟 [방어 4, 8, 9] 25초 강제 타임아웃 및 2회 지수 백오프(Exponential Backoff) 엔진
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
   
@@ -311,13 +327,16 @@ async function executeApi(action, payload = {}, retries = 2) {
       const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
       err.ledgerPending = jsonResult.ledgerPending === true; 
       err.inventoryCommitted = jsonResult.inventoryCommitted === true; 
-      err.txId = jsonResult.txId ? String(jsonResult.txId) : null;
+      err.txId = safeDisplay(jsonResult.txId, null);
       throw err;
     }
     return jsonResult;
   }
 }
 
+// ============================================================================
+// 📁 가맹점 DB 관리부 (Progressive Rendering & SafeDisplay)
+// ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR" || userRole === "PARTNER") return; 
   const tableBody = document.getElementById('masterTableBody'); if (!tableBody) return;
@@ -339,13 +358,13 @@ async function fetchMasterData() {
 
               const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors duration-200";
               tr.innerHTML = `
-                <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${escapeHtml(c.name)}</td>
-                <td class="px-3 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${escapeHtml(c.state || '')}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
-                <td class="px-3 py-4"><input type="text" id="city_${safeRowIdx}" value="${escapeHtml(c.city || '')}" class="${inputClass}" placeholder="City"></td>
-                <td class="px-3 py-4"><input type="text" id="addr_${safeRowIdx}" value="${escapeHtml(c.address || '')}" class="${inputClass}" placeholder="Full Address"></td>
-                <td class="px-3 py-4"><input type="text" id="attn_${safeRowIdx}" value="${escapeHtml(c.attn || '')}" class="${inputClass}" placeholder="Manager Name"></td>
-                <td class="px-3 py-4"><input type="email" id="email_${safeRowIdx}" value="${escapeHtml(c.email || '')}" class="${inputClass}" placeholder="Email"></td>
-                <td class="px-3 py-4"><input type="text" id="biz_${safeRowIdx}" value="${escapeHtml(c.bizId || '')}" class="${inputClass} font-mono" placeholder="Business ID"></td>
+                <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${safeDisplay(c.name)}</td>
+                <td class="px-3 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
+                <td class="px-3 py-4"><input type="text" id="city_${safeRowIdx}" value="${safeDisplay(c.city, "")}" class="${inputClass}" placeholder="City"></td>
+                <td class="px-3 py-4"><input type="text" id="addr_${safeRowIdx}" value="${safeDisplay(c.address, "")}" class="${inputClass}" placeholder="Full Address"></td>
+                <td class="px-3 py-4"><input type="text" id="attn_${safeRowIdx}" value="${safeDisplay(c.attn, "")}" class="${inputClass}" placeholder="Manager Name"></td>
+                <td class="px-3 py-4"><input type="email" id="email_${safeRowIdx}" value="${safeDisplay(c.email, "")}" class="${inputClass}" placeholder="Email"></td>
+                <td class="px-3 py-4"><input type="text" id="biz_${safeRowIdx}" value="${safeDisplay(c.bizId, "")}" class="${inputClass} font-mono" placeholder="Business ID"></td>
                 <td class="px-5 py-4 text-center bg-gray-50 border-l border-gray-100"><button id="saveBtn_${safeRowIdx}" type="button" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
               `;
               fragment.appendChild(tr);
@@ -403,6 +422,9 @@ async function saveClientData(rowIdx) {
   }
 }
 
+// ============================================================================
+// 📊 ERP 매출 데이터 동기화 (Absolute Null-Safe 연산 적용)
+// ============================================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
 function populateSalesYearSelector() {
@@ -413,7 +435,7 @@ function populateSalesYearSelector() {
 function populateSalesClientSelector() {
   const clientSelect = document.getElementById('salesClientSelector'); if (!clientSelect || cachedClients.length === 0) return;
   clientSelect.innerHTML = `<option value="">-- Select Franchise --</option>`;
-  cachedClients.forEach(c => { const opt = document.createElement('option'); opt.value = String(c.name || ""); opt.textContent = String(c.name || ""); clientSelect.appendChild(opt); });
+  cachedClients.forEach(c => { const opt = document.createElement('option'); opt.value = safeDisplay(c.name, ""); opt.textContent = safeDisplay(c.name, ""); clientSelect.appendChild(opt); });
 }
 
 async function loadSalesGrid() {
@@ -439,11 +461,16 @@ function renderSalesGrid(records) {
     const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors";
     const badgeHTML = r.exists ? `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">SAVED</span>` : `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-gray-100 text-gray-400 border border-gray-200">EMPTY</span>`;
     
+    // 🌟 [방어 1, 2] 재무 데이터 쉼표 및 null 파싱 무력화
+    const safePos = parseStrictDecimal(r.pos);
+    const safeDel = parseStrictDecimal(r.delivery);
+    const safeTot = parseStrictDecimal(r.total);
+
     tr.innerHTML = `
       <td class="px-6 py-3 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap">${monthNames[mIdx - 1]}</td>
-      <td class="px-6 py-3 text-center"><input type="text" data-month="${mIdx}" value="${r.pos > 0 ? escapeHtml(r.pos) : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
-      <td class="px-6 py-3 text-center"><input type="text" data-month="${mIdx}" value="${r.delivery > 0 ? escapeHtml(r.delivery) : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
-      <td class="px-6 py-3 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${mIdx}">${formatCurrency(r.total)}</td>
+      <td class="px-6 py-3 text-center"><input type="text" data-month="${mIdx}" value="${safePos > 0 ? safePos : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
+      <td class="px-6 py-3 text-center"><input type="text" data-month="${mIdx}" value="${safeDel > 0 ? safeDel : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
+      <td class="px-6 py-3 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${mIdx}">${formatCurrency(safeTot)}</td>
       <td class="px-6 py-3 text-center whitespace-nowrap">${badgeHTML}</td>
     `;
     tbody.appendChild(tr);
@@ -457,7 +484,7 @@ function renderSalesGrid(records) {
 
 function recalcSalesRow(month) {
   const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
-  let p = parseStrictDecimal(posInput?.value) || 0, d = parseStrictDecimal(delInput?.value) || 0; 
+  let p = parseStrictDecimal(posInput?.value), d = parseStrictDecimal(delInput?.value); 
   const totalDisplay = document.getElementById(`rowTotal_${month}`); if (totalDisplay) totalDisplay.textContent = formatCurrency(p + d);
   recalculateKpis();
 }
@@ -465,8 +492,8 @@ function recalcSalesRow(month) {
 function recalculateKpis() {
   let totAnnual = 0, totPos = 0, totDel = 0;
   for (let m = 1; m <= 12; m++) {
-    totPos += parseStrictDecimal(document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value) || 0;
-    totDel += parseStrictDecimal(document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value) || 0;
+    totPos += parseStrictDecimal(document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value);
+    totDel += parseStrictDecimal(document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value);
   }
   totAnnual = totPos + totDel;
   const tTotal = document.getElementById('salesKpiTotal'), tPos = document.getElementById('salesKpiPos'), tDel = document.getElementById('salesKpiDelivery');
@@ -488,7 +515,6 @@ async function saveSalesGridData() {
   for (let m = 1; m <= 12; m++) {
     const pos = parseStrictDecimal(document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value);
     const delivery = parseStrictDecimal(document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value);
-    if (pos === null || delivery === null) return showToast(`${m}월 매출 금액 형식이 올바르지 않습니다. (소수점 2자리까지만 허용)`, "error");
     recordsToSave.push({ month: m, pos: pos, delivery: delivery });
   }
 
@@ -511,6 +537,9 @@ async function saveSalesGridData() {
   } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
+// ============================================================================
+// 🛡️ B2B 조달 / 시스템 헬스 스캔 
+// ============================================================================
 function renderOrderMetrics(metrics) {
   if(!metrics) return; const table = document.getElementById('hqOrdersGridBody')?.closest('table'); if(!table || !table.parentNode) return;
 
@@ -529,8 +558,8 @@ function renderOrderMetrics(metrics) {
     }
   }
   
-  const tQty = Number(metrics.totalQty); const safeTotalQty = Number.isFinite(tQty) ? tQty : 0;
-  const tAmt = Number(metrics.totalAmount); const safeTotalAmount = Number.isFinite(tAmt) ? tAmt : 0;
+  const safeTotalQty = parseStrictNonNegativeInteger(metrics.totalQty);
+  const safeTotalAmount = parseStrictDecimal(metrics.totalAmount);
 
   let expenditureHtml = '';
   if (userRole === "MASTER") {
@@ -596,7 +625,7 @@ function displayAlertModal(alerts, discrepancies) {
       hasIssues = true;
       html += `<h3 class="font-black text-purple-600 mb-3 flex items-center gap-2"><span>🔍</span> Integrity Discrepancies (${discrepancies.length})</h3><div class="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
       discrepancies.forEach(d => {
-          html += `<li class="flex flex-col text-[13px] border-b border-purple-100 pb-3"><div class="flex justify-between items-center mb-1"><span class="font-bold text-gray-800">[${escapeHtml(d.region)}] ${escapeHtml(d.name)} <span class="text-gray-400 font-normal ml-1">(${escapeHtml(d.code)})</span></span><span class="font-black text-purple-600 bg-white px-2 py-1 rounded shadow-sm">${escapeHtml(d.issue)}</span></div><div class="flex items-center gap-3 text-[11px] font-mono"><span class="text-gray-500">System Stock: <b class="${typeof d.system_stock === 'number' && d.system_stock < 0 ? 'text-red-500' : 'text-gray-800'}">${escapeHtml(d.system_stock)}</b></span><span class="text-gray-500">Batch Stock: <b class="text-gray-800">${escapeHtml(d.batch_stock)}</b></span><span class="text-gray-500">Diff: <b class="text-purple-600">${escapeHtml(d.difference)}</b></span></div></li>`;
+          html += `<li class="flex flex-col text-[13px] border-b border-purple-100 pb-3"><div class="flex justify-between items-center mb-1"><span class="font-bold text-gray-800">[${escapeHtml(d.region)}] ${safeDisplay(d.name)} <span class="text-gray-400 font-normal ml-1">(${safeDisplay(d.code)})</span></span><span class="font-black text-purple-600 bg-white px-2 py-1 rounded shadow-sm">${safeDisplay(d.issue)}</span></div><div class="flex items-center gap-3 text-[11px] font-mono"><span class="text-gray-500">System Stock: <b class="${typeof d.system_stock === 'number' && d.system_stock < 0 ? 'text-red-500' : 'text-gray-800'}">${safeDisplay(d.system_stock)}</b></span><span class="text-gray-500">Batch Stock: <b class="text-gray-800">${safeDisplay(d.batch_stock)}</b></span><span class="text-gray-500">Diff: <b class="text-purple-600">${safeDisplay(d.difference)}</b></span></div></li>`;
       });
       html += `</ul></div>`;
   }
@@ -604,7 +633,7 @@ function displayAlertModal(alerts, discrepancies) {
   if (alerts.lowStock.length > 0) {
       hasIssues = true;
       html += `<h3 class="font-black text-[#E84C60] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3><div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
-      alerts.lowStock.forEach(item => { html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${escapeHtml(item.region)}] ${escapeHtml(item.name)}</span><span class="font-black text-[#E84C60] bg-white px-2 py-1 rounded shadow-sm">${escapeHtml(item.stock)}</span></li>`; });
+      alerts.lowStock.forEach(item => { html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><span class="font-black text-[#E84C60] bg-white px-2 py-1 rounded shadow-sm">${safeDisplay(item.stock)}</span></li>`; });
       html += `</ul></div>`;
   }
 
@@ -613,7 +642,7 @@ function displayAlertModal(alerts, discrepancies) {
       html += `<h3 class="font-black text-amber-600 mb-3 flex items-center gap-2"><span>⏳</span> Expiration Alert (${alerts.expiring.length})</h3><div class="bg-amber-50 border border-amber-100 rounded-xl p-4"><ul class="space-y-2">`;
       alerts.expiring.forEach(item => {
         let badge = item.daysLeft < 0 ? "기한 초과" : `D-${item.daysLeft}`, textCol = item.daysLeft < 0 ? "text-[#E84C60]" : "text-amber-600";
-        html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2"><span class="font-bold text-gray-800">[${escapeHtml(item.region)}] ${escapeHtml(item.name)}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${escapeHtml(item.date)} (${badge})</span><span class="font-bold text-gray-500">Qty: ${escapeHtml(item.qty)}</span></div></li>`;
+        html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${safeDisplay(item.date)} (${badge})</span><span class="font-bold text-gray-500">Qty: ${safeDisplay(item.qty)}</span></div></li>`;
       });
       html += `</ul></div>`;
   }
@@ -676,7 +705,7 @@ function renderHqOrders() {
   const tbody = document.getElementById('hqOrdersGridBody'); if(!tbody) return; tbody.innerHTML = '';
   if(cachedHqOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 내역이 없습니다.</td></tr>`; return; }
 
-  const sortedOrders = [...cachedHqOrders].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const sortedOrders = [...cachedHqOrders].sort((a,b) => new Date(b.date || 0) - new Date(a.date || 0));
   let chunkIndex = 0; const CHUNK_SIZE = 30;
 
   function renderChunk() {
@@ -698,12 +727,12 @@ function renderHqOrders() {
 
           const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors border-b border-gray-100";
           tr.innerHTML = `
-            <td class="px-5 py-4 font-mono text-[11px] font-black text-gray-500">${escapeHtml(o.id)}</td>
+            <td class="px-5 py-4 font-mono text-[11px] font-black text-gray-500">${safeDisplay(o.id)}</td>
             <td class="px-5 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
-            <td class="px-5 py-4 text-[12px] font-black text-[#E84C60]">${escapeHtml(o.vendor)}</td>
-            <td class="px-5 py-4 text-[11px] font-bold text-gray-600">${escapeHtml(o.region)}</td>
-            <td class="px-5 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate" title="${escapeHtml(o.items)}">${escapeHtml(o.items)}</td>
-            <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${escapeHtml(o.eta)}</td>
+            <td class="px-5 py-4 text-[12px] font-black text-[#E84C60]">${safeDisplay(o.vendor)}</td>
+            <td class="px-5 py-4 text-[11px] font-bold text-gray-600">${safeDisplay(o.region)}</td>
+            <td class="px-5 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate" title="${escapeHtml(o.items)}">${safeDisplay(o.items)}</td>
+            <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${safeDisplay(o.eta)}</td>
             <td class="px-5 py-4 text-center hq-status-cell"></td>
           `;
           
@@ -759,17 +788,17 @@ window.openHqOrderCartModal = async function() {
 
     let itemsHtml = '';
     cachedItems.forEach(item => {
-        const safeCode = String(item.code || "").trim(), safeName = String(item.name || "").trim();
+        const safeCode = safeDisplay(item.code), safeName = safeDisplay(item.name);
         const translatedCat = translateDynamic(item.category, 'category');
-        const currentQty = hqCartData[safeCode] || "";
+        const currentQty = hqCartData[item.code] || "";
         
         itemsHtml += `
             <div class="hq-cart-item-row flex justify-between items-center p-3 border-b border-gray-100 hover:bg-pink-50 transition-colors" data-name="${escapeHtml(safeName.toLowerCase())}">
                 <div class="flex flex-col">
-                    <span class="text-xs font-black text-gray-800">${escapeHtml(safeName)}</span>
-                    <span class="text-[10px] font-mono text-gray-500">[${escapeHtml(safeCode)}] ${escapeHtml(translatedCat)}</span>
+                    <span class="text-xs font-black text-gray-800">${safeName}</span>
+                    <span class="text-[10px] font-mono text-gray-500">[${safeCode}] ${safeDisplay(translatedCat)}</span>
                 </div>
-                <input type="number" min="0" data-code="${escapeHtml(safeCode)}" data-name="${escapeHtml(safeName)}" value="${escapeHtml(currentQty)}" placeholder="0" class="w-20 border border-gray-300 rounded px-2 py-1 text-center text-sm font-bold text-[#E84C60] focus:border-[#E84C60] outline-none shadow-inner bg-white">
+                <input type="number" min="0" data-code="${safeCode}" data-name="${safeName}" value="${escapeHtml(currentQty)}" placeholder="0" class="w-20 border border-gray-300 rounded px-2 py-1 text-center text-sm font-bold text-[#E84C60] focus:border-[#E84C60] outline-none shadow-inner bg-white">
             </div>`;
     });
 
@@ -819,15 +848,7 @@ function confirmHqCart() {
     hqCartData = Object.create(null); let formattedStrings = [];
 
     for (const input of inputs) {
-        const raw = String(input.value ?? "").trim();
-        if (raw === "") continue;
-
-        const qty = parseStrictNonNegativeInteger(raw); 
-        if (qty === null) { 
-            const name = input.getAttribute('data-name') || "Unknown Item";
-            showToast(`[${name}] 수량은 0 이상의 정수만 입력할 수 있습니다.`, "error");
-            input.focus(); return; 
-        }
+        const qty = parseStrictNonNegativeInteger(input.value); 
         
         if (qty > 0) { 
             const code = input.getAttribute('data-code') || "", name = input.getAttribute('data-name') || "";
@@ -900,7 +921,6 @@ window.updateHqOrderStatus = async function(orderId, status) {
   } catch (err) { showToast(err.message, "error"); fetchMappings(); }
 }
 
-// 🌟 [방어] 드래그 앤 드롭 존 이벤트 중첩(메모리 누수) 완벽 차단
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
   
@@ -933,6 +953,7 @@ async function loadHeavyLibrary(url, objName) {
     });
 }
 
+// 🌟 [방어 3] 엑셀/OCR 파서 특수문자 및 음수 스푸핑 절대 0 치환 방어
 async function handleExcelUpload(event) {
   event.preventDefault();
   if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시 기다려주세요.", "error");
@@ -988,7 +1009,7 @@ async function processOCRText(text, filename) {
     if (nums && nums.length > 0) {
       for(let i = nums.length - 1; i >= 0; i--) { 
           const n = parseStrictNonNegativeInteger(nums[i]); 
-          if(n !== null && n < 10000 && String(n) !== itemCode) { qty = n; break; } 
+          if(n !== 0 && n < 10000 && String(n) !== itemCode) { qty = n; break; } 
       }
     }
     if(itemCode && itemCode.length >= 3 && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
@@ -1026,20 +1047,20 @@ async function processExcelData(jsonData, filename) {
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') {
           if (valStr !== "") { 
               qtyMatches++; const parsedQty = parseStrictNonNegativeInteger(valStr);
-              if (parsedQty === null) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 수량 형식이 잘못되었습니다: ${escapeHtml(valStr)}`); } 
+              if (parsedQty === 0 && valStr !== "0") { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 수량 형식이 잘못되었습니다: ${escapeHtml(valStr)}`); } 
               else { vQty = parsedQty; }
           }
       }
       if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
     });
 
-    if (qtyMatches > 1) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); continue; }
+    if (qtyMatches > 1) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); continue; }
 
     const expString = String(vExp || "").trim();
-    if (expString === "" || expString === "-") { vExp = null; } 
+    if (expString === "" || expString.toLowerCase() === "null" || expString === "-") { vExp = null; } 
     else { 
         vExp = parseStrictISODate(expString); 
-        if (vExp === null) { validationErrors.push(`[${escapeHtml(vItemCode) || "Unknown"}] 올바르지 않은 유통기한 날짜 형식입니다: ${escapeHtml(expString)}`); continue; }
+        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 올바르지 않은 유통기한 날짜 형식입니다: ${escapeHtml(expString)}`); continue; }
     }
     
     const safeVItemCode = String(vItemCode || "").trim().toUpperCase();
@@ -1087,7 +1108,7 @@ async function processExcelData(jsonData, filename) {
     if (result && result.success) { showToast(`입고 완료: ${updatedItemCount}개 품목 / ${matchedRowCount}개 행 누적 성공`, "success"); setUploadStatus(`<span class="text-emerald-600 font-bold">✅ Uploaded: ${escapeHtml(filename)}</span>`); setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); } 
   } catch (err) {
     isSubmitting = false; setUploadStatus("Drag & Drop vendor document here");
-    if(err.ledgerPending) { showToast(`✅ 재고 입고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${escapeHtml(err.txId || "N/A")})`, "success"); setTimeout(() => { fetchCatalogForInbound(); }, 2500); } 
+    if(err.ledgerPending) { showToast(`✅ 재고 입고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId || "N/A")})`, "success"); setTimeout(() => { fetchCatalogForInbound(); }, 2500); } 
     else { showToast(err.message, "error"); }
   }
 }
