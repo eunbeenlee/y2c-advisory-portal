@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Admin Engine (V17.42 Ultimate)
- * [Absolute Null-Safe] 빈칸, 쉼표, 쓰레기 데이터 완벽 방어 및 30+ 렌더링 보호
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V17.43 Ultimate)
+ * [Absolute Null-Safe] 빈칸, 쉼표, 쓰레기 데이터 완벽 방어 및 UX/UI 오토-포커스
  * ============================================================================
  */
 
@@ -25,7 +25,7 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 22] 권한 무결성 1차 검증
+// 🌟 권한 무결성 1차 검증
 if (!sessionToken || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
     alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
@@ -106,13 +106,12 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 [방어 V17.42] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
+// 🔒 [방어 V17.43] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
 }
 
-// 🌟 [방어 2] 화면 출력 전용 안전 파서: 빈칸이나 "null" 텍스트를 깔끔한 "-" 로 치환
 function safeDisplay(value, fallback = "-") {
     if (value == null) return fallback;
     const str = String(value).trim();
@@ -120,7 +119,6 @@ function safeDisplay(value, fallback = "-") {
     return escapeHtml(str);
 }
 
-// 🌟 [방어 1, 3] 정수 파서: 완전한 빈칸, 스페이스바 공백, 쉼표(,) 모두 0 방어
 function parseStrictNonNegativeInteger(value) { 
     if (value == null) return 0; 
     let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
@@ -131,7 +129,6 @@ function parseStrictNonNegativeInteger(value) {
     return num; 
 }
 
-// 🌟 [방어 1] 소수점 파서: 가격/매출 등에 쉼표가 들어와도 완벽 0.00 처리
 function parseStrictDecimal(value) { 
     if (value == null) return 0; 
     let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
@@ -143,7 +140,6 @@ function parseStrictDecimal(value) {
     return num; 
 }
 
-// 🌟 [방어 12] 날짜 파서: 빈칸이거나 유효하지 않으면 멈추지 않고 조용히 폴백
 function parseStrictISODate(value) { 
     if (value == null) return null;
     const str = String(value).trim().toLowerCase(); 
@@ -193,7 +189,6 @@ const formatDate = (isoStr) => {
 
 function clearY2CSession() { [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} }); }
 
-// 🌟 [방어 16] 글로벌 토스트 알림 Z-Index 스팸 차단
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -219,13 +214,10 @@ function showToast(message, type = 'success') {
 
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
-
-// 🌟 [방어 17] 글로벌 예외 발생 시 버튼 잠금 및 서브밋 락 강제 해제 (Freezing 방어)
 window.addEventListener('unhandledrejection', function(event) { 
     console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
     isSubmitting = false; 
     clearTimeout(fallbackLockTimer);
-    showToast("비동기 처리 중 일시적인 시스템 에러가 발생했습니다.", "error"); 
 });
 
 function applyGlobalRbacNavigation() {
@@ -263,7 +255,6 @@ let fallbackLockTimer = null;
 
 const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_procurement_data", "get_items", "check_system_alerts", "inventory_integrity_check", "get_recipes"]);
 
-// 🌟 [방어 4, 8, 9] 25초 강제 타임아웃 및 2회 지수 백오프(Exponential Backoff) 엔진
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
   
@@ -335,7 +326,7 @@ async function executeApi(action, payload = {}, retries = 2) {
 }
 
 // ============================================================================
-// 📁 가맹점 DB 관리부 (Progressive Rendering & SafeDisplay)
+// 📁 가맹점 DB 관리부 
 // ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR" || userRole === "PARTNER") return; 
@@ -423,7 +414,7 @@ async function saveClientData(rowIdx) {
 }
 
 // ============================================================================
-// 📊 ERP 매출 데이터 동기화 (Absolute Null-Safe 연산 적용)
+// 📊 ERP 매출 데이터 동기화 
 // ============================================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
@@ -461,7 +452,6 @@ function renderSalesGrid(records) {
     const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors";
     const badgeHTML = r.exists ? `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">SAVED</span>` : `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-gray-100 text-gray-400 border border-gray-200">EMPTY</span>`;
     
-    // 🌟 [방어 1, 2] 재무 데이터 쉼표 및 null 파싱 무력화
     const safePos = parseStrictDecimal(r.pos);
     const safeDel = parseStrictDecimal(r.delivery);
     const safeTot = parseStrictDecimal(r.total);
@@ -695,7 +685,11 @@ async function fetchMappings() {
 async function fetchCatalogForInbound() {
   try {
     const result = await executeApi("get_items", { clientState: "DEFAULT" });
-    if (result && result.success) { cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : []; }
+    if (result && result.success) { 
+      cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
+      // 마스터 데이터 로딩 후 지역 옵션을 갱신 (UX 강화)
+      populateInboundRegionOptions();
+    }
   } catch (e) { console.error("Catalog load failed", e); cachedItems = []; }
 }
 
@@ -921,6 +915,26 @@ window.updateHqOrderStatus = async function(orderId, status) {
   } catch (err) { showToast(err.message, "error"); fetchMappings(); }
 }
 
+// 🌟 [방어 V17.43] 지역 옵션 동적 생성 (마스터 데이터 기반)
+function populateInboundRegionOptions() {
+    const regionSelector = document.getElementById('inboundRegionSelector');
+    if (!regionSelector || cachedItems.length === 0) return;
+    
+    const regions = Object.keys(cachedItems[0].stockBreakdown || {});
+    let currentVal = regionSelector.value;
+    
+    let html = `<option value="">-- Select Hub Region for Inbound --</option>`;
+    regions.forEach(reg => {
+        html += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`;
+    });
+    regionSelector.innerHTML = html;
+    
+    // 만약 이전에 선택해둔 지역이 있다면 복구
+    if (currentVal && regions.includes(currentVal)) {
+        regionSelector.value = currentVal;
+    }
+}
+
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
   
@@ -937,10 +951,45 @@ function setupDragAndDrop() {
 
   clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
   clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
-  clone.addEventListener('drop', (e) => { e.preventDefault(); clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
+  clone.addEventListener('drop', (e) => { 
+      e.preventDefault(); 
+      clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); 
+      
+      // 🌟 [방어 V17.43] 허브 선택 안 하고 드롭 시 조용히 포커스 이동 (UX 개선)
+      const rs = document.getElementById('inboundRegionSelector');
+      if (rs && !rs.value) {
+          rs.focus();
+          rs.classList.add('border-[#E84C60]', 'animate-pulse');
+          setTimeout(() => rs.classList.remove('animate-pulse'), 1000);
+          showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
+          return;
+      }
+      
+      handleExcelUpload(e); 
+  });
+  
   const fileInput = document.getElementById('excelFileInput'); if(fileInput) {
       const fiClone = fileInput.cloneNode(true); fileInput.parentNode.replaceChild(fiClone, fileInput);
-      fiClone.addEventListener('change', handleExcelUpload);
+      fiClone.addEventListener('change', (e) => {
+          // 🌟 파일 선택기로 업로드 시에도 지역 선택 체크
+          const rs = document.getElementById('inboundRegionSelector');
+          if (rs && !rs.value) {
+              e.target.value = ''; // 파일 선택 초기화
+              rs.focus();
+              rs.classList.add('border-[#E84C60]', 'animate-pulse');
+              setTimeout(() => rs.classList.remove('animate-pulse'), 1000);
+              showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
+              return;
+          }
+          handleExcelUpload(e);
+      });
+  }
+  
+  // 지역 선택 시 빨간색 에러 테두리 제거 (UX 개선)
+  if (regionSelector) {
+      regionSelector.addEventListener('change', function() {
+          if (this.value) this.classList.remove('border-[#E84C60]');
+      });
   }
 }
 
@@ -953,7 +1002,6 @@ async function loadHeavyLibrary(url, objName) {
     });
 }
 
-// 🌟 [방어 3] 엑셀/OCR 파서 특수문자 및 음수 스푸핑 절대 0 치환 방어
 async function handleExcelUpload(event) {
   event.preventDefault();
   if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시 기다려주세요.", "error");
