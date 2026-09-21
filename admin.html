@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Turbo Solid-State - 유니버설 헤더 100% 동기화, 초스무스 렌더링, 30+ 관리자 에러 방어 로직 통합 -->
-<html lang="en" class="opacity-0 transition-opacity duration-500 ease-out">
+<!-- 🌟 V17.50 Ultimate Hardening - 1px 오차 없는 중앙 고정 헤더, 초스무스 렌더링, 30+ 관리자 에러 방어 -->
+<html lang="en" class="opacity-0 transition-opacity duration-300 ease-out">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 [방어 8, 9] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
+    <!-- 🌟 [방어 1, 2] 모바일 고급화 규격: iOS 자동 확대 차단 및 가상 키보드 뷰포트 리사이징 최적화 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -12,14 +12,14 @@
     <title>Master DB & Logistics | Y2C Portal</title>
     <link rel="icon" type="image/png" href="favicon.png">
 
-    <!-- ⚡ 리소스 터널링 (Preconnect) -->
+    <!-- ⚡ [방어 3] 네트워크 사전 연결 (DNS 및 TCP 단축) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- 🌟 [방어 2] defer 속성을 통한 렌더링 블로킹 프리징 차단 -->
+    <!-- 🌟 [방어 4] defer 속성을 통한 렌더링 블로킹 완전 제거 -->
     <script src="https://cdn.tailwindcss.com" defer></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, fallback applied.')"></script>
     <script>
@@ -46,13 +46,14 @@
             --bg-light: #F8F9FA;
         }
 
-        /* 🌟 [방어 10] 모바일 바운스 이펙트 차단 및 안티 앨리어싱 */
+        /* 🌟 [방어 5, 6] 터치 딜레이 및 모바일 바운스 스크롤 원천 차단 */
         html, body { overscroll-behavior-y: none; touch-action: manipulation; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* 🌟 [방어 6, 7] 스크롤바 최적화 및 iOS 확대(Zoom) 방어 16px 록다운 & 숫자 스피너 파괴 */
+        /* 🌟 [방어 7, 8] 스크롤바 최적화 & iOS 확대(Zoom) 방지 16px 고정 & 숫자 스피너 파괴 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -63,12 +64,13 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 🌟 [초스무스 최적화] GPU 가속 시네마틱 렌더링 애니메이션 */
-        .cinematic-enter { opacity: 0; transform: translateY(15px) translateZ(0); animation: fadeUpCinematic 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: opacity, transform; }
-        .delay-100 { animation-delay: 0.05s; } .delay-200 { animation-delay: 0.1s; } .delay-300 { animation-delay: 0.15s; }
+        /* 🌟 [초스무스 최적화] GPU 가속 시네마틱 렌더링 및 content-visibility */
+        #masterTableBody tr, #salesGridBody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; }
+        .cinematic-enter { opacity: 0; transform: translateY(12px) translateZ(0); animation: fadeUpCinematic 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: opacity, transform; }
+        .delay-100 { animation-delay: 0.05s; } .delay-200 { animation-delay: 0.1s; }
         @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) translateZ(0); } }
 
-        /* 🌟 프리미엄 솔리드 버튼 렌더링 로직 */
+        /* 프리미엄 솔리드 버튼 로직 */
         .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.2); }
         .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 12px 24px rgba(232, 76, 96, 0.35); transform: translateY(-2px) scale(1.01); }
         .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 4px 10px rgba(232, 76, 96, 0.25); }
@@ -77,13 +79,13 @@
         .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); transform: translateY(-2px) scale(1.01); }
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
 
-        /* 🚨 [핵심 패치] 이미지 기준점에 맞춘 100% 고정 네비게이션 CSS (레이아웃 시프트 영구 박멸) */
-        .nav-link { position: relative; color: #6b7280; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; padding: 0 4px; }
+        /* 🚨 [핵심 패치] 레이아웃 시프트 영구 박멸 - 100% 정교한 네비게이션 CSS */
+        .nav-link { position: relative; color: #6b7280; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        /* 🌟 [방어 25] 인쇄 최적화 */
+        /* 🌟 [방어 25] 인쇄 최적화 (여백, 컬러, 브레이크 방어) */
         @media print { 
             .no-print { display: none !important; } 
             body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
@@ -93,28 +95,34 @@
 <body class="text-gray-800 selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen relative">
 
     <noscript>
-        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative;">Please enable JavaScript.</div>
+        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative; font-weight:bold;">
+            Please enable JavaScript to access the Admin Console.
+        </div>
     </noscript>
 
-    <!-- 🌟 [방어 3] 긴급 방어막 해제 인라인 스크립트 (검은화면/하얀화면 초스무스 해제) -->
+    <!-- 🌟 [초스무스 최적화] 즉각 권한 언락 및 FOUC 블랙스크린 영구 해제 -->
     <script>
         (function() {
             try {
+                // 1. 화면 투명도 잠금 해제 (스무스 렌더링)
                 document.documentElement.classList.remove("opacity-0");
                 document.documentElement.style.opacity = "1";
                 document.body.style.opacity = "1";
+
+                // 2. 권한 탭 즉시 동기 노출
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
             } catch(e) {}
         })();
     </script>
 
-    <!-- 🌟 이미지 규격 기반 유니버설 마스터 헤더 (모든 파일 동일 적용 필수) -->
-    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter transform-gpu">
+    <!-- 🌟 이미지 규격 100% 일치: 3분할 록다운 유니버설 헤더 (절대 흔들림 방지) -->
+    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-200 sticky top-0 z-50 no-print transform-gpu">
+        <!-- 🚨 핵심: justify-between 및 3분할 (shrink-0 / flex-1 / shrink-0) 적용 -->
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[84px]">
 
-            <!-- 좌측 로고 영역 -->
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+            <!-- 좌측 로고 영역 (크기 고정) -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-[240px]">
                 <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-10 lg:h-12 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
                     <span class="font-montserrat text-base lg:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
@@ -122,38 +130,36 @@
                 </div>
             </div>
 
-            <!-- 데스크탑 중앙/우측 영역 -->
-            <div class="hidden lg:flex items-center justify-end flex-1 ml-8 h-full">
-                <!-- 중앙 네비게이션 탭 -->
-                <nav class="flex items-center h-full gap-6 xl:gap-8 mr-6 xl:mr-8">
-                    <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                    <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                    <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                    <!-- 현재 페이지: Master DB 활성화 -->
-                    <a href="admin.html" id="navAdmin" class="nav-link active text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
-                    <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
-                </nav>
+            <!-- 중앙 네비게이션 탭 (중앙 절대 정렬) -->
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-6 xl:gap-8">
+                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <!-- 현재 페이지: Master DB 활성화 -->
+                <a href="admin.html" id="navAdmin" class="nav-link active text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+            </nav>
 
-                <!-- 우측 컨트롤 (언어/계정) -->
-                <div class="flex items-center gap-3 pl-6 xl:pl-8 border-l border-gray-200 shrink-0 h-[40px]">
-                    <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                        <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
-                        <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
-                    </div>
+            <!-- 우측 컨트롤 (언어/계정) (크기 고정) -->
+            <div class="hidden lg:flex items-center justify-end gap-3 shrink-0 w-[240px]">
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
+                </div>
 
-                    <div class="flex items-center space-x-2 bg-gray-50 py-1.5 px-3 rounded-full border border-gray-200 shadow-inner">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[120px]">Loading...</span>
-                        <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                        <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-2.5 py-1 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-1" data-i18n="logout">LOGOUT</button>
-                    </div>
+                <div class="flex items-center space-x-2 bg-gray-50 py-1.5 px-3 rounded-full border border-gray-200 shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px]">Loading...</span>
+                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-2.5 py-1 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-1" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
+
         </div>
     </header>
 
-    <!-- 🌟 [방어 22] 모바일 카테고리 뷰 (데스크톱에서는 숨김 처리되어 간섭 제로) -->
-    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-t border-gray-100 py-2 px-4 gap-2 no-print">
+    <!-- 🌟 [방어 22] 모바일 카테고리 뷰 -->
+    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
@@ -174,10 +180,10 @@
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-24">
-
-        <header class="mb-8 cinematic-enter delay-100 no-print">
+    <!-- 📊 메인 컨텐츠 영역 (부드러운 시네마틱 페이드인 적용) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-24 cinematic-enter">
+        
+        <header class="mb-8 no-print">
             <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
                 <span class="text-[#E84C60] drop-shadow-md">⚙️</span> <span data-i18n="hq_title">HQ Procurement Console</span>
             </h2>
@@ -185,8 +191,9 @@
         </header>
 
         <!-- 🌟 서브 탭 메뉴 -->
-        <nav class="mb-8 border-b border-gray-200 overflow-x-auto hide-scrollbar cinematic-enter delay-100 admin-tabs-wrapper no-print">
+        <nav class="mb-8 border-b border-gray-200 overflow-x-auto hide-scrollbar admin-tabs-wrapper no-print">
             <div class="flex space-x-2 pb-2 min-w-max">
+                <!-- 🌟 [방어 27] 탭 버튼 type="button" 명시로 새로고침 튕김 현상 차단 -->
                 <button type="button" id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-sm whitespace-nowrap focus:outline-none"><span data-i18n="tab_hqorders">HQ Procurement</span></button>
                 <button type="button" id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
                 <button type="button" id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
@@ -194,7 +201,7 @@
             </div>
         </nav>
 
-        <div id="section_admin_container" class="cinematic-enter delay-200">
+        <div id="section_admin_container" class="delay-100">
 
             <!-- ========================================== -->
             <!-- 🌟 SECTION: HQ Procurement (본사 물류 관제) -->
@@ -306,6 +313,7 @@
                     <p class="text-xs sm:text-sm font-bold text-gray-500 mt-1" data-i18n="profiles_desc">Master management center for franchise profiles, addresses, contacts, and business IDs.</p>
                 </div>
                 <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8">
+                    <!-- 🌟 [방어 28] 가맹점 표 가로 붕괴 방지 -->
                     <div class="overflow-x-auto hide-scrollbar">
                         <table class="w-full text-left border-collapse min-w-[900px]">
                             <thead class="bg-gray-50 border-b border-gray-200">
@@ -359,6 +367,7 @@
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8 relative">
+                    <!-- 🌟 [방어 28] ERP 테이블 가로 스크롤 레이아웃 붕괴 방지 -->
                     <div class="overflow-x-auto hide-scrollbar pb-20">
                         <table class="w-full text-left border-collapse min-w-[500px]">
                             <thead>
