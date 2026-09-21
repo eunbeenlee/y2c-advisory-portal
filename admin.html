@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - 이미지 규격 기반 100% 록다운 헤더, FOUC 방어, 30+ 에러 방지 -->
-<html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
+<!-- 🌟 V17.50 Turbo Solid-State - 유니버설 헤더 100% 동기화, 초스무스 렌더링, 30+ 관리자 에러 방어 로직 통합 -->
+<html lang="en" class="opacity-0 transition-opacity duration-500 ease-out">
 <head>
     <meta charset="UTF-8">
     <!-- 🌟 [방어 8, 9] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
@@ -63,18 +63,18 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 🌟 시네마틱 렌더링 애니메이션 */
-        .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUpCinematic 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
+        /* 🌟 [초스무스 최적화] GPU 가속 시네마틱 렌더링 애니메이션 */
+        .cinematic-enter { opacity: 0; transform: translateY(15px) translateZ(0); animation: fadeUpCinematic 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: opacity, transform; }
+        .delay-100 { animation-delay: 0.05s; } .delay-200 { animation-delay: 0.1s; } .delay-300 { animation-delay: 0.15s; }
+        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) translateZ(0); } }
 
         /* 🌟 프리미엄 솔리드 버튼 렌더링 로직 */
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.2); }
-        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
-        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
+        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 12px 24px rgba(232, 76, 96, 0.35); transform: translateY(-2px) scale(1.01); }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 4px 10px rgba(232, 76, 96, 0.25); }
 
-        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
+        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); transform: translateY(-2px) scale(1.01); }
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
 
         /* 🚨 [핵심 패치] 이미지 기준점에 맞춘 100% 고정 네비게이션 CSS (레이아웃 시프트 영구 박멸) */
@@ -96,13 +96,17 @@
         <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative;">Please enable JavaScript.</div>
     </noscript>
 
-    <!-- 🌟 [방어 3] 긴급 방어막 해제 인라인 스크립트 (검은화면/하얀화면 영구 차단) -->
+    <!-- 🌟 [방어 3] 긴급 방어막 해제 인라인 스크립트 (검은화면/하얀화면 초스무스 해제) -->
     <script>
-        try {
-            document.documentElement.classList.remove("opacity-0");
-            document.documentElement.style.opacity = "1";
-            document.body.style.opacity = "1";
-        } catch(e) {}
+        (function() {
+            try {
+                document.documentElement.classList.remove("opacity-0");
+                document.documentElement.style.opacity = "1";
+                document.body.style.opacity = "1";
+                var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
+                window.__INITIAL_ROLE__ = userRole;
+            } catch(e) {}
+        })();
     </script>
 
     <!-- 🌟 이미지 규격 기반 유니버설 마스터 헤더 (모든 파일 동일 적용 필수) -->
@@ -125,6 +129,7 @@
                     <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
                     <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
                     <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                    <!-- 현재 페이지: Master DB 활성화 -->
                     <a href="admin.html" id="navAdmin" class="nav-link active text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
                     <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
                 </nav>
@@ -156,6 +161,19 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
+    <!-- 🌟 권한 동기식 프리-언락 로직 -->
+    <script>
+        (function() {
+            var role = window.__INITIAL_ROLE__;
+            if (role === 'MASTER' || role === 'VENDOR') {
+                ['navDashboard', 'navDashboard_mob', 'navCatalog', 'navCatalog_mob', 'navRecipes', 'navRecipes_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.classList.remove('hidden');
+                });
+            }
+        })();
+    </script>
+
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-24">
 
@@ -169,7 +187,6 @@
         <!-- 🌟 서브 탭 메뉴 -->
         <nav class="mb-8 border-b border-gray-200 overflow-x-auto hide-scrollbar cinematic-enter delay-100 admin-tabs-wrapper no-print">
             <div class="flex space-x-2 pb-2 min-w-max">
-                <!-- 🌟 [방어 27] 탭 버튼 type="button" 명시로 새로고침 튕김 현상 차단 -->
                 <button type="button" id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-sm whitespace-nowrap focus:outline-none"><span data-i18n="tab_hqorders">HQ Procurement</span></button>
                 <button type="button" id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
                 <button type="button" id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
@@ -382,7 +399,7 @@
                 const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
                 const role = localStorage.getItem(conf.STORAGE_KEYS.ROLE);
 
-                // 마스터 계정일 경우 모든 숨겨진 탭 100% 강제 언락
+                // 마스터 계정일 경우 모든 숨겨진 탭 100% 강제 언락 (ReferenceError 무시)
                 if (role === 'MASTER') {
                     const unlockIds = ['navDashboard', 'navDashboard_mob', 'navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'];
                     unlockIds.forEach(id => {
@@ -390,6 +407,7 @@
                         if(el) el.classList.remove('hidden');
                     });
                 } else if (role !== 'VENDOR') {
+                    // VENDOR나 MASTER가 아니면 메인으로 튕겨냄
                     window.location.replace("index.html");
                 }
             } catch (err) {
