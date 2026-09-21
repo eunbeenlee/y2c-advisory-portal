@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - PDF 렌더링 무결성 보장, 30+ 코어 에러 방지 로직 적용 -->
+<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - PDF 인쇄 무결성 보장 및 30+ 재무UI 하드닝 적용 -->
 <html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 [방어 8, 9] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
+    <!-- 🌟 [방어 8, 9] iOS 줌 아웃 차단 및 가상 키보드 뷰포트 최적화 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" content="#1A1516">
+    <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
     
     <title>Advisory Statement | Y2C Portal</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- ⚡ 리소스 터널링 (Preconnect) -->
+    <!-- ⚡ [방어 20] 리소스 터널링 (Preconnect) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 🌟 [방어 2] defer 속성을 추가하여 렌더링 블로킹(하얀 화면 프리징) 완벽 해결 -->
+    <!-- 🌟 [방어 11] defer 속성을 추가하여 렌더링 블로킹(하얀 화면 프리징) 완벽 해결 -->
     <script src="https://cdn.tailwindcss.com" defer></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
@@ -47,21 +47,14 @@
             --bg-light: #F8F9FA;
         }
         
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-light); 
-            color: #1f2937;
-            -webkit-font-smoothing: antialiased; 
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        /* 🌟 [방어 9] 모바일 바운스 이펙트 차단 */
+        /* 🌟 [방어 10, 13] 모바일 바운스 이펙트 차단 & 안티 앨리어싱 강제 */
         html, body { overscroll-behavior-y: none; touch-action: manipulation; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 [방어 6] 스크롤바 최적화 및 iOS 확대(Zoom) 버그 방지를 위한 16px 강제 */
+        /* 🌟 [방어 7, 8] 스크롤바 최적화 & 숫자 인풋 스피너 완벽 파괴 (재무 조작 차단) */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -72,23 +65,18 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 🌟 [방어 4] GPU 프리징 차단 (Solid State) */
-        .premium-glass { 
-            background: #ffffff; 
-            border: 1px solid rgba(0,0,0,0.05); 
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); 
-        }
+        /* GPU 프리징 차단 (Solid State) */
+        .premium-glass { background: #ffffff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
 
-        /* 🌟 시네마틱 렌더링 애니메이션 */
+        /* 🌟 [방어 12] 시네마틱 렌더링 애니메이션 */
         .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUpCinematic 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; }
         @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
 
-        /* 솔리드 버튼 호버 및 마그네틱 이펙트 */
+        /* 솔리드 버튼 마그네틱 이펙트 */
         .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; transition: all 0.4s ease; }
         .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
         .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
-
         .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s ease; }
         .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
@@ -98,7 +86,7 @@
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        /* 🌟 [방어 25] 무결점 인쇄(PDF) 엔진 통합 - 레이아웃 시프트 완벽 통제 */
+        /* 🌟 [방어 1~6] 무결점 인쇄(PDF) 엔진 통제 로직 */
         @media print {
             @page { size: A4 portrait; margin: 12mm; }
             body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
@@ -115,7 +103,7 @@
 </head>
 <body class="selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen relative">
     
-    <!-- 🌟 [방어 3] 긴급 방어막 해제 인라인 스크립트 (검은화면/하얀화면 영구 차단) -->
+    <!-- 🌟 [방어 12] 긴급 방어막 해제 인라인 스크립트 (블랙스크린 영구 차단) -->
     <script>
         try {
             document.documentElement.classList.remove("opacity-0");
@@ -124,15 +112,16 @@
         } catch(e) {}
     </script>
     
+    <!-- 🌟 [방어 19] NoScript 킬스위치 -->
     <noscript>
-        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative;">Please enable JavaScript.</div>
+        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative;">Please enable JavaScript to view and generate invoices.</div>
     </noscript>
 
-    <!-- 🗺️ V17.50 프리미엄 통합 네비게이션 바 (Solid State) -->
+    <!-- 🗺️ V17.50 프리미엄 통합 네비게이션 바 (Items.html 규격 100% 반영) -->
     <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
         <nav role="navigation" aria-label="Main Navigation" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
             <div class="flex items-center gap-3 sm:gap-4">
-                <!-- 🛡️ 로고 팽창 방어 패치 -->
+                <!-- 🛡️ [방어 20] 로고 팽창 방어 패치 -->
                 <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" style="height: 48px; width: auto; max-width: 100%; display: block;" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="hidden sm:flex flex-col">
                     <span class="text-sm lg:text-lg font-black text-[var(--premium-charcoal)] tracking-tight leading-none font-montserrat">Enterprise Portal</span>
@@ -145,6 +134,7 @@
                 <a href="items.html" class="nav-link text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
                 <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
                 <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                <!-- 현재 페이지(Invoice) 활성화 스타일 적용 -->
                 <a href="invoice.html" id="navInvoice" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </div>
 
@@ -156,8 +146,8 @@
                 <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-4 rounded-full border border-gray-200 shadow-inner">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">MASTER</span>
-                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                    <button type="button" id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm tracking-widest ml-2 active:scale-95" data-i18n="logout">LOGOUT</button>
+                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E84C60] rounded uppercase tracking-widest border border-red-100">-</span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[var(--premium-charcoal)] hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm active:scale-95 px-3 py-1.5 rounded-full ml-2 font-bold tracking-widest"><span data-i18n="logout">LOGOUT</span></button>
                 </div>
             </div>
         </nav>
@@ -172,7 +162,8 @@
         </div>
     </header>
 
-    <main class="max-w-[1600px] mx-auto mt-6 sm:mt-8 p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-start mb-20 flex-grow w-full">
+    <!-- 📊 메인 컨텐츠 영역 (Items.html 규격인 max-w-[1600px] 100% 연동) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 flex flex-col lg:flex-row gap-8 items-start">
         
         <!-- ========================================== -->
         <!-- 🎛️ 좌측: Invoice Control Panel            -->
@@ -181,25 +172,24 @@
             <h2 class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] border-b border-gray-200 pb-4 mb-6 flex items-center gap-2 tracking-wide font-montserrat">
                 <span>⚙️</span> <span data-i18n="inv_ctrl_title">Invoice Control Panel</span>
             </h2>
-            <div class="space-y-6">
+            <form autocomplete="off" onsubmit="event.preventDefault(); return false;" class="space-y-6">
                 <!-- 가맹점 선택 -->
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_client">Target Client</label>
-                    <select id="selClient" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300 cursor-pointer appearance-none">
+                    <select id="selClient" aria-label="Select Target Client" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300 cursor-pointer appearance-none">
                         <option value="">Loading franchise list...</option>
                     </select>
                 </div>
                 
-                <!-- 연도 & 비율 -->
+                <!-- 연도 & 비율 (🌟 [방어 15] autocomplete 차단) -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_year">Target Year</label>
-                        <!-- 🌟 [방어 7] step 강제 배정으로 브라우저 호환성 및 오차 방어 -->
-                        <input type="number" id="selYear" value="2026" step="1" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <input type="number" id="selYear" value="2026" step="1" autocomplete="off" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_rate">Rate (%)</label>
-                        <input type="number" id="selRate" value="2.0" step="0.01" class="w-full bg-red-50/50 border border-red-100 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-[#E84C60] focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <input type="number" id="selRate" value="2.0" step="0.01" autocomplete="off" class="w-full bg-red-50/50 border border-red-100 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-[#E84C60] focus:border-[#E84C60] outline-none transition-all duration-300">
                     </div>
                 </div>
                 
@@ -207,36 +197,36 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_start">Start Month</label>
-                        <select id="selStart" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer appearance-none">
+                        <select id="selStart" aria-label="Select Start Month" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer appearance-none">
                             <option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option>
                             <option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_end">End Month</label>
-                        <select id="selEnd" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer appearance-none">
+                        <select id="selEnd" aria-label="Select End Month" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer appearance-none">
                             <option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option>
                             <option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
                         </select>
                     </div>
                 </div>
                 
-                <!-- 액션 버튼 -->
+                <!-- 🌟 [방어 16] 액션 버튼 폼 서브밋 꼬임 방지를 위한 type="button" 명시 -->
                 <div class="pt-6 space-y-3 border-t border-gray-100">
-                    <button type="button" onclick="generateInvoice()" class="btn-charcoal w-full py-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm font-black tracking-widest uppercase focus:outline-none">
+                    <button type="button" onclick="generateInvoice()" class="btn-charcoal w-full py-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm font-black tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[#1A1516] focus:ring-offset-2">
                         <span>🔄</span> <span data-i18n="btn_generate">GENERATE DATA</span>
                     </button>
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <button type="button" onclick="window.printInvoicePDF()" class="btn-gradient-pink w-full py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 text-[11px] sm:text-xs font-black tracking-widest uppercase focus:outline-none">
+                        <button type="button" onclick="window.printInvoicePDF()" class="btn-gradient-pink w-full py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 text-[11px] sm:text-xs font-black tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[#E84C60] focus:ring-offset-2">
                             <span data-i18n="btn_pdf">🖨️ PDF</span>
                         </button>
-                        <button type="button" onclick="exportInvoiceCSV()" class="w-full bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50 font-black py-3.5 rounded-xl shadow-sm transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-[11px] sm:text-xs tracking-widest uppercase focus:outline-none">
+                        <button type="button" onclick="exportInvoiceCSV()" class="w-full bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50 font-black py-3.5 rounded-xl shadow-sm transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-[11px] sm:text-xs tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2">
                             <span data-i18n="btn_csv">📥 CSV</span>
                         </button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- ========================================== -->
@@ -247,8 +237,8 @@
             <!-- 문서 헤더 -->
             <div class="flex flex-col sm:flex-row justify-between items-start border-b-[3px] border-[var(--premium-charcoal)] print-border-black pb-6 mb-8 gap-6">
                 <div>
-                    <!-- 🛡️ 로고 프린트 대응 (인쇄 시 숨겨지지 않도록) -->
-                    <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.style.display='none';" alt="Y2C Holdings Logo" class="h-10 sm:h-12 mb-5 object-contain" style="display: block;">
+                    <!-- 🛡️ 로고 프린트 대응 (인쇄 시 숨겨지지 않도록 inline style block 설정) -->
+                    <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.onerror=function(){this.style.display='none';};" alt="Y2C Holdings Logo" class="h-10 sm:h-12 mb-5 object-contain" style="display: block;">
                     <h2 class="text-2xl sm:text-3xl font-black tracking-widest text-[var(--premium-charcoal)] print-text-black font-montserrat uppercase" data-i18n="doc_title">Statement of Account</h2>
                 </div>
                 <div class="text-left sm:text-right text-[11px] sm:text-xs text-gray-500 space-y-1.5 pt-2">
@@ -278,9 +268,8 @@
                 </div>
             </div>
 
-            <!-- 청구 내역 표 -->
+            <!-- 🌟 [방어 14] 청구 내역 표 모바일 붕괴 방어망 (table-fixed) -->
             <div class="overflow-x-auto mb-10 avoid-break pb-3 hide-scrollbar"> 
-                <!-- 🛡️ table-fixed 속성으로 모바일 폭 파괴 방어 -->
                 <table class="w-full text-xs sm:text-sm text-left border-collapse min-w-[500px] table-fixed">
                     <thead class="bg-gray-50 print-bg-gray border-y-2 border-gray-300 print-border-black">
                         <tr>
@@ -294,7 +283,7 @@
                         <tr class="border-b border-gray-200 print-border-black">
                             <td class="py-5 px-4 font-bold text-[var(--premium-charcoal)] print-text-black break-keep" id="descLine">Management Advisory Services</td>
                             <td class="py-5 px-4 text-right text-gray-700 font-mono font-medium print-text-black" id="baseLine">$0.00</td>
-                            <td class="py-5 px-4 text-center text-[#E84C60] font-black print-text-black" id="rateLine">2%</td>
+                            <td class="py-5 px-4 text-center text-[#E84C60] font-black print-text-black" id="rateLine">2.00%</td>
                             <td class="py-5 px-4 text-right font-black text-[var(--premium-charcoal)] font-mono print-text-black" id="amtLine">$0.00</td>
                         </tr>
                     </tbody>
@@ -332,13 +321,13 @@
         </div>
     </main>
 
-    <!-- 🌟 [방어 10] UI 토스트 컨테이너 강제 최상단 Z-Index 보장 -->
-    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
+    <!-- 🌟 [방어 18] UI 토스트 컨테이너 강제 최상단 Z-Index 보장 -->
+    <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
     <!-- 🌟 JS 엔진 연동 -->
     <script src="assets/js/invoice.js" defer></script>
     <script>
-        // 🌟 [방어 5] 다국어(I18N) 딕셔너리 인젝션 크래시 방어망
+        // 🌟 [방어 17] 다국어(I18N) 딕셔너리 인젝션 크래시 샌드박싱
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (typeof I18N_DICT !== 'undefined') {
@@ -364,7 +353,7 @@
                 console.error("[Y2C Telemetry] I18N Extension Error", err);
             }
 
-            // 🌟 [방어 1] 권한 보안 검증 시 ReferenceError 방지 폴백
+            // 🌟 권한 보안 검증 및 ReferenceError 방지
             try {
                 const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
                 if (localStorage.getItem(conf.STORAGE_KEYS.ROLE) === "MASTER") {
