@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - FOUC 방어, 모바일 프리징 원천 차단, GPU 크래시 100% 방어 규격 적용 -->
+<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - Items.html 테마 완벽 동기화, FOUC 방어, 엑셀/OCR 고도화 적용 -->
 <html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" content="#E84C60">
+    <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
     
     <title>Master DB & Logistics | Y2C Portal</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- ⚡ 리소스 터널링 (Preconnect) -->
+    <!-- ⚡ 리소스 터널링 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 🌟 defer 속성을 통한 Tailwind 모바일 프리징 차단 -->
+    <!-- 🌟 defer 속성을 통한 렌더링 블로킹 프리징 차단 -->
     <script src="https://cdn.tailwindcss.com" defer></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, fallback applied.')"></script>
     <script>
@@ -41,12 +41,14 @@
             --sinjeon-pink: #E84C60; 
             --sinjeon-pink-dark: #C23347;
             --premium-charcoal: #1A1516;
+            --y2c-gold: #D4AF37;
             --bg-light: #F8F9FA;
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
         
-        /* 📱 모바일 바운스 및 줌 차단 */
+        /* 🌟 모바일 바운스 및 줌 차단 */
         html, body { overscroll-behavior-y: none; touch-action: manipulation; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
@@ -61,23 +63,31 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🌟 시네마틱 렌더링 애니메이션 */
+        /* 시네마틱 렌더링 애니메이션 */
         .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUpCinematic 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; }
         @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 렌더링을 보장하는 솔리드 프리미엄 버튼 */
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.4s ease; border: 1px solid rgba(255,255,255,0.2); }
-        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 10px 20px rgba(232, 76, 96, 0.3); transform: translateY(-2px); }
-        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px); }
+        /* 🌟 프리미엄 솔리드 버튼 규격 */
+        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
 
+        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
+        .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+
+        /* 🌟 기준점 Items.html 코드와 100% 동일한 네비게이션 효과 */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
         
         /* 인쇄 최적화 */
-        @media print { .no-print { display: none !important; } }
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
+        }
     </style>
 </head>
 <body class="text-gray-800 selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen relative">
@@ -95,8 +105,8 @@
         } catch(e) {}
     </script>
 
-    <!-- 🗺️ V17.50 프리미엄 통합 네비게이션 바 -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm no-print">
+    <!-- 🌟 프리미엄 통일 네비게이션 바 (Items.html 규격 100% 반영) -->
+    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
         <nav role="navigation" aria-label="Main Navigation" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
             <div class="flex items-center gap-3 sm:gap-4">
                 <!-- 🛡️ 로고 팽창 방어 패치 -->
@@ -108,24 +118,26 @@
             </div>
             
             <div class="hidden md:flex items-center gap-1 lg:gap-2">
-                <a href="dashboard.html" id="navDashboard" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="hidden px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-[#E84C60] border-b-2 border-[#E84C60] bg-red-50/30 uppercase tracking-widest"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" class="nav-link text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <!-- 현재 페이지(Admin) 활성화 스타일 적용 -->
+                <a href="admin.html" id="navAdmin" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-4">
-                <div class="flex bg-gray-100 p-1 rounded-lg border border-gray-200 shadow-inner hidden sm:flex">
+            <div class="flex items-center gap-2 sm:gap-4 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 hidden sm:flex">
                     <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
                     <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
                 </div>
-                <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-200 shadow-sm cursor-help" title="Current Account Status">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span id="userNameDisplay" class="text-[10px] sm:text-xs font-black text-gray-800 tracking-tight">Loading...</span>
-                    <span id="userRoleBadge" class="hidden px-1.5 py-0.5 rounded bg-red-50 text-[#E84C60] text-[8px] font-black uppercase tracking-widest ml-1 border border-red-100">-</span>
+
+                <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-4 rounded-full border border-gray-200 shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">Loading...</span>
+                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm tracking-widest ml-2 active:scale-95" data-i18n="logout">LOGOUT</button>
                 </div>
-                <button type="button" id="logoutBtn" aria-label="Logout" class="px-4 py-2 border border-gray-200 rounded-full text-[10px] sm:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:border-gray-300 hover:bg-gray-50 transition-all uppercase tracking-widest shadow-sm active:scale-95"><span data-i18n="logout">LOGOUT</span></button>
             </div>
         </nav>
         
@@ -134,11 +146,12 @@
             <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
             <a href="items.html" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
             <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
-            <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E84C60] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
+            <a href="admin.html" id="navAdmin_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E84C60] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
             <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
         </div>
     </header>
 
+    <!-- 📊 메인 컨텐츠 영역 (Items.html 규격인 max-w-[1600px] 100% 연동) -->
     <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-24 flex-grow w-full">
         
         <header class="mb-8 cinematic-enter delay-100 no-print">
@@ -238,7 +251,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white border-2 border-dashed border-gray-300 rounded-3xl p-8 sm:p-12 text-center transition-all duration-300 hover:border-[#E84C60] hover:bg-red-50/30 group relative" id="dropZone">
+                <div class="bg-white border-2 border-dashed border-gray-300 rounded-3xl p-8 sm:p-12 text-center transition-all duration-300 hover:border-[#E84C60] hover:bg-pink-50/30 group relative" id="dropZone">
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .jpg, .jpeg, .png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" aria-label="File Upload">
                     <div class="pointer-events-none relative z-0 flex flex-col items-center">
                         <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-inner border border-gray-100">
@@ -248,6 +261,7 @@
                         <p class="text-[10px] sm:text-xs font-bold text-gray-400 tracking-wide mb-6" data-i18n="dropzone_desc">Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png</p>
                         
                         <div class="w-full max-w-sm mx-auto flex flex-col gap-3 relative z-20 pointer-events-auto">
+                            <!-- 🌟 지역(Hub) 선택 드롭다운 팝업 UX 최적화 -->
                             <select id="inboundRegionSelector" aria-label="Hub Selector" class="w-full text-xs p-3 border border-gray-300 rounded-xl focus:border-[#E84C60] outline-none text-center cursor-pointer font-bold text-gray-700 shadow-sm transition-colors bg-white appearance-none">
                                 <option value="">-- Loading Hubs --</option>
                             </select>
@@ -285,6 +299,7 @@
                                 </tr>
                             </thead>
                             <tbody id="masterTableBody" class="divide-y divide-gray-100">
+                                <!-- JS Injection -->
                                 <tr><td colspan="8" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><svg class="animate-spin h-6 w-6 mx-auto text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></td></tr>
                             </tbody>
                         </table>
@@ -334,6 +349,7 @@
                                 </tr>
                             </thead>
                             <tbody id="salesGridBody" class="divide-y divide-gray-100">
+                                <!-- JS Injection -->
                                 <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide">Please select Franchise and Year</td></tr>
                             </tbody>
                         </table>
@@ -355,4 +371,4 @@
     <!-- JS 엔진 연동 -->
     <script src="assets/js/admin.js" defer></script>
 </body>
-</html>
+</html> 이거 인보이스야
