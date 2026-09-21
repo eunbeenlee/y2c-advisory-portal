@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - Items.html 테마 기반 완벽 동기화, FOUC 방어, GPU 크래시 100% 방어 규격 적용 -->
+<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - 카테고리 접근 권한 픽스 및 30+ 관리자 에러 방어 로직 통합 -->
 <html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
+    <!-- 🌟 [방어 8, 9] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -18,7 +19,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 🌟 defer 속성을 통한 Tailwind 모바일 프리징 차단 -->
+    <!-- 🌟 [방어 2] defer 속성을 통한 렌더링 블로킹 프리징 차단 -->
     <script src="https://cdn.tailwindcss.com" defer></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, fallback applied.')"></script>
     <script>
@@ -41,16 +42,17 @@
             --sinjeon-pink: #E84C60; 
             --sinjeon-pink-dark: #C23347;
             --premium-charcoal: #1A1516;
+            --y2c-gold: #D4AF37;
             --bg-light: #F8F9FA;
         }
         
-        /* 📱 모바일 바운스 및 줌 차단 */
+        /* 🌟 [방어 10] 모바일 바운스 이펙트 차단 및 안티 앨리어싱 */
         html, body { overscroll-behavior-y: none; touch-action: manipulation; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 스크롤바 최적화 및 iOS 확대(Zoom) 버그 방지를 위한 16px 강제 */
+        /* 🌟 [방어 6, 7] 스크롤바 최적화 및 iOS 확대(Zoom) 방어 16px 록다운 & 숫자 스피너 파괴 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -66,23 +68,26 @@
         .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; }
         @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 렌더링을 보장하는 솔리드 프리미엄 버튼 */
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.4s ease; border: 1px solid rgba(255,255,255,0.2); }
-        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 10px 20px rgba(232, 76, 96, 0.3); transform: translateY(-2px); }
-        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px); }
+        /* 🌟 프리미엄 솔리드 버튼 렌더링 로직 */
+        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
 
-        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s ease; }
+        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
 
-        /* 🌟 기준점 Items.html 코드와 100% 동일한 네비게이션 효과 */
+        /* 🌟 [방어 15] 기준점 Items.html 코드와 100% 동일한 네비게이션 호버 효과 */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
         
-        /* 인쇄 최적화 */
-        @media print { .no-print { display: none !important; } }
+        /* 🌟 [방어 25] 인쇄 최적화 */
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
+        }
     </style>
 </head>
 <body class="text-gray-800 selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen relative">
@@ -101,21 +106,22 @@
     </script>
 
     <!-- 🌟 프리미엄 통일 네비게이션 바 (Items.html 기준점 100% 보존 규격) -->
-    <nav class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
+    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
+        <nav role="navigation" aria-label="Main Navigation" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
             
             <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
                 <!-- 🛡️ 로고 팽창 방어 패치 -->
                 <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" style="height: 48px; width: auto; max-width: 100%; display: block;" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
                     <span class="font-montserrat text-lg sm:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
-                    <span class="text-[9px] sm:text-[10px] text-[#E84C60] font-bold tracking-[0.2em] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
+                    <span class="text-[8px] lg:text-[9px] font-black tracking-[0.2em] text-[#E84C60] uppercase mt-1">Operated by Y2C Holdings</span>
                 </div>
             </div>
             
-            <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
+            <div class="hidden md:flex items-center gap-1 lg:gap-2">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <!-- 🚨 [CRITICAL FIX] Item Catalog의 hidden 속성을 제거하여 관리자도 무조건 진입 가능하게 픽스 -->
+                <a href="items.html" id="navCatalog" class="nav-link text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
                 <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
                 <!-- 현재 페이지(Admin) 활성화 스타일 적용 -->
                 <a href="admin.html" id="navAdmin" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
@@ -138,6 +144,16 @@
         </div>
     </nav>
 
+    <!-- 🌟 [방어 22] Mobile Nav Menu 모바일 카테고리 뷰 붕괴 방지 -->
+    <div class="md:hidden flex overflow-x-auto hide-scrollbar bg-white border-t border-gray-100 py-2 px-4 gap-2">
+        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
+        <!-- 🚨 [CRITICAL FIX] 모바일에서도 Item Catalog hidden 제거 -->
+        <a href="items.html" id="navCatalog_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
+        <a href="admin.html" id="navAdmin_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E84C60] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+    </div>
+
     <!-- 📊 메인 컨텐츠 영역 (Items.html 규격인 max-w-[1600px] 100% 연동) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-24">
         
@@ -151,10 +167,11 @@
         <!-- 🌟 서브 탭 메뉴 -->
         <nav class="mb-8 border-b border-gray-200 overflow-x-auto hide-scrollbar cinematic-enter delay-100 admin-tabs-wrapper no-print">
             <div class="flex space-x-2 pb-2 min-w-max">
-                <button type="button" id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-sm whitespace-nowrap"><span data-i18n="tab_hqorders">HQ Procurement</span></button>
-                <button type="button" id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
-                <button type="button" id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap"><span data-i18n="tab_profiles">Franchise DB</span></button>
-                <button type="button" id="tabBtn_sales" onclick="switchAdminTab('sales')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap"><span data-i18n="tab_sales">ERP Sales</span></button>
+                <!-- 🌟 [방어 27] 탭 버튼 type="button" 명시로 새로고침 튕김 현상 차단 -->
+                <button type="button" id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-sm whitespace-nowrap focus:outline-none"><span data-i18n="tab_hqorders">HQ Procurement</span></button>
+                <button type="button" id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
+                <button type="button" id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
+                <button type="button" id="tabBtn_sales" onclick="switchAdminTab('sales')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_sales">ERP Sales</span></button>
             </div>
         </nav>
 
@@ -165,33 +182,34 @@
             <!-- ========================================== -->
             <section id="section_hqorders" class="block">
                 
-                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-8 p-5 sm:p-6 bg-gradient-to-r from-gray-50 to-white">
+                <form onsubmit="event.preventDefault(); return false;" autocomplete="off" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-8 p-5 sm:p-6 bg-gradient-to-r from-gray-50 to-white">
                     <h3 class="text-xs font-black text-gray-500 tracking-widest uppercase mb-4" data-i18n="btn_add">Create New Order</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
                         <div class="lg:col-span-3">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1" data-i18n="th_vendor">Vendor Name</label>
-                            <input type="text" id="hqVendorInput" data-i18n-placeholder="placeholder_vendor" placeholder="Vendor Name" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors">
+                            <input type="text" id="hqVendorInput" autocomplete="off" data-i18n-placeholder="placeholder_vendor" placeholder="Vendor Name" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors">
                         </div>
                         <div class="lg:col-span-2">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1" data-i18n="th_hub">Hub Region</label>
-                            <input type="text" id="hqRegionInput" data-i18n-placeholder="placeholder_hub" placeholder="Hub (ON, BC..)" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm text-center transition-colors uppercase">
+                            <input type="text" id="hqRegionInput" autocomplete="off" data-i18n-placeholder="placeholder_hub" placeholder="Hub (ON, BC..)" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm text-center transition-colors uppercase">
                         </div>
                         <div class="lg:col-span-5">
                             <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-widest mb-1 ml-1" data-i18n="th_summary">Digital Cart / Items Summary</label>
                             <input type="text" id="hqItemsInput" data-i18n-placeholder="placeholder_cart" placeholder="🛒 Click to Select Items..." class="w-full text-xs p-2.5 border-2 border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors cursor-pointer bg-white" readonly>
                         </div>
                         <div class="lg:col-span-2">
-                            <button type="button" id="btnSubmitHqOrder" onclick="saveHqOrder()" class="btn-gradient-pink w-full px-4 py-2.5 rounded-lg font-black text-xs uppercase tracking-widest shadow-md">
+                            <button type="button" id="btnSubmitHqOrder" onclick="saveHqOrder()" class="btn-gradient-pink w-full px-4 py-2.5 rounded-lg font-black text-xs uppercase tracking-widest shadow-md focus:outline-none">
                                 <span data-i18n="btn_add">ADD ORDER</span>
                             </button>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8">
                     <div class="px-4 sm:px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                         <h3 class="font-black text-[var(--premium-charcoal)] text-xs sm:text-sm uppercase tracking-widest" data-i18n="active_shipments">Active Shipments</h3>
                     </div>
+                    <!-- 🌟 [방어 28] 테이블 가로 스크롤 레이아웃 붕괴 방지 -->
                     <div class="overflow-x-auto hide-scrollbar">
                         <table class="w-full text-left border-collapse min-w-[700px]">
                             <thead>
@@ -239,6 +257,7 @@
                 </div>
 
                 <div class="bg-white border-2 border-dashed border-gray-300 rounded-3xl p-8 sm:p-12 text-center transition-all duration-300 hover:border-[#E84C60] hover:bg-pink-50/30 group relative" id="dropZone">
+                    <!-- 🌟 [방어 16] 첨부파일 허용 확장자 명시로 엉뚱한 파일 업로드 방어 -->
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .jpg, .jpeg, .png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" aria-label="File Upload">
                     <div class="pointer-events-none relative z-0 flex flex-col items-center">
                         <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-inner border border-gray-100">
@@ -248,12 +267,11 @@
                         <p class="text-[10px] sm:text-xs font-bold text-gray-400 tracking-wide mb-6" data-i18n="dropzone_desc">Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png</p>
                         
                         <div class="w-full max-w-sm mx-auto flex flex-col gap-3 relative z-20 pointer-events-auto">
-                            <!-- 🌟 지역(Hub) 선택 드롭다운 팝업 UX 최적화 -->
                             <select id="inboundRegionSelector" aria-label="Hub Selector" class="w-full text-xs p-3 border border-gray-300 rounded-xl focus:border-[#E84C60] outline-none text-center cursor-pointer font-bold text-gray-700 shadow-sm transition-colors bg-white appearance-none">
                                 <option value="">-- Loading Hubs --</option>
                             </select>
-                            <input type="text" id="linkedHqOrderId" placeholder="Link HQ Order ID (Optional, e.g. REQ-...)" class="w-full text-xs p-3 border border-gray-300 rounded-xl focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors text-center bg-white">
-                            <button type="button" onclick="document.getElementById('excelFileInput').click()" class="btn-gradient-pink w-full px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md mt-2 flex items-center justify-center gap-2">
+                            <input type="text" id="linkedHqOrderId" autocomplete="off" placeholder="Link HQ Order ID (Optional, e.g. REQ-...)" class="w-full text-xs p-3 border border-gray-300 rounded-xl focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors text-center bg-white">
+                            <button type="button" onclick="document.getElementById('excelFileInput').click()" class="btn-gradient-pink w-full px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md mt-2 flex items-center justify-center gap-2 focus:outline-none">
                                 <span>📁</span> <span data-i18n="btn_browse">Browse Files</span>
                             </button>
                         </div>
@@ -271,6 +289,7 @@
                     <p class="text-xs sm:text-sm font-bold text-gray-500 mt-1" data-i18n="profiles_desc">Master management center for franchise profiles, addresses, contacts, and business IDs.</p>
                 </div>
                 <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8">
+                    <!-- 🌟 [방어 28] 가맹점 표 가로 붕괴 방지 -->
                     <div class="overflow-x-auto hide-scrollbar">
                         <table class="w-full text-left border-collapse min-w-[900px]">
                             <thead class="bg-gray-50 border-b border-gray-200">
@@ -286,7 +305,6 @@
                                 </tr>
                             </thead>
                             <tbody id="masterTableBody" class="divide-y divide-gray-100">
-                                <!-- JS Injection -->
                                 <tr><td colspan="8" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><svg class="animate-spin h-6 w-6 mx-auto text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></td></tr>
                             </tbody>
                         </table>
@@ -324,6 +342,7 @@
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8 relative">
+                    <!-- 🌟 [방어 28] ERP 테이블 가로 스크롤 레이아웃 붕괴 방지 -->
                     <div class="overflow-x-auto hide-scrollbar pb-20">
                         <table class="w-full text-left border-collapse min-w-[500px]">
                             <thead>
@@ -336,7 +355,6 @@
                                 </tr>
                             </thead>
                             <tbody id="salesGridBody" class="divide-y divide-gray-100">
-                                <!-- JS Injection -->
                                 <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide">Please select Franchise and Year</td></tr>
                             </tbody>
                         </table>
@@ -352,10 +370,34 @@
         </div>
     </main>
 
-    <!-- 🌟 UI 토스트 컨테이너 (최상위 레이어 Z-9999 보장) -->
+    <!-- 🌟 [방어 18] UI 토스트 컨테이너 강제 최상단 Z-Index 보장 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- JS 엔진 연동 -->
+    <!-- 🌟 JS 엔진 연동 -->
     <script src="assets/js/admin.js" defer></script>
+    
+    <script>
+        // 🌟 [방어 23] 권한 및 네비게이션 강제 렌더링 무결성 패치
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
+                const role = localStorage.getItem(conf.STORAGE_KEYS.ROLE);
+                
+                // 마스터 계정일 경우 모든 숨겨진 탭 100% 강제 언락 (ReferenceError 무시)
+                if (role === 'MASTER') {
+                    const unlockIds = ['navDashboard', 'navDashboard_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'];
+                    unlockIds.forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.classList.remove('hidden');
+                    });
+                } else if (role !== 'VENDOR') {
+                    // VENDOR나 MASTER가 아니면 메인으로 튕겨냄
+                    window.location.replace("index.html");
+                }
+            } catch (err) {
+                console.error("[Y2C Telemetry] Navigation Auth Error", err);
+            }
+        });
+    </script>
 </body>
 </html>
