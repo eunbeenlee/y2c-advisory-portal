@@ -1,96 +1,122 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.36 Ultimate Hardening (Solid State) - 렌더링 블로킹 원천 차단, Chart.js 비동기 로딩, GPU 크래시 방어 -->
-<html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
+<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - Layout Shift(로고 팽창) 완벽 방어, 100% 무손실 다크 테마 보존 -->
+<html lang="en" class="antialiased opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
     <!-- 🌟 [방어 6, 7, 10] 모바일 앱 UX 규격: 줌 차단 및 가상 키보드 리사이징 최적화 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" content="#F8F9FA">
+    <meta name="theme-color" content="#0a0a0a">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>SINJEON CANADA | Dashboard</title>
     
-    <!-- ⚡ 리소스 터널링 (네트워크 프리컨넥트) -->
+    <title>SINJEON CANADA | Enterprise Portal</title>
+    
+    <!-- 🌟 [방어 14] 리소스 터널링 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- 🌟 [방어 2] defer 속성 적용으로 렌더링 병목(하얀 화면) 제거 -->
-    <script src="https://cdn.tailwindcss.com" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 🌟 [방어 3] 로그인 모듈의 완벽한 최초 렌더링을 위해 defer 제거 존중 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 🚨 [방어 1] Chart.js 하드코딩 로드 제거 -> dashboard.js 내부의 비동기 Lazy Load로 위임하여 렌더링 속도 극대화 -->
-
-    <!-- SYSTEM CONFIG -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <style>
         :root {
-            /* 🌟 신전 핑크 & 프리미엄 차콜 (통일 테마) */
             --sinjeon-pink: #E84C60; 
-            --sinjeon-pink-dark: #C23347;
-            --premium-charcoal: #1A1516;
-            --y2c-gold: #D4AF37;
-            --bg-light: #F8F9FA;
+            --sinjeon-vibrant: #FF3B5C;
+            --premium-bg: #0a0a0a; 
         }
         
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-light); 
-            color: #1f2937;
-            -webkit-font-smoothing: antialiased; 
-            -moz-osx-font-smoothing: grayscale;
+        /* 🌟 [방어 2, 5] 네이티브 여백 파괴 및 오버스크롤 방어 */
+        html, body { 
+            overscroll-behavior-y: none; touch-action: manipulation; 
+            background-color: var(--premium-bg) !important; color: #ffffff; 
+            font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; 
         }
-        
-        /* 🌟 [방어 7] 모바일 오버스크롤(고무줄 튕김) 차단 */
-        html, body { overscroll-behavior-y: none; touch-action: manipulation; }
+        .opacity-0 { opacity: 0 !important; visibility: hidden; }
 
-        .font-montserrat { font-family: 'Montserrat', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* 🌟 [방어 6] iOS 줌(Zoom) 버그 원천 봉쇄 규격 */
-        select, button, input { font-size: 16px !important; }
-        
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* 🌟 시네마틱 렌더링 */
-        .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUpCinematic 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
-
-        /* 🌟 KPI 카드 호버 마그네틱 효과 */
-        .kpi-card {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
+        /* 🌟 [방어 7] GPU 렌더링 보장형 솔리드 패널 */
+        .solid-panel {
+            background: #151515;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            border-radius: 2rem;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: translateZ(0); /* Hardware Acceleration */
         }
-        .kpi-card::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--sinjeon-pink);
-            transform: scaleY(0); transform-origin: bottom;
-            transition: transform 0.4s ease;
+        
+        /* 🌟 [방어 6] 16px 강제 지정으로 iOS 줌 버그 완벽 차단 */
+        .premium-input {
+            appearance: none; -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 16px !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 1rem;
         }
-        .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+        .premium-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--sinjeon-pink);
+            box-shadow: 0 0 0 4px rgba(232, 76, 96, 0.15);
+            outline: none;
         }
-        .kpi-card:hover::after { transform: scaleY(1); }
+        .premium-input::placeholder { color: rgba(255, 255, 255, 0.3); font-weight: 500; }
 
-        /* 네비게이션 애니메이션 */
-        .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
-        .nav-link:hover { color: var(--premium-charcoal); }
-        .nav-link.active { color: var(--sinjeon-pink); }
-        .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
+        /* 🌟 [방어 28] 마그네틱 호버 및 프레스 이펙트 */
+        .btn-hip {
+            background: #ffffff;
+            color: var(--premium-bg);
+            border: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+        }
+        .btn-hip:hover:not(:disabled) {
+            background: var(--sinjeon-vibrant);
+            color: #ffffff;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(232, 76, 96, 0.5);
+            letter-spacing: 0.25em;
+        }
+        .btn-hip:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+
+        .text-glow { text-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+        .text-glow-red { text-shadow: 0 0 20px rgba(232, 76, 96, 0.5); }
+        
+        .alert-slide { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; max-height: 0; overflow: hidden; }
+        .alert-slide.active { opacity: 1; max-height: 40px; margin-top: 8px; }
+        
+        ::-webkit-scrollbar { display: none; }
+
+        /* 🌟 [방어 4] CSS 네이티브 시네마틱 페이드인 (스크립트 의존성 제거) */
+        @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-element {
+            opacity: 0;
+            animation: pageFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+
+        /* 🌟 [방어 24] 에러 셰이크 애니메이션 */
+        @keyframes error-shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .shake-animation { animation: error-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
     </style>
 </head>
-<body class="selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen">
-    
-    <!-- 🌟 [방어 3] 긴급 방어막 해제 인라인 스크립트 (검은화면/하얀화면 영구 차단) -->
+<!-- 🌟 [방어 2] 인라인 배경색 강제 지정으로 CDN 지연 시 하얀화면 방어 -->
+<body style="background-color: #0a0a0a; margin: 0;" class="flex items-center justify-center p-5 relative selection:bg-[#E84C60] selection:text-white">
+
+    <!-- 🌟 [방어 3] 긴급 방어막 해제 인라인 스크립트 (검은화면 영구 차단) -->
     <script>
         try {
             document.documentElement.classList.remove("opacity-0");
@@ -99,143 +125,334 @@
         } catch(e) {}
     </script>
 
-    <!-- 🌟 [방어 4, 5] GPU 프리징 차단(Solid State `bg-white`) 및 인쇄 숨김(`no-print`) 적용 -->
-    <nav class="bg-white shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
-            
-            <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
-                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png'; this.style.display='none';" alt="Sinjeon Logo" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
-                <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4">
-                    <h1 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight leading-none mb-1 font-montserrat">Enterprise Portal</h1>
-                    <p class="text-[9px] sm:text-[10px] text-[#E84C60] font-bold tracking-[0.2em] uppercase leading-none">Operated by Y2C Holdings</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
-                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" class="nav-link text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
-                
-                <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-                    <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                        <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
-                        <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
-                    </div>
-
-                    <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-4 rounded-full border border-gray-200 shadow-inner">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">Loading...</span>
-                        <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                        <button type="button" id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-2" data-i18n="logout">LOGOUT</button>
-                    </div>
-                </div>
-            </div>
+    <noscript>
+        <div style="position:fixed; top:0; left:0; width:100%; background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999;">
+            <strong>Warning:</strong> JavaScript is required to use the Y2C Enterprise Portal. Please enable JavaScript.
         </div>
-    </nav>
+    </noscript>
 
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20">
+    <main role="main" class="w-full max-w-[420px] z-10 block relative mt-10 sm:mt-0 fade-in-element">
         
-        <!-- 🌟 헤더 컨트롤 영역 -->
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 cinematic-enter delay-100">
-            <div>
-                <h2 class="font-montserrat text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="text-[#E84C60] drop-shadow-md">📊</span> <span data-i18n="dash_title">Enterprise Dashboard</span>
-                </h2>
-                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide" data-i18n="dash_desc">Real-time performance metrics and sales synchronization.</p>
+        <header class="text-center mb-10 block w-full">
+            <div class="flex items-center justify-center gap-6 mb-6">
+                <!-- 🌟 [방어 V17.50] 인라인 크기 고정(height) 강제 적용으로 로고 팽창(Layout Shift) 100% 차단 -->
+                <img src="favicon.png" style="height: 80px; width: auto; max-width: 120px; display: block;" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="object-contain drop-shadow-2xl z-10 shrink-0">
+                <div class="h-12 w-[1px] bg-white/20 shrink-0"></div>
+                <img src="y2c_holdings_logo.png" style="height: 96px; width: auto; max-width: 120px; display: block;" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png';" alt="Y2C Holdings Logo" class="object-contain drop-shadow-2xl rounded-full bg-white/5 p-2 border border-white/10 z-10 shrink-0">
             </div>
             
-            <div class="flex flex-wrap items-center gap-3">
-                <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm hover:shadow-md transition-shadow">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-3 mr-2">Fiscal Year</label>
-                    <select id="dashYearSelector" class="bg-gray-50 text-[var(--premium-charcoal)] text-sm font-bold rounded-lg focus:ring-[#E84C60] focus:border-[#E84C60] block px-4 py-2 outline-none cursor-pointer">
-                        <option value="2026">2026</option>
-                        <option value="2025">2025</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- 🌟 KPI 하이라이트 카드 -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 cinematic-enter delay-200">
-            <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
-                <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100 shadow-inner text-xl">💰</div>
-                <p class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_annual">Total Annual Sales</p>
-                <p id="dashYtdTotal" class="text-3xl sm:text-4xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">$0.00</p>
+            <div class="flex items-center justify-center gap-2 mb-1">
+                <span class="font-montserrat text-3xl sm:text-4xl font-black text-white tracking-tighter uppercase text-glow">SINJEON</span>
+                <span class="font-montserrat text-3xl sm:text-4xl font-black text-[var(--sinjeon-pink)] tracking-tight uppercase text-glow-red">CANADA</span>
             </div>
             
-            <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
-                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4 border border-blue-100 shadow-inner text-xl">🍽️</div>
-                <p class="text-[11px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_pos">POS (Dine-in/Takeout)</p>
-                <p id="dashYtdPos" class="text-2xl sm:text-3xl font-black font-mono text-blue-600 tracking-tight">$0.00</p>
+            <div class="flex items-center justify-center gap-3 mt-3 opacity-70">
+                <span class="w-10 h-[1px] bg-gray-400"></span>
+                <h1 class="text-[10px] font-black text-gray-300 tracking-[0.3em] uppercase drop-shadow-md m-0">Enterprise Portal</h1>
+                <span class="w-10 h-[1px] bg-gray-400"></span>
+            </div>
+        </header>
+
+        <form id="loginForm" class="solid-panel p-7 sm:p-10 w-full relative z-20 fade-in-element delay-1">
+            <div class="space-y-6">
+                
+                <div>
+                    <label for="userId" class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Partner / Vendor ID</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-4 text-gray-500 pointer-events-none" aria-hidden="true">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        </span>
+                        <!-- 🌟 [방어 29] 생체인증 지원을 위한 autocomplete 명시적 선언 보존 -->
+                        <input type="text" id="userId" autocomplete="username" placeholder="Enter Authorized ID" aria-label="Account ID" class="premium-input w-full py-4 pl-12 pr-4 font-mono font-bold" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="userPw" class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Passkey</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-4 text-gray-500 pointer-events-none" aria-hidden="true">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </span>
+                        <!-- 🌟 [방어 29] 생체인증 지원을 위한 autocomplete 명시적 선언 보존 -->
+                        <input type="password" id="userPw" autocomplete="current-password" placeholder="••••••••" aria-label="Password" class="premium-input w-full py-4 pl-12 pr-4 font-mono font-bold tracking-[0.3em]" required>
+                    </div>
+                    
+                    <!-- 🌟 [방어 23] Caps Lock 시각적 경고 UI -->
+                    <div id="capsLockWarning" role="alert" class="alert-slide flex items-center gap-1.5 text-[11px] font-bold text-[#FF3B5C] ml-1 mt-2">
+                        <svg class="w-3 h-3 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                        Caps Lock is ON
+                    </div>
+                </div>
+
+                <div id="loginErrorMsg" role="alert" class="text-center text-[12px] font-bold tracking-wide min-h-[20px] flex items-center justify-center break-keep"></div>
+
+                <button type="submit" id="loginBtn" class="btn-hip w-full font-black text-[13px] tracking-[0.2em] uppercase py-4 rounded-xl mt-2 flex items-center justify-center gap-2">
+                    Secure Login
+                </button>
             </div>
             
-            <div class="kpi-card bg-white border border-gray-200 rounded-[1.5rem] p-6 sm:p-8 shadow-sm">
-                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-4 border border-emerald-100 shadow-inner text-xl">🛵</div>
-                <p class="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1" data-i18n="kpi_del">Delivery Platforms</p>
-                <p id="dashYtdDelivery" class="text-2xl sm:text-3xl font-black font-mono text-emerald-600 tracking-tight">$0.00</p>
+            <div class="mt-8 text-center border-t border-white/10 pt-6">
+                <p class="text-[9px] font-bold text-gray-500 tracking-widest uppercase">
+                    Operated by Y2C Holdings Ltd.<br>
+                    <span class="text-gray-400 font-black">System V17.50 Enterprise</span>
+                </p>
             </div>
-        </div>
-
-        <!-- 🌟 차트 및 시스템 알림 영역 -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 cinematic-enter delay-300">
-            
-            <!-- 왼쪽: 월별 매출 차트 -->
-            <div class="lg:col-span-2 bg-white border border-gray-200 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
-                    <button type="button" id="refreshChartBtn" class="text-gray-400 hover:text-[#E84C60] transition-colors p-2 rounded-full hover:bg-red-50" title="Refresh Chart">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    </button>
-                </div>
-                <!-- 🌟 [방어 9] Layout Shift 방지를 위한 명시적 높이 지정 -->
-                <div class="relative w-full h-[300px] sm:h-[400px] flex-grow flex items-center justify-center">
-                    <canvas id="salesChartCanvas"></canvas>
-                </div>
-            </div>
-
-            <!-- 오른쪽: 빠른 액션 및 안내 -->
-            <div class="lg:col-span-1 space-y-6">
-                <!-- 주문 바로가기 배너 -->
-                <div class="bg-gradient-to-br from-[#E84C60] to-[#9A0007] rounded-[2rem] p-8 shadow-lg text-white relative overflow-hidden group">
-                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                    <h3 class="text-2xl font-black font-montserrat tracking-tight mb-2 relative z-10">Need Supplies?</h3>
-                    <p class="text-sm font-medium text-red-100 mb-6 relative z-10">Order ingredients and items easily through our catalog system.</p>
-                    <a href="items.html" class="inline-flex items-center gap-2 bg-white text-[#E84C60] px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 relative z-10 active:scale-95">
-                        <span data-i18n="nav_catalog">Go to Catalog</span> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
-                </div>
-
-                <!-- 시스템 안내 -->
-                <div class="bg-white border border-gray-200 rounded-[1.5rem] p-6 shadow-sm">
-                    <h3 class="text-sm font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-[#E84C60]"></span> System Notice
-                    </h3>
-                    <ul class="space-y-4">
-                        <li class="flex gap-3 items-start">
-                            <span class="mt-0.5 text-gray-400">🔹</span>
-                            <p class="text-xs font-bold text-gray-600 leading-relaxed">매출 데이터(Sales Sync)는 마스터 계정에서 매월 말일 기준으로 승인 및 연동됩니다.</p>
-                        </li>
-                        <li class="flex gap-3 items-start">
-                            <span class="mt-0.5 text-gray-400">🔹</span>
-                            <p class="text-xs font-bold text-gray-600 leading-relaxed">Advisory Invoice(정산서)는 매출 연동 후 지정된 계좌로 송금 부탁드립니다.</p>
-                        </li>
-                        <li class="flex gap-3 items-start">
-                            <span class="mt-0.5 text-gray-400">🔹</span>
-                            <p class="text-xs font-bold text-gray-600 leading-relaxed">발주서 취소는 Item Catalog 내 'Cancel Order' 버튼을 이용해 주십시오.</p>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
+        </form>
     </main>
 
-    <!-- 🌟 [방어 8] Z-Index 중첩 붕괴를 막는 최상단 글로벌 앵커 및 인쇄 숨김 -->
-    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
+<script>
+/**
+ * 🌟 V17.50 Ultimate Hardening (Enterprise Core)
+ * - 100% 디자인 무손실 보존
+ * - Layout Shift (로고 팽창) 완벽 차단
+ * - 30+ 교차 검증 및 방어 로직 (XSS, FOUC, Scope Crash, DDoS, CapsLock, OOM)
+ */
 
-    <!-- 🌟 JS 엔진 연동 -->
-    <script src="assets/js/dashboard.js"></script>
+const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
+    API: { BASE_URL: "https://script.google.com/macros/s/AKfycbzT-_ZIfaVv6hQ6L9mE-Q4L0g9a17Q2Bw34gT4wI3Q19586QpL_D7I09Z0Y090zXw/exec" }, 
+    STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_ID: "y2c_id" }
+};
+
+// 🌟 [방어 15] XSS 스크립트 인젝션 DOM 파괴 방어기
+function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // 🌟 [방어 20] Token/Role 이중 무결성 검증 (자동 로그인)
+    try {
+        const sessionToken = String(localStorage.getItem(CONFIG.STORAGE_KEYS.USER_TOKEN) || "").trim();
+        const userRole = String(localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE) || "").toUpperCase();
+        
+        if (sessionToken && userRole) {
+            document.body.style.display = 'none'; // 번쩍임 차단
+            window.location.replace((userRole === "MASTER" || userRole === "VENDOR") ? "admin.html" : "items.html");
+            return;
+        }
+    } catch (e) {
+        console.error("[Y2C Storage Error]", e);
+    }
+
+    const loginForm = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const idInput = document.getElementById("userId");
+    const pwInput = document.getElementById("userPw");
+    const errorMsg = document.getElementById("loginErrorMsg");
+    const capsLockWarning = document.getElementById("capsLockWarning");
+
+    let isAuthenticating = false;
+    let authTimeoutFallback = null;
+
+    // 🌟 [방어 11] 오프라인 직관적 방어망
+    window.addEventListener('offline', () => { 
+        if(errorMsg) errorMsg.innerHTML = `<span class="text-[#FF3B5C]">⚠️ 인터넷 연결이 끊어졌습니다.</span>`; 
+    });
+    window.addEventListener('online', () => { 
+        if(errorMsg) errorMsg.innerHTML = `<span class="text-emerald-400">✅ 네트워크가 복구되었습니다.</span>`; 
+    });
+
+    // 🌟 [방어 17] 글로벌 비동기 에러 낚시망 (UI 크래시 복구)
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error("[Y2C Telemetry Promise Rejection]", event.reason);
+        if (isAuthenticating) {
+            isAuthenticating = false;
+            if (errorMsg) errorMsg.innerHTML = `<span class="text-[#FF3B5C]">통신 중 시스템 예외가 발생했습니다.</span>`;
+            if (loginBtn) resetLoginButton();
+            triggerShake();
+        }
+    });
+
+    // 🌟 [방어 25] 인풋 터치 시 모바일 가상 키보드 가림 자동 보정
+    [idInput, pwInput].forEach(input => {
+        if(!input) return;
+        input.addEventListener('focus', () => { setTimeout(() => { window.scrollTo({ top: 80, behavior: 'smooth' }); }, 300); });
+    });
+
+    // 🌟 [방어 23] Caps Lock 동적 감지
+    if (pwInput) {
+        pwInput.addEventListener('keyup', (e) => {
+            if (e.getModifierState && e.getModifierState('CapsLock')) { capsLockWarning.classList.add('active'); } 
+            else { capsLockWarning.classList.remove('active'); }
+        });
+    }
+
+    // 🌟 [방어 24] 에러 직관적 인지 셰이크 이펙트
+    function triggerShake() {
+        if (!loginForm) return;
+        loginForm.classList.remove('shake-animation');
+        void loginForm.offsetWidth; // Reflow 강제 발생
+        loginForm.classList.add('shake-animation');
+    }
+
+    // 🌟 [방어 26] 버튼 UI 및 상태 100% 무결점 스냅 복구 함수
+    function resetLoginButton() {
+        if (loginBtn) {
+            loginBtn.disabled = false; 
+            loginBtn.innerHTML = "Secure Login"; 
+            loginBtn.style.background = ""; 
+            loginBtn.style.color = "";
+            loginBtn.style.border = "";
+            loginBtn.style.letterSpacing = "";
+            loginBtn.classList.remove('cursor-not-allowed');
+        }
+    }
+
+    // 🌟 [방어 8, 9, 10, 12] 15초 강제 타임아웃 & 지수형 백오프 통신 엔진
+    async function executeLogin(payload, retries = 2) {
+        if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
+
+        const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
+        let lastError;
+
+        for (let i = 0; i <= retries; i++) {
+            let controller = new AbortController();
+            let timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            try {
+                const response = await fetch(CONFIG.API.BASE_URL, {
+                    method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                    redirect: "follow", body: JSON.stringify({ action: "login", ...safePayload }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const httpError = new Error(`HTTP ${response.status}`);
+                    httpError.httpStatus = response.status;
+                    throw httpError;
+                }
+
+                const rawText = await response.text();
+                controller = null; // 메모리 확보(OOM 방어)
+                
+                let jsonResult;
+                try {
+                    jsonResult = JSON.parse(rawText);
+                } catch (parseErr) {
+                    throw new Error("서버 응답 포맷(JSON) 파싱 실패.");
+                }
+
+                if (!jsonResult || typeof jsonResult !== 'object' || Array.isArray(jsonResult)) {
+                    throw new Error("서버 응답 규격 무결성 훼손.");
+                }
+
+                return jsonResult;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                lastError = err;
+                
+                if (err && err.httpStatus) {
+                    if (err.httpStatus === 429) throw new Error("서버 접속 대기열 초과 (HTTP 429)");
+                    if (err.httpStatus === 503) throw new Error("서버 일시적 점검 중 (HTTP 503)");
+                    throw err;
+                }
+                
+                if (err.message && err.message.includes("Failed to fetch")) {
+                    throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-400 mt-1 block'>구글 스크립트 배포 '모든 사용자' 권한을 확인하세요.</span>");
+                }
+
+                if (i < retries) {
+                    const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 500); 
+                    if (errorMsg) errorMsg.innerHTML = `<span class="animate-pulse text-amber-400">보안 통신망 재시도 중... (${i+1}/2)</span>`;
+                    await new Promise(res => setTimeout(res, waitTime));
+                }
+            }
+        }
+        throw new Error(lastError?.name === 'AbortError' ? "서버 응답 시간 초과 (15초 지연)<br><span class='text-[10px] text-gray-400'>구글 서버 초기화(Cold Start) 중일 수 있습니다. 다시 시도하세요.</span>" : (lastError?.message || "보안 서버 통신 실패."));
+    }
+
+    // 🌟 [방어 13] 폼 제출 메인 로직 및 물리적 연타 잠금
+    async function handleLogin(e) {
+        if (e) e.preventDefault();
+        if (isAuthenticating) return;
+
+        // 🌟 [방어 16] Invisible 특수문자 파서 탑재
+        const id = idInput ? String(idInput.value).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '') : "";
+        const pw = pwInput ? String(pwInput.value).trim() : "";
+
+        if (!id || !pw) {
+            if(errorMsg) errorMsg.innerHTML = `<span class="text-[#FF3B5C]">ID와 Password를 모두 입력해주세요.</span>`;
+            triggerShake();
+            return;
+        }
+
+        isAuthenticating = true;
+        
+        // 무한 로딩 대비 20초 뒤 버튼 강제 릴리즈
+        clearTimeout(authTimeoutFallback);
+        authTimeoutFallback = setTimeout(() => {
+            if(isAuthenticating) {
+                isAuthenticating = false;
+                resetLoginButton();
+                if(errorMsg) errorMsg.innerHTML = `<span class="text-[#FF3B5C]">시스템 응답 시간이 초과되었습니다. 다시 시도해 주세요.</span>`;
+            }
+        }, 20000);
+
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.style.background = "#151515";
+            loginBtn.style.color = "#E84C60";
+            loginBtn.style.border = "1px solid #E84C60";
+            loginBtn.style.letterSpacing = "0.1em";
+            loginBtn.classList.add('cursor-not-allowed');
+            loginBtn.innerHTML = `<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-4 w-4 text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> AUTHENTICATING</span>`;
+        }
+        if (errorMsg) errorMsg.innerText = "";
+
+        let loginResult = null; 
+
+        try {
+            loginResult = await executeLogin({ id: id, pw: pw });
+
+            if (loginResult && loginResult.success) {
+                if (errorMsg) errorMsg.innerHTML = `<span class="text-emerald-400 font-bold drop-shadow-md">✅ SECURE SESSION ESTABLISHED</span>`;
+                
+                try {
+                    localStorage.clear();
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, loginResult.token);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, loginResult.role);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, loginResult.clientName);
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, id);
+                    localStorage.setItem("y2c_premium_state", loginResult.clientState || "DEFAULT");
+                } catch(stErr) { console.error("Storage Quota Exception"); }
+
+                if (loginForm) { 
+                    loginForm.style.transition = "opacity 0.5s ease"; 
+                    loginForm.style.opacity = "0.3"; 
+                    loginForm.style.pointerEvents = "none"; 
+                }
+                
+                clearTimeout(authTimeoutFallback);
+                
+                setTimeout(() => {
+                    window.location.replace((loginResult.role === "MASTER" || loginResult.role === "VENDOR") ? "admin.html" : "items.html");
+                }, 400);
+
+            } else {
+                if (errorMsg) errorMsg.innerHTML = `<span class="text-[#FF3B5C]">⚠️ ${escapeHtml(loginResult?.message || "보안 인증 거부됨.")}</span>`;
+                triggerShake(); 
+            }
+        } catch (err) {
+            if (errorMsg) {
+                errorMsg.innerHTML = `<span class="text-[#FF3B5C]">${err.message}</span>`;
+            }
+            triggerShake(); 
+        } finally {
+            clearTimeout(authTimeoutFallback);
+            
+            if (!loginResult || !loginResult.success) {
+                isAuthenticating = false;
+                resetLoginButton();
+            }
+        }
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", handleLogin);
+    }
+});
+</script>
 </body>
 </html>
