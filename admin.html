@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" content="#1A1516">
+    <meta name="theme-color" content="#E84C60">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <title>SINJEON CANADA | Master DB & Logistics</title>
+    <title>Master DB & Logistics | Y2C Portal</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
     <!-- ⚡ 리소스 터널링 (Preconnect) -->
@@ -18,7 +18,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 🌟 [방어 2] defer 속성을 통한 Tailwind 모바일 프리징 차단 -->
+    <!-- 🌟 defer 속성을 통한 Tailwind 모바일 프리징 차단 -->
     <script src="https://cdn.tailwindcss.com" defer></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, fallback applied.')"></script>
     <script>
@@ -50,7 +50,7 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 [방어 6] 스크롤바 최적화 및 iOS 확대(Zoom) 버그 방지를 위한 16px 강제 */
+        /* 🌟 스크롤바 최적화 및 iOS 확대(Zoom) 버그 방지를 위한 16px 강제 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -95,7 +95,7 @@
         } catch(e) {}
     </script>
 
-    <!-- 🌟 V17.50 프리미엄 통합 네비게이션 바 -->
+    <!-- 🗺️ V17.50 프리미엄 통합 네비게이션 바 -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm no-print">
         <nav role="navigation" aria-label="Main Navigation" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
             <div class="flex items-center gap-3 sm:gap-4">
@@ -108,11 +108,11 @@
             </div>
             
             <div class="hidden md:flex items-center gap-1 lg:gap-2">
-                <a href="dashboard.html" id="navDashboard" class="hidden px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="dashboard.html" id="navDashboard" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_catalog">Item Catalog</span></a>
                 <a href="recipes.html" id="navRecipes" class="hidden px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="hidden px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-[#E84C60] border-b-2 border-[#E84C60] bg-red-50/30 uppercase tracking-widest"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="hidden px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="admin.html" id="navAdmin" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-[#E84C60] border-b-2 border-[#E84C60] bg-red-50/30 uppercase tracking-widest"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-4">
@@ -206,7 +206,6 @@
                                 </tr>
                             </thead>
                             <tbody id="hqOrdersGridBody" class="divide-y divide-gray-100">
-                                <!-- JS Injection -->
                                 <tr><td colspan="7" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><svg class="animate-spin h-6 w-6 mx-auto text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></td></tr>
                             </tbody>
                         </table>
@@ -286,7 +285,6 @@
                                 </tr>
                             </thead>
                             <tbody id="masterTableBody" class="divide-y divide-gray-100">
-                                <!-- JS Injection -->
                                 <tr><td colspan="8" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><svg class="animate-spin h-6 w-6 mx-auto text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></td></tr>
                             </tbody>
                         </table>
@@ -336,7 +334,6 @@
                                 </tr>
                             </thead>
                             <tbody id="salesGridBody" class="divide-y divide-gray-100">
-                                <!-- JS Injection -->
                                 <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide">Please select Franchise and Year</td></tr>
                             </tbody>
                         </table>
