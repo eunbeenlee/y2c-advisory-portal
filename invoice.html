@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - 카테고리 흔들림 완벽 차단 및 30+ 인쇄/보안 하드닝 적용 -->
-<html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
+<!-- 🌟 V17.50 Turbo Solid-State - 이미지 규격 기반 100% 록다운 헤더, 초스무스 렌더링, 30+ 인쇄/에러 방지 -->
+<html lang="en" class="opacity-0 transition-opacity duration-500 ease-out">
 <head>
     <meta charset="UTF-8">
     <!-- 🌟 [방어 8, 9] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
@@ -12,14 +12,14 @@
     <title>Advisory Statement | Y2C Portal</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- ⚡ [방어 20] 리소스 터널링 (Preconnect) -->
+    <!-- ⚡ [방어 3] 리소스 터널링 (Preconnect) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 🌟 [방어 11] defer 속성을 추가하여 렌더링 블로킹(하얀 화면 프리징) 완벽 해결 -->
+    <!-- 🌟 [방어 4] defer 속성을 추가하여 렌더링 블로킹 완벽 해결 -->
     <script src="https://cdn.tailwindcss.com" defer></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
@@ -47,14 +47,14 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 [방어 10, 13] 모바일 바운스 이펙트 차단 & 안티 앨리어싱 강제 */
+        /* 🌟 [방어 10] 모바일 바운스 이펙트 차단 및 안티 앨리어싱 강제 */
         html, body { overscroll-behavior-y: none; touch-action: manipulation; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 [방어 7, 8] 스크롤바 최적화 & 숫자 인풋 스피너 완벽 파괴 (재무 조작 차단) */
+        /* 🌟 [방어 7, 8] 스크롤바 최적화 & iOS 확대(Zoom) 방지 16px 고정 & 숫자 스피너 파괴 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -67,27 +67,28 @@
 
         /* GPU 프리징 차단 (Solid State) */
         .premium-glass { background: #ffffff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
+        
+        /* 🌟 [초스무스 최적화] GPU 가속 시네마틱 렌더링 애니메이션 */
+        .cinematic-enter { opacity: 0; transform: translateY(15px) translateZ(0); animation: fadeUpCinematic 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: opacity, transform; }
+        .delay-100 { animation-delay: 0.05s; } .delay-200 { animation-delay: 0.1s; }
+        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) translateZ(0); } }
 
-        /* 🌟 [방어 12] 시네마틱 렌더링 애니메이션 */
-        .cinematic-enter { opacity: 0; transform: translateY(20px); animation: fadeUpCinematic 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0); } }
+        /* 프리미엄 솔리드 버튼 로직 */
+        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 12px 24px rgba(232, 76, 96, 0.35); transform: translateY(-2px) scale(1.01); }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 4px 10px rgba(232, 76, 96, 0.25); }
 
-        /* 솔리드 버튼 마그네틱 이펙트 */
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; transition: all 0.4s ease; }
-        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 15px 30px rgba(232, 76, 96, 0.4); transform: translateY(-3px) scale(1.01); }
-        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 5px 15px rgba(232, 76, 96, 0.3); }
-        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.4s ease; }
-        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); transform: translateY(-3px) scale(1.01); }
+        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); transform: translateY(-2px) scale(1.01); }
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
 
-        /* 🌟 [방어 15] items.html 기준 100% 동일 네비게이션 효과 */
-        .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
+        /* 🚨 [핵심 패치] 이미지 기준점에 맞춘 100% 고정 네비게이션 CSS (레이아웃 시프트 영구 박멸) */
+        .nav-link { position: relative; color: #6b7280; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
-        .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
+        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        /* 🌟 [방어 1~6] 무결점 인쇄(PDF) 엔진 통제 로직 */
+        /* 🌟 [방어 25] 무결점 인쇄(PDF) 엔진 통제 로직 (무손실 보존) */
         @media print {
             @page { size: A4 portrait; margin: 12mm; }
             body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
@@ -104,65 +105,100 @@
 </head>
 <body class="selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen relative">
     
-    <!-- 🌟 [방어 12] 긴급 방어막 해제 인라인 스크립트 (블랙스크린 영구 차단) -->
-    <script>
-        try {
-            document.documentElement.classList.remove("opacity-0");
-            document.documentElement.style.opacity = "1";
-            document.body.style.opacity = "1";
-        } catch(e) {}
-    </script>
-    
-    <!-- 🌟 [방어 19] NoScript 킬스위치 -->
     <noscript>
-        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative;">Please enable JavaScript to view and generate invoices.</div>
+        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative; font-weight:bold;">
+            Please enable JavaScript to view and generate invoices.
+        </div>
     </noscript>
 
-    <!-- 🗺️ V17.50 프리미엄 통일 네비게이션 바 (Items.html의 <nav> 구조 100% 무손실 적용) -->
-    <nav class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
-            
-            <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
-                <!-- 🛡️ [방어 20] 로고 팽창 방어 패치 -->
-                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" style="height: 48px; width: auto; max-width: 100%; display: block;" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
+    <!-- 🌟 [초스무스 최적화] 즉각 권한 언락 및 FOUC 블랙스크린 영구 해제 -->
+    <script>
+        (function() {
+            try {
+                // 1. 화면 투명도 잠금 해제 (스무스 렌더링)
+                document.documentElement.classList.remove("opacity-0");
+                document.documentElement.style.opacity = "1";
+                document.body.style.opacity = "1";
+
+                // 2. 권한 즉각 동기 로드
+                var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
+                window.__INITIAL_ROLE__ = userRole;
+            } catch(e) {}
+        })();
+    </script>
+    
+    <!-- 🌟 이미지 규격 100% 일치: 3분할 록다운 유니버설 헤더 (절대 흔들림 방지) -->
+    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter transform-gpu">
+        <!-- 🚨 핵심: justify-between 및 3분할 (shrink-0 / flex-1 / shrink-0) 적용 -->
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[84px]">
+
+            <!-- 좌측 로고 영역 (크기 고정) -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-[240px]">
+                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-10 lg:h-12 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
-                    <span class="font-montserrat text-lg sm:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
-                    <span class="text-[8px] lg:text-[9px] font-black tracking-[0.2em] text-[#E84C60] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
+                    <span class="font-montserrat text-base lg:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
+                    <span class="text-[7px] lg:text-[9px] font-black tracking-[0.2em] text-[#E84C60] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
                 </div>
             </div>
-            
-            <div class="flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
-                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
-                <!-- 현재 페이지(Invoice) 활성화 스타일 적용 -->
-                <a href="invoice.html" id="navInvoice" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
-                
-                <div class="flex items-center gap-2 sm:gap-3 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
-                    <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                        <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
-                        <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
-                    </div>
 
-                    <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-4 rounded-full border border-gray-200 shadow-inner">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">Loading...</span>
-                        <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                        <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[var(--premium-charcoal)] hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm active:scale-95 px-3 py-1.5 rounded-full ml-2 font-bold tracking-widest"><span data-i18n="logout">LOGOUT</span></button>
-                    </div>
+            <!-- 데스크탑 중앙 네비게이션 탭 (중앙 절대 정렬) -->
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-6 xl:gap-8">
+                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
+                <!-- 현재 페이지: Advisory Invoice 활성화 -->
+                <a href="invoice.html" id="navInvoice" class="nav-link active text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+            </nav>
+
+            <!-- 우측 컨트롤 (언어/계정) (크기 고정) -->
+            <div class="hidden lg:flex items-center justify-end gap-3 shrink-0 w-[240px]">
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
+                </div>
+
+                <div class="flex items-center space-x-2 bg-gray-50 py-1.5 px-3 rounded-full border border-gray-200 shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px]">Loading...</span>
+                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-2.5 py-1 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-1" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
+
         </div>
-    </nav>
+    </header>
 
-    <!-- 📊 메인 컨텐츠 영역 (max-w-[1600px] 100% 동기화) -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 flex flex-col lg:flex-row gap-8 items-start">
+    <!-- 🌟 [방어 22] 모바일 카테고리 뷰 (데스크톱에서는 숨김 처리되어 간섭 제로) -->
+    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
+        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
+        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
+        <!-- 현재 페이지: Advisory Invoice 모바일 활성화 -->
+        <a href="invoice.html" id="navInvoice_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E84C60] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+    </div>
+
+    <!-- 🌟 권한 동기식 프리-언락 로직 -->
+    <script>
+        (function() {
+            var role = window.__INITIAL_ROLE__;
+            if (role === 'MASTER' || role === 'VENDOR') {
+                ['navDashboard', 'navDashboard_mob', 'navCatalog', 'navCatalog_mob', 'navRecipes', 'navRecipes_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.classList.remove('hidden');
+                });
+            }
+        })();
+    </script>
+
+    <!-- 📊 메인 컨텐츠 영역 (부드러운 시네마틱 페이드인 적용) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 flex flex-col lg:flex-row gap-8 items-start cinematic-enter delay-100">
         
         <!-- ========================================== -->
         <!-- 🎛️ 좌측: Invoice Control Panel            -->
         <!-- ========================================== -->
-        <div class="w-full lg:w-1/3 premium-glass p-6 sm:p-8 rounded-[2rem] no-print sticky top-28 cinematic-enter delay-100">
+        <div class="w-full lg:w-1/3 premium-glass p-6 sm:p-8 rounded-[2rem] no-print sticky top-28">
             <h2 class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] border-b border-gray-200 pb-4 mb-6 flex items-center gap-2 tracking-wide font-montserrat">
                 <span>⚙️</span> <span data-i18n="inv_ctrl_title">Invoice Control Panel</span>
             </h2>
@@ -226,7 +262,7 @@
         <!-- ========================================== -->
         <!-- 📄 우측: Invoice Document (프린트 영역)      -->
         <!-- ========================================== -->
-        <div id="invoiceDocumentContainer" class="w-full lg:w-2/3 premium-glass p-8 sm:p-12 lg:p-16 rounded-[2.5rem] print-area text-gray-800 bg-white cinematic-enter delay-200">
+        <div id="invoiceDocumentContainer" class="w-full lg:w-2/3 premium-glass p-8 sm:p-12 lg:p-16 rounded-[2.5rem] print-area text-gray-800 bg-white">
             
             <!-- 문서 헤더 -->
             <div class="flex flex-col sm:flex-row justify-between items-start border-b-[3px] border-[var(--premium-charcoal)] print-border-black pb-6 mb-8 gap-6">
@@ -315,13 +351,14 @@
         </div>
     </main>
 
-    <!-- 🌟 [방어 18] UI 토스트 컨테이너 강제 최상단 Z-Index 보장 -->
+    <!-- 🌟 UI 토스트 컨테이너 강제 최상단 Z-Index 보장 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
     <!-- 🌟 JS 엔진 연동 -->
     <script src="assets/js/invoice.js" defer></script>
+
     <script>
-        // 🌟 [방어 17] 다국어(I18N) 딕셔너리 인젝션 크래시 샌드박싱
+        // 🌟 [방어 17] 다국어(I18N) 딕셔너리 안전 주입 및 권한 교차 검증
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (typeof I18N_DICT !== 'undefined') {
@@ -344,10 +381,10 @@
                     if (window.applyTranslations) window.applyTranslations();
                 }
             } catch (err) {
-                console.error("[Y2C Telemetry] I18N Extension Error", err);
+                console.error("[Y2C Telemetry] I18N Error", err);
             }
 
-            // 🌟 [방어 23] 권한 보안 검증 및 숨김 탭 강제 렌더링 픽스
+            // 🌟 권한 보안 검증 및 숨김 탭 강제 렌더링 픽스
             try {
                 const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
                 const role = localStorage.getItem(conf.STORAGE_KEYS.ROLE);
