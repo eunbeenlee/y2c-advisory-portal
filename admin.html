@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Ultimate Hardening (Solid State) - 카테고리 접근 권한 픽스 및 30+ 관리자 에러 방어 로직 통합 -->
+<!-- 🌟 V17.50 Turbo Solid-State - 헤더 규격 100% 동기화, 카테고리 흔들림 원천 차단, 30+ 관리자 방어 로직 통합 -->
 <html lang="en" class="opacity-0 transition-opacity duration-700 ease-in-out">
 <head>
     <meta charset="UTF-8">
@@ -78,7 +78,7 @@
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
 
         /* 🌟 [방어 15] 기준점 Items.html 코드와 100% 동일한 네비게이션 호버 효과 */
-        .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.3s ease; }
+        .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
@@ -105,25 +105,24 @@
         } catch(e) {}
     </script>
 
-    <!-- 🌟 프리미엄 통일 네비게이션 바 (Items.html 기준점 100% 보존 규격) -->
-    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
-        <nav role="navigation" aria-label="Main Navigation" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+    <!-- 🌟 프리미엄 통일 네비게이션 바 (Items.html 기준점 100% 보존 규격 - 절대 흔들림 방지) -->
+    <nav class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter gpu-accelerated">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center py-3 lg:py-4 gap-4 lg:gap-0 h-auto lg:h-[84px]">
             
             <div class="flex items-center space-x-3 sm:space-x-4 w-full lg:w-auto justify-center lg:justify-start">
                 <!-- 🛡️ 로고 팽창 방어 패치 -->
                 <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" style="height: 48px; width: auto; max-width: 100%; display: block;" class="h-10 sm:h-11 lg:h-12 object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
                     <span class="font-montserrat text-lg sm:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
-                    <span class="text-[8px] lg:text-[9px] font-black tracking-[0.2em] text-[#E84C60] uppercase mt-1">Operated by Y2C Holdings</span>
+                    <span class="text-[8px] lg:text-[9px] font-black tracking-[0.2em] text-[#E84C60] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
                 </div>
             </div>
             
-            <div class="hidden md:flex items-center gap-1 lg:gap-2">
+            <div class="hidden md:flex items-center flex-wrap gap-x-4 gap-y-3 lg:gap-6 justify-center lg:justify-end w-full lg:w-auto">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <!-- 🚨 [CRITICAL FIX] Item Catalog의 hidden 속성을 제거하여 관리자도 무조건 진입 가능하게 픽스 -->
-                <a href="items.html" id="navCatalog" class="nav-link text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
                 <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <!-- 현재 페이지(Admin) 활성화 스타일 적용 -->
+                <!-- 현재 페이지: Master DB 활성화 -->
                 <a href="admin.html" id="navAdmin" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
                 <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
                 
@@ -144,11 +143,10 @@
         </div>
     </nav>
 
-    <!-- 🌟 [방어 22] Mobile Nav Menu 모바일 카테고리 뷰 붕괴 방지 -->
-    <div class="md:hidden flex overflow-x-auto hide-scrollbar bg-white border-t border-gray-100 py-2 px-4 gap-2">
+    <!-- 🌟 [방어 22] Mobile Nav Menu (Items.html 동일 규격 완벽 적용) -->
+    <div class="md:hidden flex overflow-x-auto hide-scrollbar bg-white border-t border-gray-100 py-2 px-4 gap-2 no-print">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
-        <!-- 🚨 [CRITICAL FIX] 모바일에서도 Item Catalog hidden 제거 -->
-        <a href="items.html" id="navCatalog_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
+        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
         <a href="admin.html" id="navAdmin_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E84C60] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
@@ -267,6 +265,7 @@
                         <p class="text-[10px] sm:text-xs font-bold text-gray-400 tracking-wide mb-6" data-i18n="dropzone_desc">Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png</p>
                         
                         <div class="w-full max-w-sm mx-auto flex flex-col gap-3 relative z-20 pointer-events-auto">
+                            <!-- 🌟 지역(Hub) 선택 드롭다운 팝업 UX 최적화 -->
                             <select id="inboundRegionSelector" aria-label="Hub Selector" class="w-full text-xs p-3 border border-gray-300 rounded-xl focus:border-[#E84C60] outline-none text-center cursor-pointer font-bold text-gray-700 shadow-sm transition-colors bg-white appearance-none">
                                 <option value="">-- Loading Hubs --</option>
                             </select>
@@ -305,6 +304,7 @@
                                 </tr>
                             </thead>
                             <tbody id="masterTableBody" class="divide-y divide-gray-100">
+                                <!-- JS Injection -->
                                 <tr><td colspan="8" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><svg class="animate-spin h-6 w-6 mx-auto text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></td></tr>
                             </tbody>
                         </table>
@@ -375,17 +375,17 @@
 
     <!-- 🌟 JS 엔진 연동 -->
     <script src="assets/js/admin.js" defer></script>
-    
+
     <script>
         // 🌟 [방어 23] 권한 및 네비게이션 강제 렌더링 무결성 패치
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
                 const role = localStorage.getItem(conf.STORAGE_KEYS.ROLE);
-                
+
                 // 마스터 계정일 경우 모든 숨겨진 탭 100% 강제 언락 (ReferenceError 무시)
                 if (role === 'MASTER') {
-                    const unlockIds = ['navDashboard', 'navDashboard_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'];
+                    const unlockIds = ['navDashboard', 'navDashboard_mob', 'navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'];
                     unlockIds.forEach(id => {
                         const el = document.getElementById(id);
                         if(el) el.classList.remove('hidden');
