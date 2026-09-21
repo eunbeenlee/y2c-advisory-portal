@@ -5,22 +5,22 @@
     <meta charset="UTF-8">
     <!-- 🌟 [방어 8, 9] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" content="#E84C60">
+    <meta name="theme-color" content="#1A1516">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
     
     <title>Advisory Statement | Y2C Portal</title>
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- ⚡ 리소스 터널링 -->
+    <!-- ⚡ 리소스 터널링 (Preconnect) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- 🌟 [방어 2] defer 속성을 추가하여 렌더링 블로킹(하얀 화면 프리징) 완벽 해결 -->
     <script src="https://cdn.tailwindcss.com" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- SYSTEM CONFIG -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <script>
@@ -61,17 +61,14 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
+        /* 🌟 [방어 6] 스크롤바 최적화 및 iOS 확대(Zoom) 버그 방지를 위한 16px 강제 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* 🌟 [방어 7, 8] 숫자 입력 스피너 파괴 (재무 오차 방어) 및 16px 강제 (줌 버그 방어) */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button { font-size: 16px !important; }
-        
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -101,7 +98,7 @@
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: -24px; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        /* 🌟 [방어 6] 무결점 인쇄(PDF) 엔진 통합 - 레이아웃 시프트 완벽 통제 */
+        /* 🌟 [방어 25] 무결점 인쇄(PDF) 엔진 통합 - 레이아웃 시프트 완벽 통제 */
         @media print {
             @page { size: A4 portrait; margin: 12mm; }
             body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
@@ -132,7 +129,7 @@
     </noscript>
 
     <!-- 🗺️ V17.50 프리미엄 통합 네비게이션 바 (Solid State) -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm no-print">
+    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter">
         <nav role="navigation" aria-label="Main Navigation" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
             <div class="flex items-center gap-3 sm:gap-4">
                 <!-- 🛡️ 로고 팽창 방어 패치 -->
@@ -144,24 +141,24 @@
             </div>
             
             <div class="hidden md:flex items-center gap-1 lg:gap-2">
-                <a href="dashboard.html" id="navDashboard" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="hidden px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="hidden px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-50 transition-colors uppercase tracking-widest"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="px-3 py-2 rounded-xl text-[11px] lg:text-xs font-black text-[#E84C60] border-b-2 border-[#E84C60] bg-red-50/30 uppercase tracking-widest"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" class="nav-link text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link active text-[13px] sm:text-sm tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-4">
-                <div class="flex bg-gray-100 p-1 rounded-lg border border-gray-200 shadow-inner hidden sm:flex">
-                    <button type="button" id="lang_en" onclick="changeLanguage('en')" aria-label="English" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">EN</button>
-                    <button type="button" id="lang_ko" onclick="changeLanguage('ko')" aria-label="Korean" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">KR</button>
+            <div class="flex items-center gap-2 sm:gap-4 pl-0 lg:pl-2 border-l-0 lg:border-l border-gray-200">
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 hidden sm:flex">
+                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
                 </div>
-                <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-200 shadow-sm cursor-help" title="Current Account Status">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span id="userNameDisplay" class="text-[10px] sm:text-xs font-black text-gray-800 tracking-tight">MASTER</span>
-                    <span id="userRoleBadge" class="hidden px-1.5 py-0.5 rounded bg-red-50 text-[#E84C60] text-[8px] font-black uppercase tracking-widest ml-1 border border-red-100">-</span>
+                <div class="flex items-center space-x-3 bg-gray-50 py-1.5 px-4 rounded-full border border-gray-200 shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="userNameDisplay" class="text-xs sm:text-sm font-extrabold text-[var(--premium-charcoal)] truncate max-w-[90px] sm:max-w-[120px]">MASTER</span>
+                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
+                    <button type="button" id="logoutBtn" class="text-[10px] sm:text-[11px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-3 py-1.5 rounded-full transition-all shadow-sm tracking-widest ml-2 active:scale-95" data-i18n="logout">LOGOUT</button>
                 </div>
-                <button type="button" id="logoutBtn" aria-label="Logout" class="px-4 py-2 border border-gray-200 rounded-full text-[10px] sm:text-xs font-black text-gray-500 hover:text-[var(--premium-charcoal)] hover:border-gray-300 hover:bg-gray-50 transition-all uppercase tracking-widest shadow-sm active:scale-95"><span data-i18n="logout">LOGOUT</span></button>
             </div>
         </nav>
         
@@ -188,7 +185,7 @@
                 <!-- 가맹점 선택 -->
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_client">Target Client</label>
-                    <select id="selClient" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300 cursor-pointer">
+                    <select id="selClient" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300 cursor-pointer appearance-none">
                         <option value="">Loading franchise list...</option>
                     </select>
                 </div>
@@ -202,7 +199,7 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_rate">Rate (%)</label>
-                        <input type="number" id="selRate" value="2" step="0.01" class="w-full bg-red-50/50 border border-red-100 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-[#E84C60] focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <input type="number" id="selRate" value="2.0" step="0.01" class="w-full bg-red-50/50 border border-red-100 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-[#E84C60] focus:border-[#E84C60] outline-none transition-all duration-300">
                     </div>
                 </div>
                 
@@ -210,14 +207,14 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_start">Start Month</label>
-                        <select id="selStart" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer">
+                        <select id="selStart" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer appearance-none">
                             <option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option>
                             <option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_end">End Month</label>
-                        <select id="selEnd" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer">
+                        <select id="selEnd" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer appearance-none">
                             <option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option>
                             <option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
                         </select>
@@ -226,15 +223,15 @@
                 
                 <!-- 액션 버튼 -->
                 <div class="pt-6 space-y-3 border-t border-gray-100">
-                    <button type="button" onclick="generateInvoice()" class="btn-charcoal w-full py-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm font-black tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[#1A1516] focus:ring-offset-2">
+                    <button type="button" onclick="generateInvoice()" class="btn-charcoal w-full py-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm font-black tracking-widest uppercase focus:outline-none">
                         <span>🔄</span> <span data-i18n="btn_generate">GENERATE DATA</span>
                     </button>
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <button type="button" onclick="window.printInvoicePDF()" class="btn-gradient-pink w-full py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 text-[11px] sm:text-xs font-black tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[#E84C60] focus:ring-offset-2">
+                        <button type="button" onclick="window.printInvoicePDF()" class="btn-gradient-pink w-full py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 text-[11px] sm:text-xs font-black tracking-widest uppercase focus:outline-none">
                             <span data-i18n="btn_pdf">🖨️ PDF</span>
                         </button>
-                        <button type="button" onclick="exportInvoiceCSV()" class="w-full bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50 font-black py-3.5 rounded-xl shadow-sm transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-[11px] sm:text-xs tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2">
+                        <button type="button" onclick="exportInvoiceCSV()" class="w-full bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50 font-black py-3.5 rounded-xl shadow-sm transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-[11px] sm:text-xs tracking-widest uppercase focus:outline-none">
                             <span data-i18n="btn_csv">📥 CSV</span>
                         </button>
                     </div>
@@ -244,7 +241,6 @@
 
         <!-- ========================================== -->
         <!-- 📄 우측: Invoice Document (프린트 영역)      -->
-        <!-- 🚨 id="invoiceDocumentContainer" 무손실 보존 -->
         <!-- ========================================== -->
         <div id="invoiceDocumentContainer" class="w-full lg:w-2/3 premium-glass p-8 sm:p-12 lg:p-16 rounded-[2.5rem] print-area text-gray-800 bg-white cinematic-enter delay-200">
             
@@ -252,7 +248,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start border-b-[3px] border-[var(--premium-charcoal)] print-border-black pb-6 mb-8 gap-6">
                 <div>
                     <!-- 🛡️ 로고 프린트 대응 (인쇄 시 숨겨지지 않도록) -->
-                    <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.onerror=function(){this.style.display='none';};" alt="Y2C Holdings Logo" class="h-10 sm:h-12 mb-5 object-contain" style="display: block;">
+                    <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.style.display='none';" alt="Y2C Holdings Logo" class="h-10 sm:h-12 mb-5 object-contain" style="display: block;">
                     <h2 class="text-2xl sm:text-3xl font-black tracking-widest text-[var(--premium-charcoal)] print-text-black font-montserrat uppercase" data-i18n="doc_title">Statement of Account</h2>
                 </div>
                 <div class="text-left sm:text-right text-[11px] sm:text-xs text-gray-500 space-y-1.5 pt-2">
@@ -321,7 +317,7 @@
                 <div class="bg-gray-50 print-bg-gray p-6 rounded-3xl border border-gray-200 print-border-black text-right flex flex-col justify-end w-full max-w-sm ml-auto">
                     <p class="text-xs text-gray-600 font-medium print-text-black mb-2"><span data-i18n="lbl_subtotal">Subtotal:</span> <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black text-sm" id="subTotal">$0.00</span></p>
                     <p class="text-xs text-gray-600 font-medium pb-4 border-b border-gray-300 print-border-black print-text-black">
-                        <span id="taxLabelArea"><span data-i18n="lbl_tax">Estimated Tax:</span></span> <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black text-sm" id="taxAmt">$0.00</span>
+                        <span id="taxLabelArea"><span data-i18n="lbl_tax">Estimated Tax (HST/GST):</span></span> <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black text-sm" id="taxAmt">$0.00</span>
                     </p>
                     <div class="pt-4">
                         <span class="text-[10px] text-[#E84C60] font-black uppercase tracking-[0.2em] block mb-1 print-text-black" data-i18n="lbl_total_due">TOTAL AMOUNT DUE</span>
@@ -352,7 +348,7 @@
                         "lbl_issued_by": "Issued By (Master)", "lbl_prep_for": "Prepared For (Franchisee)",
                         "th_desc": "Description of Services", "th_base": "Calculated Base", "th_rate": "Rate", "th_amt": "Amount",
                         "lbl_remit": "Remittance Details", "lbl_bank": "Bank:", "lbl_address": "Address:", "lbl_account": "Account No:", "lbl_swift": "SWIFT Code:", "lbl_memo_warn": "⚠️ Please include <strong class='font-black underline'>Invoice Number</strong> in transfer memo.",
-                        "lbl_subtotal": "Subtotal:", "lbl_tax": "Estimated Tax:", "lbl_total_due": "TOTAL AMOUNT DUE", "lbl_thanks": "Thank you for your partnership"
+                        "lbl_subtotal": "Subtotal:", "lbl_tax": "Estimated Tax (HST/GST):", "lbl_total_due": "TOTAL AMOUNT DUE", "lbl_thanks": "Thank you for your partnership"
                     });
                     Object.assign(I18N_DICT.ko, {
                         "inv_ctrl_title": "정산 제어 패널", "lbl_client": "대상 가맹점", "lbl_year": "정산 연도", "lbl_rate": "수수료율 (%)", "lbl_start": "시작 월", "lbl_end": "종료 월", "btn_pdf": "🖨️ PDF 인쇄", "btn_csv": "📥 CSV 다운로드",
@@ -360,7 +356,7 @@
                         "lbl_issued_by": "발신 (본사)", "lbl_prep_for": "수신 (가맹점)",
                         "th_desc": "청구 내역", "th_base": "기준 금액", "th_rate": "비율", "th_amt": "청구액",
                         "lbl_remit": "송금 계좌 정보", "lbl_bank": "은행명:", "lbl_address": "은행 주소:", "lbl_account": "계좌번호:", "lbl_swift": "스위프트 코드:", "lbl_memo_warn": "⚠️ 송금 메모에 반드시 <strong class='font-black underline'>청구 번호(Invoice No)</strong>를 기재해 주세요.",
-                        "lbl_subtotal": "소계:", "lbl_tax": "예상 세금:", "lbl_total_due": "최종 납부 금액", "lbl_thanks": "귀하의 노고와 파트너십에 감사드립니다"
+                        "lbl_subtotal": "소계:", "lbl_tax": "예상 세금 (HST/GST):", "lbl_total_due": "최종 납부 금액", "lbl_thanks": "귀하의 노고와 파트너십에 감사드립니다"
                     });
                     if (window.applyTranslations) window.applyTranslations();
                 }
@@ -373,6 +369,7 @@
                 const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
                 if (localStorage.getItem(conf.STORAGE_KEYS.ROLE) === "MASTER") {
                     document.getElementById('navAdmin')?.classList.remove('hidden');
+                    document.getElementById('navInvoice')?.classList.remove('hidden');
                 } else {
                     window.location.replace("index.html");
                 }
