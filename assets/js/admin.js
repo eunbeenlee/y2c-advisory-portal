@@ -1,16 +1,22 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Admin Engine (V17.43 Ultimate)
- * [Absolute Null-Safe] 빈칸, 쉼표, 쓰레기 데이터 완벽 방어 및 UX/UI 오토-포커스
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V17.50 Turbo)
+ * [Absolute Null-Safe] 빈칸, 쓰레기 데이터 100% 방어 및 초스무스(FOUC) 렌더링
  * ============================================================================
  */
 
-// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거
+// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
-    document.documentElement.classList.remove("opacity-0");
-    document.documentElement.style.opacity = "1";
-    document.body.classList.remove("opacity-0");
-    document.body.style.opacity = "1";
+    var docEl = document.documentElement;
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
+            docEl.classList.remove("opacity-0");
+            docEl.style.opacity = "1";
+            document.body.classList.remove("opacity-0");
+            document.body.style.opacity = "1";
+        });
+    });
 } catch(e) {}
 
 const CONFIG = window.SYSTEM_CONFIG || {};
@@ -106,7 +112,7 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 [방어 V17.43] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
+// 🔒 [방어 V17.50] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -687,7 +693,6 @@ async function fetchCatalogForInbound() {
     const result = await executeApi("get_items", { clientState: "DEFAULT" });
     if (result && result.success) { 
       cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
-      // 마스터 데이터 로딩 후 지역 옵션을 갱신 (UX 강화)
       populateInboundRegionOptions();
     }
   } catch (e) { console.error("Catalog load failed", e); cachedItems = []; }
@@ -770,7 +775,7 @@ window.openHqOrderCartModal = async function() {
     if(cachedItems.length === 0) {
         showToast("백엔드와 데이터를 동기화 중입니다. 잠시만 기다려주세요...", "success");
         await fetchCatalogForInbound();
-        if(cachedItems.length === 0) return showToast("🚨 구글 서버 접근이 차단되었습니다(CORS). 배포 권한 설정을 확인하세요.", "error");
+        if(cachedItems.length === 0) return showToast("🚨 서버 접근이 차단되었습니다. 배포 권한 설정을 확인하세요.", "error");
     }
 
     let modal = document.getElementById('hqCartModal');
@@ -915,7 +920,6 @@ window.updateHqOrderStatus = async function(orderId, status) {
   } catch (err) { showToast(err.message, "error"); fetchMappings(); }
 }
 
-// 🌟 [방어 V17.43] 지역 옵션 동적 생성 (마스터 데이터 기반)
 function populateInboundRegionOptions() {
     const regionSelector = document.getElementById('inboundRegionSelector');
     if (!regionSelector || cachedItems.length === 0) return;
@@ -924,15 +928,10 @@ function populateInboundRegionOptions() {
     let currentVal = regionSelector.value;
     
     let html = `<option value="">-- Select Hub Region for Inbound --</option>`;
-    regions.forEach(reg => {
-        html += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`;
-    });
+    regions.forEach(reg => { html += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`; });
     regionSelector.innerHTML = html;
     
-    // 만약 이전에 선택해둔 지역이 있다면 복구
-    if (currentVal && regions.includes(currentVal)) {
-        regionSelector.value = currentVal;
-    }
+    if (currentVal && regions.includes(currentVal)) { regionSelector.value = currentVal; }
 }
 
 function setupDragAndDrop() {
@@ -955,42 +954,29 @@ function setupDragAndDrop() {
       e.preventDefault(); 
       clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); 
       
-      // 🌟 [방어 V17.43] 허브 선택 안 하고 드롭 시 조용히 포커스 이동 (UX 개선)
       const rs = document.getElementById('inboundRegionSelector');
       if (rs && !rs.value) {
-          rs.focus();
-          rs.classList.add('border-[#E84C60]', 'animate-pulse');
+          rs.focus(); rs.classList.add('border-[#E84C60]', 'animate-pulse');
           setTimeout(() => rs.classList.remove('animate-pulse'), 1000);
-          showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
-          return;
+          showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); return;
       }
-      
       handleExcelUpload(e); 
   });
   
   const fileInput = document.getElementById('excelFileInput'); if(fileInput) {
       const fiClone = fileInput.cloneNode(true); fileInput.parentNode.replaceChild(fiClone, fileInput);
       fiClone.addEventListener('change', (e) => {
-          // 🌟 파일 선택기로 업로드 시에도 지역 선택 체크
           const rs = document.getElementById('inboundRegionSelector');
           if (rs && !rs.value) {
-              e.target.value = ''; // 파일 선택 초기화
-              rs.focus();
-              rs.classList.add('border-[#E84C60]', 'animate-pulse');
+              e.target.value = ''; rs.focus(); rs.classList.add('border-[#E84C60]', 'animate-pulse');
               setTimeout(() => rs.classList.remove('animate-pulse'), 1000);
-              showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
-              return;
+              showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); return;
           }
           handleExcelUpload(e);
       });
   }
   
-  // 지역 선택 시 빨간색 에러 테두리 제거 (UX 개선)
-  if (regionSelector) {
-      regionSelector.addEventListener('change', function() {
-          if (this.value) this.classList.remove('border-[#E84C60]');
-      });
-  }
+  if (regionSelector) { regionSelector.addEventListener('change', function() { if (this.value) this.classList.remove('border-[#E84C60]'); }); }
 }
 
 async function loadHeavyLibrary(url, objName) {
@@ -999,6 +985,28 @@ async function loadHeavyLibrary(url, objName) {
         const script = document.createElement('script'); script.src = url; 
         script.onload = () => resolve(true); script.onerror = () => reject(false); 
         document.head.appendChild(script); 
+    });
+}
+
+function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image(); img.src = event.target.result;
+            img.onload = () => {
+                let width = img.width, height = img.height;
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) { height = Math.round((height *= maxWidth / width)); width = maxWidth; } 
+                    else { width = Math.round((width *= maxHeight / height)); height = maxHeight; }
+                }
+                const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(blob => { resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); }, 'image/jpeg', 0.8); 
+            };
+            img.onerror = error => resolve(file);
+        };
+        reader.onerror = error => resolve(file);
     });
 }
 
@@ -1037,7 +1045,8 @@ async function handleExcelUpload(event) {
 
     setUploadStatus(`<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`);
     try {
-      const result = await Tesseract.recognize(file, 'eng+kor', { logger: m => { if (m.status === 'recognizing text') { const pct = Math.floor(m.progress * 100); setUploadStatus(`<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`); } } });
+      let targetFile = file; try { targetFile = await compressImage(file); } catch(e) {}
+      const result = await Tesseract.recognize(targetFile, 'eng+kor', { logger: m => { if (m.status === 'recognizing text') { const pct = Math.floor(m.progress * 100); setUploadStatus(`<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`); } } });
       await processOCRText(result.data.text, file.name);
     } catch(err) { isSubmitting = false; showToast("이미지 인식 실패: " + err.message, "error"); setUploadStatus("Drag & Drop vendor document here"); }
   } else { 
