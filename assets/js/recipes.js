@@ -1,16 +1,22 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Recipe Center Engine (V17.40 Ultimate)
- * [무결점 교차 검증 완료] Progressive Rendering, Backoff Network, Debounce Search
+ * Y2C Holdings Premium Partner Portal - Recipe Center Engine (V17.50 Turbo)
+ * [무결점 교차 검증 완료] Progressive Rendering, Backoff Network, 초스무스 UI
  * ============================================================================
  */
 
-// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거
+// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
-    document.documentElement.classList.remove("opacity-0");
-    document.documentElement.style.opacity = "1";
-    document.body.classList.remove("opacity-0");
-    document.body.style.opacity = "1";
+    var docEl = document.documentElement;
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
+            docEl.classList.remove("opacity-0");
+            docEl.style.opacity = "1";
+            document.body.classList.remove("opacity-0");
+            document.body.style.opacity = "1";
+        });
+    });
 } catch(e) {}
 
 const CONFIG = window.SYSTEM_CONFIG || {};
@@ -125,7 +131,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 11] 토스트 알림 Z-Index 붕괴 및 렌더링 지연 스케줄링 방어
+// 🌟 [방어 11] 토스트 알림 Z-Index 붕괴 방어 및 폰트 통일 (font-inter 적용)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -136,7 +142,7 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
     const icon = type === 'success' ? '✅' : '⚠️';
-    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
     toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${escapeHtml(message)}</span>`;
     container.appendChild(toast);
     
@@ -227,7 +233,7 @@ async function executeApi(action, payload = {}, retries = 3) {
             }
 
             if (err.message && err.message.includes("Failed to fetch")) {
-                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 스크립트 배포 설정을 확인하세요.</span>");
+                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 스크립트 배포 설정을 확인하세요.</span>");
             }
 
             if (i < retries) {
@@ -265,11 +271,12 @@ async function fetchRecipes() {
             throw new Error(result?.message || "레시피 데이터를 불러올 수 없습니다.");
         }
     } catch (err) {
-        grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E84C60] font-black tracking-widest uppercase">${escapeHtml(err.message || "로딩 오류")}</div>`;
+        grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E84C60] font-black tracking-widest uppercase font-inter">${escapeHtml(err.message || "로딩 오류")}</div>`;
         showToast("데이터를 불러오지 못했습니다.", "error");
     }
 }
 
+// 🌟 JS에서 동적으로 생성되는 카테고리 필터 버튼에 폰트(font-inter) 일체화 락다운
 function buildCategoryFilters() {
     const filterContainer = document.getElementById('recipeCategoryFilters');
     if (!filterContainer) return;
@@ -289,9 +296,9 @@ function buildCategoryFilters() {
         btn.innerText = (cat === allRecipesLabel) ? cat : translateDynamic(cat, 'recipeCategory');
         
         if (cat === currentCategory) {
-            btn.className = "bg-[#E84C60] text-white px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-md whitespace-nowrap transition-all";
+            btn.className = "bg-[#E84C60] text-white px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-md whitespace-nowrap transition-all font-inter";
         } else {
-            btn.className = "bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] hover:border-[#E84C60] px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95";
+            btn.className = "bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] hover:border-[#E84C60] px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95 font-inter";
         }
         btn.onclick = () => { 
             currentCategory = cat; 
@@ -332,6 +339,7 @@ function handleSearchInput() {
 
 // ============================================================================
 // ⚡ [방어 6] 점진적 렌더링 엔진 2.0 (Progressive Rendering)
+// 🌟 JS에서 동적으로 생성되는 레시피 카드 요소에 폰트(Montserrat/Inter) 일체화 락다운
 // ============================================================================
 function renderRecipes(recipes) {
     const grid = document.getElementById('recipeGrid');
@@ -340,7 +348,7 @@ function renderRecipes(recipes) {
     const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
 
     if (recipes.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 font-bold tracking-widest uppercase">${dict["no_recipes"]}</div>`;
+        grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 font-bold tracking-widest uppercase font-inter">${dict["no_recipes"]}</div>`;
         return;
     }
     
@@ -371,12 +379,12 @@ function renderRecipes(recipes) {
 
             card.innerHTML = `
                 <div class="mb-4">
-                    <span class="px-2.5 py-1 bg-[#E84C60]/10 text-[#E84C60] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E84C60]/20">${translatedCat}</span>
+                    <span class="px-2.5 py-1 bg-[#E84C60]/10 text-[#E84C60] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E84C60]/20 font-inter">${translatedCat}</span>
                 </div>
                 <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2 leading-tight">${titleText}</h3>
-                <p class="text-xs font-medium text-gray-500 line-clamp-3 mb-4 flex-grow">${ingText}</p>
+                <p class="text-xs font-medium text-gray-500 line-clamp-3 mb-4 flex-grow font-inter">${ingText}</p>
                 <div class="mt-auto pt-4 border-t border-gray-100">
-                    <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#E84C60] transition-colors">${dict["btn_view"]} <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                    <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#E84C60] transition-colors font-inter">${dict["btn_view"]} <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
                 </div>
             `;
             fragment.appendChild(card);
