@@ -1,16 +1,22 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Invoice Engine (V17.42 Ultimate)
- * [Absolute Null-Safe] 빈칸, 쉼표, 쓰레기 데이터 완벽 방어 및 PDF/CSV 무결성
+ * Y2C Holdings Premium Partner Portal - Invoice Engine (V17.50 Turbo)
+ * [Absolute Null-Safe] 재무 데이터 무결성 보존 및 초스무스(FOUC) 렌더링
  * ============================================================================
  */
 
-// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거
+// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
-    document.documentElement.classList.remove("opacity-0");
-    document.documentElement.style.opacity = "1";
-    document.body.classList.remove("opacity-0");
-    document.body.style.opacity = "1";
+    var docEl = document.documentElement;
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
+            docEl.classList.remove("opacity-0");
+            docEl.style.opacity = "1";
+            document.body.classList.remove("opacity-0");
+            document.body.style.opacity = "1";
+        });
+    });
 } catch(e) {}
 
 const CONFIG = window.SYSTEM_CONFIG || {};
@@ -97,7 +103,7 @@ window.applyTranslations = function() {
 };
 
 // ============================================================================
-// 🔒 [방어 V17.42] Absolute Null-Safe Parsers (빈칸, 특수문자, 쉼표, NaN 100% 방어)
+// 🔒 [방어 V17.50] Absolute Null-Safe Parsers (빈칸, 특수문자, 쉼표, NaN 100% 방어)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -167,7 +173,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 20] 글로벌 토스트 알림 Z-Index 스팸 억제
+// 🌟 [방어 20] 글로벌 토스트 알림 Z-Index 스팸 억제 및 폰트 통일
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -177,7 +183,7 @@ function showToast(message, type = 'success') {
 
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]', icon = type === 'success' ? '✅' : '⚠️';
-    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
     toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${escapeHtml(message)}</span>`;
     container.appendChild(toast);
     
@@ -255,7 +261,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             }
 
             if (err.message && err.message.includes("Failed to fetch")) {
-                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 배포 설정을 확인하세요.</span>");
+                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 배포 설정을 확인하세요.</span>");
             }
 
             if (i < retries) {
@@ -423,7 +429,7 @@ async function generateInvoice() {
             
             const taxLabelEl = document.getElementById('taxAmt')?.parentElement;
             if(taxLabelEl) {
-                taxLabelEl.innerHTML = `Estimated Tax <span class="font-bold text-gray-800">(${escapeHtml(taxObj.name)})</span>: <span class="font-black text-[var(--premium-charcoal)] font-mono ml-4 print-text-black text-sm" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
+                taxLabelEl.innerHTML = `Estimated Tax <span class="font-bold text-gray-800 font-inter">(${escapeHtml(taxObj.name)})</span>: <span class="font-black text-[var(--premium-charcoal)] font-mono ml-4 print-text-black text-sm" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
             } else if (document.getElementById('taxAmt')) {
                 document.getElementById('taxAmt').innerText = formatCurrency(taxAmount);
             }
