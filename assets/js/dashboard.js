@@ -1,16 +1,22 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Dashboard Engine (V17.42 Ultimate)
- * [Absolute Null-Safe] 빈칸, 쉼표, 오염 데이터 완벽 방어 및 OOM 100% 제어
+ * Y2C Holdings Premium Partner Portal - Dashboard Engine (V17.50 Turbo)
+ * [Absolute Null-Safe] 빈칸, 쉼표 완벽 방어 및 초스무스 렌더링/OOM 100% 제어
  * ============================================================================
  */
 
-// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거
+// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
-    document.documentElement.classList.remove("opacity-0");
-    document.documentElement.style.opacity = "1";
-    document.body.classList.remove("opacity-0");
-    document.body.style.opacity = "1";
+    var docEl = document.documentElement;
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
+            docEl.classList.remove("opacity-0");
+            docEl.style.opacity = "1";
+            document.body.classList.remove("opacity-0");
+            document.body.style.opacity = "1";
+        });
+    });
 } catch(e) {}
 
 const CONFIG = window.SYSTEM_CONFIG || {};
@@ -81,7 +87,7 @@ window.applyTranslations = function() {
 };
 
 // ============================================================================
-// 🔒 [방어 V17.42] Absolute Null-Safe Parsers (재무 오염 100% 방어망)
+// 🔒 [방어 V17.50] Absolute Null-Safe Parsers (재무 오염 100% 방어망)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -137,7 +143,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 16] 글로벌 토스트 스팸(Z-Index 붕괴) 방지기
+// 🌟 [방어 16] 글로벌 토스트 스팸(Z-Index 붕괴) 방지기 (폰트 동기화)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -147,7 +153,7 @@ function showToast(message, type = 'success') {
 
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]', icon = type === 'success' ? '✅' : '⚠️';
-    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+    toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
     toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
     toast.querySelector('.toast-msg').textContent = String(message);
     container.appendChild(toast);
@@ -226,7 +232,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             }
 
             if (err.message && err.message.includes("Failed to fetch")) {
-                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight'>구글 배포 설정을 확인하세요.</span>");
+                throw new Error("🚨 서버 접근이 차단되었습니다(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 배포 설정을 확인하세요.</span>");
             }
 
             if (i < retries) {
@@ -373,6 +379,7 @@ function renderSalesChart(monthlyData) {
     gradient.addColorStop(0, 'rgba(232, 76, 96, 0.4)');
     gradient.addColorStop(1, 'rgba(232, 76, 96, 0.0)');
 
+    // 🌟 Inter 폰트 동기화
     Chart.defaults.font.family = "'Inter', sans-serif";
     const currentLabel = I18N_DICT[currentLang] ? I18N_DICT[currentLang]["chart_label"] : "Total Revenue (CAD)";
 
