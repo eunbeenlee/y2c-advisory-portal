@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Recipe Center Engine (V17.50 Turbo)
- * [무결점 교차 검증 완료] Progressive Rendering, Backoff Network, 초스무스 UI
+ * Y2C Holdings Premium Partner Portal - Recipe Center Engine (V30.5 Enterprise)
+ * [Absolute Null-Safe] SWR 초고속 캐시 렌더러, 검색 디바운싱, 프리미엄 UI 동기화
  * ============================================================================
  */
 
@@ -45,7 +45,7 @@ const I18N_DICT = {
     en: {
         "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
         "logout": "LOGOUT", "cancel_order": "Cancel Order",
-        "recipe_title": "Standard Recipe Center", "recipe_desc": "Official cooking instructions, ingredient lists, and operational guidelines.",
+        "recipe_title": "Official Recipe Center", "recipe_desc": "Standardized operational manuals and cooking instructions.",
         "search_placeholder": "Search recipes by name or ingredient...",
         "all_recipes": "All Recipes", "no_recipes": "No recipes found.", "uncategorized": "Uncategorized",
         "btn_view": "View Instruction", "modal_close": "Close Recipe", "modal_ing": "Ingredients", "modal_inst": "Instructions", "modal_tips": "Pro Tips & Warnings"
@@ -53,7 +53,7 @@ const I18N_DICT = {
     ko: {
         "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
         "logout": "로그아웃", "cancel_order": "발주 취소",
-        "recipe_title": "표준 레시피 센터", "recipe_desc": "공식 조리 매뉴얼, 식자재 정량 및 운영 가이드라인.",
+        "recipe_title": "공식 레시피 센터", "recipe_desc": "표준 조리 매뉴얼, 식자재 정량 및 운영 가이드라인.",
         "search_placeholder": "요리명 또는 식자재로 레시피 검색...",
         "all_recipes": "전체 레시피", "no_recipes": "검색된 레시피가 없습니다.", "uncategorized": "미분류",
         "btn_view": "레시피 보기", "modal_close": "닫기", "modal_ing": "식자재 및 정량", "modal_inst": "조리 순서", "modal_tips": "팁 & 주의사항"
@@ -78,8 +78,8 @@ window.changeLanguage = function(lang) {
     const btnEn = document.getElementById('lang_en');
     const btnKo = document.getElementById('lang_ko');
     if (btnEn && btnKo) {
-        btnEn.className = safeLang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
-        btnKo.className = safeLang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnEn.className = safeLang === 'en' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
@@ -131,7 +131,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 11] 토스트 알림 Z-Index 붕괴 방어 및 폰트 통일 (font-inter 적용)
+// 🌟 [방어 11] 토스트 알림 Z-Index 붕괴 방어 및 폰트 통일 (font-inter 적용, E3000F 테마 적용)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -140,7 +140,7 @@ function showToast(message, type = 'success') {
     if (container.childNodes.length >= 5) container.firstChild.remove();
 
     const toast = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]';
+    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]';
     const icon = type === 'success' ? '✅' : '⚠️';
     toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
     toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${escapeHtml(message)}</span>`;
@@ -177,7 +177,7 @@ function applyGlobalRbacNavigation() {
 // ============================================================================
 // 🌟 [방어 1, 2, 3] 25초 킬스위치 및 지수형 백오프(Exponential Backoff) 엔진
 // ============================================================================
-async function executeApi(action, payload = {}, retries = 3) {
+async function executeApi(action, payload = {}, retries = 2) {
     let lastNetworkError;
     if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
     const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
@@ -246,7 +246,7 @@ async function executeApi(action, payload = {}, retries = 3) {
 }
 
 // ============================================================================
-// 🍳 레시피 데이터 파이프라인 (Omni-Parser 2.0 및 XSS 방어)
+// 🍳 레시피 데이터 파이프라인 (SWR Cache 엔진 및 XSS 방어)
 // ============================================================================
 let allRecipes = [];
 let currentCategory = "All Recipes";
@@ -255,6 +255,20 @@ let searchDebounceTimer = null;
 async function fetchRecipes() {
     const grid = document.getElementById('recipeGrid');
     if (!grid) return;
+
+    // 🌟 [핵심 최적화 1] SWR (Stale-While-Revalidate) 로컬 캐시 엔진
+    const cacheKey = "Y2C_RECIPES_CACHE_V30";
+    try {
+        const cachedRaw = localStorage.getItem(cacheKey);
+        if (cachedRaw) {
+            const cachedData = JSON.parse(cachedRaw);
+            if (Array.isArray(cachedData) && cachedData.length > 0) {
+                allRecipes = cachedData;
+                buildCategoryFilters();
+                filterRecipes();
+            }
+        }
+    } catch(e) {}
 
     try {
         const result = await executeApi("get_recipes");
@@ -265,18 +279,24 @@ async function fetchRecipes() {
             if (!Array.isArray(dataPayload)) dataPayload = []; 
             
             allRecipes = dataPayload;
+            
+            // 데이터 무결성 확보 후 캐시 저장
+            try { localStorage.setItem(cacheKey, JSON.stringify(allRecipes)); } catch(e) {}
+            
             buildCategoryFilters();
             filterRecipes();
         } else {
-            throw new Error(result?.message || "레시피 데이터를 불러올 수 없습니다.");
+            if (allRecipes.length === 0) throw new Error(result?.message || "레시피 데이터를 불러올 수 없습니다.");
         }
     } catch (err) {
-        grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E84C60] font-black tracking-widest uppercase font-inter">${escapeHtml(err.message || "로딩 오류")}</div>`;
-        showToast("데이터를 불러오지 못했습니다.", "error");
+        if (allRecipes.length === 0) {
+            grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E3000F] font-black tracking-widest uppercase font-inter">${escapeHtml(err.message || "로딩 오류")}</div>`;
+            showToast("데이터를 불러오지 못했습니다.", "error");
+        }
     }
 }
 
-// 🌟 JS에서 동적으로 생성되는 카테고리 필터 버튼에 폰트(font-inter) 일체화 락다운
+// 🌟 JS에서 동적으로 생성되는 카테고리 필터 버튼에 폰트(font-inter) 일체화 및 V30.5 컬러 적용
 function buildCategoryFilters() {
     const filterContainer = document.getElementById('recipeCategoryFilters');
     if (!filterContainer) return;
@@ -296,9 +316,9 @@ function buildCategoryFilters() {
         btn.innerText = (cat === allRecipesLabel) ? cat : translateDynamic(cat, 'recipeCategory');
         
         if (cat === currentCategory) {
-            btn.className = "bg-[#E84C60] text-white px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-md whitespace-nowrap transition-all font-inter";
+            btn.className = "bg-[#E3000F] text-white px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs uppercase tracking-widest shadow-md whitespace-nowrap transition-all font-inter";
         } else {
-            btn.className = "bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] hover:border-[#E84C60] px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95 font-inter";
+            btn.className = "bg-white border border-gray-200 text-gray-500 hover:text-[#E3000F] hover:bg-red-50/50 hover:border-[#E3000F] px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95 font-inter";
         }
         btn.onclick = () => { 
             currentCategory = cat; 
@@ -339,7 +359,7 @@ function handleSearchInput() {
 
 // ============================================================================
 // ⚡ [방어 6] 점진적 렌더링 엔진 2.0 (Progressive Rendering)
-// 🌟 JS에서 동적으로 생성되는 레시피 카드 요소에 폰트(Montserrat/Inter) 일체화 락다운
+// 🌟 JS에서 동적으로 생성되는 레시피 카드 요소에 폰트(Montserrat/Inter) 일체화 및 V30.5 컬러 적용
 // ============================================================================
 function renderRecipes(recipes) {
     const grid = document.getElementById('recipeGrid');
@@ -363,10 +383,11 @@ function renderRecipes(recipes) {
         for (; chunkIndex < endIdx; chunkIndex++) {
             const recipe = recipes[chunkIndex];
             const index = chunkIndex;
-            const delay = (index % 12) * 50;
+            const delay = (index % 12) * 40; // 렌더링 딜레이 최적화
             const card = document.createElement('div');
             
-            card.className = `recipe-card bg-white border border-gray-200 rounded-[1.5rem] p-6 shadow-sm flex flex-col h-full cinematic-enter cursor-pointer group`;
+            // 🌟 premium-shadow 클래스 적용으로 대기업 SaaS 디자인 일체화
+            card.className = `recipe-card bg-white premium-shadow rounded-[1.5rem] p-6 sm:p-7 flex flex-col h-full cinematic-enter group`;
             card.style.animationDelay = `${delay}ms`;
             
             // 🌟 클로저 붕괴를 막는 함수 블록 바인딩
@@ -378,13 +399,16 @@ function renderRecipes(recipes) {
             const ingText = escapeHtml(recipe.ingredients || 'Details inside...');
 
             card.innerHTML = `
-                <div class="mb-4">
-                    <span class="px-2.5 py-1 bg-[#E84C60]/10 text-[#E84C60] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E84C60]/20 font-inter">${translatedCat}</span>
+                <div class="mb-5">
+                    <span class="px-3 py-1.5 bg-[#E3000F]/10 text-[#E3000F] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E3000F]/20 font-inter">${translatedCat}</span>
                 </div>
-                <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2 leading-tight">${titleText}</h3>
-                <p class="text-xs font-medium text-gray-500 line-clamp-3 mb-4 flex-grow font-inter">${ingText}</p>
-                <div class="mt-auto pt-4 border-t border-gray-100">
-                    <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1 group-hover:text-[#E84C60] transition-colors font-inter">${dict["btn_view"]} <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                <h3 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2.5 leading-tight group-hover:text-[#E3000F] transition-colors">${titleText}</h3>
+                <p class="text-[12px] font-medium text-gray-500 line-clamp-3 mb-5 flex-grow font-inter leading-relaxed">${ingText}</p>
+                <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
+                    <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1.5 group-hover:text-[#E3000F] transition-colors font-inter">${dict["btn_view"]}</span>
+                    <div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#E3000F] group-hover:text-white transition-colors text-gray-400">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
                 </div>
             `;
             fragment.appendChild(card);
