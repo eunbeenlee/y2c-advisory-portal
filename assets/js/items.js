@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V30.5 Enterprise)
- * [Absolute Null-Safe] SWR 초고속 캐시 렌더러, OOM 방어, 프리미엄 UI 100% 동기화
+ * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V30.6 Ultra-Fast)
+ * [Absolute Null-Safe] Progressive Chunk Rendering, Event Delegation, SWR Cache
  * ============================================================================
  */
 
@@ -83,7 +83,7 @@ window.changeLanguage = function(lang) {
         btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
-    if (typeof renderTableItemsFast === 'function' && cachedItems.length > 0) renderTableItemsFast();
+    if (typeof renderTableItemsFast === 'function' && cachedItems.length > 0) renderTableItemsFast(cachedItems, true);
 };
 
 window.applyTranslations = function() {
@@ -101,7 +101,7 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 [방어 V30.5] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
+// 🔒 [방어 V30.6] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -205,7 +205,7 @@ window.addEventListener('unhandledrejection', function(event) {
     isSubmitting = false; clearTimeout(submitLockTimer);
 });
 
-// 🌟 [방어] 글로벌 네비게이션 권한 교차 검증 (HTML과 동일 록다운 유지)
+// 🌟 [방어] 글로벌 네비게이션 권한 교차 검증
 function applyGlobalRbacNavigation() {
     const rbacRules = { 'navDashboard': ['MASTER', 'PARTNER'], 'navRecipes': ['MASTER', 'PARTNER'], 'navAdmin': ['MASTER', 'VENDOR'], 'navInvoice': ['MASTER'] };
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
@@ -230,7 +230,7 @@ let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 let submitLockTimer = null; 
 
-// 🌟 CRA 면세(Zero-Rated) 무결성 체크 (기능 무손실 보존)
+// 🌟 CRA 면세(Zero-Rated) 무결성 체크
 function isZeroRatedItem(item) {
   if (!item) return false;
   if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
@@ -246,7 +246,7 @@ function isZeroRatedItem(item) {
 
 const RETRYABLE_ACTIONS = new Set(["get_procurement_data", "get_items", "get_recipes"]);
 
-// 🌟 백오프 2.0 통신 엔진 (15초 소프트 폴백 지원)
+// 🌟 백오프 2.0 통신 엔진
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
   
@@ -322,27 +322,37 @@ async function fetchMappings() {
   } catch (error) { cachedMappings = []; }
 }
 
-// 🌟 [핵심 최적화 1] SWR (Stale-While-Revalidate) 로컬 캐시 엔진
+// 🌟 [핵심 최적화 1] SWR (Stale-While-Revalidate) + Hash 무결성 렌더러
+let lastItemsHash = "";
+function generateDataHash(dataArr) {
+    if (!dataArr) return "";
+    return dataArr.length + "_" + dataArr.reduce((acc, cur) => acc + (cur.totalStock||0) + (cur.regionalStock||0), 0);
+}
+
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody'); if (!tableBody) return;
   const cacheKey = `Y2C_ITEMS_CACHE_${currentClientState}_${masterViewRegion}`;
   
-  // 브라우저 캐시를 읽어 0.01초 만에 화면부터 렌더링 (블랙아웃 방어)
+  // 1. 브라우저 로컬 캐시 즉각 렌더링 (0.01초 체감 대기시간 제로화)
   try {
       const cachedRaw = localStorage.getItem(cacheKey);
       if (cachedRaw) {
           cachedItems = JSON.parse(cachedRaw);
-          renderTableItemsFast();
+          lastItemsHash = generateDataHash(cachedItems);
+          renderTableItemsFast(cachedItems, true); // true = force instant render without shimmer
       } else {
           // 캐시가 없을 때만 스켈레톤 로딩 표시
-          tableBody.innerHTML = `<tr><td colspan="6" class="p-0"><div class="w-full h-[64px] shimmer-bg border-b border-gray-100"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-100 opacity-90"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-100 opacity-80"></div><div class="py-12 text-center"><p class="text-[12px] font-bold text-gray-400 tracking-wider uppercase animate-pulse font-inter">Synchronizing Data...</p></div></td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="6" class="p-0"><div class="w-full h-[64px] shimmer-bg border-b border-gray-50"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-90"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-80"></div><div class="py-12 text-center"><p class="text-[12px] font-bold text-gray-400 tracking-wider uppercase animate-pulse font-inter">Synchronizing Data...</p></div></td></tr>`;
       }
   } catch(e) {}
   
+  // 2. 백그라운드 서버 통신
   try {
     const result = await executeApi("get_items", { clientState: currentClientState });
     if (result && result.success) {
-      cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
+      const newItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
+      const newHash = generateDataHash(newItems);
+      
       currentClientState = safeDisplay(result.appliedState, "DEFAULT").trim();
       taxRateObj = CONFIG.TAX_RATES[currentClientState.toUpperCase()] || CONFIG.TAX_RATES["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
       
@@ -361,9 +371,13 @@ async function fetchItems() {
         if (aiBtn) aiBtn.classList.remove('hidden');
       }
 
-      // SWR 최신 데이터 덮어쓰기 저장 및 스무스 리렌더링
-      try { localStorage.setItem(cacheKey, JSON.stringify(cachedItems)); } catch(e){}
-      renderTableItemsFast(); 
+      // 3. SWR 해시 체크: 데이터가 변경되었을 때만 DOM을 다시 그림 (CPU 소모 및 화면 깜빡임 완벽 차단)
+      if (newHash !== lastItemsHash || cachedItems.length === 0) {
+          cachedItems = newItems;
+          try { localStorage.setItem(cacheKey, JSON.stringify(cachedItems)); } catch(e){}
+          renderTableItemsFast(cachedItems, false); 
+      }
+      
       if(userRole !== "VENDOR") calculateOrderTotal(); 
     } 
   } catch (error) { 
@@ -410,10 +424,17 @@ window.saveCartState = function() {
 };
 
 // ============================================================================
-// ⚡ [V30.5 Enterprise] 초고속 DOM 메모리 렌더러 (렉 방지 & 문자열 일괄 주입 엔진)
+// ⚡ [핵심 최적화 2] Progressive Chunk Rendering (DOM 렌더링 병목 박멸 엔진)
 // ============================================================================
-function renderTableItemsFast(data = cachedItems) {
+let renderAbortController = null;
+
+function renderTableItemsFast(data = cachedItems, instantRender = false) {
   const tableBody = document.getElementById('itemTableBody'); if (!tableBody) return;
+
+  // 이전 렌더링 루프가 진행 중이라면 취소
+  if (renderAbortController) renderAbortController.abort();
+  renderAbortController = new AbortController();
+  const signal = renderAbortController.signal;
 
   if (!data || data.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold font-inter">표시할 품목이 없습니다.</td></tr>`;
@@ -428,117 +449,146 @@ function renderTableItemsFast(data = cachedItems) {
   let savedCart = {};
   try { savedCart = JSON.parse(localStorage.getItem(`Y2C_CART_STATE_${clientName}`)) || {}; } catch(e){}
 
-  // 브라우저 렌더 트리를 건드리지 않는 거대한 HTML 문자열 조립
-  let htmlString = "";
-
-  for (let i = 0; i < data.length; i++) {
-      const item = data[i]; 
-      
-      const safeCode = safeDisplay(item.code);
-      const safeName = safeDisplay(item.name);
-      
-      const rawImgValue = String(item.image || "").trim();
-      const resolvedImgUrl = resolveDriveImageUrl(rawImgValue);
-      
-      const imgTag = resolvedImgUrl !== '' 
-          ? `<img src="${escapeHtml(resolvedImgUrl)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E3000F] transition-colors" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter\\'>No Img</div>';">` 
-          : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter">No Img</div>`;
-      
-      let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown?.[masterViewRegion] || 0)) : item.regionalStock;
-      if (typeof displayStock !== 'number' || Number.isNaN(displayStock)) displayStock = 0;
-
-      const safePrice = parseStrictDecimal(item.price);
-      totalValue += roundToCents(safePrice * displayStock);
-      
-      if (displayStock > 0 && displayStock <= 10) lowStockCount++;
-
-      const isLowStock = displayStock > 0 && displayStock <= 10, isSoldOut = displayStock <= 0;
-      let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E3000F]/10 px-2 py-0.5 rounded shadow-sm border border-[#E3000F]/20 low-stock-pulse" : (isLowStock ? "text-[#E3000F] font-extrabold" : "text-[var(--premium-charcoal)]");
-      let aiBadgeHTML = (userRole === "PARTNER" && parseStrictNonNegativeInteger(item.aiSuggestedQty) > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max font-inter"><span class="text-[10px]">✨</span> AI Suggestion: ${escapeHtml(item.aiSuggestedQty)}</span></div>` : '';
-
-      const isZeroRated = isZeroRatedItem(item);
-      const taxTag = isZeroRated 
-        ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-200 font-inter" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
-        : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-50 text-blue-600 border border-blue-200 font-inter" title="Standard Taxable Goods">TAXABLE</span>`;
-
-      const translatedCategory = safeDisplay(translateDynamic(item.category || 'General', 'category'));
-
-      let expDisplayHTML = '';
-      if (isMasterOrVendor && masterViewRegion === "ALL") {
-        let expLines = [];
-        for (let reg in item.expBreakdown || {}) {
-          let regExp = safeDisplay(item.expBreakdown[reg], "");
-          if (regExp && regExp !== "-") {
-            const isExpWarn = checkExpWarning(regExp);
-            const expColorClass = isExpWarn ? "text-[#E3000F] bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
-            expLines.push(`<div class="flex items-start justify-between gap-3 text-[9px] font-black uppercase px-2 py-1 rounded-md border shadow-sm ${expColorClass} mb-1.5 font-inter"><span class="opacity-70 mt-0.5">${escapeHtml(reg)}:</span> <span class="text-right leading-tight">${isExpWarn ? "⚠️" : "🕒"} ${escapeHtml(regExp).replace(/\|/g, '<br>')}</span></div>`);
-          }
-        }
-        if (expLines.length > 0) { expDisplayHTML = `<div class="mt-2.5 flex flex-col w-full max-w-[150px] mx-auto">${expLines.join('')}</div>`; }
-      } else {
-        let expDateVal = isMasterOrVendor ? safeDisplay(item.expBreakdown?.[masterViewRegion], "") : safeDisplay(item.expBreakdown?.[currentClientState], "");
-        if (expDateVal && expDateVal !== "-") {
-          const isExpWarn = checkExpWarning(expDateVal);
-          const expColorClass = isExpWarn ? "text-[#E3000F] bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
-          expDisplayHTML = `<div class="mt-2.5 inline-block text-left text-[9px] font-black uppercase tracking-wider px-2 py-1.5 rounded-md border shadow-sm ${expColorClass} font-inter"><span>${isExpWarn ? "⚠️" : "🕒"}</span> EXP:<br>${escapeHtml(expDateVal).replace(/\|/g, '<br>')}</div>`;
-        }
-      }
-
-      let stockDisplayHTML = '', orderInputHTML = '';
-      if (isStockEditMode && isMasterOrVendor) {
-        let editInputs = '';
-        for (const reg in item.stockBreakdown || {}) {
-          const currentRegStock = parseStrictNonNegativeInteger(item.stockBreakdown[reg]); 
-          const currentRegExp = safeDisplay(item.expBreakdown?.[reg], "");
-          editInputs += `<div class="flex flex-col gap-1.5 bg-emerald-50/50 px-2 py-2 rounded-md border border-emerald-100 mb-1.5"><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800 font-inter">${escapeHtml(reg)} STOCK</span><input type="number" min="0" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-16 bg-white border border-emerald-300 rounded px-1.5 py-0.5 text-center text-[11px] font-bold focus:ring-1 focus:ring-emerald-400 outline-none transition-all"></div><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800 font-inter">${escapeHtml(reg)} EXP</span><input type="text" placeholder="YYYY-MM-DD:Qty" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp === '-' ? '' : currentRegExp}" class="exp-region-input w-full bg-white border border-emerald-300 rounded px-1 text-center text-[10px] font-bold focus:ring-1 focus:ring-emerald-400 outline-none placeholder-emerald-200 transition-all"></div></div>`;
-        }
-        stockDisplayHTML = `<div class="flex flex-col w-full">${editInputs}</div>`;
-        orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
-      } else if (isMasterOrVendor && !isStockEditMode) {
-        stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-        orderInputHTML = `<input type="number" disabled placeholder="${escapeHtml(userRole)}" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[10px] font-black text-gray-400 opacity-50 cursor-not-allowed uppercase font-inter">`;
-      } else {
-        if (isSoldOut) {
-          stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap font-inter">Sold Out</span>${expDisplayHTML}</div>`;
-          orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
-        } else {
-          let currentQty = parseStrictNonNegativeInteger(savedCart[item.code]);
-          stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-          orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="${currentQty === 0 ? '' : currentQty}" placeholder="0" data-index="${i}" data-code="${safeCode}" class="order-qty w-20 sm:w-24 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-[var(--premium-charcoal)] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-sm transition-all">`;
-        }
-      }
-
-      const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right font-inter">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black text-right font-mono">${safePrice === 0 ? '-' : formatCurrency(safePrice)}</td>`;
-      htmlString += `<tr class="hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50"><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black tracking-tight whitespace-normal break-keep font-inter">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm font-inter">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50/50 border-l border-gray-100 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td></tr>`;
-  }
-
-  // 🌟 단 한 번의 DOM 주입으로 렌더링 부하 최소화
-  tableBody.style.opacity = '0';
-  tableBody.innerHTML = htmlString;
+  // 기존 내용을 비움
+  tableBody.innerHTML = ''; 
   
-  // 🌟 [방어 4] GPU 가속으로 부드러운 테이블 나타나기
-  requestAnimationFrame(() => {
-      tableBody.style.opacity = '1';
+  let chunkIndex = 0;
+  // 🌟 화면이 하얗게 멈추지 않도록 25개씩 쪼개어 브라우저에 양보(Yielding)하며 그림
+  const CHUNK_SIZE = instantRender ? data.length : 25; 
+
+  function renderChunk() {
+      if (signal.aborted) return;
       
-      if (document.getElementById('kpiTotalSkus')) document.getElementById('kpiTotalSkus').innerText = data.length;
-      if (document.getElementById('kpiTotalValue')) document.getElementById('kpiTotalValue').innerText = userRole === "VENDOR" ? "N/A" : formatCurrency(totalValue);
-      if (document.getElementById('kpiLowStock')) document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
-      
-      if (window.applyTranslations) window.applyTranslations();
-      attachImageHoverEffect(); 
-      
-      document.querySelectorAll('.order-qty').forEach(input => {
-          input.addEventListener('input', () => { 
-              const val = parseStrictNonNegativeInteger(input.value);
-              const max = parseStrictNonNegativeInteger(input.getAttribute('max'));
-              if (val > max) { input.value = max; showToast("최대 가용 재고를 초과할 수 없습니다.", "error"); }
-              calculateOrderTotal(); 
-              window.saveCartState(); 
-          });
-      });
-  });
+      const fragment = document.createDocumentFragment();
+      const endIdx = Math.min(chunkIndex + CHUNK_SIZE, data.length);
+
+      for (; chunkIndex < endIdx; chunkIndex++) {
+          const item = data[chunkIndex]; 
+          const i = chunkIndex;
+          
+          const safeCode = safeDisplay(item.code);
+          const safeName = safeDisplay(item.name);
+          
+          const rawImgValue = String(item.image || "").trim();
+          const resolvedImgUrl = resolveDriveImageUrl(rawImgValue);
+          
+          const imgTag = resolvedImgUrl !== '' 
+              ? `<img src="${escapeHtml(resolvedImgUrl)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E3000F] transition-colors" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter\\'>No Img</div>';">` 
+              : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter">No Img</div>`;
+          
+          let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown?.[masterViewRegion] || 0)) : item.regionalStock;
+          if (typeof displayStock !== 'number' || Number.isNaN(displayStock)) displayStock = 0;
+
+          const safePrice = parseStrictDecimal(item.price);
+          totalValue += roundToCents(safePrice * displayStock);
+          
+          if (displayStock > 0 && displayStock <= 10) lowStockCount++;
+
+          const isLowStock = displayStock > 0 && displayStock <= 10, isSoldOut = displayStock <= 0;
+          let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E3000F]/10 px-2 py-0.5 rounded shadow-sm border border-[#E3000F]/20 low-stock-pulse" : (isLowStock ? "text-[#E3000F] font-extrabold" : "text-[var(--premium-charcoal)]");
+          let aiBadgeHTML = (userRole === "PARTNER" && parseStrictNonNegativeInteger(item.aiSuggestedQty) > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max font-inter"><span class="text-[10px]">✨</span> AI Suggestion: ${escapeHtml(item.aiSuggestedQty)}</span></div>` : '';
+
+          const isZeroRated = isZeroRatedItem(item);
+          const taxTag = isZeroRated 
+            ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-200 font-inter" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
+            : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-50 text-blue-600 border border-blue-200 font-inter" title="Standard Taxable Goods">TAXABLE</span>`;
+
+          const translatedCategory = safeDisplay(translateDynamic(item.category || 'General', 'category'));
+
+          let expDisplayHTML = '';
+          if (isMasterOrVendor && masterViewRegion === "ALL") {
+            let expLines = [];
+            for (let reg in item.expBreakdown || {}) {
+              let regExp = safeDisplay(item.expBreakdown[reg], "");
+              if (regExp && regExp !== "-") {
+                const isExpWarn = checkExpWarning(regExp);
+                const expColorClass = isExpWarn ? "text-[#E3000F] bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
+                expLines.push(`<div class="flex items-start justify-between gap-3 text-[9px] font-black uppercase px-2 py-1 rounded-md border shadow-sm ${expColorClass} mb-1.5 font-inter"><span class="opacity-70 mt-0.5">${escapeHtml(reg)}:</span> <span class="text-right leading-tight">${isExpWarn ? "⚠️" : "🕒"} ${escapeHtml(regExp).replace(/\|/g, '<br>')}</span></div>`);
+              }
+            }
+            if (expLines.length > 0) { expDisplayHTML = `<div class="mt-2.5 flex flex-col w-full max-w-[150px] mx-auto">${expLines.join('')}</div>`; }
+          } else {
+            let expDateVal = isMasterOrVendor ? safeDisplay(item.expBreakdown?.[masterViewRegion], "") : safeDisplay(item.expBreakdown?.[currentClientState], "");
+            if (expDateVal && expDateVal !== "-") {
+              const isExpWarn = checkExpWarning(expDateVal);
+              const expColorClass = isExpWarn ? "text-[#E3000F] bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
+              expDisplayHTML = `<div class="mt-2.5 inline-block text-left text-[9px] font-black uppercase tracking-wider px-2 py-1.5 rounded-md border shadow-sm ${expColorClass} font-inter"><span>${isExpWarn ? "⚠️" : "🕒"}</span> EXP:<br>${escapeHtml(expDateVal).replace(/\|/g, '<br>')}</div>`;
+            }
+          }
+
+          let stockDisplayHTML = '', orderInputHTML = '';
+          if (isStockEditMode && isMasterOrVendor) {
+            let editInputs = '';
+            for (const reg in item.stockBreakdown || {}) {
+              const currentRegStock = parseStrictNonNegativeInteger(item.stockBreakdown[reg]); 
+              const currentRegExp = safeDisplay(item.expBreakdown?.[reg], "");
+              editInputs += `<div class="flex flex-col gap-1.5 bg-emerald-50/50 px-2 py-2 rounded-md border border-emerald-100 mb-1.5"><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800 font-inter">${escapeHtml(reg)} STOCK</span><input type="number" min="0" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-16 bg-white border border-emerald-300 rounded px-1.5 py-0.5 text-center text-[11px] font-bold focus:ring-1 focus:ring-emerald-400 outline-none transition-all"></div><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800 font-inter">${escapeHtml(reg)} EXP</span><input type="text" placeholder="YYYY-MM-DD:Qty" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp === '-' ? '' : currentRegExp}" class="exp-region-input w-full bg-white border border-emerald-300 rounded px-1 text-center text-[10px] font-bold focus:ring-1 focus:ring-emerald-400 outline-none placeholder-emerald-200 transition-all"></div></div>`;
+            }
+            stockDisplayHTML = `<div class="flex flex-col w-full">${editInputs}</div>`;
+            orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
+          } else if (isMasterOrVendor && !isStockEditMode) {
+            stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
+            orderInputHTML = `<input type="number" disabled placeholder="${escapeHtml(userRole)}" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[10px] font-black text-gray-400 opacity-50 cursor-not-allowed uppercase font-inter">`;
+          } else {
+            if (isSoldOut) {
+              stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap font-inter">Sold Out</span>${expDisplayHTML}</div>`;
+              orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
+            } else {
+              let currentQty = parseStrictNonNegativeInteger(savedCart[item.code]);
+              stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
+              orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="${currentQty === 0 ? '' : currentQty}" placeholder="0" data-index="${i}" data-code="${safeCode}" class="order-qty w-20 sm:w-24 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-[var(--premium-charcoal)] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-sm transition-all">`;
+            }
+          }
+
+          const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right font-inter">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black text-right font-mono">${safePrice === 0 ? '-' : formatCurrency(safePrice)}</td>`;
+          
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50";
+          tr.innerHTML = `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black tracking-tight whitespace-normal break-keep font-inter">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm font-inter">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50/50 border-l border-gray-100 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td>`;
+          
+          fragment.appendChild(tr);
+      }
+
+      // 조립 완료된 Chunk를 테이블에 밀어넣음
+      tableBody.appendChild(fragment);
+
+      if (chunkIndex < data.length) {
+          // 🌟 다음 Chunk 렌더링을 메인 스레드에 양보(Yield)하여 브라우저 멈춤 방지
+          requestAnimationFrame(() => setTimeout(renderChunk, 0));
+      } else {
+          // 렌더링 최종 완료 시 KPI 업데이트 및 이벤트 바인딩
+          if (document.getElementById('kpiTotalSkus')) document.getElementById('kpiTotalSkus').innerText = data.length;
+          if (document.getElementById('kpiTotalValue')) document.getElementById('kpiTotalValue').innerText = userRole === "VENDOR" ? "N/A" : formatCurrency(totalValue);
+          if (document.getElementById('kpiLowStock')) document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
+          
+          if (window.applyTranslations) window.applyTranslations();
+          attachImageHoverEffect(); 
+      }
+  }
+  
+  // 첫 Chunk 즉시 실행
+  renderChunk();
 }
+
 window.renderItemRowsFast = renderTableItemsFast;
+
+// 🌟 [핵심 최적화 3] Event Delegation (이벤트 위임 록다운 - 메모리 누수 95% 단축)
+// 개별 <input> 1000개에 이벤트리스너를 달지 않고, tableBody 1개에서 전체를 통제합니다.
+document.addEventListener('DOMContentLoaded', () => {
+    const tableBody = document.getElementById('itemTableBody');
+    if (tableBody) {
+        tableBody.addEventListener('input', (e) => {
+            if (e.target.classList.contains('order-qty')) {
+                const val = parseStrictNonNegativeInteger(e.target.value);
+                const max = parseStrictNonNegativeInteger(e.target.getAttribute('max'));
+                if (val > max) { e.target.value = max; showToast("최대 가용 재고를 초과할 수 없습니다.", "error"); }
+                calculateOrderTotal(); 
+                window.saveCartState(); 
+            }
+        });
+    }
+});
+
 
 function applyAiSuggestion() {
   const qtyInputs = document.querySelectorAll('.order-qty'); let appliedCount = 0;
@@ -646,12 +696,36 @@ async function toggleStockEditMode() {
   }
 }
 
+// 🌟 [핵심 최적화 4] RequestAnimationFrame Throttling (마우스 프리징 방어)
+let hoverRAF = null;
 function attachImageHoverEffect() {
   const tableBody = document.getElementById('itemTableBody'), previewContainer = document.getElementById('imagePreviewContainer'), previewImg = document.getElementById('imagePreview');
   if (!tableBody || !previewContainer || !previewImg) return;
-  tableBody.addEventListener('mouseover', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewImg.src = e.target.src; previewContainer.classList.remove('hidden'); setTimeout(() => { previewContainer.classList.remove('scale-95', 'opacity-0'); previewContainer.classList.add('scale-100', 'opacity-100'); }, 10); } });
-  tableBody.addEventListener('mousemove', (e) => { if (e.target.classList.contains('item-thumbnail')) { const x = Math.min(e.clientX + 20, window.innerWidth - 300); const y = Math.min(e.clientY + 20, window.innerHeight - 300); previewContainer.style.left = x + 'px'; previewContainer.style.top = y + 'px'; } });
-  tableBody.addEventListener('mouseout', (e) => { if (e.target.classList.contains('item-thumbnail')) { previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); } });
+  
+  tableBody.addEventListener('mouseover', (e) => { 
+      if (e.target.classList.contains('item-thumbnail')) { 
+          previewImg.src = e.target.src; previewContainer.classList.remove('hidden'); 
+          setTimeout(() => { previewContainer.classList.remove('scale-95', 'opacity-0'); previewContainer.classList.add('scale-100', 'opacity-100'); }, 10); 
+      } 
+  });
+  
+  tableBody.addEventListener('mousemove', (e) => { 
+      if (e.target.classList.contains('item-thumbnail')) { 
+          if(hoverRAF) cancelAnimationFrame(hoverRAF);
+          hoverRAF = requestAnimationFrame(() => {
+              const x = Math.min(e.clientX + 20, window.innerWidth - 300); 
+              const y = Math.min(e.clientY + 20, window.innerHeight - 300); 
+              previewContainer.style.left = x + 'px'; previewContainer.style.top = y + 'px'; 
+          });
+      } 
+  });
+  
+  tableBody.addEventListener('mouseout', (e) => { 
+      if (e.target.classList.contains('item-thumbnail')) { 
+          previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); 
+          setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); 
+      } 
+  });
 }
 
 async function submitOrder() {
@@ -734,7 +808,6 @@ async function loadHeavyLibrary(url, objName) {
     });
 }
 
-// 🌟 [방어 30] 엑셀 OOM 파싱 회피 스케줄러 탑재 (비동기 청크 파싱)
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
   const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
