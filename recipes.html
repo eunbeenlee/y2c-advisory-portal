@@ -1,29 +1,31 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Turbo Solid-State - 유니버설 헤더 100% 동기화, 초스무스 렌더링, 30+ 에러 방어 로직 통합 -->
-<html lang="en" class="opacity-0 transition-opacity duration-500 ease-out">
+<!-- 🌟 V30.5 Enterprise Master Benchmark - 로딩 블랙아웃 100% 제거, 1줄 완벽 고정 헤더, 대기업형 SaaS UI -->
+<html lang="en" class="opacity-0">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 [방어 5, 7] 모바일 앱 UX 규격: iOS 자동 확대 차단 및 가상 키보드 뷰포트 리사이징 방어 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <meta name="theme-color" content="#1A1516">
+    <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
     
     <title>Recipe Center | Y2C Portal</title>
+    
+    <!-- 🚨 프리로드: 폰트와 파비콘을 브라우저 렌더링 1순위로 강제하여 로딩 깜빡임 원천 차단 -->
+    <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- ⚡ [방어 3] 네트워크 사전 연결 (DNS 및 TCP 단축) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- 🌟 [방어 1] defer 속성을 추가하여 CSS 로딩 중 발생하는 렌더링 블로킹 완전 해결 -->
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- 🚨 [CRITICAL FIX] Tailwind CSS 에러 파괴 방어: defer 제거하여 config 적용 전 동기식 로드 보장 -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <script>
+        // 🌟 Tailwind 동기식 로드 성공 후 안전하게 Config 확장
         tailwind.config = {
             theme: {
                 extend: {
@@ -32,32 +34,38 @@
                         montserrat: ['Montserrat', 'sans-serif'],
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
                     },
-                    colors: { premium: { charcoal: '#1A1516', red: '#E84C60', hover: '#C23347' } }
+                    colors: { premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C' } }
                 }
             }
         }
     </script>
 
     <style>
+        /* 글로벌 테마 변수 (프리미엄 톤 보정) */
         :root {
-            --sinjeon-pink: #E84C60; 
-            --sinjeon-pink-dark: #C23347;
-            --premium-charcoal: #1A1516;
+            --sinjeon-pink: #E3000F; 
+            --sinjeon-pink-dark: #B9000C;
+            --premium-charcoal: #111827;
             --y2c-gold: #D4AF37;
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 [방어 6] 스크롤 바운스 및 모바일 터치 고무줄 튕김 현상 방어 */
-        html, body { overscroll-behavior-y: none; touch-action: manipulation; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단, 폰트 렌더링 안티앨리어싱 강제 */
+        html, body { 
+            overscroll-behavior-y: none; 
+            touch-action: manipulation; 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+            background-color: var(--bg-light); 
+        }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 스크롤바 최적화 및 iOS 확대(Zoom) 방지 16px 강제 */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* 🌟 스크롤바 대기업형 커스텀 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -67,102 +75,138 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 🌟 초스무스 시네마틱 렌더링 애니메이션 */
-        .cinematic-enter { opacity: 0; transform: translateY(15px) translateZ(0); animation: fadeUpCinematic 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: opacity, transform; }
-        .delay-100 { animation-delay: 0.05s; } .delay-200 { animation-delay: 0.1s; } .delay-300 { animation-delay: 0.15s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) translateZ(0); } }
+        /* 🌟 [핵심] 계단식 로딩 렌더링 딜레이 제거 - 한 번에 부드럽게 등장하는 App-Shell 구조 */
+        .app-shell-enter { 
+            opacity: 0; 
+            transform: translateY(8px); 
+            animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+        }
+        @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 레시피 카드 호버 마그네틱 효과 */
-        .recipe-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; cursor: pointer; }
-        .recipe-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 20px 40px -10px rgba(232, 76, 96, 0.15); border-color: rgba(232, 76, 96, 0.3); }
+        /* 🌟 레시피 카드 호버 마그네틱 및 프리미엄 확산 섀도우 효과 */
+        .recipe-card { 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            position: relative; 
+            overflow: hidden; 
+            cursor: pointer; 
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+        }
+        .recipe-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 15px 30px -10px rgba(227, 0, 15, 0.15); 
+            border-color: rgba(227, 0, 15, 0.2); 
+        }
         
-        /* 모달 등장 애니메이션 */
+        /* 모달 등장 애니메이션 (SaaS 규격) */
         .modal-enter { animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            from { opacity: 0; transform: scale(0.95) translateY(15px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        /* 🚨 [핵심 패치] 레이아웃 시프트 영구 박멸 - 100% 정교한 네비게이션 CSS */
-        .nav-link { position: relative; color: #6b7280; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
+        /* 100% 정교한 네비게이션 CSS (수직 중앙 정렬, 레이아웃 붕괴 방지) */
+        .nav-link { 
+            position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; 
+            height: 100%; display: inline-flex; align-items: center; justify-content: center; 
+            padding: 0 4px; white-space: nowrap;
+        }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
-        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
+        .nav-link.active::after { 
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; 
+            height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; 
+        }
+
+        /* 프리미엄 모달 UI를 위한 확산형 그림자 */
+        .premium-shadow {
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+            border: 1px solid #f1f5f9;
+        }
+        
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
-<body class="selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen relative">
+<!-- 🚨 [CRITICAL FIX] body 태그에 라이트 테마 배경(#F8F9FA)을 하드코딩하여 로딩 시 검은 번쩍임 100% 차단 -->
+<body style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
     <noscript>
-        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative;">Please enable JavaScript.</div>
+        <div style="background:#E3000F; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative; font-weight:bold; font-family: sans-serif;">
+            Please enable JavaScript to access the Enterprise Portal.
+        </div>
     </noscript>
 
-    <!-- 🌟 [초스무스 최적화] 즉각 권한 언락 및 FOUC 블랙스크린 영구 해제 -->
+    <!-- 🌟 [초스무스 최적화] GPU 브라우저 페인팅 주기에 맞춘 라이트 테마 로딩 엔진 -->
     <script>
         (function() {
             try {
-                // 1. 화면 투명도 잠금 해제 (스무스 렌더링)
+                // 문서 투명도 즉각 해제 (블랙아웃 방지)
                 document.documentElement.classList.remove("opacity-0");
                 document.documentElement.style.opacity = "1";
-                document.body.style.opacity = "1";
+                
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        document.body.style.opacity = "1";
+                    });
+                });
 
-                // 2. 권한 즉시 동기 노출
+                // 권한 즉시 동기 노출
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
             } catch(e) {}
         })();
     </script>
 
-    <!-- 🌟 이미지 규격 100% 일치: 3분할 록다운 유니버설 헤더 (절대 흔들림 방지) -->
-    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter transform-gpu">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[84px]">
+    <!-- 🌟 이미지 규격 100% 일치: 1줄 완벽 수평 정렬 1600px 마스터 헤더 -->
+    <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 (크기 고정) -->
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-[240px]">
-                <!-- 🛡️ 로고 팽창 방어 패치 -->
-                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-10 lg:h-12 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
-                <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
-                    <span class="font-montserrat text-base lg:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
-                    <span class="text-[7px] lg:text-[9px] font-black tracking-[0.2em] text-[#E84C60] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
+            <!-- 좌측 로고 영역: 2줄 붕괴 방지를 위한 items-baseline 및 whitespace-nowrap 적용 -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
+                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap">Enterprise Portal</span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
 
-            <!-- 데스크탑 중앙/우측 영역 -->
-            <div class="hidden lg:flex items-center justify-end flex-1 ml-8 h-full">
-                <!-- 중앙 네비게이션 탭 -->
-                <nav class="flex items-center h-full gap-6 xl:gap-8 mr-6 xl:mr-8">
-                    <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                    <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                    <!-- 현재 페이지: Recipe Center 활성화 -->
-                    <a href="recipes.html" id="navRecipes" class="nav-link active text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                    <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
-                    <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
-                </nav>
+            <!-- 중앙 네비게이션 탭 -->
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-6 xl:gap-8">
+                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <!-- 현재 페이지: Recipe Center 활성화 -->
+                <a href="recipes.html" id="navRecipes" class="nav-link active text-[13px] tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+            </nav>
 
-                <!-- 우측 컨트롤 (언어/계정) (크기 고정) -->
-                <div class="flex items-center gap-3 pl-6 xl:pl-8 border-l border-gray-200 shrink-0 h-[40px]">
-                    <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                        <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
-                        <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
-                    </div>
+            <!-- 우측 컨트롤 (언어/계정) (크기 고정) -->
+            <div class="hidden lg:flex items-center justify-end gap-4 shrink-0 w-auto lg:w-[280px]">
+                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200">
+                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
+                </div>
 
-                    <div class="flex items-center space-x-2 bg-gray-50 py-1.5 px-3 rounded-full border border-gray-200 shadow-inner">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px]">Loading...</span>
-                        <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                        <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-2.5 py-1 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-1" data-i18n="logout">LOGOUT</button>
-                    </div>
+                <div class="flex items-center space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px] font-inter">Loading...</span>
+                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded border border-[#E3000F]/20 uppercase tracking-widest font-mono"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase ml-1" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
 
         </div>
     </header>
 
-    <!-- 🌟 [방어 22] 모바일 카테고리 뷰 -->
+    <!-- 🌟 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <!-- 현재 페이지: Recipe Center 모바일 활성화 -->
-        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E84C60] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
@@ -180,24 +224,24 @@
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (1600px 동기화 유지) -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 cinematic-enter delay-100">
+    <!-- 📊 메인 컨텐츠 영역 (계단식 렌더링 제거, 한 번에 표시되는 App Shell 구조) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter">
         
-        <!-- 🌟 헤더 컨트롤 영역 -->
+        <!-- 🌟 프리미엄 헤더 컨트롤 영역 -->
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 no-print">
             <div>
-                <h2 class="font-montserrat text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="text-[#E84C60] drop-shadow-md">🍳</span> <span data-i18n="recipe_title">Official Recipe Center</span>
+                <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
+                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">🍳</span> <span data-i18n="recipe_title">Official Recipe Center</span>
                 </h2>
-                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide" data-i18n="recipe_desc">Standardized operational manuals and cooking instructions.</p>
+                <p class="text-[13px] font-medium text-gray-500 mt-2 tracking-wide font-inter" data-i18n="recipe_desc">Standardized operational manuals and cooking instructions.</p>
             </div>
             
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                 <div class="relative w-full lg:w-80 group">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-[#E84C60] transition-colors">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-[#E3000F] transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
-                    <input type="text" id="recipeSearchInput" autocomplete="off" data-i18n-placeholder="search_placeholder" placeholder="Search recipes or ingredients..." class="bg-white border border-gray-200 text-gray-800 text-sm font-bold rounded-xl focus:ring-[#E84C60] focus:border-[#E84C60] block w-full pl-12 pr-4 py-3.5 outline-none transition-all shadow-sm">
+                    <input type="text" id="recipeSearchInput" autocomplete="off" data-i18n-placeholder="search_placeholder" placeholder="Search recipes or ingredients..." class="bg-gray-50 focus:bg-white border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block w-full pl-12 pr-4 py-3.5 outline-none transition-all">
                 </div>
             </div>
         </div>
@@ -207,31 +251,31 @@
             <!-- JS를 통해 동적으로 카테고리 버튼이 생성됩니다 -->
         </div>
 
-        <!-- 🌟 [방어 8] 레시피 그리드 컨테이너 -->
+        <!-- 🌟 레시피 그리드 컨테이너 -->
         <div id="recipeGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- JS 렌더링 영역 (로딩 플레이스홀더) -->
+            <!-- JS 렌더링 영역 (로딩 스피너) -->
             <div class="col-span-full py-20 text-center">
-                <svg class="animate-spin h-10 w-10 text-[#E84C60] mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Loading Culinary Database...</p>
+                <svg class="animate-spin h-8 w-8 text-[#E3000F] mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest font-inter">Loading Culinary Database...</p>
             </div>
         </div>
 
     </main>
 
-    <!-- 🌟 [방어 4] 프리미엄 레시피 상세 모달 (Absolute 락 방어 적용) -->
+    <!-- 🌟 프리미엄 레시피 상세 모달 (Absolute 락 방어 적용) -->
     <div id="recipeModal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 sm:p-6 no-print">
         <!-- 배경 오버레이 (스크롤 잠금 연동됨) -->
-        <div class="absolute inset-0 bg-[#1A1516]/60 backdrop-blur-sm transition-opacity" onclick="closeRecipeModal()"></div>
+        <div class="absolute inset-0 bg-[#111827]/60 backdrop-blur-sm transition-opacity" onclick="closeRecipeModal()"></div>
         
         <!-- 모달 컨텐츠 -->
-        <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-[2rem] shadow-2xl relative z-10 flex flex-col overflow-hidden modal-enter">
+        <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-[2rem] premium-shadow relative z-10 flex flex-col overflow-hidden modal-enter">
             <!-- 모달 헤더 -->
-            <div class="bg-gray-50 border-b border-gray-200 px-6 sm:px-8 py-5 flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-3">
-                    <span id="recipeModalCategory" class="px-3 py-1 bg-[#E84C60]/10 text-[#E84C60] font-black text-[10px] uppercase tracking-widest rounded-lg border border-[#E84C60]/20">Category</span>
+            <div class="bg-white border-b border-gray-100 px-6 sm:px-8 py-6 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-4">
+                    <span id="recipeModalCategory" class="px-3 py-1 bg-[#E3000F]/10 text-[#E3000F] font-black text-[10px] uppercase tracking-widest rounded-md border border-[#E3000F]/20 font-inter">Category</span>
                     <h3 id="recipeModalTitle" class="text-xl sm:text-2xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight">Recipe Title</h3>
                 </div>
-                <button type="button" onclick="closeRecipeModal()" class="text-gray-400 hover:text-[#E84C60] hover:bg-red-50 p-2 rounded-full transition-all focus:outline-none" title="Close Recipe">
+                <button type="button" onclick="closeRecipeModal()" class="text-gray-400 hover:text-[#E3000F] hover:bg-red-50 p-2 rounded-full transition-colors focus:outline-none" title="Close Recipe">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -241,29 +285,29 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- 재료 (좌측) -->
                     <div class="md:col-span-1">
-                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
-                            <span class="text-[#E84C60]">🛒</span> <span data-i18n="modal_ing">Ingredients</span>
+                        <h4 class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-gray-100 pb-3 font-inter">
+                            <span class="text-[#E3000F] text-sm">🛒</span> <span data-i18n="modal_ing">Ingredients</span>
                         </h4>
-                        <div id="recipeModalIngredients" class="text-sm font-medium text-gray-700 space-y-3 leading-relaxed whitespace-pre-line">
+                        <div id="recipeModalIngredients" class="text-[13px] font-medium text-gray-600 space-y-3 leading-relaxed whitespace-pre-line font-inter">
                             <!-- JS 렌더링 -->
                         </div>
                     </div>
                     
                     <!-- 조리법 (우측) -->
                     <div class="md:col-span-2">
-                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
-                            <span class="text-[#E84C60]">🍳</span> <span data-i18n="modal_inst">Instructions</span>
+                        <h4 class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-gray-100 pb-3 font-inter">
+                            <span class="text-[#E3000F] text-sm">🍳</span> <span data-i18n="modal_inst">Instructions</span>
                         </h4>
-                        <div id="recipeModalInstructions" class="text-sm font-bold text-[var(--premium-charcoal)] space-y-4 leading-relaxed whitespace-pre-line bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                        <div id="recipeModalInstructions" class="text-[13px] font-bold text-[var(--premium-charcoal)] space-y-4 leading-relaxed whitespace-pre-line bg-gray-50 p-6 rounded-2xl border border-gray-100 font-inter">
                             <!-- JS 렌더링 -->
                         </div>
                         
                         <!-- 꿀팁 영역 -->
-                        <div class="mt-6 bg-red-50 border border-red-100 p-5 rounded-2xl">
-                            <h4 class="text-[10px] font-black text-[#E84C60] uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                        <div class="mt-6 bg-red-50/50 border border-red-100 p-6 rounded-2xl">
+                            <h4 class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-3 flex items-center gap-2 font-inter">
                                 <span>💡</span> <span data-i18n="modal_tips">Pro Tips & Warnings</span>
                             </h4>
-                            <div id="recipeModalTips" class="text-xs font-bold text-gray-700 leading-relaxed whitespace-pre-line">
+                            <div id="recipeModalTips" class="text-[12px] font-bold text-gray-700 leading-relaxed whitespace-pre-line font-inter">
                                 <!-- JS 렌더링 -->
                             </div>
                         </div>
@@ -273,8 +317,8 @@
         </div>
     </div>
 
-    <!-- 🌟 [방어 9] UI 토스트 컨테이너 (최상단 Z-9999 보장) -->
-    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
+    <!-- 🌟 UI 토스트 컨테이너 (최상단 Z-9999 보장) -->
+    <div id="toastContainer" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
     <!-- 🌟 JS 엔진 연동 -->
     <script src="assets/js/recipes.js" defer></script>
