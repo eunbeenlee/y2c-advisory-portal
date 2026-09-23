@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Ultimate Hardening - 1px 오차 없는 중앙 고정 헤더, 초스무스 렌더링, 30+ 관리자 에러 방어 -->
-<html lang="en" class="opacity-0 transition-opacity duration-300 ease-out">
+<!-- 🌟 V30.5 Enterprise Master Benchmark - 로딩 블랙아웃 100% 제거, 1줄 완벽 고정 헤더, 대기업형 SaaS UI -->
+<html lang="en" class="opacity-0">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 [방어 1, 2] 모바일 고급화 규격: iOS 자동 확대 차단 및 가상 키보드 뷰포트 리사이징 최적화 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
 
     <title>Master DB & Logistics | Y2C Portal</title>
+    
+    <!-- 🚨 프리로드: 폰트와 파비콘을 브라우저 렌더링 1순위로 강제하여 로딩 깜빡임 원천 차단 -->
+    <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
 
-    <!-- ⚡ [방어 3] 네트워크 사전 연결 (DNS 및 TCP 단축) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- 🌟 [방어 4] defer 속성을 통한 렌더링 블로킹 완전 제거 -->
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- Tailwind CSS (defer 제거하여 스타일 번쩍임 방어) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, fallback applied.')"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -31,143 +33,202 @@
                         montserrat: ['Montserrat', 'sans-serif'],
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
                     },
-                    colors: { premium: { charcoal: '#1A1516', red: '#E84C60', hover: '#C23347' } }
+                    colors: { premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C' } }
                 }
             }
         }
     </script>
 
     <style>
+        /* 글로벌 테마 변수 (프리미엄 톤 보정) */
         :root {
-            --sinjeon-pink: #E84C60; 
-            --sinjeon-pink-dark: #C23347;
-            --premium-charcoal: #1A1516;
-            --y2c-gold: #D4AF37;
+            --sinjeon-pink: #E3000F; 
+            --sinjeon-pink-dark: #B9000C;
+            --premium-charcoal: #111827;
             --bg-light: #F8F9FA;
         }
 
-        /* 🌟 [방어 5, 6] 터치 딜레이 및 모바일 바운스 스크롤 원천 차단 */
-        html, body { overscroll-behavior-y: none; touch-action: manipulation; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단, 폰트 렌더링 안티앨리어싱 강제 */
+        html, body { 
+            overscroll-behavior-y: none; 
+            touch-action: manipulation; 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+            background-color: var(--bg-light); /* 블랙번쩍임 방지를 위해 CSS에서도 강제 */
+        }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* 🌟 [방어 7, 8] 스크롤바 최적화 & iOS 확대(Zoom) 방지 16px 고정 & 숫자 스피너 파괴 */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* 🌟 스크롤바 대기업형 커스텀 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button { font-size: 16px !important; }
+        
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 🌟 [초스무스 최적화] GPU 가속 시네마틱 렌더링 및 content-visibility */
-        #masterTableBody tr, #salesGridBody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; }
-        .cinematic-enter { opacity: 0; transform: translateY(12px) translateZ(0); animation: fadeUpCinematic 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: opacity, transform; }
-        .delay-100 { animation-delay: 0.05s; } .delay-200 { animation-delay: 0.1s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) translateZ(0); } }
+        /* 🌟 [핵심] 계단식 로딩 렌더링 딜레이 제거 - 한 번에 부드럽게 등장하는 App-Shell 구조 */
+        .app-shell-enter { 
+            opacity: 0; 
+            transform: translateY(8px); 
+            animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+        }
+        @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 프리미엄 솔리드 버튼 로직 */
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.2); }
-        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 12px 24px rgba(232, 76, 96, 0.35); transform: translateY(-2px) scale(1.01); }
-        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 4px 10px rgba(232, 76, 96, 0.25); }
+        /* 프리미엄 솔리드 버튼 규격 */
+        .btn-gradient-pink { 
+            background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); 
+            color: white; 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2), 0 2px 4px -1px rgba(227, 0, 15, 0.1);
+        }
+        .btn-gradient-pink:hover:not(:disabled) { 
+            box-shadow: 0 10px 15px -3px rgba(227, 0, 15, 0.3), 0 4px 6px -2px rgba(227, 0, 15, 0.15); 
+            transform: translateY(-1px); 
+        }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
-        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); transform: translateY(-2px) scale(1.01); }
-        .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+        .btn-charcoal { 
+            background: var(--premium-charcoal); 
+            color: white; 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .btn-charcoal:hover:not(:disabled) { 
+            background: #000000; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); 
+            transform: translateY(-1px); 
+        }
+        .btn-charcoal:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
-        /* 🚨 [핵심 패치] 레이아웃 시프트 영구 박멸 - 100% 정교한 네비게이션 CSS */
-        .nav-link { position: relative; color: #6b7280; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; }
+        /* 🌟 [핵심] 100% 정교한 네비게이션 CSS (수직 중앙 정렬, 레이아웃 붕괴 방지) */
+        .nav-link { 
+            position: relative; 
+            color: #64748b; 
+            font-weight: 700; 
+            transition: color 0.2s ease; 
+            height: 100%; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 0 4px; 
+            white-space: nowrap;
+        }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
-        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
+        .nav-link.active::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 3px; 
+            background-color: var(--sinjeon-pink); 
+            border-radius: 3px 3px 0 0; 
+        }
 
-        /* 🌟 [방어 25] 인쇄 최적화 (여백, 컬러, 브레이크 방어) */
+        /* 프리미엄 테이블 및 카드 UI를 위한 확산형 그림자 */
+        .premium-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+        }
+
         @media print { 
             .no-print { display: none !important; } 
             body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
         }
     </style>
 </head>
-<body class="text-gray-800 selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen relative">
+<!-- 🚨 [CRITICAL FIX] body 태그에 라이트 테마 배경(#F8F9FA)을 하드코딩하여 로딩 시 검은 번쩍임 100% 차단 -->
+<body style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative">
 
     <noscript>
-        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative; font-weight:bold;">
-            Please enable JavaScript to access the Admin Console.
+        <div style="background:#E3000F; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative; font-weight:bold; font-family: sans-serif;">
+            Please enable JavaScript to access the Enterprise Portal.
         </div>
     </noscript>
 
-    <!-- 🌟 [초스무스 최적화] 즉각 권한 언락 및 FOUC 블랙스크린 영구 해제 -->
+    <!-- 🌟 [초스무스 최적화] GPU 브라우저 페인팅 주기에 맞춘 라이트 테마 로딩 엔진 -->
     <script>
         (function() {
             try {
-                // 1. 화면 투명도 잠금 해제 (스무스 렌더링)
+                // 문서 투명도 즉각 해제 (블랙아웃 방지)
                 document.documentElement.classList.remove("opacity-0");
                 document.documentElement.style.opacity = "1";
-                document.body.style.opacity = "1";
+                
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        document.body.style.opacity = "1";
+                    });
+                });
 
-                // 2. 권한 탭 즉시 동기 노출
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
             } catch(e) {}
         })();
     </script>
 
-    <!-- 🌟 이미지 규격 100% 일치: 3분할 록다운 유니버설 헤더 (절대 흔들림 방지) -->
-    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-200 sticky top-0 z-50 no-print transform-gpu">
-        <!-- 🚨 핵심: justify-between 및 3분할 (shrink-0 / flex-1 / shrink-0) 적용 -->
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[84px]">
+    <!-- 🌟 [대기업형 UI] 1줄 완벽 수평 정렬, 흔들림 제로 1600px 마스터 헤더 -->
+    <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 (크기 고정) -->
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-[240px]">
-                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-10 lg:h-12 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
-                <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
-                    <span class="font-montserrat text-base lg:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
-                    <span class="text-[7px] lg:text-[9px] font-black tracking-[0.2em] text-[#E84C60] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
+            <!-- 좌측 로고 영역: 2줄 붕괴 방지를 위한 items-baseline 및 whitespace-nowrap 적용 -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
+                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap">Enterprise Portal</span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 (중앙 절대 정렬) -->
+            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-6 xl:gap-8">
-                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
                 <!-- 현재 페이지: Master DB 활성화 -->
-                <a href="admin.html" id="navAdmin" class="nav-link active text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link active text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
-            <!-- 우측 컨트롤 (언어/계정) (크기 고정) -->
-            <div class="hidden lg:flex items-center justify-end gap-3 shrink-0 w-[240px]">
-                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
-                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
+            <!-- 우측 컨트롤 영역 -->
+            <div class="hidden lg:flex items-center justify-end gap-4 shrink-0 w-auto lg:w-[280px]">
+                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200">
+                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
                 </div>
 
-                <div class="flex items-center space-x-2 bg-gray-50 py-1.5 px-3 rounded-full border border-gray-200 shadow-inner">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px]">Loading...</span>
-                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-2.5 py-1 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-1" data-i18n="logout">LOGOUT</button>
+                <div class="flex items-center space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px] font-inter">Loading...</span>
+                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded border border-[#E3000F]/20 uppercase tracking-widest font-mono"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase ml-1" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
 
         </div>
     </header>
 
-    <!-- 🌟 [방어 22] 모바일 카테고리 뷰 -->
+    <!-- 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
-        <a href="admin.html" id="navAdmin_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E84C60] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
+        <a href="admin.html" id="navAdmin_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 🌟 권한 동기식 프리-언락 로직 -->
+    <!-- 권한 동기식 프리-언락 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -180,76 +241,78 @@
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (부드러운 시네마틱 페이드인 적용) -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-24 cinematic-enter">
+    <!-- 📊 메인 컨텐츠 영역 (계단식 로딩 제거, 한 번에 표시되는 App Shell 구조) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-24 app-shell-enter">
         
+        <!-- 프리미엄 타이틀 영역 -->
         <header class="mb-8 no-print">
             <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                <span class="text-[#E84C60] drop-shadow-md">⚙️</span> <span data-i18n="hq_title">HQ Procurement Console</span>
+                <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">⚙️</span> <span data-i18n="hq_title">HQ Procurement Console</span>
             </h2>
-            <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide" data-i18n="hq_desc">Global logistics procurement status, digital cart, and system health scan center.</p>
+            <p class="text-xs sm:text-sm font-medium text-gray-500 mt-2 tracking-wide font-inter" data-i18n="hq_desc">Global logistics procurement status, digital cart, and system health scan center.</p>
         </header>
 
-        <!-- 🌟 서브 탭 메뉴 -->
+        <!-- 🌟 대기업 SaaS형 서브 탭 메뉴 -->
         <nav class="mb-8 border-b border-gray-200 overflow-x-auto hide-scrollbar admin-tabs-wrapper no-print">
             <div class="flex space-x-2 pb-2 min-w-max">
-                <!-- 🌟 [방어 27] 탭 버튼 type="button" 명시로 새로고침 튕김 현상 차단 -->
-                <button type="button" id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-sm whitespace-nowrap focus:outline-none"><span data-i18n="tab_hqorders">HQ Procurement</span></button>
-                <button type="button" id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
-                <button type="button" id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
-                <button type="button" id="tabBtn_sales" onclick="switchAdminTab('sales')" class="px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_sales">ERP Sales</span></button>
+                <button type="button" id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-md whitespace-nowrap focus:outline-none"><span data-i18n="tab_hqorders">HQ Procurement</span></button>
+                <button type="button" id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
+                <button type="button" id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
+                <button type="button" id="tabBtn_sales" onclick="switchAdminTab('sales')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_sales">ERP Sales</span></button>
             </div>
         </nav>
 
-        <div id="section_admin_container" class="delay-100">
+        <div id="section_admin_container">
 
             <!-- ========================================== -->
             <!-- 🌟 SECTION: HQ Procurement (본사 물류 관제) -->
             <!-- ========================================== -->
             <section id="section_hqorders" class="block">
 
-                <form onsubmit="event.preventDefault(); return false;" autocomplete="off" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-8 p-5 sm:p-6 bg-gradient-to-r from-gray-50 to-white">
-                    <h3 class="text-xs font-black text-gray-500 tracking-widest uppercase mb-4" data-i18n="btn_add">Create New Order</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
+                <!-- 🌟 [CRITICAL FIX] 엔터 서브밋 무손실 연동. bg-white 및 shadow 확산 최적화 -->
+                <form onsubmit="event.preventDefault(); if(typeof saveHqOrder === 'function') saveHqOrder(); return false;" autocomplete="off" class="bg-white premium-shadow rounded-2xl overflow-hidden mb-8 p-6 sm:p-8">
+                    <h3 class="text-xs font-black text-gray-400 tracking-widest uppercase mb-5 font-montserrat" data-i18n="btn_add">Create New Order</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 items-end">
                         <div class="lg:col-span-3">
-                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1" data-i18n="th_vendor">Vendor Name</label>
-                            <input type="text" id="hqVendorInput" autocomplete="off" data-i18n-placeholder="placeholder_vendor" placeholder="Vendor Name" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1" data-i18n="th_vendor">Vendor Name</label>
+                            <input type="text" id="hqVendorInput" autocomplete="off" data-i18n-placeholder="placeholder_vendor" placeholder="Vendor Name" class="w-full text-[13px] p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 transition-all bg-gray-50 focus:bg-white">
                         </div>
                         <div class="lg:col-span-2">
-                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1" data-i18n="th_hub">Hub Region</label>
-                            <input type="text" id="hqRegionInput" autocomplete="off" data-i18n-placeholder="placeholder_hub" placeholder="Hub (ON, BC..)" class="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm text-center transition-colors uppercase">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1" data-i18n="th_hub">Hub Region</label>
+                            <input type="text" id="hqRegionInput" autocomplete="off" data-i18n-placeholder="placeholder_hub" placeholder="Hub (ON, BC..)" class="w-full text-[13px] p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-black text-gray-800 text-center transition-all bg-gray-50 focus:bg-white uppercase">
                         </div>
                         <div class="lg:col-span-5">
-                            <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-widest mb-1 ml-1" data-i18n="th_summary">Digital Cart / Items Summary</label>
-                            <input type="text" id="hqItemsInput" data-i18n-placeholder="placeholder_cart" placeholder="🛒 Click to Select Items..." class="w-full text-xs p-2.5 border-2 border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors cursor-pointer bg-white" readonly>
+                            <label class="block text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1.5 ml-1" data-i18n="th_summary">Digital Cart / Items Summary</label>
+                            <input type="text" id="hqItemsInput" data-i18n-placeholder="placeholder_cart" placeholder="🛒 Click to Select Items..." class="w-full text-[13px] p-3 border-2 border-gray-200 rounded-xl focus:border-[#E3000F] outline-none font-bold text-gray-800 transition-all cursor-pointer bg-white" readonly>
                         </div>
                         <div class="lg:col-span-2">
-                            <button type="button" id="btnSubmitHqOrder" onclick="saveHqOrder()" class="btn-gradient-pink w-full px-4 py-2.5 rounded-lg font-black text-xs uppercase tracking-widest shadow-md focus:outline-none">
+                            <!-- type="submit" 유지 -->
+                            <button type="submit" id="btnSubmitHqOrder" class="btn-gradient-pink w-full px-4 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest focus:outline-none">
                                 <span data-i18n="btn_add">ADD ORDER</span>
                             </button>
                         </div>
                     </div>
                 </form>
 
-                <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8">
-                    <div class="px-4 sm:px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <h3 class="font-black text-[var(--premium-charcoal)] text-xs sm:text-sm uppercase tracking-widest" data-i18n="active_shipments">Active Shipments</h3>
+                <div class="bg-white premium-shadow rounded-2xl overflow-hidden mb-8">
+                    <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white">
+                        <h3 class="font-black text-[var(--premium-charcoal)] text-xs sm:text-sm uppercase tracking-widest font-montserrat" data-i18n="active_shipments">Active Shipments</h3>
                     </div>
                     <div class="overflow-x-auto hide-scrollbar">
-                        <table class="w-full text-left border-collapse min-w-[700px]">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200">
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_orderid">Order ID</th>
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_date">Date</th>
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-[#E84C60] uppercase tracking-widest whitespace-nowrap" data-i18n="th_vendor">Vendor</th>
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_hub">Hub</th>
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_summary">Items</th>
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_eta">ETA</th>
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_status">Status</th>
+                                <tr class="bg-gray-50/50 border-b border-gray-100">
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_orderid">Order ID</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_date">Date</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-[#E3000F] uppercase tracking-widest whitespace-nowrap" data-i18n="th_vendor">Vendor</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_hub">Hub</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_summary">Items</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_eta">ETA</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_status">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="hqOrdersGridBody" class="divide-y divide-gray-100">
-                                <tr><td colspan="7" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><svg class="animate-spin h-6 w-6 mx-auto text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></td></tr>
+                            <tbody id="hqOrdersGridBody" class="divide-y divide-gray-50">
+                                <tr><td colspan="7" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><svg class="animate-spin h-6 w-6 text-[#E3000F]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-xs font-bold text-gray-400 tracking-widest uppercase">Loading Data...</span></div></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -260,46 +323,46 @@
             <!-- 🌟 SECTION: Inbound (입고 엑셀/OCR)        -->
             <!-- ========================================== -->
             <section id="section_inbound" class="hidden">
-                <div class="mb-6">
-                    <h3 class="text-xl font-black text-[var(--premium-charcoal)] font-montserrat" data-i18n="inbound_title">Atomic Inbound Gateway</h3>
-                    <p class="text-xs sm:text-sm font-bold text-gray-500 mt-1 leading-relaxed" data-i18n="inbound_desc">V17.12 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.</p>
+                <div class="mb-8">
+                    <h3 class="text-xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="inbound_title">Atomic Inbound Gateway</h3>
+                    <p class="text-[13px] font-medium text-gray-500 mt-2 leading-relaxed font-inter" data-i18n="inbound_desc">V17.12 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.</p>
                 </div>
                 
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 sm:p-6 mb-8 shadow-sm">
-                    <h4 class="font-black text-amber-800 text-sm mb-3 flex items-center gap-2"><span>📖</span> <span data-i18n="guide_title">B2B Logistics Inventory Merge System Essential Guide</span></h4>
-                    <div class="space-y-4 text-[11px] sm:text-xs font-bold text-amber-900/80 leading-relaxed">
+                <div class="bg-amber-50/80 border border-amber-200/60 rounded-2xl p-6 sm:p-8 mb-8">
+                    <h4 class="font-black text-amber-900 text-sm mb-4 flex items-center gap-2 font-montserrat"><span>📖</span> <span data-i18n="guide_title">B2B Logistics Inventory Merge System Essential Guide</span></h4>
+                    <div class="space-y-5 text-xs font-bold text-amber-900/80 leading-relaxed font-inter">
                         <div>
-                            <p class="font-black text-amber-900 mb-1" data-i18n="guide_q1">✅ What to upload?</p>
-                            <p class="pl-4 relative before:content-[''] before:absolute before:left-0 before:top-2 before:w-1.5 before:h-1.5 before:bg-amber-400 before:rounded-full" data-i18n="guide_a1_1">Excel receipt statements (.xlsx, .xls, .csv) issued by vendors.</p>
-                            <p class="pl-4 relative before:content-[''] before:absolute before:left-0 before:top-2 before:w-1.5 before:h-1.5 before:bg-amber-400 before:rounded-full mt-1" data-i18n="guide_a1_2">Image files (.jpg, .png) of physical invoices (AI OCR Scan).</p>
+                            <p class="font-black text-amber-900 mb-1.5 text-[13px]" data-i18n="guide_q1">✅ What to upload?</p>
+                            <p class="pl-5 relative before:content-[''] before:absolute before:left-1 before:top-2 before:w-1.5 before:h-1.5 before:bg-amber-400 before:rounded-full" data-i18n="guide_a1_1">Excel receipt statements (.xlsx, .xls, .csv) issued by vendors.</p>
+                            <p class="pl-5 relative before:content-[''] before:absolute before:left-1 before:top-2 before:w-1.5 before:h-1.5 before:bg-amber-400 before:rounded-full mt-1.5" data-i18n="guide_a1_2">Image files (.jpg, .png) of physical invoices (AI OCR Scan).</p>
                         </div>
-                        <div class="bg-white/50 p-4 rounded-xl border border-amber-200/50">
-                            <p class="font-black text-[#E84C60] mb-1" data-i18n="guide_q2">⚠️ Precautions (Must Read)</p>
-                            <p class="pl-4 relative before:content-[''] before:absolute before:left-0 before:top-2 before:w-1.5 before:h-1.5 before:bg-[#E84C60] before:rounded-full text-[#E84C60]" data-i18n="guide_a2_1">Uploaded quantities will be cumulatively added (+) to the live inventory.</p>
-                            <p class="pl-4 relative before:content-[''] before:absolute before:left-0 before:top-2 before:w-1.5 before:h-1.5 before:bg-[#E84C60] before:rounded-full mt-1 text-[#E84C60]" data-i18n="guide_a2_2">Risk of duplicate receiving: Please do not upload the same file twice.</p>
+                        <div class="bg-white/60 p-5 rounded-xl border border-amber-200/50 shadow-sm">
+                            <p class="font-black text-[#E3000F] mb-1.5 text-[13px]" data-i18n="guide_q2">⚠️ Precautions (Must Read)</p>
+                            <p class="pl-5 relative before:content-[''] before:absolute before:left-1 before:top-2 before:w-1.5 before:h-1.5 before:bg-[#E3000F] before:rounded-full text-[#E3000F]" data-i18n="guide_a2_1">Uploaded quantities will be cumulatively added (+) to the live inventory.</p>
+                            <p class="pl-5 relative before:content-[''] before:absolute before:left-1 before:top-2 before:w-1.5 before:h-1.5 before:bg-[#E3000F] before:rounded-full mt-1.5 text-[#E3000F]" data-i18n="guide_a2_2">Risk of duplicate receiving: Please do not upload the same file twice.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white border-2 border-dashed border-gray-300 rounded-3xl p-8 sm:p-12 text-center transition-all duration-300 hover:border-[#E84C60] hover:bg-pink-50/30 group relative" id="dropZone">
+                <div class="bg-white border-2 border-dashed border-gray-300 rounded-[2rem] p-10 sm:p-16 text-center transition-all duration-300 hover:border-[#E3000F] hover:bg-red-50/20 group relative" id="dropZone">
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .jpg, .jpeg, .png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" aria-label="File Upload">
                     <div class="pointer-events-none relative z-0 flex flex-col items-center">
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-inner border border-gray-100">
-                            <svg class="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 group-hover:text-[#E84C60] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner border border-gray-100">
+                            <svg class="w-10 h-10 text-gray-400 group-hover:text-[#E3000F] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         </div>
-                        <p class="text-[13px] sm:text-[15px] font-black text-[var(--premium-charcoal)] mb-2" data-i18n="dropzone_title">Drag & Drop Vendor Document Here</p>
-                        <p class="text-[10px] sm:text-xs font-bold text-gray-400 tracking-wide mb-6" data-i18n="dropzone_desc">Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png</p>
+                        <p class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] mb-2 font-montserrat" data-i18n="dropzone_title">Drag & Drop Vendor Document Here</p>
+                        <p class="text-[11px] sm:text-xs font-bold text-gray-400 tracking-wide mb-8 font-inter" data-i18n="dropzone_desc">Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png</p>
                         
-                        <div class="w-full max-w-sm mx-auto flex flex-col gap-3 relative z-20 pointer-events-auto">
-                            <select id="inboundRegionSelector" aria-label="Hub Selector" class="w-full text-xs p-3 border border-gray-300 rounded-xl focus:border-[#E84C60] outline-none text-center cursor-pointer font-bold text-gray-700 shadow-sm transition-colors bg-white appearance-none">
+                        <div class="w-full max-w-sm mx-auto flex flex-col gap-4 relative z-20 pointer-events-auto">
+                            <select id="inboundRegionSelector" aria-label="Hub Selector" class="w-full text-[13px] p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none text-center cursor-pointer font-black text-gray-800 bg-gray-50 focus:bg-white transition-all appearance-none">
                                 <option value="">-- Loading Hubs --</option>
                             </select>
-                            <input type="text" id="linkedHqOrderId" autocomplete="off" placeholder="Link HQ Order ID (Optional, e.g. REQ-...)" class="w-full text-xs p-3 border border-gray-300 rounded-xl focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors text-center bg-white">
-                            <button type="button" onclick="document.getElementById('excelFileInput').click()" class="btn-gradient-pink w-full px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md mt-2 flex items-center justify-center gap-2 focus:outline-none">
+                            <input type="text" id="linkedHqOrderId" autocomplete="off" placeholder="Link HQ Order ID (Optional, e.g. REQ-...)" class="w-full text-[13px] p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 text-center bg-gray-50 focus:bg-white transition-all">
+                            <button type="button" onclick="document.getElementById('excelFileInput').click()" class="btn-gradient-pink w-full px-6 py-4 rounded-xl font-black text-xs uppercase tracking-widest mt-2 flex items-center justify-center gap-2 focus:outline-none">
                                 <span>📁</span> <span data-i18n="btn_browse">Browse Files</span>
                             </button>
                         </div>
-                        <div id="uploadStatusText" aria-live="polite" class="mt-6 text-xs font-black text-gray-500 min-h-[16px]"></div>
+                        <div id="uploadStatusText" aria-live="polite" class="mt-8 text-xs font-black text-gray-500 min-h-[16px] font-inter"></div>
                     </div>
                 </div>
             </section>
@@ -308,29 +371,28 @@
             <!-- 🌟 SECTION: Franchise DB (가맹점 마스터)   -->
             <!-- ========================================== -->
             <section id="section_profiles" class="hidden">
-                <div class="mb-6">
-                    <h3 class="text-xl font-black text-[var(--premium-charcoal)] font-montserrat" data-i18n="profiles_title">Franchise Database</h3>
-                    <p class="text-xs sm:text-sm font-bold text-gray-500 mt-1" data-i18n="profiles_desc">Master management center for franchise profiles, addresses, contacts, and business IDs.</p>
+                <div class="mb-8">
+                    <h3 class="text-xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="profiles_title">Franchise Database</h3>
+                    <p class="text-[13px] font-medium text-gray-500 mt-2 font-inter" data-i18n="profiles_desc">Master management center for franchise profiles, addresses, contacts, and business IDs.</p>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8">
-                    <!-- 🌟 [방어 28] 가맹점 표 가로 붕괴 방지 -->
+                <div class="bg-white premium-shadow rounded-2xl overflow-hidden mb-8">
                     <div class="overflow-x-auto hide-scrollbar">
-                        <table class="w-full text-left border-collapse min-w-[900px]">
-                            <thead class="bg-gray-50 border-b border-gray-200">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead class="bg-gray-50/50 border-b border-gray-100">
                                 <tr>
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_client">Client Name</th>
-                                    <th class="py-4 px-3 text-[9px] sm:text-[10px] font-black text-[#E84C60] uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_state">State (Hub)</th>
-                                    <th class="py-4 px-3 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_city">City</th>
-                                    <th class="py-4 px-3 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_addr">Full Address</th>
-                                    <th class="py-4 px-3 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_manager">Manager</th>
-                                    <th class="py-4 px-3 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_email">Email</th>
-                                    <th class="py-4 px-3 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_biz">Business ID</th>
-                                    <th class="py-4 px-4 sm:px-5 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-200 bg-gray-50" data-i18n="table_action">Action</th>
+                                    <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_client">Client Name</th>
+                                    <th class="py-5 px-4 text-[10px] font-black text-[#E3000F] uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_state">State (Hub)</th>
+                                    <th class="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_city">City</th>
+                                    <th class="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_addr">Full Address</th>
+                                    <th class="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_manager">Manager</th>
+                                    <th class="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_email">Email</th>
+                                    <th class="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_biz">Business ID</th>
+                                    <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-100 bg-gray-50" data-i18n="table_action">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="masterTableBody" class="divide-y divide-gray-100">
+                            <tbody id="masterTableBody" class="divide-y divide-gray-50">
                                 <!-- JS Injection -->
-                                <tr><td colspan="8" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><svg class="animate-spin h-6 w-6 mx-auto text-[#E84C60]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></td></tr>
+                                <tr><td colspan="8" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><svg class="animate-spin h-6 w-6 text-[#E3000F]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-xs font-bold text-gray-400 tracking-widest uppercase">Loading Database...</span></div></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -341,51 +403,50 @@
             <!-- 🌟 SECTION: ERP Sales (가맹점 매출 동기화) -->
             <!-- ========================================== -->
             <section id="section_sales" class="hidden">
-                <div class="mb-6">
-                    <h3 class="text-xl font-black text-[var(--premium-charcoal)] font-montserrat" data-i18n="sales_title">ERP Sales Sync</h3>
-                    <p class="text-xs sm:text-sm font-bold text-gray-500 mt-1" data-i18n="sales_desc">Monthly POS and delivery app sales data integration and royalty calculation basis.</p>
+                <div class="mb-8">
+                    <h3 class="text-xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="sales_title">ERP Sales Sync</h3>
+                    <p class="text-[13px] font-medium text-gray-500 mt-2 font-inter" data-i18n="sales_desc">Monthly POS and delivery app sales data integration and royalty calculation basis.</p>
                 </div>
                 
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 mb-8 shadow-sm flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
-                    <select id="salesClientSelector" aria-label="Select Client" onchange="loadSalesGrid()" class="w-full sm:w-1/2 bg-gray-50 border border-gray-200 text-[var(--premium-charcoal)] text-sm font-bold rounded-xl focus:border-[#E84C60] block p-3 outline-none transition-colors cursor-pointer appearance-none"></select>
-                    <select id="salesYearSelector" aria-label="Select Year" onchange="loadSalesGrid()" class="w-full sm:w-1/4 bg-gray-50 border border-gray-200 text-[var(--premium-charcoal)] text-sm font-bold rounded-xl focus:border-[#E84C60] block p-3 outline-none transition-colors cursor-pointer appearance-none"></select>
+                <div class="bg-white premium-shadow rounded-2xl p-6 sm:p-8 mb-8 flex flex-col sm:flex-row gap-4 items-center">
+                    <select id="salesClientSelector" aria-label="Select Client" onchange="loadSalesGrid()" class="w-full sm:w-1/2 bg-gray-50 border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block p-3.5 outline-none transition-all cursor-pointer appearance-none"></select>
+                    <select id="salesYearSelector" aria-label="Select Year" onchange="loadSalesGrid()" class="w-full sm:w-1/4 bg-gray-50 border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block p-3.5 outline-none transition-all cursor-pointer appearance-none"></select>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1" data-i18n="kpi_annual">Total Annual Sales</p>
-                        <p id="salesKpiTotal" class="text-xl sm:text-2xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">-</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+                    <div class="bg-white premium-shadow rounded-2xl p-6">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5" data-i18n="kpi_annual">Total Annual Sales</p>
+                        <p id="salesKpiTotal" class="text-2xl sm:text-3xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">-</p>
                     </div>
-                    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                        <p class="text-[10px] font-black text-[#E84C60] uppercase tracking-widest mb-1" data-i18n="kpi_pos">POS (Dine-in & Takeout)</p>
-                        <p id="salesKpiPos" class="text-xl sm:text-2xl font-black font-mono text-[#E84C60] tracking-tighter">-</p>
+                    <div class="bg-white premium-shadow rounded-2xl p-6">
+                        <p class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1.5" data-i18n="kpi_pos">POS (Dine-in & Takeout)</p>
+                        <p id="salesKpiPos" class="text-2xl sm:text-3xl font-black font-mono text-[#E3000F] tracking-tighter">-</p>
                     </div>
-                    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                        <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1" data-i18n="kpi_del">Delivery Platforms</p>
-                        <p id="salesKpiDelivery" class="text-xl sm:text-2xl font-black font-mono text-blue-600 tracking-tighter">-</p>
+                    <div class="bg-white premium-shadow rounded-2xl p-6">
+                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1.5" data-i18n="kpi_del">Delivery Platforms</p>
+                        <p id="salesKpiDelivery" class="text-2xl sm:text-3xl font-black font-mono text-blue-600 tracking-tighter">-</p>
                     </div>
                 </div>
 
-                <div class="bg-white border border-gray-200 rounded-[1.5rem] shadow-sm overflow-hidden mb-8 relative">
-                    <!-- 🌟 [방어 28] ERP 테이블 가로 스크롤 레이아웃 붕괴 방지 -->
-                    <div class="overflow-x-auto hide-scrollbar pb-20">
-                        <table class="w-full text-left border-collapse min-w-[500px]">
+                <div class="bg-white premium-shadow rounded-2xl overflow-hidden mb-8 relative">
+                    <div class="overflow-x-auto hide-scrollbar pb-24">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200">
-                                    <th class="py-4 px-4 sm:px-6 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_period">Period</th>
-                                    <th class="py-4 px-4 sm:px-6 text-[9px] sm:text-[10px] font-black text-[#E84C60] uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_pos">POS ($)</th>
-                                    <th class="py-4 px-4 sm:px-6 text-[9px] sm:text-[10px] font-black text-blue-500 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_del">Delivery ($)</th>
-                                    <th class="py-4 px-4 sm:px-6 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest text-right whitespace-nowrap" data-i18n="table_sub">Subtotal</th>
-                                    <th class="py-4 px-4 sm:px-6 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_status">Status</th>
+                                <tr class="bg-gray-50/50 border-b border-gray-100">
+                                    <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_period">Period</th>
+                                    <th class="py-5 px-6 text-[10px] font-black text-[#E3000F] uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_pos">POS ($)</th>
+                                    <th class="py-5 px-6 text-[10px] font-black text-blue-600 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_del">Delivery ($)</th>
+                                    <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right whitespace-nowrap" data-i18n="table_sub">Subtotal</th>
+                                    <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_status">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="salesGridBody" class="divide-y divide-gray-100">
-                                <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide">Please select Franchise and Year</td></tr>
+                            <tbody id="salesGridBody" class="divide-y divide-gray-50">
+                                <tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide text-sm font-inter">Please select Franchise and Year</td></tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="absolute bottom-0 left-0 w-full bg-gray-50/90 backdrop-blur-sm border-t border-gray-200 p-4 flex justify-end">
-                        <button type="button" id="saveAllSalesBtn" onclick="saveSalesGridData()" class="btn-gradient-pink px-8 py-3 rounded-xl font-black text-xs uppercase tracking-[0.15em] shadow-md w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-[#E84C60]">
+                    <div class="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-100 p-5 flex justify-end shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
+                        <button type="button" id="saveAllSalesBtn" onclick="saveSalesGridData()" class="btn-gradient-pink px-10 py-3.5 rounded-xl font-black text-xs uppercase tracking-[0.15em] w-full sm:w-auto focus:outline-none">
                             <span data-i18n="btn_save">SAVE DATA</span>
                         </button>
                     </div>
@@ -395,10 +456,10 @@
         </div>
     </main>
 
-    <!-- 🌟 UI 토스트 컨테이너 강제 최상단 Z-Index 보장 -->
+    <!-- 🌟 글로벌 토스트 알림 컨테이너 (최상단 Z-9999 보장) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🌟 JS 엔진 연동 -->
+    <!-- 🌟 JS 엔진 연동 (기존 admin.js 무손실 완벽 매핑) -->
     <script src="assets/js/admin.js" defer></script>
 
     <script>
