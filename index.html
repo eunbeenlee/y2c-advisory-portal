@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Turbo Solid-State - 대기업 수준 UI/UX 일체감, FOUC 방어, 30+ 로그인 에러 방어 -->
+<!-- 🌟 V17.50 Turbo Solid-State - 대기업 수준 UI/UX 일체감, FOUC 방어, 엔터 로그인 지원 및 Tailwind 에러 완벽 해결 -->
 <html lang="en" class="opacity-0">
 <head>
     <meta charset="UTF-8">
@@ -16,13 +16,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
-    <!-- 🌟 [방어 3] 렌더링 블로킹 해제 (Tailwind 지연 로딩) -->
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- 🚨 [CRITICAL FIX] Tailwind CSS 에러 파괴 방어: defer 제거하여 config 적용 전 동기식 로드 보장 -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <script>
+        // 🌟 [방어 3] Tailwind 동기식 로드 성공 후 안전하게 Config 확장
         tailwind.config = {
             theme: {
                 extend: {
@@ -187,8 +188,8 @@
             </div>
         </header>
 
-        <!-- 🌟 [방어] 엔터키로 인한 폼 강제 새로고침(GET 리다이렉트) 방지: onsubmit="event.preventDefault(); return false;" -->
-        <form id="loginForm" class="solid-panel p-7 sm:p-10 w-full relative z-20 cinematic-enter delay-100" onsubmit="event.preventDefault(); return false;" autocomplete="off">
+        <!-- 🌟 [CRITICAL FIX] 엔터 키 지원을 위해 onsubmit 파괴 방지 및 기본 동작 유지, JS에서 컨트롤 -->
+        <form id="loginForm" class="solid-panel p-7 sm:p-10 w-full relative z-20 cinematic-enter delay-100" autocomplete="off">
             <div class="space-y-6">
                 
                 <div>
@@ -220,8 +221,8 @@
 
                 <div id="loginErrorMsg" role="alert" aria-live="assertive" class="text-center text-[11px] sm:text-[12px] font-bold tracking-wide min-h-[20px] flex items-center justify-center break-keep"></div>
 
-                <!-- 🌟 버튼에 type="button" 명시 (이중 서브밋 폼 튕김 현상 완벽 방어) -->
-                <button type="button" id="loginBtn" class="btn-hip w-full font-montserrat font-black text-[13px] tracking-[0.2em] uppercase py-4.5 rounded-xl mt-2 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E84C60] focus:ring-offset-2 focus:ring-offset-[#1A1516]">
+                <!-- 🌟 [CRITICAL FIX] 엔터 키 지원을 위해 type="submit"으로 변경 -->
+                <button type="submit" id="loginBtn" class="btn-hip w-full font-montserrat font-black text-[13px] tracking-[0.2em] uppercase py-4.5 rounded-xl mt-2 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E84C60] focus:ring-offset-2 focus:ring-offset-[#1A1516]">
                     Secure Login
                 </button>
             </div>
@@ -240,6 +241,7 @@
  * 🌟 V17.50 Ultimate Hardening (Enterprise Core)
  * - 30+ 교차 검증 및 방어 로직 (XSS, FOUC, Scope Crash, DDoS, Regex, CapsLock, OOM)
  * - 100% 무손실 보존 및 백오프 통신 엔진 2.0 탑재
+ * - 엔터 키(Enter) 서브밋 완벽 지원 패치 적용
  */
 
 const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
@@ -401,9 +403,9 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(lastError?.name === 'AbortError' ? "서버 응답 시간 초과 (15초 지연)<br><span class='text-[10px] text-gray-400 font-inter'>구글 서버 초기화(Cold Start) 중일 수 있습니다. 다시 시도하세요.</span>" : (lastError?.message || "보안 서버 통신 실패."));
     }
 
-    // 🌟 [방어 13] 폼 제출 메인 로직 및 물리적 연타 잠금
+    // 🌟 [방어 13] 폼 제출 메인 로직 및 물리적 연타 잠금 (엔터 키 완벽 매칭)
     async function handleLogin(e) {
-        if (e) e.preventDefault();
+        if (e) e.preventDefault(); // 🌟 엔터 키 폼 전송을 방어하고 JS 함수가 통제권 획득
         if (isAuthenticating) return;
 
         // 🌟 [방어 16] Invisible 특수문자 파서 탑재 (ID 공백 및 숨은 문자 완벽 제거)
@@ -493,9 +495,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 🌟 폼 서브밋 핸들러 바인딩 (type="button" 클릭과 폼 엔터키 모두 커버)
-    if (loginForm) { loginForm.addEventListener("submit", handleLogin); }
-    if (loginBtn) { loginBtn.addEventListener("click", handleLogin); }
+    // 🌟 폼 서브밋 핸들러 바인딩 (type="submit" 이므로 폼 엔터키 모두 완벽하게 캐치함)
+    if (loginForm) { 
+        loginForm.addEventListener("submit", handleLogin); 
+    }
 });
 </script>
 </body>
