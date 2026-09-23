@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Invoice Engine (V17.50 Turbo)
- * [Absolute Null-Safe] 재무 데이터 무결성 보존 및 초스무스(FOUC) 렌더링
+ * Y2C Holdings Premium Partner Portal - Invoice Engine (V30.5 Enterprise)
+ * [Absolute Null-Safe] 재무 데이터 무결성 보존, 무결점 인쇄 엔진 및 프리미엄 UI
  * ============================================================================
  */
 
-// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
+// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
@@ -91,8 +91,8 @@ window.changeLanguage = function(lang) {
     
     const btnEn = document.getElementById('lang_en'), btnKo = document.getElementById('lang_ko');
     if (btnEn && btnKo) {
-        btnEn.className = safeLang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
-        btnKo.className = safeLang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnEn.className = safeLang === 'en' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (window.applyTranslations) window.applyTranslations();
 };
@@ -103,7 +103,7 @@ window.applyTranslations = function() {
 };
 
 // ============================================================================
-// 🔒 [방어 V17.50] Absolute Null-Safe Parsers (빈칸, 특수문자, 쉼표, NaN 100% 방어)
+// 🔒 [방어 V30.5] Absolute Null-Safe Parsers (빈칸, 특수문자, 쉼표, NaN 100% 방어)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -173,7 +173,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 20] 글로벌 토스트 알림 Z-Index 스팸 억제 및 폰트 통일
+// 🌟 [방어 20] 글로벌 토스트 알림 Z-Index 스팸 억제 및 프리미엄 테마(#E3000F) 통일
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -182,9 +182,10 @@ function showToast(message, type = 'success') {
     if (container.childNodes.length >= 5) container.firstChild.remove();
 
     const toast = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]', icon = type === 'success' ? '✅' : '⚠️';
+    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]', icon = type === 'success' ? '✅' : '⚠️';
     toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
-    toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${escapeHtml(message)}</span>`;
+    toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
+    toast.querySelector('.toast-msg').textContent = String(message);
     container.appendChild(toast);
     
     requestAnimationFrame(() => { setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10); });
@@ -397,7 +398,13 @@ async function generateInvoice() {
             // ====================================================================
             document.getElementById('invNo').innerText = safeDisplay(invNo);
             document.getElementById('invDate').innerText = formatDate(today);
-            document.getElementById('invDue').innerText = formatDate(dueDateObj);
+            
+            // 🚨 Due Date Color Fix: #E3000F
+            const invDueEl = document.getElementById('invDue');
+            if(invDueEl) {
+                invDueEl.innerText = formatDate(dueDateObj);
+                invDueEl.className = "text-[#E3000F] font-black ml-2 print-text-black";
+            }
 
             // HQ Info 렌더링 (빈칸일 경우 "-" 폴백)
             document.getElementById('hqName').innerText = safeDisplay(hqInfo.name || hqInfo.hqName, "Y2C Holdings Inc.");
@@ -421,7 +428,13 @@ async function generateInvoice() {
             // Calculation Line
             document.getElementById('descLine').innerHTML = `${escapeHtml(dict["desc_mas"])}<br><span class="text-xs text-gray-500 font-medium mt-1 block">Period: ${targetYear}-${String(startMonth).padStart(2,'0')} to ${targetYear}-${String(endMonth).padStart(2,'0')}</span>`;
             document.getElementById('baseLine').innerText = formatCurrency(baseAmount);
-            document.getElementById('rateLine').innerText = `${rate}%`;
+            
+            // 🚨 Rate Color Fix: #E3000F
+            const rateLineEl = document.getElementById('rateLine');
+            if(rateLineEl) {
+                rateLineEl.innerText = `${rate}%`;
+                rateLineEl.className = "py-5 px-4 text-center text-[#E3000F] font-black print-text-black";
+            }
             document.getElementById('amtLine').innerText = formatCurrency(royaltyAmount);
 
             // Totals
@@ -429,7 +442,7 @@ async function generateInvoice() {
             
             const taxLabelEl = document.getElementById('taxAmt')?.parentElement;
             if(taxLabelEl) {
-                taxLabelEl.innerHTML = `Estimated Tax <span class="font-bold text-gray-800 font-inter">(${escapeHtml(taxObj.name)})</span>: <span class="font-black text-[var(--premium-charcoal)] font-mono ml-4 print-text-black text-sm" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
+                taxLabelEl.innerHTML = `Estimated Tax <span class="font-bold text-gray-800 font-inter">(${escapeHtml(taxObj.name)})</span>: <span class="font-black text-[var(--premium-charcoal)] font-mono ml-3 print-text-black text-[15px]" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
             } else if (document.getElementById('taxAmt')) {
                 document.getElementById('taxAmt').innerText = formatCurrency(taxAmount);
             }
