@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V30.5 Enterprise Master Benchmark - 로딩 블랙아웃 100% 제거, 1줄 완벽 고정 헤더, 대기업형 SaaS UI -->
+<!-- 🌟 V30.5 Enterprise Master Benchmark - 로딩 블랙아웃 100% 제거, 드롭존 클릭 버그 픽스, 대기업형 SaaS UI -->
 <html lang="en" class="opacity-0">
 <head>
     <meta charset="UTF-8">
@@ -249,7 +249,7 @@
             <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
                 <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">⚙️</span> <span data-i18n="hq_title">HQ Procurement Console</span>
             </h2>
-            <p class="text-xs sm:text-sm font-medium text-gray-500 mt-2 tracking-wide font-inter" data-i18n="hq_desc">Global logistics procurement status, digital cart, and system health scan center.</p>
+            <p class="text-[13px] sm:text-sm font-medium text-gray-500 mt-2 tracking-wide font-inter" data-i18n="hq_desc">Global logistics procurement status, digital cart, and system health scan center.</p>
         </header>
 
         <!-- 🌟 대기업 SaaS형 서브 탭 메뉴 -->
@@ -269,7 +269,7 @@
             <!-- ========================================== -->
             <section id="section_hqorders" class="block">
 
-                <!-- 🌟 [CRITICAL FIX] 엔터 서브밋 무손실 연동. bg-white 및 shadow 확산 최적화 -->
+                <!-- 🌟 엔터 서브밋 무손실 연동. bg-white 및 shadow 확산 최적화 -->
                 <form onsubmit="event.preventDefault(); if(typeof saveHqOrder === 'function') saveHqOrder(); return false;" autocomplete="off" class="bg-white premium-shadow rounded-2xl overflow-hidden mb-8 p-6 sm:p-8">
                     <h3 class="text-xs font-black text-gray-400 tracking-widest uppercase mb-5 font-montserrat" data-i18n="btn_add">Create New Order</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 items-end">
@@ -302,17 +302,17 @@
                         <table class="w-full text-left border-collapse min-w-[800px]">
                             <thead>
                                 <tr class="bg-gray-50/50 border-b border-gray-100">
-                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_orderid">Order ID</th>
-                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_date">Date</th>
-                                    <th class="py-4 px-6 text-[10px] font-black text-[#E3000F] uppercase tracking-widest whitespace-nowrap" data-i18n="th_vendor">Vendor</th>
-                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_hub">Hub</th>
-                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_summary">Items</th>
-                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="th_eta">ETA</th>
-                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_status">Status</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-inter" data-i18n="th_orderid">Order ID</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-inter" data-i18n="th_date">Date</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-[#E3000F] uppercase tracking-widest whitespace-nowrap font-inter" data-i18n="th_vendor">Vendor</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-inter" data-i18n="th_hub">Hub</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-inter" data-i18n="th_summary">Items</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-inter" data-i18n="th_eta">ETA</th>
+                                    <th class="py-4 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap font-inter" data-i18n="table_status">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="hqOrdersGridBody" class="divide-y divide-gray-50">
-                                <tr><td colspan="7" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><svg class="animate-spin h-6 w-6 text-[#E3000F]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-xs font-bold text-gray-400 tracking-widest uppercase">Loading Data...</span></div></td></tr>
+                                <tr><td colspan="7" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><svg class="animate-spin h-6 w-6 text-[#E3000F]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-xs font-bold text-gray-400 tracking-widest uppercase font-inter">Loading Data...</span></div></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -330,7 +330,7 @@
                 
                 <div class="bg-amber-50/80 border border-amber-200/60 rounded-2xl p-6 sm:p-8 mb-8">
                     <h4 class="font-black text-amber-900 text-sm mb-4 flex items-center gap-2 font-montserrat"><span>📖</span> <span data-i18n="guide_title">B2B Logistics Inventory Merge System Essential Guide</span></h4>
-                    <div class="space-y-5 text-xs font-bold text-amber-900/80 leading-relaxed font-inter">
+                    <div class="space-y-5 text-[12px] font-bold text-amber-900/80 leading-relaxed font-inter">
                         <div>
                             <p class="font-black text-amber-900 mb-1.5 text-[13px]" data-i18n="guide_q1">✅ What to upload?</p>
                             <p class="pl-5 relative before:content-[''] before:absolute before:left-1 before:top-2 before:w-1.5 before:h-1.5 before:bg-amber-400 before:rounded-full" data-i18n="guide_a1_1">Excel receipt statements (.xlsx, .xls, .csv) issued by vendors.</p>
@@ -345,21 +345,29 @@
                 </div>
 
                 <div class="bg-white border-2 border-dashed border-gray-300 rounded-[2rem] p-10 sm:p-16 text-center transition-all duration-300 hover:border-[#E3000F] hover:bg-red-50/20 group relative" id="dropZone">
-                    <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .jpg, .jpeg, .png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" aria-label="File Upload">
-                    <div class="pointer-events-none relative z-0 flex flex-col items-center">
+                    <!-- 🚨 [CRITICAL FIX] 파일 인풋 클릭 가로채기 방지를 위해 완벽히 hidden 처리 -->
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv, .jpg, .jpeg, .png" class="hidden" aria-label="File Upload">
+                    <div class="relative z-10 flex flex-col items-center">
                         <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner border border-gray-100">
                             <svg class="w-10 h-10 text-gray-400 group-hover:text-[#E3000F] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         </div>
                         <p class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] mb-2 font-montserrat" data-i18n="dropzone_title">Drag & Drop Vendor Document Here</p>
                         <p class="text-[11px] sm:text-xs font-bold text-gray-400 tracking-wide mb-8 font-inter" data-i18n="dropzone_desc">Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png</p>
                         
-                        <div class="w-full max-w-sm mx-auto flex flex-col gap-4 relative z-20 pointer-events-auto">
-                            <select id="inboundRegionSelector" aria-label="Hub Selector" class="w-full text-[13px] p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none text-center cursor-pointer font-black text-gray-800 bg-gray-50 focus:bg-white transition-all appearance-none">
-                                <option value="">-- Loading Hubs --</option>
-                            </select>
-                            <input type="text" id="linkedHqOrderId" autocomplete="off" placeholder="Link HQ Order ID (Optional, e.g. REQ-...)" class="w-full text-[13px] p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 text-center bg-gray-50 focus:bg-white transition-all">
-                            <button type="button" onclick="document.getElementById('excelFileInput').click()" class="btn-gradient-pink w-full px-6 py-4 rounded-xl font-black text-xs uppercase tracking-widest mt-2 flex items-center justify-center gap-2 focus:outline-none">
-                                <span>📁</span> <span data-i18n="btn_browse">Browse Files</span>
+                        <div class="w-full max-w-sm mx-auto flex flex-col gap-4">
+                            <!-- 프리미엄 드롭다운 UI 록다운 -->
+                            <div class="relative">
+                                <select id="inboundRegionSelector" aria-label="Hub Selector" class="w-full text-[13px] p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none text-center cursor-pointer font-black text-gray-800 bg-gray-50 focus:bg-white transition-all appearance-none shadow-sm">
+                                    <option value="">-- Loading Hubs --</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                            
+                            <input type="text" id="linkedHqOrderId" autocomplete="off" placeholder="Link HQ Order ID (Optional, e.g. REQ-...)" class="w-full text-[13px] p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 text-center bg-gray-50 focus:bg-white transition-all shadow-sm">
+                            <button type="button" onclick="document.getElementById('excelFileInput').click()" class="btn-gradient-pink w-full px-6 py-4 rounded-xl font-black text-xs uppercase tracking-widest mt-2 flex items-center justify-center gap-2 focus:outline-none shadow-md hover:shadow-lg transition-all">
+                                <span>📁</span> <span data-i18n="btn_browse">BROWSE FILES</span>
                             </button>
                         </div>
                         <div id="uploadStatusText" aria-live="polite" class="mt-8 text-xs font-black text-gray-500 min-h-[16px] font-inter"></div>
@@ -378,7 +386,7 @@
                 <div class="bg-white premium-shadow rounded-2xl overflow-hidden mb-8">
                     <div class="overflow-x-auto hide-scrollbar">
                         <table class="w-full text-left border-collapse min-w-[1000px]">
-                            <thead class="bg-gray-50/50 border-b border-gray-100">
+                            <thead class="bg-gray-50/80 border-b border-gray-100 font-inter">
                                 <tr>
                                     <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_client">Client Name</th>
                                     <th class="py-5 px-4 text-[10px] font-black text-[#E3000F] uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_state">State (Hub)</th>
@@ -387,12 +395,12 @@
                                     <th class="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_manager">Manager</th>
                                     <th class="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_email">Email</th>
                                     <th class="py-5 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_biz">Business ID</th>
-                                    <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-100 bg-gray-50" data-i18n="table_action">Action</th>
+                                    <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-100 bg-gray-50/50" data-i18n="table_action">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="masterTableBody" class="divide-y divide-gray-50">
                                 <!-- JS Injection -->
-                                <tr><td colspan="8" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><svg class="animate-spin h-6 w-6 text-[#E3000F]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-xs font-bold text-gray-400 tracking-widest uppercase">Loading Database...</span></div></td></tr>
+                                <tr><td colspan="8" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><svg class="animate-spin h-6 w-6 text-[#E3000F]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-xs font-bold text-gray-400 tracking-widest uppercase font-inter">Loading Database...</span></div></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -409,21 +417,27 @@
                 </div>
                 
                 <div class="bg-white premium-shadow rounded-2xl p-6 sm:p-8 mb-8 flex flex-col sm:flex-row gap-4 items-center">
-                    <select id="salesClientSelector" aria-label="Select Client" onchange="loadSalesGrid()" class="w-full sm:w-1/2 bg-gray-50 border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block p-3.5 outline-none transition-all cursor-pointer appearance-none"></select>
-                    <select id="salesYearSelector" aria-label="Select Year" onchange="loadSalesGrid()" class="w-full sm:w-1/4 bg-gray-50 border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block p-3.5 outline-none transition-all cursor-pointer appearance-none"></select>
+                    <div class="relative w-full sm:w-1/2">
+                        <select id="salesClientSelector" aria-label="Select Client" onchange="loadSalesGrid()" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block p-3.5 outline-none transition-all cursor-pointer appearance-none shadow-sm"></select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
+                    </div>
+                    <div class="relative w-full sm:w-1/4">
+                        <select id="salesYearSelector" aria-label="Select Year" onchange="loadSalesGrid()" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block p-3.5 outline-none transition-all cursor-pointer appearance-none shadow-sm"></select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
                     <div class="bg-white premium-shadow rounded-2xl p-6">
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5" data-i18n="kpi_annual">Total Annual Sales</p>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_annual">Total Annual Sales</p>
                         <p id="salesKpiTotal" class="text-2xl sm:text-3xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">-</p>
                     </div>
                     <div class="bg-white premium-shadow rounded-2xl p-6">
-                        <p class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1.5" data-i18n="kpi_pos">POS (Dine-in & Takeout)</p>
+                        <p class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_pos">POS (Dine-in & Takeout)</p>
                         <p id="salesKpiPos" class="text-2xl sm:text-3xl font-black font-mono text-[#E3000F] tracking-tighter">-</p>
                     </div>
                     <div class="bg-white premium-shadow rounded-2xl p-6">
-                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1.5" data-i18n="kpi_del">Delivery Platforms</p>
+                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_del">Delivery Platforms</p>
                         <p id="salesKpiDelivery" class="text-2xl sm:text-3xl font-black font-mono text-blue-600 tracking-tighter">-</p>
                     </div>
                 </div>
@@ -431,8 +445,8 @@
                 <div class="bg-white premium-shadow rounded-2xl overflow-hidden mb-8 relative">
                     <div class="overflow-x-auto hide-scrollbar pb-24">
                         <table class="w-full text-left border-collapse min-w-[600px]">
-                            <thead>
-                                <tr class="bg-gray-50/50 border-b border-gray-100">
+                            <thead class="font-inter">
+                                <tr class="bg-gray-50/80 border-b border-gray-100">
                                     <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap" data-i18n="table_period">Period</th>
                                     <th class="py-5 px-6 text-[10px] font-black text-[#E3000F] uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_pos">POS ($)</th>
                                     <th class="py-5 px-6 text-[10px] font-black text-blue-600 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_del">Delivery ($)</th>
@@ -440,13 +454,13 @@
                                     <th class="py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap" data-i18n="table_status">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="salesGridBody" class="divide-y divide-gray-50">
-                                <tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide text-sm font-inter">Please select Franchise and Year</td></tr>
+                            <tbody id="salesGridBody" class="divide-y divide-gray-50 font-inter">
+                                <tr><td colspan="5" class="px-6 py-16 text-center text-gray-400 font-bold tracking-wide text-[13px]">Please select Franchise and Year</td></tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-100 p-5 flex justify-end shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
-                        <button type="button" id="saveAllSalesBtn" onclick="saveSalesGridData()" class="btn-gradient-pink px-10 py-3.5 rounded-xl font-black text-xs uppercase tracking-[0.15em] w-full sm:w-auto focus:outline-none">
+                    <div class="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 p-5 flex justify-end shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
+                        <button type="button" id="saveAllSalesBtn" onclick="saveSalesGridData()" class="btn-gradient-pink px-10 py-3.5 rounded-xl font-black text-xs uppercase tracking-[0.15em] w-full sm:w-auto focus:outline-none shadow-md hover:shadow-lg transition-all">
                             <span data-i18n="btn_save">SAVE DATA</span>
                         </button>
                     </div>
@@ -469,7 +483,7 @@
                 const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
                 const role = localStorage.getItem(conf.STORAGE_KEYS.ROLE);
 
-                // 마스터 계정일 경우 모든 숨겨진 탭 100% 강제 언락 (ReferenceError 무시)
+                // 마스터 계정일 경우 모든 숨겨진 탭 100% 강제 언락
                 if (role === 'MASTER') {
                     const unlockIds = ['navDashboard', 'navDashboard_mob', 'navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'];
                     unlockIds.forEach(id => {
