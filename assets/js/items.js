@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V17.50 Turbo)
- * [Absolute Null-Safe] 빈칸, 오염 데이터 방어 & 초스무스(DocumentFragment) 렌더링
+ * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V30.5 Enterprise)
+ * [Absolute Null-Safe] SWR 초고속 캐시 렌더러, OOM 방어, 프리미엄 UI 100% 동기화
  * ============================================================================
  */
 
-// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거 (부드러운 페이드인 연동)
+// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
@@ -13,6 +13,8 @@ try {
             docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
             docEl.classList.remove("opacity-0");
             docEl.style.opacity = "1";
+            document.body.classList.remove("opacity-0");
+            document.body.style.opacity = "1";
         });
     });
 } catch(e) {}
@@ -77,11 +79,11 @@ window.changeLanguage = function(lang) {
     
     const btnEn = document.getElementById('lang_en'), btnKo = document.getElementById('lang_ko');
     if (btnEn && btnKo) {
-        btnEn.className = safeLang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
-        btnKo.className = safeLang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnEn.className = safeLang === 'en' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
-    if (typeof renderTableItems === 'function' && cachedItems.length > 0) renderTableItems();
+    if (typeof renderTableItemsFast === 'function' && cachedItems.length > 0) renderTableItemsFast();
 };
 
 window.applyTranslations = function() {
@@ -99,7 +101,7 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 [방어 V17.50] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
+// 🔒 [방어 V30.5] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -185,7 +187,7 @@ function showToast(message, type = 'success') {
   if (container.childNodes.length >= 5) container.firstChild.remove();
 
   const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]', icon = type === 'success' ? '✅' : '⚠️';
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]', icon = type === 'success' ? '✅' : '⚠️';
   toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
   toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
   toast.querySelector('.toast-msg').textContent = String(message);
@@ -244,7 +246,7 @@ function isZeroRatedItem(item) {
 
 const RETRYABLE_ACTIONS = new Set(["get_procurement_data", "get_items", "get_recipes"]);
 
-// 🌟 백오프 2.0 통신 엔진
+// 🌟 백오프 2.0 통신 엔진 (15초 소프트 폴백 지원)
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
   
@@ -320,13 +322,22 @@ async function fetchMappings() {
   } catch (error) { cachedMappings = []; }
 }
 
+// 🌟 [핵심 최적화 1] SWR (Stale-While-Revalidate) 로컬 캐시 엔진
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody'); if (!tableBody) return;
+  const cacheKey = `Y2C_ITEMS_CACHE_${currentClientState}_${masterViewRegion}`;
   
-  // HTML 영역의 Shimmer 애니메이션과 100% 동기화 (깜빡임 차단)
-  if (tableBody.innerHTML.trim() === "") {
-      tableBody.innerHTML = `<tr><td colspan="6" class="p-0"><div class="w-full h-[64px] shimmer-bg border-b border-gray-100"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-100 opacity-90"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-100 opacity-80"></div><div class="py-12 text-center"><p class="text-[12px] font-bold text-gray-400 tracking-wider uppercase animate-pulse">Synchronizing Data...</p></div></td></tr>`;
-  }
+  // 브라우저 캐시를 읽어 0.01초 만에 화면부터 렌더링 (블랙아웃 방어)
+  try {
+      const cachedRaw = localStorage.getItem(cacheKey);
+      if (cachedRaw) {
+          cachedItems = JSON.parse(cachedRaw);
+          renderTableItemsFast();
+      } else {
+          // 캐시가 없을 때만 스켈레톤 로딩 표시
+          tableBody.innerHTML = `<tr><td colspan="6" class="p-0"><div class="w-full h-[64px] shimmer-bg border-b border-gray-100"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-100 opacity-90"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-100 opacity-80"></div><div class="py-12 text-center"><p class="text-[12px] font-bold text-gray-400 tracking-wider uppercase animate-pulse font-inter">Synchronizing Data...</p></div></td></tr>`;
+      }
+  } catch(e) {}
   
   try {
     const result = await executeApi("get_items", { clientState: currentClientState });
@@ -336,7 +347,7 @@ async function fetchItems() {
       taxRateObj = CONFIG.TAX_RATES[currentClientState.toUpperCase()] || CONFIG.TAX_RATES["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
       
       const headerTitle = document.getElementById('catalogHeaderTitle');
-      if (headerTitle) headerTitle.innerHTML = `<span class="text-[#E84C60] drop-shadow-md">📦</span> <span data-i18n="catalog_title">Inventory & Catalog</span> ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E84C60]/10 text-[#E84C60] px-3 py-1.5 rounded-lg border border-[#E84C60]/30 tracking-widest uppercase shadow-sm whitespace-nowrap">${escapeHtml(currentClientState === "DEFAULT" ? "Standard" : currentClientState)} Pricing</span>`}`;
+      if (headerTitle) headerTitle.innerHTML = `<span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📦</span> <span data-i18n="catalog_title">Inventory & Catalog</span> ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E3000F]/10 text-[#E3000F] px-3 py-1.5 rounded-lg border border-[#E3000F]/30 tracking-widest uppercase shadow-sm whitespace-nowrap font-inter">${escapeHtml(currentClientState === "DEFAULT" ? "Standard" : currentClientState)} Pricing</span>`}`;
       
       const kpiDash = document.getElementById('kpiDashboard'); if (kpiDash) kpiDash.classList.remove('hidden');
       const kpiUpdated = document.getElementById('kpiLastUpdated'); if (kpiUpdated) kpiUpdated.innerText = formatTimestamp(result.lastUpdated);
@@ -350,10 +361,16 @@ async function fetchItems() {
         if (aiBtn) aiBtn.classList.remove('hidden');
       }
 
+      // SWR 최신 데이터 덮어쓰기 저장 및 스무스 리렌더링
+      try { localStorage.setItem(cacheKey, JSON.stringify(cachedItems)); } catch(e){}
       renderTableItemsFast(); 
       if(userRole !== "VENDOR") calculateOrderTotal(); 
     } 
-  } catch (error) { tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">Failed to load catalog data: ${escapeHtml(error.message)}</td></tr>`; }
+  } catch (error) { 
+      if (!cachedItems || cachedItems.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide font-inter">Failed to load catalog data: ${escapeHtml(error.message)}</td></tr>`; 
+      }
+  }
 }
 
 function populateRegionFilter() {
@@ -393,13 +410,13 @@ window.saveCartState = function() {
 };
 
 // ============================================================================
-// ⚡ [V17.50 Turbo] 초고속 DOM 메모리 렌더러 (렉 방지 & 문자열 일괄 주입 엔진)
+// ⚡ [V30.5 Enterprise] 초고속 DOM 메모리 렌더러 (렉 방지 & 문자열 일괄 주입 엔진)
 // ============================================================================
 function renderTableItemsFast(data = cachedItems) {
   const tableBody = document.getElementById('itemTableBody'); if (!tableBody) return;
 
   if (!data || data.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold">표시할 품목이 없습니다.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold font-inter">표시할 품목이 없습니다.</td></tr>`;
       return;
   }
   
@@ -424,8 +441,8 @@ function renderTableItemsFast(data = cachedItems) {
       const resolvedImgUrl = resolveDriveImageUrl(rawImgValue);
       
       const imgTag = resolvedImgUrl !== '' 
-          ? `<img src="${escapeHtml(resolvedImgUrl)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E84C60] transition-colors" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0\\'>No Img</div>';">` 
-          : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0">No Img</div>`;
+          ? `<img src="${escapeHtml(resolvedImgUrl)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E3000F] transition-colors" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter\\'>No Img</div>';">` 
+          : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter">No Img</div>`;
       
       let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown?.[masterViewRegion] || 0)) : item.regionalStock;
       if (typeof displayStock !== 'number' || Number.isNaN(displayStock)) displayStock = 0;
@@ -436,13 +453,13 @@ function renderTableItemsFast(data = cachedItems) {
       if (displayStock > 0 && displayStock <= 10) lowStockCount++;
 
       const isLowStock = displayStock > 0 && displayStock <= 10, isSoldOut = displayStock <= 0;
-      let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E84C60]/10 px-2 py-0.5 rounded shadow-sm border border-[#E84C60]/20 low-stock-pulse" : (isLowStock ? "text-[#E84C60] font-extrabold" : "text-gray-800");
-      let aiBadgeHTML = (userRole === "PARTNER" && parseStrictNonNegativeInteger(item.aiSuggestedQty) > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max"><span class="text-[10px]">✨</span> AI Suggestion: ${escapeHtml(item.aiSuggestedQty)}</span></div>` : '';
+      let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E3000F]/10 px-2 py-0.5 rounded shadow-sm border border-[#E3000F]/20 low-stock-pulse" : (isLowStock ? "text-[#E3000F] font-extrabold" : "text-[var(--premium-charcoal)]");
+      let aiBadgeHTML = (userRole === "PARTNER" && parseStrictNonNegativeInteger(item.aiSuggestedQty) > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max font-inter"><span class="text-[10px]">✨</span> AI Suggestion: ${escapeHtml(item.aiSuggestedQty)}</span></div>` : '';
 
       const isZeroRated = isZeroRatedItem(item);
       const taxTag = isZeroRated 
-        ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-100 text-emerald-700 border border-emerald-200" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
-        : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-100 text-blue-700 border border-blue-200" title="Standard Taxable Goods">TAXABLE</span>`;
+        ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-200 font-inter" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
+        : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-50 text-blue-600 border border-blue-200 font-inter" title="Standard Taxable Goods">TAXABLE</span>`;
 
       const translatedCategory = safeDisplay(translateDynamic(item.category || 'General', 'category'));
 
@@ -453,17 +470,17 @@ function renderTableItemsFast(data = cachedItems) {
           let regExp = safeDisplay(item.expBreakdown[reg], "");
           if (regExp && regExp !== "-") {
             const isExpWarn = checkExpWarning(regExp);
-            const expColorClass = isExpWarn ? "text-[#E84C60] bg-[#E84C60]/10 border-[#E84C60]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
-            expLines.push(`<div class="flex items-start justify-between gap-3 text-[9px] font-black uppercase px-2 py-1 rounded border shadow-sm ${expColorClass} mb-1"><span class="opacity-70 mt-0.5">${escapeHtml(reg)}:</span> <span class="text-right leading-tight">${isExpWarn ? "⚠️" : "🕒"} ${escapeHtml(regExp).replace(/\|/g, '<br>')}</span></div>`);
+            const expColorClass = isExpWarn ? "text-[#E3000F] bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
+            expLines.push(`<div class="flex items-start justify-between gap-3 text-[9px] font-black uppercase px-2 py-1 rounded-md border shadow-sm ${expColorClass} mb-1.5 font-inter"><span class="opacity-70 mt-0.5">${escapeHtml(reg)}:</span> <span class="text-right leading-tight">${isExpWarn ? "⚠️" : "🕒"} ${escapeHtml(regExp).replace(/\|/g, '<br>')}</span></div>`);
           }
         }
-        if (expLines.length > 0) { expDisplayHTML = `<div class="mt-2 flex flex-col w-full max-w-[150px] mx-auto">${expLines.join('')}</div>`; }
+        if (expLines.length > 0) { expDisplayHTML = `<div class="mt-2.5 flex flex-col w-full max-w-[150px] mx-auto">${expLines.join('')}</div>`; }
       } else {
         let expDateVal = isMasterOrVendor ? safeDisplay(item.expBreakdown?.[masterViewRegion], "") : safeDisplay(item.expBreakdown?.[currentClientState], "");
         if (expDateVal && expDateVal !== "-") {
           const isExpWarn = checkExpWarning(expDateVal);
-          const expColorClass = isExpWarn ? "text-[#E84C60] bg-[#E84C60]/10 border-[#E84C60]/30" : "text-emerald-700 bg-emerald-50 border-emerald-200";
-          expDisplayHTML = `<div class="mt-1.5 inline-block text-left text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border shadow-sm ${expColorClass}"><span>${isExpWarn ? "⚠️" : "🕒"}</span> EXP:<br>${escapeHtml(expDateVal).replace(/\|/g, '<br>')}</div>`;
+          const expColorClass = isExpWarn ? "text-[#E3000F] bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
+          expDisplayHTML = `<div class="mt-2.5 inline-block text-left text-[9px] font-black uppercase tracking-wider px-2 py-1.5 rounded-md border shadow-sm ${expColorClass} font-inter"><span>${isExpWarn ? "⚠️" : "🕒"}</span> EXP:<br>${escapeHtml(expDateVal).replace(/\|/g, '<br>')}</div>`;
         }
       }
 
@@ -473,26 +490,26 @@ function renderTableItemsFast(data = cachedItems) {
         for (const reg in item.stockBreakdown || {}) {
           const currentRegStock = parseStrictNonNegativeInteger(item.stockBreakdown[reg]); 
           const currentRegExp = safeDisplay(item.expBreakdown?.[reg], "");
-          editInputs += `<div class="flex flex-col gap-1 bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-100 mb-1.5"><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800">${escapeHtml(reg)} STOCK</span><input type="number" min="0" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-14 bg-white border border-emerald-400 rounded px-1 text-center text-[11px] font-bold focus:outline-none"></div><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800">${escapeHtml(reg)} EXP</span><input type="text" placeholder="YYYY-MM-DD:Qty" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp === '-' ? '' : currentRegExp}" class="exp-region-input w-full bg-white border border-emerald-400 rounded px-1 text-center text-[10px] font-bold focus:outline-none placeholder-emerald-200"></div></div>`;
+          editInputs += `<div class="flex flex-col gap-1.5 bg-emerald-50/50 px-2 py-2 rounded-md border border-emerald-100 mb-1.5"><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800 font-inter">${escapeHtml(reg)} STOCK</span><input type="number" min="0" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-16 bg-white border border-emerald-300 rounded px-1.5 py-0.5 text-center text-[11px] font-bold focus:ring-1 focus:ring-emerald-400 outline-none transition-all"></div><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800 font-inter">${escapeHtml(reg)} EXP</span><input type="text" placeholder="YYYY-MM-DD:Qty" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp === '-' ? '' : currentRegExp}" class="exp-region-input w-full bg-white border border-emerald-300 rounded px-1 text-center text-[10px] font-bold focus:ring-1 focus:ring-emerald-400 outline-none placeholder-emerald-200 transition-all"></div></div>`;
         }
         stockDisplayHTML = `<div class="flex flex-col w-full">${editInputs}</div>`;
-        orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
+        orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
       } else if (isMasterOrVendor && !isStockEditMode) {
-        stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-        orderInputHTML = `<input type="number" disabled placeholder="${escapeHtml(userRole)}" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[10px] font-black text-gray-400 opacity-50 cursor-not-allowed uppercase">`;
+        stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
+        orderInputHTML = `<input type="number" disabled placeholder="${escapeHtml(userRole)}" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[10px] font-black text-gray-400 opacity-50 cursor-not-allowed uppercase font-inter">`;
       } else {
         if (isSoldOut) {
-          stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap">Sold Out</span>${expDisplayHTML}</div>`;
-          orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-100 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
+          stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap font-inter">Sold Out</span>${expDisplayHTML}</div>`;
+          orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
         } else {
           let currentQty = parseStrictNonNegativeInteger(savedCart[item.code]);
-          stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-sm font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-          orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="${currentQty === 0 ? '' : currentQty}" placeholder="0" data-index="${i}" data-code="${safeCode}" class="order-qty w-20 sm:w-24 bg-white/70 border border-gray-300 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-gray-900 focus:border-[#E84C60] outline-none shadow-sm transition-all hover:shadow-md">`;
+          stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
+          orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="${currentQty === 0 ? '' : currentQty}" placeholder="0" data-index="${i}" data-code="${safeCode}" class="order-qty w-20 sm:w-24 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-[var(--premium-charcoal)] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-sm transition-all">`;
         }
       }
 
-      const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right font-inter">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-800 font-black text-right font-mono">${safePrice === 0 ? '-' : formatCurrency(safePrice)}</td>`;
-      htmlString += `<tr class="hover:bg-gray-50/50 transition-colors duration-200"><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-gray-800 font-extrabold tracking-tight whitespace-normal break-keep font-inter">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E84C60]/10 text-[#E84C60] border border-[#E84C60]/20 uppercase tracking-[0.15em] shadow-sm">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50 border-l border-gray-200 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E84C60]/5 border-l border-[#E84C60]/10 align-middle">${orderInputHTML}</td></tr>`;
+      const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right font-inter">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black text-right font-mono">${safePrice === 0 ? '-' : formatCurrency(safePrice)}</td>`;
+      htmlString += `<tr class="hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50"><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black tracking-tight whitespace-normal break-keep font-inter">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm font-inter">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50/50 border-l border-gray-100 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td></tr>`;
   }
 
   // 🌟 단 한 번의 DOM 주입으로 렌더링 부하 최소화
@@ -570,7 +587,7 @@ function calculateOrderTotal() {
   currentOrderTaxSummary = { subtotal, foodSubtotal, taxableSubtotal, taxAmount: taxAmt, grandTotal };
 
   const subtotalElem = document.getElementById('orderSubtotal'); if (subtotalElem) subtotalElem.innerText = formatCurrency(subtotal);
-  const taxLabelElem = document.getElementById('orderTaxLabel'); if (taxLabelElem) taxLabelElem.innerHTML = `Estimated Tax - ${escapeHtml(taxRateObj.name)}:<br><span class="text-[10px] font-normal text-gray-500">(0% on Food $${foodSubtotal.toFixed(2)} / Taxable: $${taxableSubtotal.toFixed(2)})</span>`;
+  const taxLabelElem = document.getElementById('orderTaxLabel'); if (taxLabelElem) taxLabelElem.innerHTML = `Estimated Tax - ${escapeHtml(taxRateObj.name)}:<br><span class="text-[10px] font-normal text-gray-500 font-inter">(0% on Food $${foodSubtotal.toFixed(2)} / Taxable: $${taxableSubtotal.toFixed(2)})</span>`;
   const taxAmtElem = document.getElementById('orderTaxAmt'); if (taxAmtElem) taxAmtElem.innerText = formatCurrency(taxAmt);
   const grandTotalElem = document.getElementById('orderGrandTotal'); if (grandTotalElem) grandTotalElem.innerText = formatCurrency(grandTotal);
 }
@@ -662,10 +679,10 @@ async function submitOrder() {
 
   isSubmitting = true;
   const submitBtn = document.querySelector('button[onclick="submitOrder()"]'), originalHTML = submitBtn ? submitBtn.innerHTML : "SUBMIT ORDER";
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span>⏳</span> DISPATCHING EMAIL..."; submitBtn.classList.add('opacity-70', 'cursor-not-allowed', 'animate-pulse'); }
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span class='animate-pulse'>⏳ DISPATCHING...</span>"; submitBtn.classList.add('opacity-70', 'cursor-not-allowed'); }
 
   clearTimeout(submitLockTimer);
-  submitLockTimer = setTimeout(() => { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } }, 30000);
+  submitLockTimer = setTimeout(() => { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed'); } }, 30000);
 
   const uniqueBatchId = generateIdempotencyKey();
 
@@ -681,7 +698,7 @@ async function submitOrder() {
     else { showToast(error.message, "error"); if(error.message.includes("재고") || error.message.includes("변동") || error.message.includes("취소") || error.message.includes("단가")) { setTimeout(() => fetchItems(), 1500); } }
   } finally { 
     isSubmitting = false; clearTimeout(submitLockTimer);
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed', 'animate-pulse'); } 
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed'); } 
   }
 }
 
@@ -717,13 +734,14 @@ async function loadHeavyLibrary(url, objName) {
     });
 }
 
+// 🌟 [방어 30] 엑셀 OOM 파싱 회피 스케줄러 탑재 (비동기 청크 파싱)
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
   const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
 
-  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
-  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
-  clone.addEventListener('drop', (e) => { e.preventDefault(); clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); handleExcelUpload(e); });
+  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('drop', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); handleExcelUpload(e); });
   
   const fileInput = document.getElementById('excelFileInput');
   if(fileInput) {
@@ -745,11 +763,11 @@ async function handleExcelUpload(event) {
   const statusText = document.getElementById('uploadStatusText');
 
   if (validExcelExts.includes(fileExt)) {
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Loading Excel Engine...</span>`;
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E3000F] font-bold font-inter">Loading Excel Engine...</span>`;
     try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
     catch(e) { isSubmitting = false; return; }
 
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`;
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E3000F] font-bold font-inter">Parsing Excel Document...</span>`;
     
     const reader = new FileReader();
     reader.onerror = () => { isSubmitting = false; if(statusText) statusText.innerHTML = "Drag & Drop vendor document here"; showToast("파일을 읽는 중 시스템 오류가 발생했습니다.", "error"); };
@@ -758,7 +776,12 @@ async function handleExcelUpload(event) {
         const data = new Uint8Array(e.target.result), workbook = XLSX.read(data, {type: 'array'});
         const worksheet = workbook.Sheets[workbook.SheetNames[0]], jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다.");
-        processExcelData(jsonData, file.name);
+        
+        // 🌟 브라우저 프리징을 막기 위해 0.05초 대기 후 파싱 수행
+        setTimeout(() => {
+             processExcelData(jsonData, file.name);
+        }, 50);
+        
       } catch(err) {
         isSubmitting = false; showToast("엑셀 파싱 중 오류 발생: " + err.message, "error"); 
         if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
@@ -767,20 +790,20 @@ async function handleExcelUpload(event) {
     reader.readAsArrayBuffer(file);
   } 
   else if (validImgExts.includes(fileExt)) {
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">Compressing Image...</span>`;
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">Compressing Image...</span>`;
     
     let targetFile = file;
     try { targetFile = await compressImage(file); } catch(e) { console.warn("[Y2C Telemetry] Compression fallback"); }
 
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">Loading AI OCR Engine...</span>`;
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">Loading AI OCR Engine...</span>`;
     try { await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js", "Tesseract"); } 
     catch(e) { isSubmitting = false; return; }
 
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`;
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">AI Vision OCR Scanning...</span>`;
     
     try {
       const result = await Tesseract.recognize(targetFile, 'eng+kor', {
-        logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`; } }
+        logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold font-inter">AI Vision Parsing: ${pct}%</span>`; } }
       });
       processOCRText(result.data.text, file.name);
     } catch(err) {
@@ -895,7 +918,7 @@ async function processExcelData(jsonData, filename) {
   });
 
   const statusText = document.getElementById('uploadStatusText');
-  if(statusText) statusText.innerHTML = `<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
+  if(statusText) statusText.innerHTML = `<span class="animate-pulse text-emerald-600 font-bold font-inter">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
   
   const uniqueSyncId = generateIdempotencyKey();
 
@@ -903,7 +926,7 @@ async function processExcelData(jsonData, filename) {
     const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: uniqueSyncId });
     if (result && result.success) {
       showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
-      if(statusText) statusText.innerHTML = `<span class="text-emerald-600 font-bold">✅ Uploaded: ${escapeHtml(filename)}</span>`;
+      if(statusText) statusText.innerHTML = `<span class="text-emerald-600 font-bold font-inter">✅ Uploaded: ${escapeHtml(filename)}</span>`;
       setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); 
     } 
   } catch (err) {
@@ -959,6 +982,3 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchItems(); 
   }
 });
-</script>
-</body>
-</html>
