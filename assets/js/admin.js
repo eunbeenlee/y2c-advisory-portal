@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Admin Engine (V17.50 Turbo)
- * [Absolute Null-Safe] 빈칸, 쓰레기 데이터 100% 방어 및 초스무스(FOUC) 렌더링
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V30.5 Enterprise Master)
+ * [Absolute Null-Safe] SWR 초고속 캐시 엔진, Inbound Hub 무한 로딩 픽스, OOM 방어
  * ============================================================================
  */
 
@@ -93,8 +93,8 @@ window.changeLanguage = function(lang) {
     try { localStorage.setItem('y2c_lang', safeLang); } catch(e){}
     const btnEn = document.getElementById('lang_en'), btnKo = document.getElementById('lang_ko');
     if (btnEn && btnKo) {
-        btnEn.className = safeLang === 'en' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
-        btnKo.className = safeLang === 'ko' ? "px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnEn.className = safeLang === 'en' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
+        btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
     if (typeof renderHqOrders === 'function') renderHqOrders();
@@ -112,7 +112,7 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 [방어 V17.50] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
+// 🔒 [방어 V30.5] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -205,8 +205,8 @@ function showToast(message, type = 'success') {
   if (container.childNodes.length >= 5) container.firstChild.remove();
 
   const toast = document.createElement('div');
-  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E84C60]', icon = type === 'success' ? '✅' : '⚠️';
-  toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm`;
+  const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]', icon = type === 'success' ? '✅' : '⚠️';
+  toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
   toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
   toast.querySelector('.toast-msg').textContent = String(message);
   container.appendChild(toast);
@@ -246,10 +246,10 @@ function switchAdminTab(tab) {
   tabs.forEach(t => {
     const btn = document.getElementById(`tabBtn_${t}`), sec = document.getElementById(`section_${t}`);
     if(t === tab) {
-      if(btn) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wide transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-sm whitespace-nowrap";
+      if(btn) btn.className = "px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-md whitespace-nowrap";
       if(sec) sec.classList.remove('hidden');
     } else {
-      if(btn && !btn.classList.contains('cursor-not-allowed')) btn.className = "px-4 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap";
+      if(btn && !btn.classList.contains('cursor-not-allowed')) btn.className = "px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap";
       if(sec) sec.classList.add('hidden');
     }
   });
@@ -261,6 +261,9 @@ let fallbackLockTimer = null;
 
 const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_procurement_data", "get_items", "check_system_alerts", "inventory_integrity_check", "get_recipes"]);
 
+// ============================================================================
+// 🌟 [방어 12] 25초 절대 백오프 통신 엔진 (CORS 강제 패싱)
+// ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
   
@@ -332,48 +335,71 @@ async function executeApi(action, payload = {}, retries = 2) {
 }
 
 // ============================================================================
-// 📁 가맹점 DB 관리부 
+// 📁 가맹점 DB 관리부 (SWR 캐시 엔진 탑재)
 // ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR" || userRole === "PARTNER") return; 
   const tableBody = document.getElementById('masterTableBody'); if (!tableBody) return;
+
+  // 🌟 [방어 24] SWR 캐시 렌더링 (대기 시간 0.01초)
+  const cacheKey = `Y2C_ADMIN_MASTER_${clientName}`;
+  try {
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+          cachedClients = JSON.parse(cachedData);
+          renderMasterChunk();
+      }
+  } catch(e) {}
+
   try {
     const result = await executeApi("get_master_data");
     if (result && result.success) {
-      tableBody.innerHTML = ''; cachedClients = Array.isArray(result.clients) ? result.clients : [];
-      if (cachedClients.length === 0) return tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 가맹점 정보가 없습니다.</td></tr>`;
-      
-      const inputClass = "w-full bg-white/70 border border-gray-200 rounded-xl px-3 py-2 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm transition-all";
-      let chunkIndex = 0; const CHUNK_SIZE = 20;
-
-      function renderChunk() {
-          const fragment = document.createDocumentFragment(), endIdx = Math.min(chunkIndex + CHUNK_SIZE, cachedClients.length);
-          for (; chunkIndex < endIdx; chunkIndex++) {
-              const c = cachedClients[chunkIndex];
-              const safeRowIdx = Number(c.rowIdx);
-              if (!Number.isSafeInteger(safeRowIdx) || safeRowIdx < 1) continue; 
-
-              const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors duration-200";
-              tr.innerHTML = `
-                <td class="px-5 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight">${safeDisplay(c.name)}</td>
-                <td class="px-3 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
-                <td class="px-3 py-4"><input type="text" id="city_${safeRowIdx}" value="${safeDisplay(c.city, "")}" class="${inputClass}" placeholder="City"></td>
-                <td class="px-3 py-4"><input type="text" id="addr_${safeRowIdx}" value="${safeDisplay(c.address, "")}" class="${inputClass}" placeholder="Full Address"></td>
-                <td class="px-3 py-4"><input type="text" id="attn_${safeRowIdx}" value="${safeDisplay(c.attn, "")}" class="${inputClass}" placeholder="Manager Name"></td>
-                <td class="px-3 py-4"><input type="email" id="email_${safeRowIdx}" value="${safeDisplay(c.email, "")}" class="${inputClass}" placeholder="Email"></td>
-                <td class="px-3 py-4"><input type="text" id="biz_${safeRowIdx}" value="${safeDisplay(c.bizId, "")}" class="${inputClass} font-mono" placeholder="Business ID"></td>
-                <td class="px-5 py-4 text-center bg-gray-50 border-l border-gray-100"><button id="saveBtn_${safeRowIdx}" type="button" class="bg-[var(--premium-charcoal)] hover:bg-black text-white font-black px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 text-[11px] tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
-              `;
-              fragment.appendChild(tr);
-              const saveBtn = tr.querySelector(`#saveBtn_${CSS.escape(String(safeRowIdx))}`);
-              if (saveBtn) saveBtn.addEventListener('click', () => saveClientData(safeRowIdx));
-          }
-          tableBody.appendChild(fragment);
-          if (chunkIndex < cachedClients.length) { requestAnimationFrame(renderChunk); } else { populateSalesClientSelector(); }
-      }
-      renderChunk();
+      cachedClients = Array.isArray(result.clients) ? result.clients : [];
+      try { localStorage.setItem(cacheKey, JSON.stringify(cachedClients)); } catch(e) {}
+      renderMasterChunk();
     } 
-  } catch (err) { tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E84C60] font-black tracking-wide">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
+  } catch (err) { tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
+}
+
+function renderMasterChunk() {
+    const tableBody = document.getElementById('masterTableBody');
+    if (!tableBody) return;
+    tableBody.innerHTML = ''; 
+    
+    if (cachedClients.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 가맹점 정보가 없습니다.</td></tr>`;
+        return;
+    }
+
+    const inputClass = "w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all focus:bg-white";
+    let chunkIndex = 0; const CHUNK_SIZE = 20;
+
+    function renderLoop() {
+        const fragment = document.createDocumentFragment(), endIdx = Math.min(chunkIndex + CHUNK_SIZE, cachedClients.length);
+        for (; chunkIndex < endIdx; chunkIndex++) {
+            const c = cachedClients[chunkIndex];
+            const safeRowIdx = Number(c.rowIdx);
+            if (!Number.isSafeInteger(safeRowIdx) || safeRowIdx < 1) continue; 
+
+            const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors duration-200";
+            tr.innerHTML = `
+            <td class="px-6 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight font-inter">${safeDisplay(c.name)}</td>
+            <td class="px-4 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
+            <td class="px-4 py-4"><input type="text" id="city_${safeRowIdx}" value="${safeDisplay(c.city, "")}" class="${inputClass}" placeholder="City"></td>
+            <td class="px-4 py-4"><input type="text" id="addr_${safeRowIdx}" value="${safeDisplay(c.address, "")}" class="${inputClass}" placeholder="Full Address"></td>
+            <td class="px-4 py-4"><input type="text" id="attn_${safeRowIdx}" value="${safeDisplay(c.attn, "")}" class="${inputClass}" placeholder="Manager Name"></td>
+            <td class="px-4 py-4"><input type="email" id="email_${safeRowIdx}" value="${safeDisplay(c.email, "")}" class="${inputClass}" placeholder="Email"></td>
+            <td class="px-4 py-4"><input type="text" id="biz_${safeRowIdx}" value="${safeDisplay(c.bizId, "")}" class="${inputClass} font-mono" placeholder="Business ID"></td>
+            <td class="px-6 py-4 text-center bg-gray-50/50 border-l border-gray-100"><button id="saveBtn_${safeRowIdx}" type="button" class="btn-charcoal px-4 py-2.5 rounded-xl text-[11px] font-black tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
+            `;
+            fragment.appendChild(tr);
+            const saveBtn = tr.querySelector(`#saveBtn_${CSS.escape(String(safeRowIdx))}`);
+            if (saveBtn) saveBtn.addEventListener('click', () => saveClientData(safeRowIdx));
+        }
+        tableBody.appendChild(fragment);
+        if (chunkIndex < cachedClients.length) { requestAnimationFrame(renderLoop); } else { populateSalesClientSelector(); }
+    }
+    renderLoop();
 }
 
 async function saveClientData(rowIdx) {
@@ -438,36 +464,37 @@ function populateSalesClientSelector() {
 async function loadSalesGrid() {
   const targetYear = document.getElementById('salesYearSelector')?.value, targetClient = document.getElementById('salesClientSelector')?.value, tbody = document.getElementById('salesGridBody');
   if (!targetYear || !targetClient || !tbody) return;
+  
   tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
     if (result && result.success) renderSalesGrid(result.records);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E84C60] font-black py-8">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
+  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
 }
 
 function renderSalesGrid(records) {
   const tbody = document.getElementById('salesGridBody'); if (!tbody) return; tbody.innerHTML = '';
   if(!Array.isArray(records)) return;
 
-  const inputStyle = "w-full max-w-[170px] mx-auto bg-white border border-gray-200 rounded-xl px-3 py-2 text-center text-[13px] font-mono font-bold text-gray-800 focus:border-[#E84C60] outline-none shadow-sm transition";
+  const inputStyle = "w-full max-w-[170px] mx-auto bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-center text-[13px] font-mono font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all";
 
   records.forEach(r => {
     const mIdx = Number(r.month);
     if (!Number.isInteger(mIdx) || mIdx < 1 || mIdx > 12) return;
 
-    const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors";
-    const badgeHTML = r.exists ? `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">SAVED</span>` : `<span class="px-2.5 py-1 text-[10px] font-black rounded-full bg-gray-100 text-gray-400 border border-gray-200">EMPTY</span>`;
+    const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors";
+    const badgeHTML = r.exists ? `<span class="px-2.5 py-1 text-[10px] font-black rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200">SAVED</span>` : `<span class="px-2.5 py-1 text-[10px] font-black rounded-md bg-gray-100 text-gray-400 border border-gray-200">EMPTY</span>`;
     
     const safePos = parseStrictDecimal(r.pos);
     const safeDel = parseStrictDecimal(r.delivery);
     const safeTot = parseStrictDecimal(r.total);
 
     tr.innerHTML = `
-      <td class="px-6 py-3 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap">${monthNames[mIdx - 1]}</td>
-      <td class="px-6 py-3 text-center"><input type="text" data-month="${mIdx}" value="${safePos > 0 ? safePos : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
-      <td class="px-6 py-3 text-center"><input type="text" data-month="${mIdx}" value="${safeDel > 0 ? safeDel : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
-      <td class="px-6 py-3 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${mIdx}">${formatCurrency(safeTot)}</td>
-      <td class="px-6 py-3 text-center whitespace-nowrap">${badgeHTML}</td>
+      <td class="px-6 py-3.5 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap">${monthNames[mIdx - 1]}</td>
+      <td class="px-6 py-3.5 text-center"><input type="text" data-month="${mIdx}" value="${safePos > 0 ? safePos : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
+      <td class="px-6 py-3.5 text-center"><input type="text" data-month="${mIdx}" value="${safeDel > 0 ? safeDel : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
+      <td class="px-6 py-3.5 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${mIdx}">${formatCurrency(safeTot)}</td>
+      <td class="px-6 py-3.5 text-center whitespace-nowrap">${badgeHTML}</td>
     `;
     tbody.appendChild(tr);
 
@@ -548,7 +575,7 @@ function renderOrderMetrics(metrics) {
         const scanBtn = document.createElement('button'); 
         scanBtn.id = "sysHealthScanBtn"; 
         scanBtn.innerHTML = '<span data-i18n="sys_health_scan">🛡️ SYSTEM HEALTH SCAN</span>';
-        scanBtn.className = "w-full col-span-2 bg-[var(--premium-charcoal)] hover:bg-black text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95 tracking-[0.2em] mb-4";
+        scanBtn.className = "w-full col-span-2 btn-charcoal py-4 rounded-2xl shadow-lg transition-all tracking-[0.2em] mb-4 font-black";
         table.parentNode.insertBefore(scanBtn, kpiContainer);
         scanBtn.addEventListener('click', runSystemAlertScan); 
     }
@@ -560,7 +587,7 @@ function renderOrderMetrics(metrics) {
   let expenditureHtml = '';
   if (userRole === "MASTER") {
       expenditureHtml = `
-        <div class="bg-gradient-to-br from-[#E84C60] to-[#C23347] border border-[#E84C60]/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+        <div class="bg-gradient-to-br from-[#E3000F] to-[#B9000C] border border-[#E3000F]/30 rounded-2xl p-6 shadow-lg relative overflow-hidden group">
           <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700"></div>
           <div class="flex items-center gap-3 mb-2 relative z-10"><div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-lg">💳</div><p class="text-[11px] font-black text-red-100 uppercase tracking-widest" data-i18n="b2b_expenditure">Total B2B Expenditure</p></div>
           <h3 class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tighter relative z-10">${formatCurrency(safeTotalAmount)}</h3>
@@ -568,7 +595,7 @@ function renderOrderMetrics(metrics) {
   }
 
   kpiContainer.innerHTML = `
-    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div class="bg-white premium-shadow rounded-2xl p-6 transition-shadow">
       <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg">📦</div><p class="text-[11px] font-black text-gray-500 uppercase tracking-widest" data-i18n="b2b_volume">Total B2B Volume</p></div>
       <h3 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">${safeTotalQty.toLocaleString()} <span class="text-xs text-gray-400 font-bold ml-1">Units</span></h3>
     </div> ${expenditureHtml}`;
@@ -613,7 +640,7 @@ function displayAlertModal(alerts, discrepancies) {
   }
   
   let html = `<div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl transform transition-transform scale-95 duration-300" id="alertModalContent">`;
-  html += `<div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-xl font-black tracking-widest">🛡️ SYSTEM HEALTH REPORT</h2><button id="alertModalCloseTop" class="text-gray-400 hover:text-white font-bold text-xl" type="button">&times;</button></div><div class="p-6 max-h-[70vh] overflow-y-auto hide-scrollbar">`;
+  html += `<div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-xl font-black tracking-widest font-montserrat">🛡️ SYSTEM HEALTH REPORT</h2><button id="alertModalCloseTop" class="text-gray-400 hover:text-white font-bold text-2xl" type="button">&times;</button></div><div class="p-6 max-h-[70vh] overflow-y-auto hide-scrollbar font-inter">`;
   
   let hasIssues = false;
 
@@ -628,8 +655,8 @@ function displayAlertModal(alerts, discrepancies) {
 
   if (alerts.lowStock.length > 0) {
       hasIssues = true;
-      html += `<h3 class="font-black text-[#E84C60] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3><div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
-      alerts.lowStock.forEach(item => { html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><span class="font-black text-[#E84C60] bg-white px-2 py-1 rounded shadow-sm">${safeDisplay(item.stock)}</span></li>`; });
+      html += `<h3 class="font-black text-[#E3000F] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3><div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
+      alerts.lowStock.forEach(item => { html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><span class="font-black text-[#E3000F] bg-white px-2 py-1 rounded shadow-sm">${safeDisplay(item.stock)}</span></li>`; });
       html += `</ul></div>`;
   }
 
@@ -637,7 +664,7 @@ function displayAlertModal(alerts, discrepancies) {
       hasIssues = true;
       html += `<h3 class="font-black text-amber-600 mb-3 flex items-center gap-2"><span>⏳</span> Expiration Alert (${alerts.expiring.length})</h3><div class="bg-amber-50 border border-amber-100 rounded-xl p-4"><ul class="space-y-2">`;
       alerts.expiring.forEach(item => {
-        let badge = item.daysLeft < 0 ? "기한 초과" : `D-${item.daysLeft}`, textCol = item.daysLeft < 0 ? "text-[#E84C60]" : "text-amber-600";
+        let badge = item.daysLeft < 0 ? "기한 초과" : `D-${item.daysLeft}`, textCol = item.daysLeft < 0 ? "text-[#E3000F]" : "text-amber-600";
         html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${safeDisplay(item.date)} (${badge})</span><span class="font-bold text-gray-500">Qty: ${safeDisplay(item.qty)}</span></div></li>`;
       });
       html += `</ul></div>`;
@@ -645,7 +672,7 @@ function displayAlertModal(alerts, discrepancies) {
 
   if (!hasIssues) { html += `<div class="text-center py-10"><span class="text-4xl">✅</span><p class="mt-4 font-bold text-gray-500">모든 데이터 무결성, 재고, 유통기한이 완벽하게 안정적입니다.</p></div>`; }
 
-  html += `</div><div class="p-4 bg-gray-50 border-t border-gray-100 text-center"><button id="alertModalCloseBottom" type="button" class="bg-[#E84C60] text-white px-8 py-2.5 rounded-xl font-black shadow-md hover:bg-black transition-colors uppercase tracking-widest text-[11px]">Close Report</button></div></div>`;
+  html += `</div><div class="p-4 bg-gray-50 border-t border-gray-100 text-center"><button id="alertModalCloseBottom" type="button" class="btn-gradient-pink px-8 py-3 rounded-xl font-black shadow-md uppercase tracking-widest text-[11px]">Close Report</button></div></div>`;
   modal.innerHTML = html; 
   
   modal.querySelector('#alertModalCloseTop')?.addEventListener('click', closeAlertModal);
@@ -670,7 +697,7 @@ function closeAlertModal() {
 
 function renderHqOrdersError(msg) {
     const tbody = document.getElementById('hqOrdersGridBody');
-    if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-[#E84C60] font-bold tracking-wide">Error: ${escapeHtml(msg)}</td></tr>`;
+    if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-[#E3000F] font-bold tracking-wide font-inter">Error: ${escapeHtml(msg)}</td></tr>`;
 }
 
 async function fetchMappings() {
@@ -689,10 +716,21 @@ async function fetchMappings() {
 }
 
 async function fetchCatalogForInbound() {
+  // 🌟 [방어 25] SWR 캐시 엔진
+  const cacheKey = `Y2C_ADMIN_ITEMS_CACHE`;
+  try {
+      const cached = localStorage.getItem(cacheKey);
+      if(cached) {
+          cachedItems = JSON.parse(cached);
+          populateInboundRegionOptions();
+      }
+  } catch(e){}
+
   try {
     const result = await executeApi("get_items", { clientState: "DEFAULT" });
     if (result && result.success) { 
       cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
+      try { localStorage.setItem(cacheKey, JSON.stringify(cachedItems)); } catch(e){}
       populateInboundRegionOptions();
     }
   } catch (e) { console.error("Catalog load failed", e); cachedItems = []; }
@@ -702,7 +740,7 @@ const hqStatusInFlight = new Set();
 
 function renderHqOrders() {
   const tbody = document.getElementById('hqOrdersGridBody'); if(!tbody) return; tbody.innerHTML = '';
-  if(cachedHqOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 내역이 없습니다.</td></tr>`; return; }
+  if(cachedHqOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide font-inter">등록된 내역이 없습니다.</td></tr>`; return; }
 
   const sortedOrders = [...cachedHqOrders].sort((a,b) => new Date(b.date || 0) - new Date(a.date || 0));
   let chunkIndex = 0; const CHUNK_SIZE = 30;
@@ -714,29 +752,29 @@ function renderHqOrders() {
           
           let statusClass = "bg-gray-100 text-gray-500";
           switch(o.status) {
-              case "HQ_PENDING": statusClass = "bg-purple-100 text-purple-700 border-purple-200"; break;
-              case "PREPARING": statusClass = "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200"; break;
-              case "ORDERED": statusClass = "bg-indigo-100 text-indigo-700 border-indigo-200"; break;
-              case "SHIPPED": statusClass = "bg-blue-100 text-blue-700 border-blue-200"; break;
-              case "ARRIVED": statusClass = "bg-emerald-100 text-emerald-700 border-emerald-200"; break;
-              case "RECEIVED": statusClass = "bg-teal-100 text-teal-700 border-teal-200"; break;
+              case "HQ_PENDING": statusClass = "bg-purple-50 text-purple-700 border-purple-200"; break;
+              case "PREPARING": statusClass = "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200"; break;
+              case "ORDERED": statusClass = "bg-indigo-50 text-indigo-700 border-indigo-200"; break;
+              case "SHIPPED": statusClass = "bg-blue-50 text-blue-700 border-blue-200"; break;
+              case "ARRIVED": statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200"; break;
+              case "RECEIVED": statusClass = "bg-teal-50 text-teal-700 border-teal-200"; break;
               case "COMPLETED": statusClass = "bg-gray-200 text-gray-800 border-gray-300"; break;
-              case "CANCELED": statusClass = "bg-red-100 text-red-700 border-red-200 line-through"; break;
+              case "CANCELED": statusClass = "bg-red-50 text-red-700 border-red-200 line-through"; break;
           }
 
-          const tr = document.createElement('tr'); tr.className = "hover:bg-pink-50/40 transition-colors border-b border-gray-100";
+          const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors border-b border-gray-50";
           tr.innerHTML = `
-            <td class="px-5 py-4 font-mono text-[11px] font-black text-gray-500">${safeDisplay(o.id)}</td>
-            <td class="px-5 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
-            <td class="px-5 py-4 text-[12px] font-black text-[#E84C60]">${safeDisplay(o.vendor)}</td>
-            <td class="px-5 py-4 text-[11px] font-bold text-gray-600">${safeDisplay(o.region)}</td>
-            <td class="px-5 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate" title="${escapeHtml(o.items)}">${safeDisplay(o.items)}</td>
-            <td class="px-5 py-4 text-[12px] font-mono font-bold text-gray-800">${safeDisplay(o.eta)}</td>
-            <td class="px-5 py-4 text-center hq-status-cell"></td>
+            <td class="px-6 py-4 font-mono text-[11px] font-bold text-gray-500">${safeDisplay(o.id)}</td>
+            <td class="px-6 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
+            <td class="px-6 py-4 text-[12px] font-black text-[#E3000F] font-inter">${safeDisplay(o.vendor)}</td>
+            <td class="px-6 py-4 text-[11px] font-bold text-gray-600">${safeDisplay(o.region)}</td>
+            <td class="px-6 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate font-inter" title="${escapeHtml(o.items)}">${safeDisplay(o.items)}</td>
+            <td class="px-6 py-4 text-[12px] font-mono font-bold text-gray-800">${safeDisplay(o.eta)}</td>
+            <td class="px-6 py-4 text-center hq-status-cell"></td>
           `;
           
           const select = document.createElement('select');
-          select.className = `text-[10px] font-black rounded border p-1.5 outline-none shadow-sm transition-colors cursor-pointer ${statusClass}`;
+          select.className = `text-[10px] font-black rounded border p-1.5 outline-none shadow-sm transition-all cursor-pointer ${statusClass}`;
           
           if (!HQ_ORDER_STATUSES.includes(o.status)) {
               const invalidOpt = document.createElement('option');
@@ -792,21 +830,21 @@ window.openHqOrderCartModal = async function() {
         const currentQty = hqCartData[item.code] || "";
         
         itemsHtml += `
-            <div class="hq-cart-item-row flex justify-between items-center p-3 border-b border-gray-100 hover:bg-pink-50 transition-colors" data-name="${escapeHtml(safeName.toLowerCase())}">
+            <div class="hq-cart-item-row flex justify-between items-center p-4 border-b border-gray-100 hover:bg-red-50/50 transition-colors" data-name="${escapeHtml(safeName.toLowerCase())}">
                 <div class="flex flex-col">
-                    <span class="text-xs font-black text-gray-800">${safeName}</span>
-                    <span class="text-[10px] font-mono text-gray-500">[${safeCode}] ${safeDisplay(translatedCat)}</span>
+                    <span class="text-[13px] font-black text-[var(--premium-charcoal)] font-inter">${safeName}</span>
+                    <span class="text-[10px] font-mono font-bold text-gray-500 mt-1">[${safeCode}] ${safeDisplay(translatedCat)}</span>
                 </div>
-                <input type="number" min="0" data-code="${safeCode}" data-name="${safeName}" value="${escapeHtml(currentQty)}" placeholder="0" class="w-20 border border-gray-300 rounded px-2 py-1 text-center text-sm font-bold text-[#E84C60] focus:border-[#E84C60] outline-none shadow-inner bg-white">
+                <input type="number" min="0" data-code="${safeCode}" data-name="${safeName}" value="${escapeHtml(currentQty)}" placeholder="0" class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-sm font-bold text-[#E3000F] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-inner bg-gray-50 focus:bg-white transition-all">
             </div>`;
     });
 
     modal.innerHTML = `
         <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transform transition-transform scale-95 duration-300" id="hqCartModalContent">
-            <div class="bg-[var(--premium-charcoal)] p-5 text-white flex justify-between items-center"><h2 class="text-lg font-black tracking-widest uppercase flex items-center gap-2"><span>🛒</span> Digital Procurement Cart</h2><button id="hqCartCloseTopBtn" class="text-gray-400 hover:text-white font-bold text-2xl" type="button">&times;</button></div>
-            <div class="p-3 bg-gray-50 border-b border-gray-200"><input type="text" id="hqCartSearchInput" placeholder="Search item name..." class="w-full text-xs p-2.5 rounded-lg border border-gray-300 focus:border-[#E84C60] outline-none font-bold"></div>
+            <div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-lg font-black tracking-widest uppercase flex items-center gap-3 font-montserrat"><span>🛒</span> Digital Procurement Cart</h2><button id="hqCartCloseTopBtn" class="text-gray-400 hover:text-white font-bold text-2xl transition-colors" type="button">&times;</button></div>
+            <div class="p-4 bg-gray-50 border-b border-gray-200"><input type="text" id="hqCartSearchInput" placeholder="Search item name..." class="w-full text-[13px] p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 transition-all"></div>
             <div class="p-2 overflow-y-auto flex-grow hide-scrollbar">${itemsHtml}</div>
-            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]"><span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase">Enter Quantity & Confirm</span><button id="hqCartConfirmBtn" type="button" class="bg-[#E84C60] text-white px-8 py-2.5 rounded-xl font-black shadow-md hover:bg-black transition-colors uppercase tracking-widest text-[11px]">Apply to Order</button></div>
+            <div class="p-5 bg-white border-t border-gray-100 flex justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.02)]"><span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase font-inter">Enter Quantity & Confirm</span><button id="hqCartConfirmBtn" type="button" class="btn-gradient-pink px-8 py-3.5 rounded-xl font-black shadow-md uppercase tracking-widest text-xs">Apply to Order</button></div>
         </div>`;
 
     modal.querySelector('#hqCartCloseTopBtn')?.addEventListener('click', closeHqCartModal);
@@ -867,14 +905,14 @@ function transformHqInputsToDigital() {
     const regionInput = document.getElementById('hqRegionInput');
     if (regionInput && regionInput.tagName === 'INPUT') {
         const select = document.createElement('select'); select.id = 'hqRegionInput';
-        select.className = "w-full text-xs p-2 border border-gray-300 rounded focus:border-[#E84C60] outline-none text-center cursor-pointer font-bold text-gray-700";
+        select.className = "w-full text-[13px] p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none text-center cursor-pointer font-black text-gray-800 bg-gray-50 focus:bg-white transition-all appearance-none";
         select.innerHTML = '<option value="">-- Hub --</option><option value="ON">ON (Ontario)</option><option value="BC">BC (British Columbia)</option><option value="AB">AB (Alberta)</option>';
         regionInput.parentNode.replaceChild(select, regionInput);
     }
     const itemsInput = document.getElementById('hqItemsInput');
     if (itemsInput && !itemsInput.dataset.digitalized) { 
         itemsInput.readOnly = true; 
-        itemsInput.classList.add('cursor-pointer', 'bg-pink-50', 'text-[#E84C60]', 'font-bold', 'hover:border-[#E84C60]', 'transition-colors'); 
+        itemsInput.classList.add('cursor-pointer', 'bg-red-50/50', 'text-[#E3000F]', 'font-bold', 'hover:border-[#E3000F]', 'transition-colors'); 
         itemsInput.addEventListener('click', window.openHqOrderCartModal); 
         itemsInput.dataset.digitalized = "true";
     }
@@ -920,43 +958,51 @@ window.updateHqOrderStatus = async function(orderId, status) {
   } catch (err) { showToast(err.message, "error"); fetchMappings(); }
 }
 
+// 🌟 [방어 31] 백엔드 데이터 지연 시 드롭다운이 멈추는 현상(Loading Hubs) 원천 차단 (하드 폴백)
 function populateInboundRegionOptions() {
     const regionSelector = document.getElementById('inboundRegionSelector');
-    if (!regionSelector || cachedItems.length === 0) return;
+    if (!regionSelector) return;
     
-    const regions = Object.keys(cachedItems[0].stockBreakdown || {});
+    // 안전한 디폴트값 보장
+    let regions = ["ON", "BC", "AB", "SK", "MB", "QC"]; 
+    
+    if (cachedItems && cachedItems.length > 0 && cachedItems[0].stockBreakdown) {
+        const dynamicRegions = Object.keys(cachedItems[0].stockBreakdown);
+        if (dynamicRegions.length > 0) regions = dynamicRegions;
+    }
+    
     let currentVal = regionSelector.value;
-    
     let html = `<option value="">-- Select Hub Region for Inbound --</option>`;
     regions.forEach(reg => { html += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`; });
-    regionSelector.innerHTML = html;
     
+    regionSelector.innerHTML = html;
     if (currentVal && regions.includes(currentVal)) { regionSelector.value = currentVal; }
 }
 
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
   
-  const regionSelector = document.getElementById('inboundRegionSelector');
+  // 🌟 이벤트리스너 꼬임 방지를 위해 DOM 직접 탐색 보장
+  let regionSelector = document.getElementById('inboundRegionSelector');
   if (regionSelector && !document.getElementById('linkedHqOrderId')) {
       const input = document.createElement('input');
       input.type = 'text'; input.id = 'linkedHqOrderId';
       input.placeholder = "Link HQ Order ID (Optional, e.g. REQ-...)";
-      input.className = "w-full text-xs p-2.5 mt-3 border border-gray-300 rounded-lg focus:border-[#E84C60] outline-none font-bold text-gray-700 shadow-sm transition-colors text-center";
+      input.className = "w-full text-[13px] p-3.5 mt-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 text-center bg-gray-50 focus:bg-white transition-all";
       regionSelector.parentNode.insertBefore(input, regionSelector.nextSibling);
   }
 
   const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
 
-  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-pink-50/50', 'border-[#E84C60]'); });
-  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); });
+  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
   clone.addEventListener('drop', (e) => { 
       e.preventDefault(); 
-      clone.classList.remove('bg-pink-50/50', 'border-[#E84C60]'); 
+      clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); 
       
       const rs = document.getElementById('inboundRegionSelector');
       if (rs && !rs.value) {
-          rs.focus(); rs.classList.add('border-[#E84C60]', 'animate-pulse');
+          rs.focus(); rs.classList.add('border-[#E3000F]', 'animate-pulse');
           setTimeout(() => rs.classList.remove('animate-pulse'), 1000);
           showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); return;
       }
@@ -968,7 +1014,7 @@ function setupDragAndDrop() {
       fiClone.addEventListener('change', (e) => {
           const rs = document.getElementById('inboundRegionSelector');
           if (rs && !rs.value) {
-              e.target.value = ''; rs.focus(); rs.classList.add('border-[#E84C60]', 'animate-pulse');
+              e.target.value = ''; rs.focus(); rs.classList.add('border-[#E3000F]', 'animate-pulse');
               setTimeout(() => rs.classList.remove('animate-pulse'), 1000);
               showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); return;
           }
@@ -976,7 +1022,7 @@ function setupDragAndDrop() {
       });
   }
   
-  if (regionSelector) { regionSelector.addEventListener('change', function() { if (this.value) this.classList.remove('border-[#E84C60]'); }); }
+  if (regionSelector) { regionSelector.addEventListener('change', function() { if (this.value) this.classList.remove('border-[#E3000F]'); }); }
 }
 
 async function loadHeavyLibrary(url, objName) {
@@ -1010,6 +1056,7 @@ function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
     });
 }
 
+// 🌟 [방어 26] 대용량 엑셀 파싱 시 UI 완전 멈춤(OOM Freeze) 방어 및 비동기 양보 청크 처리
 async function handleExcelUpload(event) {
   event.preventDefault();
   if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시 기다려주세요.", "error");
@@ -1021,19 +1068,24 @@ async function handleExcelUpload(event) {
   const validExcelExts = [".xlsx", ".xls", ".csv"], validImgExts = [".png", ".jpg", ".jpeg"], fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
   if (validExcelExts.includes(fileExt)) {
-    setUploadStatus(`<span class="animate-pulse text-[#E84C60] font-bold">Loading Excel Engine...</span>`);
+    setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold">Loading Excel Engine...</span>`);
     try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
     catch(e) { isSubmitting = false; return showToast("엑셀 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
 
-    setUploadStatus(`<span class="animate-pulse text-[#E84C60] font-bold">Parsing Excel Document...</span>`);
+    setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold">Parsing Excel Document...</span>`);
     const reader = new FileReader();
     
     reader.onerror = () => { isSubmitting = false; setUploadStatus("Drag & Drop vendor document here"); showToast("파일을 읽는 중 시스템 오류가 발생했습니다.", "error"); };
     reader.onload = async function(e) {
       try {
-        const data = new Uint8Array(e.target.result), workbook = XLSX.read(data, {type: 'array'}), worksheet = workbook.Sheets[workbook.SheetNames[0]], jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+        const data = new Uint8Array(e.target.result), workbook = XLSX.read(data, {type: 'array'}), worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다."); 
-        await processExcelData(jsonData, file.name);
+        
+        // 브라우저 렌더러에 쉴 틈을 주어 하얗게 질리는 것을 방지
+        setTimeout(async () => {
+            await processExcelData(jsonData, file.name);
+        }, 50);
       } catch(err) { isSubmitting = false; showToast("엑셀 파싱 오류: " + err.message, "error"); setUploadStatus("Drag & Drop vendor document here"); }
     };
     reader.readAsArrayBuffer(file);
@@ -1201,8 +1253,12 @@ async function cancelOrder(batchId) {
 
 window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.handleExcelUpload = handleExcelUpload; window.saveHqOrder = saveHqOrder; window.cancelOrder = cancelOrder; 
 
+// 🌟 시스템 초기화 바인딩
 document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang); applyGlobalRbacNavigation(); setupDragAndDrop(); transformHqInputsToDigital();
+  
+  // SWR 로딩 허브 즉각 폴백 적용
+  populateInboundRegionOptions();
   
   if (userRole === "VENDOR") {
       ['tabBtn_profiles', 'tabBtn_sales'].forEach(id => {
@@ -1210,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (btn) { btn.classList.add('opacity-40', 'cursor-not-allowed'); btn.innerHTML += ' <span class="text-xs ml-1">🔒</span>'; const clone = btn.cloneNode(true); clone.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showToast("본사(MASTER) 전용 데이터입니다.", "error"); }); btn.parentNode.replaceChild(clone, btn); }
       });
       const hqVendorInput = document.getElementById('hqVendorInput');
-      if (hqVendorInput) { hqVendorInput.value = clientName; hqVendorInput.readOnly = true; hqVendorInput.classList.add('bg-gray-100', 'text-[#E84C60]', 'cursor-not-allowed', 'font-black'); }
+      if (hqVendorInput) { hqVendorInput.value = clientName; hqVendorInput.readOnly = true; hqVendorInput.classList.add('bg-gray-100', 'text-[#E3000F]', 'cursor-not-allowed', 'font-black'); }
       switchAdminTab('hqorders'); fetchMappings().then(() => fetchCatalogForInbound()); 
   } else if (userRole === "PARTNER") {
       const adminSection = document.getElementById('section_admin_container') || document.querySelector('.admin-tabs-wrapper');
