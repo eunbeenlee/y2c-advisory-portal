@@ -1,29 +1,33 @@
 <!DOCTYPE html>
-<!-- 🌟 V17.50 Turbo Solid-State - 이미지 규격 기반 100% 록다운 헤더, 초스무스 렌더링, 30+ 인쇄/에러 방지 -->
-<html lang="en" class="opacity-0 transition-opacity duration-500 ease-out">
+<!-- 🌟 V30.5 Enterprise Master Benchmark - 로딩 블랙아웃 100% 제거, 1줄 완벽 고정 헤더, 무결점 인쇄 엔진 -->
+<html lang="en" class="opacity-0">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 [방어 8, 9] 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
+    <!-- 🌟 모바일 고급화 전략: iOS 자동 확대 차단 및 가상 키보드 뷰포트 최적화 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
     
     <title>Advisory Statement | Y2C Portal</title>
+    
+    <!-- 🚨 프리로드: 폰트와 파비콘을 브라우저 렌더링 1순위로 강제하여 로딩 깜빡임 원천 차단 -->
+    <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- ⚡ [방어 3] 리소스 터널링 (Preconnect) -->
+    <!-- ⚡ 리소스 터널링 (Preconnect) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 🌟 [방어 4] defer 속성을 추가하여 렌더링 블로킹 완벽 해결 -->
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <!-- 🚨 [CRITICAL FIX] Tailwind CSS 에러 파괴 방어: defer 제거하여 config 적용 전 동기식 로드 보장 -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <script>
+        // 🌟 Tailwind 동기식 로드 성공 후 안전하게 Config 확장
         tailwind.config = {
             theme: {
                 extend: {
@@ -32,61 +36,100 @@
                         montserrat: ['Montserrat', 'sans-serif'],
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
                     },
-                    colors: { premium: { charcoal: '#1A1516', red: '#E84C60', hover: '#C23347' } }
+                    colors: { premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C' } }
                 }
             }
         }
     </script>
 
     <style>
+        /* 글로벌 테마 변수 (프리미엄 톤 보정) */
         :root {
-            --sinjeon-pink: #E84C60; 
-            --sinjeon-pink-dark: #C23347;
-            --premium-charcoal: #1A1516;
+            --sinjeon-pink: #E3000F; 
+            --sinjeon-pink-dark: #B9000C;
+            --premium-charcoal: #111827;
             --y2c-gold: #D4AF37;
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 [방어 10] 모바일 바운스 이펙트 차단 및 안티 앨리어싱 강제 */
-        html, body { overscroll-behavior-y: none; touch-action: manipulation; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #1f2937; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단, 폰트 렌더링 안티앨리어싱 강제 */
+        html, body { 
+            overscroll-behavior-y: none; 
+            touch-action: manipulation; 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+            background-color: var(--bg-light); 
+        }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 [방어 7, 8] 스크롤바 최적화 & iOS 확대(Zoom) 방지 16px 고정 & 숫자 스피너 파괴 */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* 🌟 스크롤바 최적화 & iOS 확대(Zoom) 방지 16px 강제 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
+        input[type=number], input[type=text] { -moz-appearance: textfield; }
         input, select, button { font-size: 16px !important; }
+        
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* GPU 프리징 차단 (Solid State) */
-        .premium-glass { background: #ffffff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
+        /* 프리미엄 테이블 및 카드 UI를 위한 확산형 그림자 */
+        .premium-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+        }
         
-        /* 🌟 [초스무스 최적화] GPU 가속 시네마틱 렌더링 애니메이션 */
-        .cinematic-enter { opacity: 0; transform: translateY(15px) translateZ(0); animation: fadeUpCinematic 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: opacity, transform; }
-        .delay-100 { animation-delay: 0.05s; } .delay-200 { animation-delay: 0.1s; }
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) translateZ(0); } }
+        /* 🌟 [핵심] 계단식 로딩 렌더링 딜레이 제거 - 한 번에 부드럽게 등장하는 App-Shell 구조 */
+        .app-shell-enter { 
+            opacity: 0; 
+            transform: translateY(8px); 
+            animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+        }
+        @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 프리미엄 솔리드 버튼 로직 */
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.2); }
-        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 12px 24px rgba(232, 76, 96, 0.35); transform: translateY(-2px) scale(1.01); }
-        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 4px 10px rgba(232, 76, 96, 0.25); }
+        /* 프리미엄 솔리드 버튼 규격 */
+        .btn-gradient-pink { 
+            background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); 
+            color: white; 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2), 0 2px 4px -1px rgba(227, 0, 15, 0.1);
+        }
+        .btn-gradient-pink:hover:not(:disabled) { 
+            box-shadow: 0 10px 15px -3px rgba(227, 0, 15, 0.3), 0 4px 6px -2px rgba(227, 0, 15, 0.15); 
+            transform: translateY(-1px); 
+        }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
-        .btn-charcoal { background: var(--premium-charcoal); color: white; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-charcoal:hover:not(:disabled) { background: black; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); transform: translateY(-2px) scale(1.01); }
-        .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+        .btn-charcoal { 
+            background: var(--premium-charcoal); 
+            color: white; 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .btn-charcoal:hover:not(:disabled) { 
+            background: #000000; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); 
+            transform: translateY(-1px); 
+        }
+        .btn-charcoal:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
-        /* 🚨 [핵심 패치] 이미지 기준점에 맞춘 100% 고정 네비게이션 CSS (레이아웃 시프트 영구 박멸) */
-        .nav-link { position: relative; color: #6b7280; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
+        /* 100% 정교한 네비게이션 CSS (수직 중앙 정렬, 레이아웃 붕괴 방지) */
+        .nav-link { 
+            position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; 
+            height: 100%; display: inline-flex; align-items: center; justify-content: center; 
+            padding: 0 4px; white-space: nowrap;
+        }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
-        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
+        .nav-link.active::after { 
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; 
+            height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; 
+        }
 
         /* 🌟 [방어 25] 무결점 인쇄(PDF) 엔진 통제 로직 (무손실 보존) */
         @media print {
@@ -103,80 +146,91 @@
         }
     </style>
 </head>
-<body class="selection:bg-[#E84C60] selection:text-white flex flex-col min-h-screen relative">
+<!-- 🚨 [CRITICAL FIX] body 태그에 라이트 테마 배경(#F8F9FA)을 하드코딩하여 로딩 시 검은 번쩍임 100% 차단 -->
+<body style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
     <noscript>
-        <div style="background:#E84C60; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative; font-weight:bold;">
+        <div style="background:#E3000F; color:#fff; padding:15px; text-align:center; z-index:99999; position:relative; font-weight:bold; font-family: sans-serif;">
             Please enable JavaScript to view and generate invoices.
         </div>
     </noscript>
 
-    <!-- 🌟 [초스무스 최적화] 즉각 권한 언락 및 FOUC 블랙스크린 영구 해제 -->
+    <!-- 🌟 [초스무스 최적화] GPU 브라우저 페인팅 주기에 맞춘 라이트 테마 로딩 엔진 -->
     <script>
         (function() {
             try {
-                // 1. 화면 투명도 잠금 해제 (스무스 렌더링)
+                // 문서 투명도 즉각 해제 (블랙아웃 방지)
                 document.documentElement.classList.remove("opacity-0");
                 document.documentElement.style.opacity = "1";
-                document.body.style.opacity = "1";
+                
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        document.body.style.opacity = "1";
+                    });
+                });
 
-                // 2. 권한 즉각 동기 로드
+                // 권한 즉각 동기 로드
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
             } catch(e) {}
         })();
     </script>
     
-    <!-- 🌟 이미지 규격 100% 일치: 3분할 록다운 유니버설 헤더 (절대 흔들림 방지) -->
-    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E84C60] sticky top-0 z-50 no-print cinematic-enter transform-gpu">
-        <!-- 🚨 핵심: justify-between 및 3분할 (shrink-0 / flex-1 / shrink-0) 적용 -->
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[84px]">
+    <!-- 🌟 이미지 규격 100% 일치: 1줄 완벽 수평 정렬 1600px 마스터 헤더 -->
+    <header class="bg-white/95 backdrop-blur-xl shadow-sm border-b-[3px] border-[#E3000F] sticky top-0 z-50 no-print transform-gpu">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 (크기 고정) -->
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-[240px]">
-                <img src="favicon.png" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-10 lg:h-12 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
-                <div class="border-l-[1.5px] border-gray-200 pl-3 sm:pl-4 flex flex-col justify-center">
-                    <span class="font-montserrat text-base lg:text-xl font-black text-[var(--premium-charcoal)] leading-none tracking-tight">Enterprise Portal</span>
-                    <span class="text-[7px] lg:text-[9px] font-black tracking-[0.2em] text-[#E84C60] uppercase leading-none mt-1">Operated by Y2C Holdings</span>
+            <!-- 좌측 로고 영역: 2줄 붕괴 방지를 위한 items-baseline 및 whitespace-nowrap 적용 -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
+                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap">Enterprise Portal</span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
 
-            <!-- 데스크탑 중앙 네비게이션 탭 (중앙 절대 정렬) -->
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-6 xl:gap-8">
-                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
-                <!-- 현재 페이지: Advisory Invoice 활성화 -->
-                <a href="invoice.html" id="navInvoice" class="nav-link active text-[13px] tracking-wide whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
-            </nav>
+            <!-- 데스크탑 중앙/우측 영역 -->
+            <div class="hidden lg:flex items-center justify-end flex-1 ml-8 h-full">
+                <!-- 중앙 네비게이션 탭 -->
+                <nav class="flex items-center h-full gap-6 xl:gap-8 mr-6 xl:mr-8">
+                    <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                    <a href="items.html" id="navCatalog" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                    <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                    <a href="admin.html" id="navAdmin" class="nav-link hidden text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                    <!-- 현재 페이지: Advisory Invoice 활성화 -->
+                    <a href="invoice.html" id="navInvoice" class="nav-link active text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                </nav>
 
-            <!-- 우측 컨트롤 (언어/계정) (크기 고정) -->
-            <div class="hidden lg:flex items-center justify-end gap-3 shrink-0 w-[240px]">
-                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
-                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
-                </div>
+                <!-- 우측 컨트롤 (언어/계정) (크기 고정) -->
+                <div class="flex items-center gap-3 pl-6 xl:pl-8 border-l border-gray-200 shrink-0 h-[40px]">
+                    <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200">
+                        <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all">EN</button>
+                        <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all">KR</button>
+                    </div>
 
-                <div class="flex items-center space-x-2 bg-gray-50 py-1.5 px-3 rounded-full border border-gray-200 shadow-inner">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px]">Loading...</span>
-                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E84C60]/10 text-[#E84C60] rounded uppercase tracking-widest border border-[#E84C60]/20"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] bg-white border border-gray-200 text-gray-500 hover:text-[#E84C60] font-bold px-2.5 py-1 rounded-full transition-all shadow-sm cursor-pointer tracking-widest hover:scale-105 active:scale-95 ml-1" data-i18n="logout">LOGOUT</button>
+                    <div class="flex items-center space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm">
+                        <span class="flex h-2 w-2 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span id="userNameDisplay" class="text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[100px] font-inter">Loading...</span>
+                        <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded border border-[#E3000F]/20 uppercase tracking-widest font-mono"></span>
+                        <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase ml-1" data-i18n="logout">LOGOUT</button>
+                    </div>
                 </div>
             </div>
 
         </div>
     </header>
 
-    <!-- 🌟 [방어 22] 모바일 카테고리 뷰 (데스크톱에서는 숨김 처리되어 간섭 제로) -->
+    <!-- 🌟 모바일 카테고리 뷰 (데스크톱에서는 숨김 처리되어 간섭 제로) -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <!-- 현재 페이지: Advisory Invoice 모바일 활성화 -->
-        <a href="invoice.html" id="navInvoice_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E84C60] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+        <a href="invoice.html" id="navInvoice_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
     <!-- 🌟 권한 동기식 프리-언락 로직 -->
@@ -184,7 +238,7 @@
         (function() {
             var role = window.__INITIAL_ROLE__;
             if (role === 'MASTER' || role === 'VENDOR') {
-                ['navDashboard', 'navDashboard_mob', 'navCatalog', 'navCatalog_mob', 'navRecipes', 'navRecipes_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) {
+                ['navDashboard', 'navDashboard_mob', 'navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) {
                     var el = document.getElementById(id);
                     if (el) el.classList.remove('hidden');
                 });
@@ -192,21 +246,21 @@
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (부드러운 시네마틱 페이드인 적용) -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 flex flex-col lg:flex-row gap-8 items-start cinematic-enter delay-100">
+    <!-- 📊 메인 컨텐츠 영역 (계단식 렌더링 제거, 한 번에 표시되는 App Shell 구조) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 flex flex-col lg:flex-row gap-8 items-start app-shell-enter">
         
         <!-- ========================================== -->
         <!-- 🎛️ 좌측: Invoice Control Panel            -->
         <!-- ========================================== -->
-        <div class="w-full lg:w-1/3 premium-glass p-6 sm:p-8 rounded-[2rem] no-print sticky top-28">
-            <h2 class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] border-b border-gray-200 pb-4 mb-6 flex items-center gap-2 tracking-wide font-montserrat">
-                <span>⚙️</span> <span data-i18n="inv_ctrl_title">Invoice Control Panel</span>
+        <div class="w-full lg:w-1/3 bg-white premium-shadow p-6 sm:p-8 rounded-[2rem] no-print sticky top-28">
+            <h2 class="text-[15px] sm:text-base font-black text-[var(--premium-charcoal)] border-b border-gray-100 pb-4 mb-6 flex items-center gap-2 tracking-wide font-montserrat">
+                <span class="opacity-90">⚙️</span> <span data-i18n="inv_ctrl_title">Invoice Control Panel</span>
             </h2>
             <form autocomplete="off" onsubmit="event.preventDefault(); return false;" class="space-y-6">
                 <!-- 가맹점 선택 -->
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_client">Target Client</label>
-                    <select id="selClient" aria-label="Select Target Client" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-bold text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300 cursor-pointer appearance-none">
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1" data-i18n="lbl_client">Target Client</label>
+                    <select id="selClient" aria-label="Select Target Client" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all cursor-pointer appearance-none">
                         <option value="">Loading franchise list...</option>
                     </select>
                 </div>
@@ -214,27 +268,27 @@
                 <!-- 연도 & 비율 (🌟 [방어 15] autocomplete 차단) -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_year">Target Year</label>
-                        <input type="number" id="selYear" value="2026" step="1" autocomplete="off" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-gray-800 focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1" data-i18n="lbl_year">Target Year</label>
+                        <input type="number" id="selYear" value="2026" step="1" autocomplete="off" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-[13px] font-black font-mono text-center text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-[#E84C60] uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_rate">Rate (%)</label>
-                        <input type="number" id="selRate" value="2.0" step="0.01" autocomplete="off" class="w-full bg-red-50/50 border border-red-100 rounded-xl shadow-inner p-3.5 text-sm font-black font-mono text-center text-[#E84C60] focus:border-[#E84C60] outline-none transition-all duration-300">
+                        <label class="block text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-2 ml-1" data-i18n="lbl_rate">Rate (%)</label>
+                        <input type="number" id="selRate" value="2.0" step="0.01" autocomplete="off" class="w-full bg-red-50/50 border border-red-100 rounded-xl p-3.5 text-[13px] font-black font-mono text-center text-[#E3000F] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all">
                     </div>
                 </div>
                 
                 <!-- 시작월 & 종료월 -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_start">Start Month</label>
-                        <select id="selStart" aria-label="Select Start Month" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer appearance-none">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1" data-i18n="lbl_start">Start Month</label>
+                        <select id="selStart" aria-label="Select Start Month" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] text-center cursor-pointer appearance-none outline-none transition-all">
                             <option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option>
                             <option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2 ml-1" data-i18n="lbl_end">End Month</label>
-                        <select id="selEnd" aria-label="Select End Month" class="w-full bg-gray-50 border border-gray-200 rounded-xl shadow-inner p-3.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#E84C60] focus:bg-white text-center cursor-pointer appearance-none">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1" data-i18n="lbl_end">End Month</label>
+                        <select id="selEnd" aria-label="Select End Month" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] text-center cursor-pointer appearance-none outline-none transition-all">
                             <option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option>
                             <option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
                         </select>
@@ -243,15 +297,15 @@
                 
                 <!-- 🌟 [방어 16] 액션 버튼 폼 서브밋 꼬임 방지를 위한 type="button" 명시 -->
                 <div class="pt-6 space-y-3 border-t border-gray-100">
-                    <button type="button" onclick="generateInvoice()" class="btn-charcoal w-full py-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm font-black tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[#1A1516] focus:ring-offset-2">
+                    <button type="button" onclick="generateInvoice()" class="btn-charcoal w-full py-4 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm font-black tracking-widest uppercase focus:outline-none">
                         <span>🔄</span> <span data-i18n="btn_generate">GENERATE DATA</span>
                     </button>
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <button type="button" onclick="window.printInvoicePDF()" class="btn-gradient-pink w-full py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 text-[11px] sm:text-xs font-black tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[#E84C60] focus:ring-offset-2">
+                        <button type="button" onclick="window.printInvoicePDF()" class="btn-gradient-pink w-full py-3.5 rounded-xl flex items-center justify-center gap-2 text-[11px] sm:text-xs font-black tracking-widest uppercase focus:outline-none">
                             <span data-i18n="btn_pdf">🖨️ PDF</span>
                         </button>
-                        <button type="button" onclick="exportInvoiceCSV()" class="w-full bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50 font-black py-3.5 rounded-xl shadow-sm transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-[11px] sm:text-xs tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2">
+                        <button type="button" onclick="exportInvoiceCSV()" class="w-full bg-white border border-gray-200 text-gray-600 hover:text-emerald-600 hover:border-emerald-400 hover:bg-emerald-50/50 font-black py-3.5 rounded-xl shadow-sm transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 text-[11px] sm:text-xs tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-emerald-400/20">
                             <span data-i18n="btn_csv">📥 CSV</span>
                         </button>
                     </div>
@@ -262,7 +316,7 @@
         <!-- ========================================== -->
         <!-- 📄 우측: Invoice Document (프린트 영역)      -->
         <!-- ========================================== -->
-        <div id="invoiceDocumentContainer" class="w-full lg:w-2/3 premium-glass p-8 sm:p-12 lg:p-16 rounded-[2.5rem] print-area text-gray-800 bg-white">
+        <div id="invoiceDocumentContainer" class="w-full lg:w-2/3 bg-white premium-shadow p-8 sm:p-12 lg:p-16 rounded-[2.5rem] print-area text-gray-800">
             
             <!-- 문서 헤더 -->
             <div class="flex flex-col sm:flex-row justify-between items-start border-b-[3px] border-[var(--premium-charcoal)] print-border-black pb-6 mb-8 gap-6">
@@ -271,49 +325,49 @@
                     <img src="y2c_holdings_logo.png" onerror="this.onerror=null; this.src='assets/images/y2c_holdings_logo.png'; this.onerror=function(){this.style.display='none';};" alt="Y2C Holdings Logo" class="h-10 sm:h-12 mb-5 object-contain" style="display: block;">
                     <h2 class="text-2xl sm:text-3xl font-black tracking-widest text-[var(--premium-charcoal)] print-text-black font-montserrat uppercase" data-i18n="doc_title">Statement of Account</h2>
                 </div>
-                <div class="text-left sm:text-right text-[11px] sm:text-xs text-gray-500 space-y-1.5 pt-2">
+                <div class="text-left sm:text-right text-[11px] sm:text-xs text-gray-500 space-y-1.5 pt-2 font-inter">
                     <p><strong class="tracking-widest uppercase text-gray-400" data-i18n="lbl_inv_no">Invoice No:</strong> <span id="invNo" class="text-[var(--premium-charcoal)] font-black font-mono ml-2 print-text-black">-</span></p>
                     <p><strong class="tracking-widest uppercase text-gray-400" data-i18n="lbl_date">Date of Issue:</strong> <span id="invDate" class="text-[var(--premium-charcoal)] font-bold ml-2 print-text-black">-</span></p>
-                    <p><strong class="tracking-widest uppercase text-gray-400" data-i18n="lbl_due">Due Date:</strong> <span id="invDue" class="text-[#E84C60] font-black ml-2 print-text-black">-</span></p>
+                    <p><strong class="tracking-widest uppercase text-gray-400" data-i18n="lbl_due">Due Date:</strong> <span id="invDue" class="text-[#E3000F] font-black ml-2 print-text-black">-</span></p>
                 </div>
             </div>
 
             <!-- 발신/수신 정보 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 print-grid mb-12 text-xs sm:text-sm">
-                <div class="pr-0 sm:pr-6 border-b sm:border-b-0 sm:border-r border-gray-200 print-border-black pb-6 sm:pb-0">
-                    <h3 class="font-black text-[#E84C60] mb-3 uppercase tracking-[0.2em] text-[10px]" data-i18n="lbl_issued_by">Issued By (Master)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 print-grid mb-12 text-xs sm:text-[13px] font-inter">
+                <div class="pr-0 sm:pr-6 border-b sm:border-b-0 sm:border-r border-gray-100 print-border-black pb-6 sm:pb-0">
+                    <h3 class="font-black text-[#E3000F] mb-3 uppercase tracking-[0.2em] text-[10px]" data-i18n="lbl_issued_by">Issued By (Master)</h3>
                     <p class="font-black text-base text-[var(--premium-charcoal)] mb-1 print-text-black" id="hqName">Y2C Holdings Inc.</p>
-                    <p class="text-gray-600 font-medium leading-relaxed whitespace-pre-line" id="hqAddress">-</p>
-                    <p class="mt-3 text-gray-600 font-medium"><strong class="font-bold text-gray-800 print-text-black">Contact:</strong> <span id="hqContact">-</span></p>
-                    <p class="text-gray-600 font-medium"><strong class="font-bold text-gray-800 print-text-black">Reg No:</strong> <span id="hqRegNo" class="font-mono font-bold">-</span></p>
-                    <p class="text-gray-600 font-medium"><strong class="font-bold text-gray-800 print-text-black">Rep:</strong> <span id="hqRep">-</span></p>
+                    <p class="text-gray-500 font-medium leading-relaxed whitespace-pre-line" id="hqAddress">-</p>
+                    <p class="mt-3 text-gray-500 font-medium"><strong class="font-bold text-gray-800 print-text-black">Contact:</strong> <span id="hqContact">-</span></p>
+                    <p class="text-gray-500 font-medium"><strong class="font-bold text-gray-800 print-text-black">Reg No:</strong> <span id="hqRegNo" class="font-mono font-bold">-</span></p>
+                    <p class="text-gray-500 font-medium"><strong class="font-bold text-gray-800 print-text-black">Rep:</strong> <span id="hqRep">-</span></p>
                 </div>
                 <div class="pl-0 sm:pl-2">
                     <h3 class="font-black text-[var(--y2c-gold)] mb-3 uppercase tracking-[0.2em] text-[10px]" data-i18n="lbl_prep_for">Prepared For (Franchisee)</h3>
                     <p class="font-black text-base text-[var(--premium-charcoal)] mb-1 print-text-black" id="clientName">SELECT CLIENT</p>
-                    <p class="text-gray-600 font-medium leading-relaxed" id="clientAddress">-</p>
-                    <p class="text-gray-600 font-medium" id="clientCity">-</p>
-                    <p class="mt-3 text-gray-600 font-medium"><strong class="font-bold text-gray-800 print-text-black">ATTN:</strong> <span id="clientAttn">-</span></p>
-                    <p class="text-gray-600 font-medium"><strong class="font-bold text-gray-800 print-text-black">Biz ID:</strong> <span id="clientBizId" class="font-mono font-bold">-</span></p>
+                    <p class="text-gray-500 font-medium leading-relaxed" id="clientAddress">-</p>
+                    <p class="text-gray-500 font-medium" id="clientCity">-</p>
+                    <p class="mt-3 text-gray-500 font-medium"><strong class="font-bold text-gray-800 print-text-black">ATTN:</strong> <span id="clientAttn">-</span></p>
+                    <p class="text-gray-500 font-medium"><strong class="font-bold text-gray-800 print-text-black">Biz ID:</strong> <span id="clientBizId" class="font-mono font-bold">-</span></p>
                 </div>
             </div>
 
             <!-- 🌟 [방어 14] 청구 내역 표 모바일 붕괴 방어망 (table-fixed) -->
             <div class="overflow-x-auto mb-10 avoid-break pb-3 hide-scrollbar"> 
-                <table class="w-full text-xs sm:text-sm text-left border-collapse min-w-[500px] table-fixed">
-                    <thead class="bg-gray-50 print-bg-gray border-y-2 border-gray-300 print-border-black">
+                <table class="w-full text-[13px] sm:text-sm text-left border-collapse min-w-[500px] table-fixed">
+                    <thead class="bg-gray-50/80 print-bg-gray border-y-2 border-gray-200 print-border-black font-inter">
                         <tr>
-                            <th class="w-[45%] py-4 px-4 font-black text-gray-600 uppercase tracking-widest text-[10px] print-text-black" data-i18n="th_desc">Description of Services</th>
-                            <th class="w-[20%] py-4 px-4 font-black text-gray-600 uppercase tracking-widest text-[10px] text-right print-text-black" data-i18n="th_base">Calculated Base</th>
-                            <th class="w-[15%] py-4 px-4 font-black text-gray-600 uppercase tracking-widest text-[10px] text-center print-text-black" data-i18n="th_rate">Rate</th>
-                            <th class="w-[20%] py-4 px-4 font-black text-gray-600 uppercase tracking-widest text-[10px] text-right print-text-black" data-i18n="th_amt">Amount</th>
+                            <th class="w-[45%] py-4 px-4 font-black text-gray-500 uppercase tracking-widest text-[10px] print-text-black" data-i18n="th_desc">Description of Services</th>
+                            <th class="w-[20%] py-4 px-4 font-black text-gray-500 uppercase tracking-widest text-[10px] text-right print-text-black" data-i18n="th_base">Calculated Base</th>
+                            <th class="w-[15%] py-4 px-4 font-black text-gray-500 uppercase tracking-widest text-[10px] text-center print-text-black" data-i18n="th_rate">Rate</th>
+                            <th class="w-[20%] py-4 px-4 font-black text-gray-500 uppercase tracking-widest text-[10px] text-right print-text-black" data-i18n="th_amt">Amount</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr class="border-b border-gray-200 print-border-black">
+                    <tbody class="font-inter">
+                        <tr class="border-b border-gray-100 print-border-black">
                             <td class="py-5 px-4 font-bold text-[var(--premium-charcoal)] print-text-black break-keep" id="descLine">Management Advisory Services</td>
-                            <td class="py-5 px-4 text-right text-gray-700 font-mono font-medium print-text-black" id="baseLine">$0.00</td>
-                            <td class="py-5 px-4 text-center text-[#E84C60] font-black print-text-black" id="rateLine">2.00%</td>
+                            <td class="py-5 px-4 text-right text-gray-500 font-mono font-bold print-text-black" id="baseLine">$0.00</td>
+                            <td class="py-5 px-4 text-center text-[#E3000F] font-black print-text-black" id="rateLine">2.00%</td>
                             <td class="py-5 px-4 text-right font-black text-[var(--premium-charcoal)] font-mono print-text-black" id="amtLine">$0.00</td>
                         </tr>
                     </tbody>
@@ -321,32 +375,32 @@
             </div>
 
             <!-- 송금 정보 및 최종 요약 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 print-grid pt-6 avoid-break">
-                <div class="text-[11px] sm:text-xs text-gray-600 space-y-1.5 print-text-black">
-                    <h4 class="font-black text-gray-500 uppercase tracking-[0.2em] mb-2 text-[10px] print-text-black border-b border-gray-100 pb-2" data-i18n="lbl_remit">Remittance Details</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 print-grid pt-6 avoid-break font-inter">
+                <div class="text-[11px] sm:text-[13px] text-gray-500 space-y-2 print-text-black">
+                    <h4 class="font-black text-gray-400 uppercase tracking-[0.2em] mb-3 text-[10px] print-text-black border-b border-gray-100 pb-2" data-i18n="lbl_remit">Remittance Details</h4>
                     <p><span class="font-bold text-gray-800 print-text-black inline-block w-20" data-i18n="lbl_bank">Bank:</span> <span id="hqBank" class="print-text-black font-bold">-</span></p>
                     <p><span class="font-bold text-gray-800 print-text-black inline-block w-20" data-i18n="lbl_address">Address:</span> <span id="hqBankAddress" class="print-text-black">-</span></p>
-                    <p><span class="font-bold text-gray-800 print-text-black inline-block w-20 mt-2" data-i18n="lbl_account">Account No:</span> <span id="hqAccount" class="print-text-black font-mono font-black text-[var(--premium-charcoal)] inline-block mt-2 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">-</span></p>
+                    <p><span class="font-bold text-gray-800 print-text-black inline-block w-20 mt-2" data-i18n="lbl_account">Account No:</span> <span id="hqAccount" class="print-text-black font-mono font-black text-[var(--premium-charcoal)] inline-block mt-2 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-200">-</span></p>
                     <p><span class="font-bold text-gray-800 print-text-black inline-block w-20 mt-1" data-i18n="lbl_swift">SWIFT Code:</span> <span id="hqSwift" class="print-text-black font-mono font-bold mt-1">-</span></p>
-                    <div class="mt-4 bg-red-50 border border-red-100 p-3 rounded-lg print-border-black print-bg-gray">
-                        <p class="text-[#E84C60] font-bold text-[10px] tracking-wide print-text-black leading-relaxed" data-i18n="lbl_memo_warn">⚠️ Please include <strong class="font-black underline">Invoice Number</strong> in transfer memo.</p>
+                    <div class="mt-5 bg-red-50/80 border border-red-100 p-4 rounded-xl print-border-black print-bg-gray">
+                        <p class="text-[#E3000F] font-bold text-[10px] tracking-wide print-text-black leading-relaxed" data-i18n="lbl_memo_warn">⚠️ Please include <strong class="font-black underline">Invoice Number</strong> in transfer memo.</p>
                     </div>
                 </div>
                 
-                <div class="bg-gray-50 print-bg-gray p-6 rounded-3xl border border-gray-200 print-border-black text-right flex flex-col justify-end w-full max-w-sm ml-auto">
-                    <p class="text-xs text-gray-600 font-medium print-text-black mb-2"><span data-i18n="lbl_subtotal">Subtotal:</span> <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black text-sm" id="subTotal">$0.00</span></p>
-                    <p class="text-xs text-gray-600 font-medium pb-4 border-b border-gray-300 print-border-black print-text-black">
-                        <span id="taxLabelArea"><span data-i18n="lbl_tax">Estimated Tax (HST/GST):</span></span> <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black text-sm" id="taxAmt">$0.00</span>
+                <div class="bg-gray-50/80 print-bg-gray p-6 sm:p-8 rounded-[2rem] border border-gray-100 print-border-black text-right flex flex-col justify-end w-full max-w-sm ml-auto">
+                    <p class="text-[13px] text-gray-500 font-bold print-text-black mb-2"><span data-i18n="lbl_subtotal">Subtotal:</span> <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black text-[15px]" id="subTotal">$0.00</span></p>
+                    <p class="text-[13px] text-gray-500 font-bold pb-5 border-b border-gray-200 print-border-black print-text-black">
+                        <span id="taxLabelArea"><span data-i18n="lbl_tax">Estimated Tax (HST/GST):</span></span> <span class="font-bold text-[var(--premium-charcoal)] font-mono ml-3 print-text-black text-[15px]" id="taxAmt">$0.00</span>
                     </p>
-                    <div class="pt-4">
-                        <span class="text-[10px] text-[#E84C60] font-black uppercase tracking-[0.2em] block mb-1 print-text-black" data-i18n="lbl_total_due">TOTAL AMOUNT DUE</span>
+                    <div class="pt-5">
+                        <span class="text-[10px] text-[#E3000F] font-black uppercase tracking-[0.2em] block mb-1.5 print-text-black" data-i18n="lbl_total_due">TOTAL AMOUNT DUE</span>
                         <p class="text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] font-mono print-text-black tracking-tighter" id="totalDue">$0.00</p>
                     </div>
                 </div>
             </div>
             
-            <div class="mt-12 text-center border-t border-gray-100 pt-6">
-                <p class="text-[10px] font-bold tracking-widest text-gray-400 uppercase" data-i18n="lbl_thanks">Thank you for your partnership</p>
+            <div class="mt-14 text-center border-t border-gray-100 pt-8">
+                <p class="text-[10px] font-bold tracking-widest text-gray-400 uppercase font-inter" data-i18n="lbl_thanks">Thank you for your partnership</p>
             </div>
         </div>
     </main>
