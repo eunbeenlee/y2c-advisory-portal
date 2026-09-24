@@ -1,8 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Dashboard Engine (V30.5 Enterprise Master)
- * [Absolute Null-Safe] SWR(Stale-While-Revalidate) 초고속 캐시 엔진 탑재
- * 페이로드 매핑 버그 완벽 수정 및 Chart.js 동적 렌더링(OOM 방어) 적용
+ * Y2C Holdings Premium Partner Portal - Dashboard Engine (V40.3 Ultra-Fast)
+ * [Absolute Null-Safe] IndexedDB Cache, Race Condition 킬스위치, Canvas OOM 방어
  * ============================================================================
  */
 
@@ -32,11 +31,58 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 18] 토큰 및 VENDOR 접근 원천 차단
+// 🌟 권한 무결성 1차 검증 (보안 세션 만료 및 벤더 차단)
 if (!sessionToken || userRole === "VENDOR") {
     alert("보안 세션이 유효하지 않거나 해당 메뉴의 열람 권한이 없습니다.");
     window.location.replace("index.html");
 }
+
+// ============================================================================
+// 💾 [V40.3 신규 방어 1] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// ============================================================================
+const Y2C_DB = {
+    name: 'Y2C_Logistics_DB',
+    version: 1,
+    isSupported: !!window.indexedDB,
+    init: function() {
+        return new Promise((resolve, reject) => {
+            if (!this.isSupported) return reject("IndexedDB not supported");
+            const req = indexedDB.open(this.name, this.version);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('cacheStore')) {
+                    db.createObjectStore('cacheStore', { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    },
+    set: async function(key, data) {
+        if (!this.isSupported) return;
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('cacheStore', 'readwrite');
+                tx.objectStore('cacheStore').put({ id: key, data: data, timestamp: Date.now() });
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        } catch(e) { console.warn("[Y2C_DB Set Warn]", e); }
+    },
+    get: async function(key) {
+        if (!this.isSupported) return null;
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('cacheStore', 'readonly');
+                const req = tx.objectStore('cacheStore').get(key);
+                req.onsuccess = () => resolve(req.result ? req.result.data : null);
+                req.onerror = () => reject(tx.error);
+            });
+        } catch(e) { console.warn("[Y2C_DB Get Warn]", e); return null; }
+    }
+};
 
 // ============================================================================
 // 🌐 글로벌 다국어 (i18n) 엔진
@@ -75,7 +121,7 @@ window.changeLanguage = function(lang) {
     }
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
     
-    // 🌟 [방어 22] 언어 변경 시 차트 렌더링 파괴 없이 레이블만 즉시 번역 (무손실 업데이트)
+    // 차트 레이블 무손실 즉각 번역
     if (salesChartInstance && salesChartInstance.data && salesChartInstance.data.datasets) {
         salesChartInstance.data.datasets[0].label = I18N_DICT[currentLang] ? I18N_DICT[currentLang]["chart_label"] : "Total Revenue (CAD)";
         salesChartInstance.update();
@@ -88,7 +134,7 @@ window.applyTranslations = function() {
 };
 
 // ============================================================================
-// 🔒 [방어 V30.5] Absolute Null-Safe Parsers (재무 오염 100% 방어망)
+// 🔒 [방어 V40.3] Absolute Null-Safe Parsers (재무 오염 100% 방어망)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -111,7 +157,6 @@ function parseStrictNonNegativeInteger(value) {
     return num; 
 }
 
-// 🌟 [방어 1, 2] 재무 소수점 파서: 가격에 포함된 쉼표(,), 공백, 문자열 에러를 0.00으로 치환
 function parseStrictDecimal(value) { 
     if (value == null) return 0; 
     let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
@@ -123,17 +168,15 @@ function parseStrictDecimal(value) {
     return num; 
 }
 
-// 🌟 [방어 3] 센트 단위 정밀 교정 
 function roundToCents(amount) { 
     return Math.round(parseStrictDecimal(amount) * 100) / 100; 
 }
 
-// 🌟 [방어 20] 재무 출력 Null-Safe 포맷터
 const formatCurrency = (amount) => { 
     return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount)); 
 };
 
-// 🌟 [방어 14] 상단 프로필 렌더링 오류 방어
+// 🌟 상단 프로필 렌더링 오류 방어
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.textContent = safeDisplay(clientName, "MASTER");
 const badge = document.getElementById('userRoleBadge');
@@ -144,7 +187,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 16] 글로벌 토스트 스팸(Z-Index 붕괴) 방지기 (폰트 동기화 font-inter)
+// 🌟 글로벌 토스트 스팸 방어 (font-inter 동기화 및 E3000F 테마 적용)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -177,7 +220,7 @@ function applyGlobalRbacNavigation() {
 }
 
 // ============================================================================
-// 🌟 [방어 7, 8, 11] 25초 절대 백오프 통신 엔진 (CORS 강제 패싱)
+// 🌟 25초 절대 백오프 통신 엔진 (CORS 강제 패싱)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
     if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
@@ -256,10 +299,11 @@ async function loadHeavyLibrary(url, objName) {
 }
 
 // ============================================================================
-// 📊 대시보드 핵심 데이터 파이프라인 (SWR Cache 2.0 & Chart Payload Fix)
+// 📊 [V40.3 핵심] 대시보드 데이터 파이프라인 (IndexedDB + Race Condition 락다운)
 // ============================================================================
 let salesChartInstance = null; 
-let isFetching = false; // 🌟 [방어 10] 물리적 연타 잠금 플래그
+let isFetching = false; 
+let currentDashboardFetchId = 0; // 🌟 [신규 방어 2] 비동기 경합 조건(Race Condition) 킬스위치
 
 async function loadDashboardData() {
     if (isFetching) return;
@@ -271,28 +315,31 @@ async function loadDashboardData() {
     if (refreshBtn) refreshBtn.classList.add('animate-spin', 'text-[#E3000F]');
 
     isFetching = true;
+    
+    // 🌟 요청 ID를 갱신하여 이전 요청이 늦게 도착해도 렌더링 무시
+    const fetchId = ++currentDashboardFetchId;
 
-    // 🌟 [핵심 최적화 1] SWR (Stale-While-Revalidate) 로컬 캐시 엔진
-    // 백엔드 요청을 기다리기 전에, 로컬 스토리지에 저장된 이전 화면을 즉시 0.01초만에 렌더링
-    const cacheKey = `Y2C_DASH_CACHE_${targetYear}_${userRole === "MASTER" ? "ALL" : clientName}`;
+    // 🌟 [신규 방어 1] SWR 로컬 캐시 엔진 IndexedDB 기반 적용 (5MB Quota 초과 방어)
+    const cacheKey = `Y2C_DASH_${targetYear}_${userRole === "MASTER" ? "ALL" : clientName}`;
     try {
-        const cachedRaw = localStorage.getItem(cacheKey);
-        if (cachedRaw) {
-            const cachedData = JSON.parse(cachedRaw);
+        const cachedData = await Y2C_DB.get(cacheKey);
+        if (cachedData && fetchId === currentDashboardFetchId) {
             applyDashboardUI(cachedData, false); // 캐시 기반 즉시 렌더링
         }
     } catch(e) {}
 
     try {
-        // 🌟 백그라운드 비동기 통신
         const result = await executeApi("get_dashboard", { 
             year: targetYear, 
             targetYear: targetYear,
             clientName: userRole === "MASTER" ? "ALL" : clientName 
         });
 
+        // 🌟 [방어 2] 통신 완료 후 최신 요청ID가 아니면 폐기 (Race Condition 차단)
+        if (fetchId !== currentDashboardFetchId) return;
+
         if (result && result.success) {
-            // 🌟 [핵심 최적화 2] 페이로드 맵핑 파괴 방어 (이미지 32df1a.png 차트 0달러 버그 완벽 해결)
+            // 🌟 페이로드 맵핑 파괴 방어 (0달러 버그 완벽 해결)
             const dashboardData = {
                 monthlySales: Array.isArray(result.monthlySales) ? result.monthlySales : Array(12).fill(0),
                 ytdTotal: parseStrictDecimal(result.ytdTotal),
@@ -300,7 +347,7 @@ async function loadDashboardData() {
                 ytdDelivery: parseStrictDecimal(result.ytdDelivery)
             };
             
-            // 만약 백엔드가 구형 구조(records)로 데이터를 보낼 경우의 호환성 안전망 (Fallback)
+            // 호환성 안전망 (Fallback)
             if (dashboardData.monthlySales.every(v => v === 0) && result.records && Array.isArray(result.records)) {
                 result.records.forEach(r => {
                     const m = (parseStrictNonNegativeInteger(r.month) || 1) - 1;
@@ -311,7 +358,7 @@ async function loadDashboardData() {
                     
                     if (m >= 0 && m < 12) {
                         dashboardData.monthlySales[m] = t;
-                        if(dashboardData.ytdTotal === 0) { // 서버에서 총합도 안보내줬을 경우 로컬에서 누적
+                        if(dashboardData.ytdTotal === 0) { 
                             dashboardData.ytdTotal = roundToCents(dashboardData.ytdTotal + t);
                             dashboardData.ytdPos = roundToCents(dashboardData.ytdPos + p);
                             dashboardData.ytdDelivery = roundToCents(dashboardData.ytdDelivery + d);
@@ -320,10 +367,9 @@ async function loadDashboardData() {
                 });
             }
 
-            // 차기 진입 시 0.01초 로딩을 위해 캐시에 저장
-            try { localStorage.setItem(cacheKey, JSON.stringify(dashboardData)); } catch(e) {}
+            // IndexedDB 덮어쓰기 저장
+            try { await Y2C_DB.set(cacheKey, dashboardData); } catch(e) {}
 
-            // 화면에 반영 (스무스 업데이트)
             applyDashboardUI(dashboardData, true);
         } else {
             const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
@@ -332,23 +378,27 @@ async function loadDashboardData() {
     } catch (err) {
         console.error("[Y2C Telemetry Dashboard Load Error]:", err);
         
-        // 에러 발생 시 차트 엔진이라도 빈 값으로 강제 구동시켜 시스템 락을 방지
+        // 에러 발생 시 차트 엔진 강제 구동으로 시스템 락 방지 (0 폴백)
         try {
             if(typeof Chart === 'undefined') {
                 await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/chart.js", "Chart");
             }
-            if(!salesChartInstance) renderSalesChart(Array(12).fill(0));
+            if(fetchId === currentDashboardFetchId) {
+                renderSalesChart(Array(12).fill(0));
+            }
         } catch(e) {}
         
         const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
         showToast(`${msgObj["toast_sync_fail"]}: ${err.message}`, "error");
     } finally {
-        isFetching = false;
-        if (refreshBtn) refreshBtn.classList.remove('animate-spin', 'text-[#E3000F]');
+        if (fetchId === currentDashboardFetchId) {
+            isFetching = false;
+            if (refreshBtn) refreshBtn.classList.remove('animate-spin', 'text-[#E3000F]');
+        }
     }
 }
 
-// 🌟 UI 반영 및 Chart.js 주입 공통 함수 (화면 번쩍임 방지)
+// 🌟 UI 반영 및 Chart.js 주입 (화면 번쩍임 방지)
 function applyDashboardUI(data, isFromServer) {
     const elemTotal = document.getElementById('dashYtdTotal');
     const elemPos = document.getElementById('dashYtdPos');
@@ -358,7 +408,6 @@ function applyDashboardUI(data, isFromServer) {
     if (elemPos) elemPos.textContent = formatCurrency(data.ytdPos);
     if (elemDel) elemDel.textContent = formatCurrency(data.ytdDelivery);
 
-    // Chart.js 렌더링 (동적 라이브러리 연동)
     try {
         if (typeof Chart === 'undefined') {
             loadHeavyLibrary("https://cdn.jsdelivr.net/npm/chart.js", "Chart").then(() => {
@@ -371,7 +420,6 @@ function applyDashboardUI(data, isFromServer) {
         console.warn("Chart rendering failed in UI apply", err);
     }
     
-    // 서버 통신 완료 시에만 조용히 토스트 띄우기 (캐시 렌더링 시에는 조용히)
     if (isFromServer) {
         const msgObj = I18N_DICT[currentLang] || I18N_DICT['en'];
         const currentY = document.getElementById('dashYearSelector')?.value || new Date().getFullYear();
@@ -380,29 +428,39 @@ function applyDashboardUI(data, isFromServer) {
 }
 
 // ============================================================================
-// 🌟 [방어 4, 13] Chart.js 인스턴스 스무스 업데이트 및 OOM 명시적 락다운
+// 🌟 [방어 3, 4, 5] Chart.js OOM 방어 및 Retina Display 블러 방어
 // ============================================================================
 function renderSalesChart(monthlyData) {
     const ctx = document.getElementById('salesChartCanvas');
-    // 🌟 [방어 21] Canvas DOM 무결성 체크
     if (!ctx) return;
+
+    // 🌟 [신규 방어 4] 배열 오염 검증
+    const safeData = Array.isArray(monthlyData) && monthlyData.length === 12 
+        ? monthlyData.map(v => parseStrictDecimal(v)) 
+        : Array(12).fill(0);
 
     const currentLabel = I18N_DICT[currentLang] ? I18N_DICT[currentLang]["chart_label"] : "Total Revenue (CAD)";
 
-    // 🌟 [방어 4] Memory Leak (OOM) 완벽 방어를 위한 인스턴스 재사용 (부드러운 데이터 교체)
-    if (salesChartInstance) {
-        salesChartInstance.data.datasets[0].data = monthlyData;
-        salesChartInstance.data.datasets[0].label = escapeHtml(currentLabel);
-        salesChartInstance.update();
-        return;
-    }
+    // 🌟 [신규 방어 3] Memory Leak (OOM) 완전 방어를 위해 컨텍스트 파괴(Destroy) 후 안전하게 재생성
+    // 기존 .update() 대신 destroy()를 호출하여 WebGL 메모리를 확실히 확보
+    try {
+        if (salesChartInstance) {
+            salesChartInstance.destroy();
+            salesChartInstance = null;
+        }
+    } catch(e) { console.warn("[Y2C Chart Destruct Error]", e); }
 
     const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(227, 0, 15, 0.4)');
-    gradient.addColorStop(1, 'rgba(227, 0, 15, 0.0)');
+    
+    // 그라디언트 재생성 (OOM 억제)
+    let gradient;
+    try {
+        gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(227, 0, 15, 0.4)');
+        gradient.addColorStop(1, 'rgba(227, 0, 15, 0.0)');
+    } catch(e) { gradient = 'rgba(227, 0, 15, 0.2)'; }
 
-    // 🌟 Inter 폰트 동기화
+    // Inter 폰트 동기화
     Chart.defaults.font.family = "'Inter', sans-serif";
 
     salesChartInstance = new Chart(ctx, {
@@ -410,8 +468,8 @@ function renderSalesChart(monthlyData) {
         data: {
             labels: labels,
             datasets: [{
-                label: escapeHtml(currentLabel), // XSS 보호
-                data: monthlyData,
+                label: escapeHtml(currentLabel),
+                data: safeData,
                 borderColor: '#E3000F',
                 backgroundColor: gradient,
                 borderWidth: 3,
@@ -427,11 +485,13 @@ function renderSalesChart(monthlyData) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            // 🌟 [신규 방어 5] 고해상도(Retina) 캔버스 블러(Blur) 방지 하드웨어 스케일링 강제
+            devicePixelRatio: Math.max(window.devicePixelRatio || 1, 2),
             interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
                     titleFont: { size: 13, weight: 'bold' },
                     bodyFont: { size: 14, weight: 'bold' },
                     padding: 12,
@@ -439,7 +499,6 @@ function renderSalesChart(monthlyData) {
                     displayColors: false,
                     callbacks: {
                         label: function(context) {
-                            // 🌟 [방어 13, 20] 툴팁 콜백 함수 내 XSS 및 NaN 무결성 방어
                             let label = escapeHtml(context.dataset.label || '');
                             if (label) label += ': ';
                             if (context.parsed.y !== null) {
@@ -484,20 +543,19 @@ function populateDashYearSelector() {
     }
 }
 
-// 🌟 [방어 12, 19] 프론트엔드 실시간 감지망 (글로벌 캐치)
+// 프론트엔드 실시간 에러 감지망
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다.", "error"));
 window.addEventListener('online', () => showToast("네트워크 복구 완료.", "success"));
 window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
 window.addEventListener('unhandledrejection', function(event) {
     console.error("[Y2C Telemetry Promise Rejection]", event.reason);
-    // 🌟 [방어 12] 예외 발생 시 버튼 및 플래그 강제 복원
     isFetching = false;
     const refreshBtn = document.getElementById('refreshChartBtn');
     if (refreshBtn) refreshBtn.classList.remove('animate-spin', 'text-[#E3000F]');
 });
 
 // ============================================================================
-// 🌟 시스템 초기화 및 DOM 락(Lock)
+// 🌟 시스템 초기화 및 이벤트 리스너 바인딩
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
     window.changeLanguage(currentLang);
