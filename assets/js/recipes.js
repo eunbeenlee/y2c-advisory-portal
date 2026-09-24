@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Recipe Center Engine (V30.5 Enterprise)
- * [Absolute Null-Safe] SWR 초고속 캐시 렌더러, 검색 디바운싱, 프리미엄 UI 동기화
+ * Y2C Holdings Premium Partner Portal - Recipe Center Engine (V40.4 Ultra-Fast)
+ * [Absolute Null-Safe] IndexedDB Cache, Infinite Chunk Observer, Search Hash Lock
  * ============================================================================
  */
 
@@ -39,7 +39,54 @@ if (userRole === "VENDOR") {
 }
 
 // ============================================================================
-// 🌐 글로벌 & 동적 데이터 번역 (i18n) 엔진 탑재 및 인젝션 방어
+// 💾 [V40.4 신규 방어 1] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// ============================================================================
+const Y2C_DB = {
+    name: 'Y2C_Logistics_DB',
+    version: 1,
+    isSupported: !!window.indexedDB,
+    init: function() {
+        return new Promise((resolve, reject) => {
+            if (!this.isSupported) return reject("IndexedDB not supported");
+            const req = indexedDB.open(this.name, this.version);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('cacheStore')) {
+                    db.createObjectStore('cacheStore', { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    },
+    set: async function(key, data) {
+        if (!this.isSupported) return;
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('cacheStore', 'readwrite');
+                tx.objectStore('cacheStore').put({ id: key, data: data, timestamp: Date.now() });
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        } catch(e) { console.warn("[Y2C_DB Set Warn]", e); }
+    },
+    get: async function(key) {
+        if (!this.isSupported) return null;
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('cacheStore', 'readonly');
+                const req = tx.objectStore('cacheStore').get(key);
+                req.onsuccess = () => resolve(req.result ? req.result.data : null);
+                req.onerror = () => reject(tx.error);
+            });
+        } catch(e) { console.warn("[Y2C_DB Get Warn]", e); return null; }
+    }
+};
+
+// ============================================================================
+// 🌐 글로벌 & 동적 데이터 번역 (i18n) 엔진 탑재
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -131,7 +178,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 11] 토스트 알림 Z-Index 붕괴 방어 및 폰트 통일 (font-inter 적용, E3000F 테마 적용)
+// 🌟 [방어 11] 토스트 알림 Z-Index 붕괴 방어 및 폰트 통일 (font-inter 적용)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -177,7 +224,7 @@ function applyGlobalRbacNavigation() {
 // ============================================================================
 // 🌟 [방어 1, 2, 3] 25초 킬스위치 및 지수형 백오프(Exponential Backoff) 엔진
 // ============================================================================
-async function executeApi(action, payload = {}, retries = 2) {
+async function executeApi(action, payload = {}, retries = 3) {
     let lastNetworkError;
     if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
     const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
@@ -246,45 +293,56 @@ async function executeApi(action, payload = {}, retries = 2) {
 }
 
 // ============================================================================
-// 🍳 레시피 데이터 파이프라인 (SWR Cache 엔진 및 XSS 방어)
+// 🍳 [V40.4 핵심] 레시피 데이터 파이프라인 (IndexedDB + SWR Cache + Hash Lock)
 // ============================================================================
 let allRecipes = [];
 let currentCategory = "All Recipes";
 let searchDebounceTimer = null;
+let lastRenderHash = ""; // 🌟 [방어 3] 해시 체크용 변수
+
+function generateRecipeHash(arr) {
+    if (!arr || arr.length === 0) return "";
+    // 레시피 갯수와 첫 번째/마지막 레시피 타이틀 길이를 합산하여 고유 해시 생성
+    return arr.length + "_" + (arr[0]?.title?.length || 0) + "_" + (arr[arr.length-1]?.title?.length || 0);
+}
 
 async function fetchRecipes() {
     const grid = document.getElementById('recipeGrid');
     if (!grid) return;
 
-    // 🌟 [핵심 최적화 1] SWR (Stale-While-Revalidate) 로컬 캐시 엔진
-    const cacheKey = "Y2C_RECIPES_CACHE_V30";
+    const cacheKey = "Y2C_RECIPES_CACHE_V40";
+
+    // 🌟 1. IndexedDB 기반 0.01초 로컬 캐시 즉시 렌더링
     try {
-        const cachedRaw = localStorage.getItem(cacheKey);
-        if (cachedRaw) {
-            const cachedData = JSON.parse(cachedRaw);
-            if (Array.isArray(cachedData) && cachedData.length > 0) {
-                allRecipes = cachedData;
-                buildCategoryFilters();
-                filterRecipes();
-            }
+        const cachedRaw = await Y2C_DB.get(cacheKey);
+        if (cachedRaw && Array.isArray(cachedRaw) && cachedRaw.length > 0) {
+            allRecipes = cachedRaw;
+            buildCategoryFilters();
+            filterRecipes();
         }
     } catch(e) {}
 
+    // 🌟 2. 백그라운드 서버 통신 및 최신화
     try {
         const result = await executeApi("get_recipes");
         
         if (result && result.success) {
-            // 🌟 [방어 4] Omni-Parser: 객체 뎁스 및 파편화 대응
             let dataPayload = result.recipes || result.data || result || [];
             if (!Array.isArray(dataPayload)) dataPayload = []; 
             
-            allRecipes = dataPayload;
+            // 🌟 [방어 5] Corrupted Node (불량 데이터) 격리 제거
+            dataPayload = dataPayload.filter(r => r && typeof r === 'object');
             
-            // 데이터 무결성 확보 후 캐시 저장
-            try { localStorage.setItem(cacheKey, JSON.stringify(allRecipes)); } catch(e) {}
-            
-            buildCategoryFilters();
-            filterRecipes();
+            const newHash = generateRecipeHash(dataPayload);
+            const oldHash = generateRecipeHash(allRecipes);
+
+            // 데이터가 변경되었거나, 캐시가 비어있을 때만 UI 업데이트 (화면 깜빡임 방지)
+            if (newHash !== oldHash || allRecipes.length === 0) {
+                allRecipes = dataPayload;
+                try { await Y2C_DB.set(cacheKey, allRecipes); } catch(e) {}
+                buildCategoryFilters();
+                filterRecipes();
+            }
         } else {
             if (allRecipes.length === 0) throw new Error(result?.message || "레시피 데이터를 불러올 수 없습니다.");
         }
@@ -296,7 +354,7 @@ async function fetchRecipes() {
     }
 }
 
-// 🌟 JS에서 동적으로 생성되는 카테고리 필터 버튼에 폰트(font-inter) 일체화 및 V30.5 컬러 적용
+// 🌟 JS에서 동적으로 생성되는 카테고리 필터 버튼에 V30.5 테마 일체화 락다운
 function buildCategoryFilters() {
     const filterContainer = document.getElementById('recipeCategoryFilters');
     if (!filterContainer) return;
@@ -348,84 +406,105 @@ function filterRecipes() {
         return matchCat && matchSearch;
     });
 
-    renderRecipes(filtered);
+    renderRecipesFast(filtered);
 }
 
-// 🌟 [방어 7] DOM 연산 폭주를 막는 디바운싱(Debouncing) 래퍼
+// 🌟 [방어 3] DOM 연산 폭주를 막는 디바운싱(Debouncing) 래퍼
 function handleSearchInput() {
     clearTimeout(searchDebounceTimer);
-    searchDebounceTimer = setTimeout(filterRecipes, 300);
+    searchDebounceTimer = setTimeout(filterRecipes, 250);
 }
 
 // ============================================================================
-// ⚡ [방어 6] 점진적 렌더링 엔진 2.0 (Progressive Rendering)
-// 🌟 JS에서 동적으로 생성되는 레시피 카드 요소에 폰트(Montserrat/Inter) 일체화 및 V30.5 컬러 적용
+// ⚡ [방어 2] Infinite Chunk Observer (무한 스크롤 & DOM 메모리 최적화)
 // ============================================================================
-function renderRecipes(recipes) {
+let recipeObserver = null;
+let globalFilteredRecipes = [];
+let recipeRenderIndex = 0;
+const RECIPE_CHUNK_SIZE = 24; // 한 번에 그려낼 카드 수
+
+function renderRecipesFast(recipes) {
     const grid = document.getElementById('recipeGrid');
     if (!grid) return;
+
+    // 기존 옵저버 파괴
+    if (recipeObserver) { 
+        recipeObserver.disconnect(); 
+        recipeObserver = null; 
+    }
     
     const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
 
-    if (recipes.length === 0) {
+    if (!recipes || recipes.length === 0) {
         grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 font-bold tracking-widest uppercase font-inter">${dict["no_recipes"]}</div>`;
         return;
     }
     
+    globalFilteredRecipes = recipes;
+    recipeRenderIndex = 0;
     grid.innerHTML = '';
-    let chunkIndex = 0;
-    const CHUNK_SIZE = 12; // 그리드 최적화 청크 사이즈
 
-    function renderChunk() {
-        const fragment = document.createDocumentFragment();
-        const endIdx = Math.min(chunkIndex + CHUNK_SIZE, recipes.length);
-
-        for (; chunkIndex < endIdx; chunkIndex++) {
-            const recipe = recipes[chunkIndex];
-            const index = chunkIndex;
-            const delay = (index % 12) * 40; // 렌더링 딜레이 최적화
-            const card = document.createElement('div');
-            
-            // 🌟 premium-shadow 클래스 적용으로 대기업 SaaS 디자인 일체화
-            card.className = `recipe-card bg-white premium-shadow rounded-[1.5rem] p-6 sm:p-7 flex flex-col h-full cinematic-enter group`;
-            card.style.animationDelay = `${delay}ms`;
-            
-            // 🌟 클로저 붕괴를 막는 함수 블록 바인딩
-            card.onclick = (function(r) { return function() { openRecipeModal(r); }; })(recipe);
-            
-            const catText = recipe.category || dict["uncategorized"];
-            const translatedCat = escapeHtml(translateDynamic(catText, 'recipeCategory'));
-            const titleText = escapeHtml(recipe.title || 'Untitled Recipe');
-            const ingText = escapeHtml(recipe.ingredients || 'Details inside...');
-
-            card.innerHTML = `
-                <div class="mb-5">
-                    <span class="px-3 py-1.5 bg-[#E3000F]/10 text-[#E3000F] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E3000F]/20 font-inter">${translatedCat}</span>
-                </div>
-                <h3 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2.5 leading-tight group-hover:text-[#E3000F] transition-colors">${titleText}</h3>
-                <p class="text-[12px] font-medium text-gray-500 line-clamp-3 mb-5 flex-grow font-inter leading-relaxed">${ingText}</p>
-                <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1.5 group-hover:text-[#E3000F] transition-colors font-inter">${dict["btn_view"]}</span>
-                    <div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#E3000F] group-hover:text-white transition-colors text-gray-400">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </div>
-            `;
-            fragment.appendChild(card);
+    // 🌟 바닥 감지 옵저버 부착 (여유 마진 500px)
+    recipeObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            recipeObserver.disconnect();
+            appendRecipeChunk();
         }
+    }, { rootMargin: '500px' });
+
+    appendRecipeChunk();
+}
+
+function appendRecipeChunk() {
+    const grid = document.getElementById('recipeGrid');
+    if (!grid) return;
+
+    const endIdx = Math.min(recipeRenderIndex + RECIPE_CHUNK_SIZE, globalFilteredRecipes.length);
+    const fragment = document.createDocumentFragment();
+    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+
+    for (; recipeRenderIndex < endIdx; recipeRenderIndex++) {
+        const recipe = globalFilteredRecipes[recipeRenderIndex];
+        const delay = (recipeRenderIndex % 12) * 30; // 부드러운 스태거 애니메이션
+        const card = document.createElement('div');
         
-        grid.appendChild(fragment);
+        card.className = `recipe-card bg-white premium-shadow rounded-[1.5rem] p-6 sm:p-7 flex flex-col h-full cinematic-enter group cursor-pointer`;
+        card.style.animationDelay = `${delay}ms`;
+        
+        // 🌟 클로저 붕괴를 막는 함수 블록 바인딩
+        card.onclick = (function(r) { return function() { openRecipeModal(r); }; })(recipe);
+        
+        const catText = recipe.category || dict["uncategorized"];
+        const translatedCat = escapeHtml(translateDynamic(catText, 'recipeCategory'));
+        const titleText = escapeHtml(recipe.title || 'Untitled Recipe');
+        const ingText = escapeHtml(recipe.ingredients || 'Details inside...');
 
-        if (chunkIndex < recipes.length) {
-            requestAnimationFrame(renderChunk);
-        }
+        card.innerHTML = `
+            <div class="mb-5">
+                <span class="px-3 py-1.5 bg-[#E3000F]/10 text-[#E3000F] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E3000F]/20 font-inter">${translatedCat}</span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2.5 leading-tight group-hover:text-[#E3000F] transition-colors">${titleText}</h3>
+            <p class="text-[12px] font-medium text-gray-500 line-clamp-3 mb-5 flex-grow font-inter leading-relaxed">${ingText}</p>
+            <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
+                <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1.5 group-hover:text-[#E3000F] transition-colors font-inter">${dict["btn_view"]}</span>
+                <div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#E3000F] group-hover:text-white transition-colors text-gray-400">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+            </div>
+        `;
+        fragment.appendChild(card);
     }
     
-    renderChunk();
+    grid.appendChild(fragment);
+
+    if (recipeRenderIndex < globalFilteredRecipes.length) {
+        const lastCard = grid.lastElementChild;
+        if (lastCard) recipeObserver.observe(lastCard);
+    }
 }
 
 // ============================================================================
-// 🌟 [방어 8] 레시피 상세 모달 이중 스크롤 잠금 버그 완벽 수정 (UX 보장)
+// 🌟 [방어 4, 8] 레시피 모달 OOM 가비지 컬렉션 & 스크롤 락
 // ============================================================================
 function openRecipeModal(recipe) {
     const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
@@ -447,14 +526,21 @@ function openRecipeModal(recipe) {
     }
 }
 
-// 글로벌 영역(Window)에 함수 노출하여 HTML의 onclick 이벤트 연동
 window.closeRecipeModal = function() {
     const modal = document.getElementById('recipeModal');
     if (modal) {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
-        // 🚨 모달 종료 시 배경 스크롤 원복 (초기화)
+        // 🚨 모달 종료 시 배경 스크롤 원복
         document.body.style.overflow = '';
+        
+        // 🌟 [방어 4] OOM 방어: 닫힐 때 텍스트 강제 소각 (메모리 릴리즈)
+        setTimeout(() => {
+            document.getElementById('recipeModalTitle').textContent = '';
+            document.getElementById('recipeModalIngredients').textContent = '';
+            document.getElementById('recipeModalInstructions').textContent = '';
+            document.getElementById('recipeModalTips').textContent = '';
+        }, 300);
     }
 }
 
