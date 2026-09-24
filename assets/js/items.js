@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V40.1 Fixed & Hardened)
- * [Absolute Null-Safe] SKU 누락 방어 무한 스크롤 렌더러, 기능 100% 무손실 복원
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V40.2 Ultra-Fast)
+ * [IndexedDB Cache] 대용량 로컬 DB, Infinite Observer, Time-Slicing 엑셀 파서
  * ============================================================================
  */
 
@@ -23,51 +23,66 @@ const CONFIG = window.SYSTEM_CONFIG || {};
 const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
 
 let userRole = "", clientName = "", sessionToken = "";
-let cachedClientState = "DEFAULT";
-
 try {
     userRole = String(localStorage.getItem(STORAGE.ROLE) || "").toUpperCase();
     clientName = String(localStorage.getItem(STORAGE.CLIENT_NAME) || "").trim();
     sessionToken = String(localStorage.getItem(STORAGE.USER_TOKEN) || "").trim();
-    cachedClientState = String(localStorage.getItem("y2c_premium_state") || "DEFAULT").trim();
-} catch(e) {
+} catch (e) {
     console.error("[Y2C Storage Error]", e);
 }
 
-if (!sessionToken || !clientName) { window.location.replace("index.html"); }
+// 🌟 권한 무결성 1차 검증
+if (!sessionToken || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
+    alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
+    window.location.replace("index.html"); 
+}
 
-// ============================================================================
-// 🌐 다국어(i18n) 딕셔너리
-// ============================================================================
 const I18N_DICT = {
     en: {
         "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
-        "logout": "LOGOUT", "cancel_order": "Cancel Order",
-        "catalog_title": "Inventory & Catalog", "catalog_desc": "Select items and quantities to request procurement.",
-        "btn_ai": "Auto-Fill AI", "hub_view": "Hub View:", "btn_manage": "MANAGE INVENTORY",
-        "kpi_skus": "Total SKUs", "kpi_value": "Inventory Value", "kpi_warning": "Low Stock Warning", "kpi_synced": "Last Synced",
-        "th_code": "Item Code", "th_product": "Product Name", "th_category": "Category / Tax", "th_price": "Unit Price", "th_qty": "Order Qty",
-        "loading_catalog": "Securely loading SCM data...",
-        "order_sub": "Subtotal", "order_tax": "Estimated Tax", "order_total": "Total Due", "btn_submit": "Submit Order"
+        "tab_profiles": "Franchise DB", "tab_sales": "ERP Sales", "tab_inbound": "Inbound (Excel)", "tab_hqorders": "HQ Procurement",
+        "cancel_order": "Cancel Order", "logout": "LOGOUT",
+        "hq_title": "HQ Procurement Console", "hq_desc": "Global logistics procurement status, digital cart, and system health scan center.",
+        "b2b_volume": "Total B2B Volume", "b2b_expenditure": "Total B2B Expenditure", "sys_health_scan": "🛡️ SYSTEM HEALTH SCAN",
+        "profiles_title": "Franchise Database", "profiles_desc": "Master management center for franchise profiles, addresses, contacts, and business IDs.",
+        "sales_title": "ERP Sales Sync", "sales_desc": "Monthly POS and delivery app sales data integration and royalty calculation basis.",
+        "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.12 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
+        "guide_title": "B2B Logistics Inventory Merge System Essential Guide",
+        "guide_q1": "✅ What to upload?", "guide_a1_1": "• Excel receipt statements (.xlsx, .xls, .csv) issued by vendors (suppliers)", "guide_a1_2": "• Image files (.jpg, .jpeg, .png) of physical invoices and receipts (Auto Tesseract AI OCR Scan Engine activated)",
+        "guide_q2": "⚠️ Precautions (Must Read)", "guide_a2_1": "• Uploaded quantities will be cumulatively added (+) to the live inventory of the selected Hub.", "guide_a2_2": "• Risk of duplicate receiving: Please be careful not to upload the same receiving file multiple times.",
+        "dropzone_title": "Drag & Drop Vendor Document Here", "dropzone_desc": "Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png",
+        "btn_browse": "Browse Files", "btn_save": "SAVE DATA", "btn_add": "Add Order",
+        "placeholder_vendor": "Vendor Name (e.g. CJ Foods)", "placeholder_hub": "Hub (ON, BC..)", "placeholder_cart": "🛒 Click to Select Items & Qty...",
+        "table_client": "Client Name", "table_state": "State (Hub)", "table_city": "City", "table_addr": "Full Address", "table_manager": "Manager", "table_email": "Email", "table_biz": "Business ID", "table_action": "Action",
+        "kpi_annual": "Total Annual Sales", "kpi_pos": "POS (Dine-in & Takeout)", "kpi_del": "Delivery Platforms",
+        "table_period": "Period", "table_pos": "Dine-in & Takeout (POS)", "table_del": "Delivery App (Skip, Uber)", "table_sub": "Subtotal", "table_status": "Status",
+        "active_shipments": "Active Inbound Shipments",
+        "th_orderid": "Order ID", "th_date": "Issue Date", "th_vendor": "Vendor", "th_hub": "Hub", "th_summary": "Items Summary", "th_eta": "ETA"
     },
     ko: {
         "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
-        "logout": "로그아웃", "cancel_order": "발주 취소",
-        "catalog_title": "카탈로그 및 발주", "catalog_desc": "품목과 수량을 선택하여 본사 조달을 요청하세요.",
-        "btn_ai": "AI 자동완성", "hub_view": "허브 보기:", "btn_manage": "재고 관리",
-        "kpi_skus": "전체 품목 수", "kpi_value": "총 재고 자산", "kpi_warning": "재고 부족 경고", "kpi_synced": "마지막 동기화",
-        "th_code": "품번", "th_product": "품명", "th_category": "카테고리/세금", "th_price": "단가", "th_qty": "발주 수량",
-        "loading_catalog": "SCM 데이터를 안전하게 불러오는 중입니다...",
-        "order_sub": "소계", "order_tax": "예상 세금", "order_total": "최종 결제액", "btn_submit": "발주서 제출"
+        "tab_profiles": "가맹점 DB", "tab_sales": "ERP 매출", "tab_inbound": "재고 입고 (Excel)", "tab_hqorders": "본사 발주 관제",
+        "cancel_order": "발주 취소", "logout": "로그아웃",
+        "hq_title": "본사 조달 및 물류 관제", "hq_desc": "본사의 글로벌 물류 조달 현황, 디지털 카트 발주 및 시스템 헬스 스캔 센터",
+        "b2b_volume": "B2B 누적 물동량", "b2b_expenditure": "B2B 총 누적 지출액", "sys_health_scan": "🛡️ 시스템 헬스 스캔",
+        "profiles_title": "가맹점 데이터베이스", "profiles_desc": "가맹점 프로필, 주소, 연락처 및 사업자 번호 마스터 관리 센터.",
+        "sales_title": "ERP 매출 데이터 동기화", "sales_desc": "가맹점별 월간 POS 및 배달 매출 데이터 연동 및 로열티 산정 기반.",
+        "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.12 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
+        "guide_title": "B2B 물류 재고 병합 시스템 필수 가이드",
+        "guide_q1": "무엇을 업로드하나요?", "guide_a1_1": "• 벤더사(공급업체)에서 발행한 엑셀 입고 명세서 (.xlsx, .xls, .csv)", "guide_a1_2": "• 실물 송장 및 영수증을 촬영한 이미지 파일 (.jpg, .jpeg, .png) (Tesseract AI OCR 스캔 엔진 자동 가동)",
+        "guide_q2": "주의사항 (필독)", "guide_a2_1": "• 업로드된 수량은 선택하신 허브(Hub)의 라이브 재고에 누적 합산(+) 됩니다.", "guide_a2_2": "• 중복 입고 위험: 동일한 입고 파일을 여러 번 업로드하지 않도록 각별히 주의해 주세요.",
+        "dropzone_title": "벤더사 문서를 이곳에 드래그 앤 드롭 하세요", "dropzone_desc": "최대 10MB. .xlsx, .xls, .csv, .jpg, .png 지원",
+        "btn_browse": "파일 찾아보기", "btn_save": "데이터 저장", "btn_add": "발주 등록",
+        "placeholder_vendor": "공급사명 (예: CJ Foods)", "placeholder_hub": "도착 허브 (ON, BC..)", "placeholder_cart": "🛒 품목 및 수량을 선택하세요...",
+        "table_client": "가맹점명", "table_state": "관할 주 (Hub)", "table_city": "도시", "table_addr": "상세 주소", "table_manager": "담당자", "table_email": "이메일", "table_biz": "사업자 번호", "table_action": "관리",
+        "kpi_annual": "연간 총 매출액", "kpi_pos": "홀 & 포장 (POS)", "kpi_del": "배달 플랫폼",
+        "table_period": "기간 (월)", "table_pos": "홀 & 포장 매출 ($)", "table_del": "배달 앱 매출 ($)", "table_sub": "소계", "table_status": "상태",
+        "active_shipments": "실시간 조달/입고 현황",
+        "th_orderid": "주문 번호", "th_date": "발행일", "th_vendor": "벤더사", "th_hub": "입고 허브", "th_summary": "품목 요약", "th_eta": "도착 예정일"
     }
 };
 
-const DYNAMIC_I18N = {
-    category: {
-        en: { "떡": "Rice Cake", "떡류": "Rice Cake", "소스": "Sauce", "양념": "Sauce", "면": "Noodles", "면류": "Noodles", "식품": "Food", "냉동": "Frozen", "냉동식품": "Frozen", "파우더": "Powder", "포장재": "Packaging", "비품": "Equipment" },
-        ko: { "SAUCE": "소스/양념", "NOODLE": "면류", "RICE CAKE": "떡류", "FROZEN": "냉동식품", "POWDER": "파우더/가루", "PACKAGING": "포장재", "EQUIPMENT": "비품/기기", "GENERAL": "일반/기타" }
-    }
-};
+const DYNAMIC_I18N = { category: { en: { "떡": "Rice Cake", "떡류": "Rice Cake", "소스": "Sauce", "양념": "Sauce", "면": "Noodles", "면류": "Noodles", "식품": "Food", "냉동": "Frozen", "냉동식품": "Frozen", "파우더": "Powder", "포장재": "Packaging", "비품": "Equipment" }, ko: { "SAUCE": "소스/양념", "NOODLE": "면류", "RICE CAKE": "떡류", "FROZEN": "냉동식품", "POWDER": "파우더/가루", "PACKAGING": "포장재", "EQUIPMENT": "비품/기기", "GENERAL": "일반/기타" } } };
 
 let currentLang = 'en';
 try { currentLang = localStorage.getItem('y2c_lang') === 'ko' ? 'ko' : 'en'; } catch(e){}
@@ -76,32 +91,75 @@ window.changeLanguage = function(lang) {
     const safeLang = lang === "ko" ? "ko" : "en";
     currentLang = safeLang; 
     try { localStorage.setItem('y2c_lang', safeLang); } catch(e){}
-    
     const btnEn = document.getElementById('lang_en'), btnKo = document.getElementById('lang_ko');
     if (btnEn && btnKo) {
         btnEn.className = safeLang === 'en' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
         btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
-    if (typeof renderTableItemsFast === 'function' && cachedItems.length > 0) renderTableItemsFast(cachedItems, true);
+    if (typeof renderHqOrdersFast === 'function') renderHqOrdersFast();
 };
 
 window.applyTranslations = function() {
     const dict = I18N_DICT[currentLang]; if(!dict) return;
-    document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[key]) el.innerHTML = dict[key]; });
+    document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[key]) el.textContent = dict[key]; });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (dict[key]) el.placeholder = dict[key]; });
 };
 
 function translateDynamic(text, type) {
-    if(!text) return text; 
-    const tStr = String(text).trim().toUpperCase(); 
-    const map = DYNAMIC_I18N[type] && DYNAMIC_I18N[type][currentLang];
-    if(map) { for(let key in map) { if(tStr.includes(key.toUpperCase())) return map[key]; } } 
-    return text;
+    if(!text) return text; const tStr = String(text).trim().toUpperCase(); const map = DYNAMIC_I18N[type] && DYNAMIC_I18N[type][currentLang];
+    if(map) { for(let key in map) { if(tStr.includes(key.toUpperCase())) return map[key]; } } return text;
 }
 
 // ============================================================================
-// 🔒 [방어 V30.6] Absolute Null-Safe Parsers
+// 💾 [V40.2 핵심 엔진] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// ============================================================================
+const Y2C_DB = {
+    name: 'Y2C_Logistics_DB',
+    version: 1,
+    isSupported: !!window.indexedDB,
+    init: function() {
+        return new Promise((resolve, reject) => {
+            if (!this.isSupported) return reject("IndexedDB not supported");
+            const req = indexedDB.open(this.name, this.version);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('cacheStore')) {
+                    db.createObjectStore('cacheStore', { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    },
+    set: async function(key, data) {
+        if (!this.isSupported) return;
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('cacheStore', 'readwrite');
+                tx.objectStore('cacheStore').put({ id: key, data: data, timestamp: Date.now() });
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        } catch(e) { console.warn("[Y2C_DB Set Warn]", e); }
+    },
+    get: async function(key) {
+        if (!this.isSupported) return null;
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('cacheStore', 'readonly');
+                const req = tx.objectStore('cacheStore').get(key);
+                req.onsuccess = () => resolve(req.result ? req.result.data : null);
+                req.onerror = () => reject(tx.error);
+            });
+        } catch(e) { console.warn("[Y2C_DB Get Warn]", e); return null; }
+    }
+};
+
+// ============================================================================
+// 🔒 [방어 V40.2] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
@@ -112,17 +170,6 @@ function safeDisplay(value, fallback = "-") {
     const str = String(value).trim();
     if (str === "" || str.toLowerCase() === "null" || str.toLowerCase() === "nan") return fallback;
     return escapeHtml(str);
-}
-
-function resolveDriveImageUrl(urlOrId) {
-    if (urlOrId == null || typeof urlOrId !== 'string') return '';
-    let clean = urlOrId.trim();
-    if (clean === '' || clean === '-' || clean.toLowerCase() === 'null') return '';
-
-    const match = clean.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-    if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-    if (/^[a-zA-Z0-9_-]{25,}$/.test(clean)) return `https://lh3.googleusercontent.com/d/${clean}`;
-    return clean;
 }
 
 function parseStrictNonNegativeInteger(value) { 
@@ -158,31 +205,49 @@ function parseStrictISODate(value) {
     return str; 
 }
 
-function roundToCents(amount) { 
-    return Math.round(parseStrictDecimal(amount) * 100) / 100; 
+function setUploadStatus(html) {
+    const el = document.getElementById('uploadStatusText');
+    if (el) el.innerHTML = html;
 }
+
+const HQ_ORDER_STATUSES = Object.freeze(["HQ_PENDING", "PREPARING", "ORDERED", "SHIPPED", "ARRIVED", "RECEIVED", "COMPLETED", "CANCELED"]);
+const HQ_STATUS_LABELS = Object.freeze({ HQ_PENDING: "접수 대기", PREPARING: "준비 중", ORDERED: "발주 완료", SHIPPED: "선적 완료", ARRIVED: "캐나다 입항", RECEIVED: "입고 완료", COMPLETED: "처리 종결", CANCELED: "주문 취소" });
+
+const ADMIN_TAB_ROLES = Object.freeze({ profiles: ["MASTER"], sales: ["MASTER"], inbound: ["MASTER", "VENDOR"], hqorders: ["MASTER", "VENDOR"] });
+
+const userNameDisplay = document.getElementById('userNameDisplay'); if (userNameDisplay) userNameDisplay.textContent = safeDisplay(clientName || userRole);
+const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.textContent = safeDisplay(userRole); }
+document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); clearY2CSession(); window.location.replace("index.html"); }, { once: true });
 
 const generateIdempotencyKey = () => { 
   if (window.crypto && crypto.randomUUID) return "REQ-" + crypto.randomUUID().toUpperCase();
   if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(4); window.crypto.getRandomValues(array); return 'REQ-' + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
-  return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 10).toUpperCase(); 
+  return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 12).toUpperCase(); 
 };
 
-const formatCurrency = (amount) => { return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount)); };
-function formatTimestamp(isoString) { if (!isoString) return "Never"; const d = new Date(isoString); return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString('en-CA', { month: 'short', day: '2-digit', hour: '2-digit', minute:'2-digit' }); }
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount));
+};
 
-const userNameDisplay = document.getElementById('userNameDisplay'); if (userNameDisplay) userNameDisplay.innerText = safeDisplay(clientName);
-const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.innerText = safeDisplay(userRole); }
+const formatDate = (isoStr) => { 
+    if (!isoStr) return "-";
+    const str = String(isoStr).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        const [y, m, d] = str.split("-").map(Number);
+        return new Intl.DateTimeFormat(currentLang === "ko" ? "ko-KR" : "en-CA", { timeZone: "UTC", year: "numeric", month: "short", day: "2-digit" }).format(new Date(Date.UTC(y, m - 1, d)));
+    }
+    const dt = new Date(str);
+    return Number.isNaN(dt.getTime()) ? "-" : dt.toLocaleDateString(currentLang === "ko" ? "ko-KR" : "en-CA");
+};
 
-document.getElementById('logoutBtn')?.addEventListener('click', () => { 
-    [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
-    window.location.replace("index.html"); 
-});
+function clearY2CSession() { [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} }); }
 
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
-    container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container); 
+      container = document.createElement('div'); container.id = 'toastContainer'; 
+      container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
+      document.body.appendChild(container); 
   }
   if (container.childNodes.length >= 5) container.firstChild.remove();
 
@@ -194,22 +259,23 @@ function showToast(message, type = 'success') {
   container.appendChild(toast);
   
   requestAnimationFrame(() => { setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10); });
-  setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); }, 3500);
+  setTimeout(() => { 
+      toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); 
+      setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
+  }, 3500);
 }
 
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
-window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
 window.addEventListener('unhandledrejection', function(event) { 
-    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
-    isSubmitting = false; clearTimeout(submitLockTimer);
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
+    isSubmitting = false; 
+    clearTimeout(fallbackLockTimer);
 });
 
-// 🌟 글로벌 네비게이션 권한 교차 검증
 function applyGlobalRbacNavigation() {
     const rbacRules = { 'navDashboard': ['MASTER', 'PARTNER'], 'navRecipes': ['MASTER', 'PARTNER'], 'navAdmin': ['MASTER', 'VENDOR'], 'navInvoice': ['MASTER'] };
-    ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-
+    Object.keys(rbacRules).forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
     Object.keys(rbacRules).forEach(id => {
         const el = document.getElementById(id), allowedRoles = rbacRules[id];
         if (el && !allowedRoles.includes(userRole)) {
@@ -217,36 +283,34 @@ function applyGlobalRbacNavigation() {
             const clone = el.cloneNode(true); clone.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showToast("해당 메뉴는 열람 권한이 없습니다.", "error"); }); el.parentNode.replaceChild(clone, el);
         }
     });
+}
 
-    if (userRole === "VENDOR") {
-        const orderAct = document.getElementById('orderActionContainer');
-        if (orderAct) orderAct.remove(); 
+function switchAdminTab(tab) {
+  if (!ADMIN_TAB_ROLES[tab]) return showToast("존재하지 않는 시스템 메뉴입니다.", "error");
+  if (!ADMIN_TAB_ROLES[tab].includes(userRole)) return showToast("이 메뉴에 대한 접근 권한이 없습니다.", "error");
+
+  const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`tabBtn_${t}`), sec = document.getElementById(`section_${t}`);
+    if(t === tab) {
+      if(btn) btn.className = "px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-md whitespace-nowrap";
+      if(sec) sec.classList.remove('hidden');
+    } else {
+      if(btn && !btn.classList.contains('cursor-not-allowed')) btn.className = "px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap";
+      if(sec) sec.classList.add('hidden');
     }
+  });
 }
 
-let cachedItems = [], cachedMappings = [], isStockEditMode = false; 
-let currentClientState = cachedClientState, masterViewRegion = "ALL"; 
-let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
-let isSubmitting = false;
-let submitLockTimer = null; 
+let cachedClients = [], cachedHqOrders = [], cachedItems = [], cachedMappings = [];
+let isSubmitting = false; 
+let fallbackLockTimer = null; 
 
-// 🌟 CRA 면세(Zero-Rated) 무결성 체크
-function isZeroRatedItem(item) {
-  if (!item) return false;
-  if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
-  if (item.taxable === true || item.taxType === 'TAXABLE') return false;
+const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_procurement_data", "get_items", "check_system_alerts", "inventory_integrity_check", "get_recipes"]);
 
-  const combinedSearchTarget = (String(item.category || '') + " " + String(item.name || '')).toUpperCase().trim();
-  const craTaxableKeywords = ['SNACK', 'CHIP', 'CANDY', 'CHOCOLATE', 'GUM', 'SODA', 'POP', 'CARBONATED', 'BEVERAGE', 'DRINK', 'LIQUOR', 'BEER', 'WINE', 'HOT FOOD', 'PREPARED MEAL', 'CATERING', 'EQUIPMENT', 'SUPPLY', 'PACKAGING', 'PLASTIC', 'PAPER', 'BAG', 'CUP', 'BOWL', 'UNIFORM', '스낵', '과자', '사탕', '캔디', '젤리', '초콜릿', '탄산', '음료', '주류', '맥주', '소주', '조리식품', '기기', '소모품', '포장재', '용기', '비닐', '쇼핑백', '유니폼', '장비', '비품'];
-  if (craTaxableKeywords.some(t => combinedSearchTarget.includes(t))) return false;
-
-  const craZeroRatedKeywords = ['FOOD', 'FROZEN', 'SAUCE', 'POWDER', 'GRAIN', 'RICE', 'INGREDIENTS', 'GROCERY', 'DISH', 'SEASONING', 'SPICE', 'MEAT', 'NOODLE', 'OIL', 'SYRUP', 'EXTRACT', 'SOUP', 'BROTH', 'BEEF', 'PORK', 'CHICKEN', 'FISH', 'SEAFOOD', 'VEGETABLE', 'FRUIT', 'FLOUR', 'SUGAR', 'SALT', '양념', '소스', '시즈닝', '떡', '면', '식품', '냉동', '원물', '조미료', '향신료', '가루', '분말', '파우더', '기름', '식용유', '시럽', '농축액', '엑기스', '고기', '해산물', '야채', '채소', '과일', '쌀', '밀가루', '육수', '국물', '육류', '생선'];
-  return craZeroRatedKeywords.some(z => combinedSearchTarget.includes(z));
-}
-
-const RETRYABLE_ACTIONS = new Set(["get_procurement_data", "get_items", "get_recipes"]);
-
-// 🌟 백오프 2.0 통신 엔진
+// ============================================================================
+// 🌟 [방어 12] 25초 절대 백오프 통신 엔진 (CORS 강제 패싱)
+// ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
   
@@ -256,534 +320,839 @@ async function executeApi(action, payload = {}, retries = 2) {
   const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
 
   for (let i = 0; i <= maxAttempts; i++) {
-    let controller = new AbortController();
-    let timeoutId = setTimeout(() => controller.abort(), 25000);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); 
+    let response, rawText;
     
     try {
-      const response = await fetch(CONFIG.API?.BASE_URL || "", {
+      response = await fetch(CONFIG.API.BASE_URL, {
         method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
-        body: JSON.stringify({ action: action, token: sessionToken, ...safePayload }),
+        body: JSON.stringify({ ...safePayload, action: action, token: sessionToken }), 
         signal: controller.signal
       });
       
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
-          const httpError = new Error(`HTTP ${response.status}`);
+          const httpError = new Error(`서버 통신 오류 (HTTP ${response.status})`);
           httpError.httpStatus = response.status;
           throw httpError;
       }
       
-      const rawText = await response.text();
-      controller = null;
-      
-      let jsonResult;
-      try { jsonResult = JSON.parse(rawText); } 
-      catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷과 일치하지 않습니다."); }
-
-      if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 형식이 올바르지 않습니다.");
-
-      if (!jsonResult.success) {
-        if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) { 
-            [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
-            alert("세션이 만료되었습니다. 다시 로그인해 주세요."); window.location.replace("index.html"); return; 
-        }
-        const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
-        err.ledgerPending = jsonResult.ledgerPending === true; 
-        err.inventoryCommitted = jsonResult.inventoryCommitted === true; 
-        err.txId = safeDisplay(jsonResult.txId, null);
-        throw err;
-      }
-      return jsonResult;
+      rawText = await response.text();
     } catch (err) {
       clearTimeout(timeoutId); lastNetworkError = err;
       
       if (err && err.httpStatus) {
-          if (err.httpStatus === 429) throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)");
-          if (err.httpStatus === 503) throw new Error("서버가 일시적으로 점검 중입니다. (HTTP 503)");
+          if (err.httpStatus === 429) throw new Error("서버에 요청이 집중되어 지연 중입니다. 잠시 후 다시 시도해주세요. (HTTP 429)");
+          if (err.httpStatus === 503) throw new Error("서버가 일시적으로 점검 중이거나 응답할 수 없습니다. (HTTP 503)");
           throw err; 
       }
-      if (err.message && err.message.includes("Failed to fetch")) throw new Error("🚨 서버 접근 차단됨(CORS). 백엔드 배포를 확인하세요.");
+      if (err.message && err.message.includes("Failed to fetch")) throw new Error("🚨 구글 서버 접근이 차단되었습니다(CORS). 백엔드 배포를 '모든 사용자'로 변경하세요.");
       
-      if (i < maxAttempts) { 
-          const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800);
-          await new Promise(res => setTimeout(res, waitTime)); 
-      }
+      if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
+      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25초 대기열 초과)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
     }
-  }
-  throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25초 대기열 초과)" : (lastNetworkError?.message || "서버 통신 실패. 네트워크 상태를 확인해주세요."));
-}
 
-async function fetchMappings() {
-  if (userRole !== "MASTER" && userRole !== "VENDOR") return;
-  try {
-    const result = await executeApi("get_procurement_data");
-    cachedMappings = (result && result.success && Array.isArray(result.mappings)) ? result.mappings : [];
-  } catch (error) { cachedMappings = []; }
-}
+    if (!rawText) throw new Error("서버로부터 빈 응답이 반환되었습니다.");
 
-// 🌟 SWR (Stale-While-Revalidate) + Hash 무결성 렌더러
-let lastItemsHash = "";
-function generateDataHash(dataArr) {
-    if (!dataArr) return "";
-    return dataArr.length + "_" + dataArr.reduce((acc, cur) => acc + (cur.totalStock||0) + (cur.regionalStock||0), 0);
-}
+    let jsonResult;
+    try { 
+        jsonResult = JSON.parse(rawText); 
+    } catch (parseErr) {
+       if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
+       throw new Error("서버 응답 파싱 실패. 시스템 포맷과 일치하지 않습니다."); 
+    }
 
-async function fetchItems() {
-  const tableBody = document.getElementById('itemTableBody'); if (!tableBody) return;
-  const cacheKey = `Y2C_ITEMS_CACHE_${currentClientState}_${masterViewRegion}`;
-  
-  try {
-      const cachedRaw = localStorage.getItem(cacheKey);
-      if (cachedRaw) {
-          cachedItems = JSON.parse(cachedRaw);
-          lastItemsHash = generateDataHash(cachedItems);
-          renderTableItemsFast(cachedItems, true); 
-      } else {
-          tableBody.innerHTML = `<tr><td colspan="6" class="p-0"><div class="w-full h-[64px] shimmer-bg border-b border-gray-50"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-90"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-80"></div><div class="py-12 text-center"><p class="text-[12px] font-bold text-gray-400 tracking-wider uppercase animate-pulse font-inter">Synchronizing Data...</p></div></td></tr>`;
+    if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 형식이 올바르지 않습니다.");
+
+    if (!jsonResult.success) {
+      if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) { 
+          clearY2CSession(); alert("세션이 만료되었습니다. 다시 로그인해 주세요."); window.location.replace("index.html"); return; 
       }
-  } catch(e) {}
-  
+      
+      const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
+      err.ledgerPending = jsonResult.ledgerPending === true; 
+      err.inventoryCommitted = jsonResult.inventoryCommitted === true; 
+      err.txId = safeDisplay(jsonResult.txId, null);
+      throw err;
+    }
+    return jsonResult;
+  }
+}
+
+// ============================================================================
+// 📁 가맹점 DB 관리부 (IndexedDB Cache + Infinite Observer 탑재)
+// ============================================================================
+async function fetchMasterData() {
+  if (userRole === "VENDOR" || userRole === "PARTNER") return; 
+  const tableBody = document.getElementById('masterTableBody'); if (!tableBody) return;
+
+  const cacheKey = `MASTER_DATA_${clientName}`;
+  const cachedData = await Y2C_DB.get(cacheKey);
+  if (cachedData) {
+      cachedClients = cachedData;
+      renderMasterDataFast();
+  }
+
   try {
-    const result = await executeApi("get_items", { clientState: currentClientState });
+    const result = await executeApi("get_master_data");
     if (result && result.success) {
-      const newItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
-      const newHash = generateDataHash(newItems);
-      
-      currentClientState = safeDisplay(result.appliedState, "DEFAULT").trim();
-      taxRateObj = CONFIG.TAX_RATES[currentClientState.toUpperCase()] || CONFIG.TAX_RATES["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
-      
-      const headerTitle = document.getElementById('catalogHeaderTitle');
-      if (headerTitle) headerTitle.innerHTML = `<span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📦</span> <span data-i18n="catalog_title">Inventory & Catalog</span> ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E3000F]/10 text-[#E3000F] px-3 py-1.5 rounded-lg border border-[#E3000F]/30 tracking-widest uppercase shadow-sm whitespace-nowrap font-inter">${escapeHtml(currentClientState === "DEFAULT" ? "Standard" : currentClientState)} Pricing</span>`}`;
-      
-      const kpiDash = document.getElementById('kpiDashboard'); if (kpiDash) kpiDash.classList.remove('hidden');
-      const kpiUpdated = document.getElementById('kpiLastUpdated'); if (kpiUpdated) kpiUpdated.innerText = formatTimestamp(result.lastUpdated);
-
-      if (userRole === "MASTER" || userRole === "VENDOR") {
-        const masterControls = document.getElementById('masterInventoryControls');
-        if (masterControls) masterControls.classList.remove('hidden');
-        populateRegionFilter();
-      } else {
-        const aiBtn = document.getElementById('aiSuggestBtn');
-        if (aiBtn) aiBtn.classList.remove('hidden');
-      }
-
-      if (newHash !== lastItemsHash || cachedItems.length === 0) {
-          cachedItems = newItems;
-          try { localStorage.setItem(cacheKey, JSON.stringify(cachedItems)); } catch(e){}
-          renderTableItemsFast(cachedItems, false); 
-      }
-      
-      if(userRole !== "VENDOR") calculateOrderTotal(); 
+      cachedClients = Array.isArray(result.clients) ? result.clients : [];
+      await Y2C_DB.set(cacheKey, cachedClients);
+      renderMasterDataFast();
     } 
-  } catch (error) { 
-      if (!cachedItems || cachedItems.length === 0) {
-          tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide font-inter">Failed to load catalog data: ${escapeHtml(error.message)}</td></tr>`; 
+  } catch (err) { 
+      if(!cachedClients || cachedClients.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide font-inter">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; 
       }
   }
 }
 
-function populateRegionFilter() {
-  const filter = document.getElementById('regionFilter'); if (!filter || cachedItems.length === 0) return;
-  const regions = Object.keys(cachedItems[0].stockBreakdown || {});
-  filter.innerHTML = `<option value="ALL">Total Stock</option>`;
-  regions.forEach(reg => { filter.innerHTML += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`; });
-  filter.value = masterViewRegion;
-  
-  const inboundFilter = document.getElementById('inboundRegionSelector');
-  if (inboundFilter) {
-    inboundFilter.innerHTML = `<option value="">-- Select Hub Region for Inbound --</option>`;
-    regions.forEach(reg => { inboundFilter.innerHTML += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`; });
-  }
+let masterObserver = null;
+let masterRenderIndex = 0;
+const MASTER_CHUNK_SIZE = 30;
+
+function renderMasterDataFast() {
+    const tableBody = document.getElementById('masterTableBody');
+    if (!tableBody) return;
+    if (masterObserver) { masterObserver.disconnect(); masterObserver = null; }
+    
+    if (cachedClients.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide font-inter">등록된 가맹점 정보가 없습니다.</td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = '';
+    masterRenderIndex = 0;
+
+    masterObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            masterObserver.disconnect();
+            appendMasterChunk();
+        }
+    }, { rootMargin: '400px' });
+
+    appendMasterChunk();
 }
 
-function applyRegionFilter() { masterViewRegion = document.getElementById('regionFilter').value; renderTableItemsFast(cachedItems, true); }
-
-function checkExpWarning(expDateStr) {
-  if (!expDateStr || expDateStr === "-" || expDateStr === "null") return false;
-  const firstDateStr = String(expDateStr).split('|')[0].split(':')[0].trim();
-  const dateMatch = firstDateStr.match(/\d{4}-\d{2}-\d{2}/); if (!dateMatch) return false;
-  const expDate = new Date(dateMatch[0] + "T00:00:00"), today = new Date();
-  const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-  return (diffDays <= 30); 
-}
-
-window.saveCartState = function() {
-    if (userRole === "VENDOR") return;
-    const qtyInputs = document.querySelectorAll('.order-qty');
-    const cartState = {};
-    qtyInputs.forEach(input => {
-        const qty = parseStrictNonNegativeInteger(input.value);
-        if (qty > 0) { const code = input.getAttribute('data-code'); if(code) cartState[code] = qty; }
-    });
-    try { localStorage.setItem(`Y2C_CART_STATE_${clientName}`, JSON.stringify(cartState)); } catch(e) {}
-};
-
-// ============================================================================
-// 🚀 [V40.1 핵심 수정] SKU 누락 방어 무한 스크롤 렌더러
-// ============================================================================
-let infiniteObserver = null;
-let globalRenderData = [];
-let globalRenderIndex = 0;
-// 🌟 100% 품목 출력을 위해 청크 사이즈를 50으로 넉넉하게 확장
-const RENDER_CHUNK_SIZE = 50; 
-
-function renderTableItemsFast(data = cachedItems, instantRender = false) {
-  const tableBody = document.getElementById('itemTableBody'); 
-  if (!tableBody) return;
-
-  if (infiniteObserver) { 
-      infiniteObserver.disconnect(); 
-      infiniteObserver = null; 
-  }
-
-  if (!data || data.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 font-bold font-inter">표시할 품목이 없습니다.</td></tr>`;
-      return;
-  }
-  
-  globalRenderData = data;
-  globalRenderIndex = 0;
-  tableBody.innerHTML = ''; 
-  
-  let totalValue = 0, lowStockCount = 0;
-  const isMasterOrVendor = (userRole === "MASTER" || userRole === "VENDOR");
-  
-  for (let i = 0; i < data.length; i++) {
-      const item = data[i];
-      let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown?.[masterViewRegion] || 0)) : item.regionalStock;
-      if (typeof displayStock !== 'number' || Number.isNaN(displayStock)) displayStock = 0;
-      const safePrice = parseStrictDecimal(item.price);
-      totalValue += roundToCents(safePrice * displayStock);
-      if (displayStock > 0 && displayStock <= 10) lowStockCount++;
-  }
-
-  const sLabel = document.getElementById('stockHeaderLabel');
-  if (sLabel) sLabel.innerText = isMasterOrVendor ? (masterViewRegion === "ALL" ? "Total Hub Stock" : `Hub Stock (${masterViewRegion})`) : `Local Hub (${currentClientState})`;
-  
-  if (document.getElementById('kpiTotalSkus')) document.getElementById('kpiTotalSkus').innerText = data.length;
-  if (document.getElementById('kpiTotalValue')) document.getElementById('kpiTotalValue').innerText = userRole === "VENDOR" ? "N/A" : formatCurrency(totalValue);
-  if (document.getElementById('kpiLowStock')) document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
-
-  // 🌟 스크롤 바닥 감지 옵저버 (Margin 400px 적용으로 끊김 없는 스크롤 보장)
-  infiniteObserver = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-          infiniteObserver.disconnect(); 
-          appendNextChunk(); 
-      }
-  }, { rootMargin: '400px' });
-
-  appendNextChunk();
-}
-
-function appendNextChunk() {
-    const tableBody = document.getElementById('itemTableBody');
+function appendMasterChunk() {
+    const tableBody = document.getElementById('masterTableBody');
     if (!tableBody) return;
 
-    // 🌟 마지막 데이터까지 100% 안전하게 순회하도록 Math.min 적용
-    const endIdx = Math.min(globalRenderIndex + RENDER_CHUNK_SIZE, globalRenderData.length);
-    const isMasterOrVendor = (userRole === "MASTER" || userRole === "VENDOR");
-    let savedCart = {};
-    try { savedCart = JSON.parse(localStorage.getItem(`Y2C_CART_STATE_${clientName}`)) || {}; } catch(e){}
+    const endIdx = Math.min(masterRenderIndex + MASTER_CHUNK_SIZE, cachedClients.length);
+    const inputClass = "w-full bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all shadow-sm";
+    
+    // DocumentFragment를 이용한 초고속 렌더링
+    const fragment = document.createDocumentFragment();
 
-    let htmlString = "";
+    for (; masterRenderIndex < endIdx; masterRenderIndex++) {
+        const c = cachedClients[masterRenderIndex];
+        const safeRowIdx = Number(c.rowIdx);
+        if (!Number.isSafeInteger(safeRowIdx) || safeRowIdx < 1) continue; 
 
-    for (; globalRenderIndex < endIdx; globalRenderIndex++) {
-        const i = globalRenderIndex;
-        const item = globalRenderData[i]; 
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50";
+        tr.innerHTML = `
+        <td class="px-6 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight font-inter">${safeDisplay(c.name)}</td>
+        <td class="px-4 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
+        <td class="px-4 py-4"><input type="text" id="city_${safeRowIdx}" value="${safeDisplay(c.city, "")}" class="${inputClass}" placeholder="City"></td>
+        <td class="px-4 py-4"><input type="text" id="addr_${safeRowIdx}" value="${safeDisplay(c.address, "")}" class="${inputClass}" placeholder="Full Address"></td>
+        <td class="px-4 py-4"><input type="text" id="attn_${safeRowIdx}" value="${safeDisplay(c.attn, "")}" class="${inputClass}" placeholder="Manager Name"></td>
+        <td class="px-4 py-4"><input type="email" id="email_${safeRowIdx}" value="${safeDisplay(c.email, "")}" class="${inputClass}" placeholder="Email"></td>
+        <td class="px-4 py-4"><input type="text" id="biz_${safeRowIdx}" value="${safeDisplay(c.bizId, "")}" class="${inputClass} font-mono" placeholder="Business ID"></td>
+        <td class="px-6 py-4 text-center bg-gray-50/50 border-l border-gray-100"><button type="button" id="saveBtn_${safeRowIdx}" class="btn-charcoal px-4 py-3 rounded-xl text-[11px] font-black tracking-widest uppercase w-full disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all focus:outline-none">SAVE</button></td>
+        `;
         
-        const safeCode = safeDisplay(item.code);
-        const safeName = safeDisplay(item.name);
+        fragment.appendChild(tr);
         
-        const rawImgValue = String(item.image || "").trim();
-        const resolvedImgUrl = resolveDriveImageUrl(rawImgValue);
-        
-        const imgTag = resolvedImgUrl !== '' 
-            ? `<img src="${escapeHtml(resolvedImgUrl)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E3000F] transition-colors" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter\\'>No Img</div>';">` 
-            : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter">No Img</div>`;
-        
-        let displayStock = isMasterOrVendor ? (masterViewRegion === "ALL" ? item.totalStock : (item.stockBreakdown?.[masterViewRegion] || 0)) : item.regionalStock;
-        if (typeof displayStock !== 'number' || Number.isNaN(displayStock)) displayStock = 0;
-        const safePrice = parseStrictDecimal(item.price);
-
-        const isLowStock = displayStock > 0 && displayStock <= 10, isSoldOut = displayStock <= 0;
-        let stockBadgeClass = isSoldOut ? "text-[#C23347] bg-[#E3000F]/10 px-2 py-0.5 rounded shadow-sm border border-[#E3000F]/20 low-stock-pulse" : (isLowStock ? "text-[#E3000F] font-extrabold" : "text-[var(--premium-charcoal)]");
-        let aiBadgeHTML = (userRole === "PARTNER" && parseStrictNonNegativeInteger(item.aiSuggestedQty) > 0) ? `<div class="mt-1"><span class="text-[9px] font-black text-indigo-500 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded flex items-center gap-1 w-max font-inter"><span class="text-[10px]">✨</span> AI Suggestion: ${escapeHtml(item.aiSuggestedQty)}</span></div>` : '';
-
-        const isZeroRated = isZeroRatedItem(item);
-        const taxTag = isZeroRated 
-          ? `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-200 font-inter" title="CRA Zero-Rated Basic Grocery (0% Tax)">0% TAX</span>`
-          : `<span class="ml-1.5 px-1.5 py-0.5 text-[9px] font-black rounded bg-blue-50 text-blue-600 border border-blue-200 font-inter" title="Standard Taxable Goods">TAXABLE</span>`;
-
-        const translatedCategory = safeDisplay(translateDynamic(item.category || 'General', 'category'));
-
-        let expDisplayHTML = '';
-        if (isMasterOrVendor && masterViewRegion === "ALL") {
-          let expLines = [];
-          for (let reg in item.expBreakdown || {}) {
-            let regExp = safeDisplay(item.expBreakdown[reg], "");
-            if (regExp && regExp !== "-") {
-              const isExpWarn = checkExpWarning(regExp);
-              const expColorClass = isExpWarn ? "text-[#E3000F] bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
-              expLines.push(`<div class="flex items-start justify-between gap-3 text-[9px] font-black uppercase px-2 py-1 rounded-md border shadow-sm ${expColorClass} mb-1.5 font-inter"><span class="opacity-70 mt-0.5">${escapeHtml(reg)}:</span> <span class="text-right leading-tight">${isExpWarn ? "⚠️" : "🕒"} ${escapeHtml(regExp).replace(/\|/g, '<br>')}</span></div>`);
-            }
-          }
-          if (expLines.length > 0) { expDisplayHTML = `<div class="mt-2.5 flex flex-col w-full max-w-[150px] mx-auto">${expLines.join('')}</div>`; }
-        } else {
-          let expDateVal = isMasterOrVendor ? safeDisplay(item.expBreakdown?.[masterViewRegion], "") : safeDisplay(item.expBreakdown?.[currentClientState], "");
-          if (expDateVal && expDateVal !== "-") {
-            const isExpWarn = checkExpWarning(expDateVal);
-            const expColorClass = isExpWarn ? "text-[#E3000F] bg-red-50 border-red-100" : "text-emerald-700 bg-emerald-50 border-emerald-100";
-            expDisplayHTML = `<div class="mt-2.5 inline-block text-left text-[9px] font-black uppercase tracking-wider px-2 py-1.5 rounded-md border shadow-sm ${expColorClass} font-inter"><span>${isExpWarn ? "⚠️" : "🕒"}</span> EXP:<br>${escapeHtml(expDateVal).replace(/\|/g, '<br>')}</div>`;
-          }
-        }
-
-        let stockDisplayHTML = '', orderInputHTML = '';
-        if (isStockEditMode && isMasterOrVendor) {
-          let editInputs = '';
-          for (const reg in item.stockBreakdown || {}) {
-            const currentRegStock = parseStrictNonNegativeInteger(item.stockBreakdown[reg]); 
-            const currentRegExp = safeDisplay(item.expBreakdown?.[reg], "");
-            editInputs += `<div class="flex flex-col gap-1.5 bg-emerald-50/50 px-2 py-2 rounded-md border border-emerald-100 mb-1.5"><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800 font-inter">${escapeHtml(reg)} STOCK</span><input type="number" min="0" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="stock" data-original="${currentRegStock}" value="${currentRegStock}" class="stock-region-input w-16 bg-white border border-emerald-300 rounded px-1.5 py-0.5 text-center text-[11px] font-bold focus:ring-1 focus:ring-emerald-400 outline-none transition-all"></div><div class="flex items-center justify-between gap-2"><span class="text-[9px] font-black text-emerald-800 font-inter">${escapeHtml(reg)} EXP</span><input type="text" placeholder="YYYY-MM-DD:Qty" data-code="${safeCode}" data-region="${escapeHtml(reg)}" data-type="exp" data-original="${currentRegExp}" value="${currentRegExp === '-' ? '' : currentRegExp}" class="exp-region-input w-full bg-white border border-emerald-300 rounded px-1 text-center text-[10px] font-bold focus:ring-1 focus:ring-emerald-400 outline-none placeholder-emerald-200 transition-all"></div></div>`;
-          }
-          stockDisplayHTML = `<div class="flex flex-col w-full">${editInputs}</div>`;
-          orderInputHTML = `<input type="number" disabled placeholder="-" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
-        } else if (isMasterOrVendor && !isStockEditMode) {
-          stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-          orderInputHTML = `<input type="number" disabled placeholder="${escapeHtml(userRole)}" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[10px] font-black text-gray-400 opacity-50 cursor-not-allowed uppercase font-inter">`;
-        } else {
-          if (isSoldOut) {
-            stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[10px] font-black ${stockBadgeClass} uppercase tracking-wider whitespace-nowrap font-inter">Sold Out</span>${expDisplayHTML}</div>`;
-            orderInputHTML = `<input type="number" disabled placeholder="0" class="w-20 sm:w-24 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 text-center text-[13px] font-bold text-gray-400 opacity-50 cursor-not-allowed">`;
-          } else {
-            let currentQty = parseStrictNonNegativeInteger(savedCart[item.code]);
-            stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-            orderInputHTML = `<input type="number" min="0" max="${displayStock}" value="${currentQty === 0 ? '' : currentQty}" placeholder="0" data-index="${i}" data-code="${safeCode}" class="order-qty w-20 sm:w-24 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-[var(--premium-charcoal)] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-sm transition-all">`;
-          }
-        }
-
-        const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right font-inter">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black text-right font-mono">${safePrice === 0 ? '-' : formatCurrency(safePrice)}</td>`;
-        
-        htmlString += `<tr class="hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50"><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black tracking-tight whitespace-normal break-keep font-inter">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm font-inter">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50/50 border-l border-gray-100 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td></tr>`;
+        const saveBtn = tr.querySelector(`#saveBtn_${CSS.escape(String(safeRowIdx))}`);
+        if (saveBtn) saveBtn.addEventListener('click', () => saveClientData(safeRowIdx));
     }
+    
+    tableBody.appendChild(fragment);
 
-    // 🌟 안전하고 빠르게 DOM 끝에 부착
-    tableBody.insertAdjacentHTML('beforeend', htmlString);
-
-    if (window.applyTranslations) window.applyTranslations();
-
-    // 🌟 마지막 요소 감지 로직 100% 무결성 작동 보장
-    if (globalRenderIndex < globalRenderData.length) {
+    if (masterRenderIndex >= cachedClients.length) {
+        populateSalesClientSelector();
+    } else {
         const lastRow = tableBody.lastElementChild;
-        if (lastRow) infiniteObserver.observe(lastRow);
+        if (lastRow) masterObserver.observe(lastRow);
     }
 }
 
-// 🌟 [핵심 최적화 3] Event Delegation (이벤트 위임 록다운 - 메모리 누수 방어)
-document.addEventListener('DOMContentLoaded', () => {
-    const tableBody = document.getElementById('itemTableBody');
-    if (tableBody) {
-        tableBody.addEventListener('input', (e) => {
-            if (e.target.classList.contains('order-qty')) {
-                const val = parseStrictNonNegativeInteger(e.target.value);
-                const max = parseStrictNonNegativeInteger(e.target.getAttribute('max'));
-                if (val > max) { e.target.value = max; showToast("최대 가용 재고를 초과할 수 없습니다.", "error"); }
-                calculateOrderTotal(); 
-                window.saveCartState(); 
-            }
-        });
-    }
-    attachImageHoverEffect(); 
-});
-
-function applyAiSuggestion() {
-  const qtyInputs = document.querySelectorAll('.order-qty'); let appliedCount = 0;
-  qtyInputs.forEach(input => {
-    const idx = input.getAttribute('data-index');
-    if (cachedItems[idx] && parseStrictNonNegativeInteger(cachedItems[idx].aiSuggestedQty) > 0) {
-      const maxQty = parseStrictNonNegativeInteger(input.getAttribute('max')); 
-      const targetQty = Math.min(cachedItems[idx].aiSuggestedQty, maxQty);
-      if (targetQty > 0) { input.value = targetQty; appliedCount++; }
-    }
-  });
-  if (appliedCount > 0) { 
-      showToast(`AI 분석: ${appliedCount}개 품목 세팅 완료`, "success"); 
-      calculateOrderTotal(); window.saveCartState(); 
-  } else { showToast("적용할 추천 데이터가 없습니다.", "error"); }
-}
-
-let currentOrderTaxSummary = { subtotal: 0, foodSubtotal: 0, taxableSubtotal: 0, taxAmount: 0, grandTotal: 0 };
-
-function calculateOrderTotal() {
-  if(userRole === "VENDOR") return; 
-  const qtyInputs = document.querySelectorAll('.order-qty'); 
-  let subtotal = 0, foodSubtotal = 0, taxableSubtotal = 0;   
-
-  qtyInputs.forEach(input => {
-    const qty = parseStrictNonNegativeInteger(input.value);
-    const maxQty = parseStrictNonNegativeInteger(input.getAttribute('max'));
-    if (qty > maxQty) { input.value = maxQty; showToast("재고 수량을 초과할 수 없습니다.", "error"); return; }
-    
-    if (qty > 0) { 
-      const idx = input.getAttribute('data-index'); 
-      if (cachedItems[idx]) {
-        const itemPrice = parseStrictDecimal(cachedItems[idx].price);
-        const lineTotal = roundToCents(qty * itemPrice); 
-        subtotal = roundToCents(subtotal + lineTotal);
-        if (isZeroRatedItem(cachedItems[idx])) { foodSubtotal = roundToCents(foodSubtotal + lineTotal); } 
-        else { taxableSubtotal = roundToCents(taxableSubtotal + lineTotal); }
-      }
-    }
-  });
-
-  const taxRate = parseStrictDecimal(taxRateObj.rate);
-  const taxAmt = roundToCents(taxableSubtotal * taxRate); 
-  const grandTotal = roundToCents(subtotal + taxAmt); 
-
-  currentOrderTaxSummary = { subtotal, foodSubtotal, taxableSubtotal, taxAmount: taxAmt, grandTotal };
-
-  const subtotalElem = document.getElementById('orderSubtotal'); if (subtotalElem) subtotalElem.innerText = formatCurrency(subtotal);
-  const taxLabelElem = document.getElementById('orderTaxLabel'); if (taxLabelElem) taxLabelElem.innerHTML = `Estimated Tax - ${escapeHtml(taxRateObj.name)}:<br><span class="text-[10px] font-normal text-gray-500 font-inter">(0% on Food $${foodSubtotal.toFixed(2)} / Taxable: $${taxableSubtotal.toFixed(2)})</span>`;
-  const taxAmtElem = document.getElementById('orderTaxAmt'); if (taxAmtElem) taxAmtElem.innerText = formatCurrency(taxAmt);
-  const grandTotalElem = document.getElementById('orderGrandTotal'); if (grandTotalElem) grandTotalElem.innerText = formatCurrency(grandTotal);
-}
-
-async function toggleStockEditMode() {
+window.saveClientData = async function(rowIdx) {
   if (isSubmitting) return; 
-  const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
-  
-  if (!isStockEditMode) {
-    isStockEditMode = true;
-    if(btn) { btn.innerHTML = "💾 SAVE ALL"; btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); btn.classList.replace('hover:bg-black', 'hover:bg-emerald-700'); }
-    if (filter) filter.disabled = true; if (orderContainer) orderContainer.classList.add('hidden'); renderTableItemsFast(cachedItems, true); 
-  } else {
-    const stockInputs = document.querySelectorAll('.stock-region-input'), expInputs = document.querySelectorAll('.exp-region-input');
-    const updateMap = {}; let hasChanges = false;
-    
-    stockInputs.forEach(input => {
-      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region');
-      const v = parseStrictNonNegativeInteger(input.value), original = parseStrictNonNegativeInteger(input.getAttribute('data-original'));
-      if (v !== original) { if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} }; updateMap[c].stockBreakdown[r] = v; hasChanges = true; }
-    });
-    
-    expInputs.forEach(input => {
-      const c = input.getAttribute('data-code'), r = input.getAttribute('data-region');
-      const v = safeDisplay(input.value, ""), original = safeDisplay(input.getAttribute('data-original'), "");
-      if (v !== original) { if(!updateMap[c]) updateMap[c] = { stockBreakdown: {}, expBreakdown: {} }; updateMap[c].expBreakdown[r] = v; hasChanges = true; }
-    });
-    
-    if (!hasChanges) {
-      isStockEditMode = false; 
-      if(btn) { btn.innerHTML = `⚙️ <span data-i18n="btn_manage">MANAGE INVENTORY</span>`; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
-      if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
-      renderTableItemsFast(cachedItems, true); return; 
-    }
-    
-    isSubmitting = true;
-    if(btn) { btn.disabled = true; btn.innerHTML = "⏳ SAVING..."; btn.classList.add('animate-pulse'); }
-    
-    clearTimeout(submitLockTimer);
-    submitLockTimer = setTimeout(() => { isSubmitting = false; if(btn) { btn.disabled = false; btn.innerHTML = "💾 SAVE ALL"; btn.classList.remove('animate-pulse'); } }, 30000);
+  const safeRowIdx = Number(rowIdx);
+  if (!Number.isSafeInteger(safeRowIdx) || safeRowIdx < 1) return;
 
-    const updates = Object.keys(updateMap).map(c => ({ code: c, stockBreakdown: updateMap[c].stockBreakdown, expBreakdown: updateMap[c].expBreakdown }));
-    const uniqueSyncId = generateIdempotencyKey(); 
+  const stateEl = document.getElementById(`state_${safeRowIdx}`), cityEl = document.getElementById(`city_${safeRowIdx}`), addrEl = document.getElementById(`addr_${safeRowIdx}`);
+  const attnEl = document.getElementById(`attn_${safeRowIdx}`), emailEl = document.getElementById(`email_${safeRowIdx}`), bizEl = document.getElementById(`biz_${safeRowIdx}`);
 
-    try {
-      const result = await executeApi("update_stock", { mode: "SET", stockUpdates: updates, syncId: uniqueSyncId });
-      if (result && result.success) { showToast("동기화 완료", "success"); setTimeout(() => fetchItems(), 1000); } 
-    } catch (err) { 
-      if(err.ledgerPending) { showToast(`⚠️ 원장 기록 지연: 관리자 확인 필요 (TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 1500); }
-      else { showToast(err.message, "error"); if(err.message.includes("재고") || err.message.includes("부족") || err.message.includes("일치")) { setTimeout(() => fetchItems(), 1500); } }
-    } finally {
-      isStockEditMode = false; isSubmitting = false; clearTimeout(submitLockTimer);
-      if(btn) { btn.disabled = false; btn.innerHTML = `⚙️ <span data-i18n="btn_manage">MANAGE INVENTORY</span>`; btn.classList.remove('animate-pulse'); btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); btn.classList.replace('hover:bg-emerald-700', 'hover:bg-black'); }
-      if (filter) filter.disabled = false; if (orderContainer && userRole !== "VENDOR") orderContainer.classList.remove('hidden');
-    }
-  }
-}
+  if (!stateEl || !cityEl || !addrEl || !attnEl || !emailEl || !bizEl) return showToast("가맹점 입력 요소를 찾을 수 없습니다.", "error");
 
-let hoverRAF = null;
-function attachImageHoverEffect() {
-  const tableBody = document.getElementById('itemTableBody'), previewContainer = document.getElementById('imagePreviewContainer'), previewImg = document.getElementById('imagePreview');
-  if (!tableBody || !previewContainer || !previewImg) return;
-  
-  tableBody.addEventListener('mouseover', (e) => { 
-      if (e.target.classList.contains('item-thumbnail')) { 
-          previewImg.src = e.target.src; previewContainer.classList.remove('hidden'); 
-          setTimeout(() => { previewContainer.classList.remove('scale-95', 'opacity-0'); previewContainer.classList.add('scale-100', 'opacity-100'); }, 10); 
-      } 
-  });
-  
-  tableBody.addEventListener('mousemove', (e) => { 
-      if (e.target.classList.contains('item-thumbnail')) { 
-          if(hoverRAF) cancelAnimationFrame(hoverRAF);
-          hoverRAF = requestAnimationFrame(() => {
-              const x = Math.min(e.clientX + 20, window.innerWidth - 300); 
-              const y = Math.min(e.clientY + 20, window.innerHeight - 300); 
-              previewContainer.style.left = x + 'px'; previewContainer.style.top = y + 'px'; 
-          });
-      } 
-  });
-  
-  tableBody.addEventListener('mouseout', (e) => { 
-      if (e.target.classList.contains('item-thumbnail')) { 
-          previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); 
-          setTimeout(() => { previewContainer.classList.add('hidden'); previewImg.src = ''; }, 200); 
-      } 
-  });
-}
-
-async function submitOrder() {
-  if(userRole === "VENDOR" || isSubmitting) return;
-  const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
-  
-  qtyInputs.forEach(input => {
-    const qty = parseStrictNonNegativeInteger(input.value); 
-    if (qty > 0) { 
-      const idx = input.getAttribute('data-index'); 
-      if (cachedItems[idx]) {
-        orderItems.push({ code: safeDisplay(cachedItems[idx].code), name: safeDisplay(cachedItems[idx].name), price: parseStrictDecimal(cachedItems[idx].price), qty: qty, category: safeDisplay(cachedItems[idx].category), isZeroRated: isZeroRatedItem(cachedItems[idx]) }); 
-      }
-    }
-  });
-  
-  if (orderItems.length === 0 || currentOrderTaxSummary.grandTotal <= 0) {
-      return showToast("발주 수량을 최소 1개 이상 입력해 주세요.", "error");
-  }
-  
-  const grandTotal = document.getElementById('orderGrandTotal')?.innerText || "$0.00";
-  const confirmMsg = `[발주 내역 요약]\n• 식품/식자재(0% 면세): ${formatCurrency(currentOrderTaxSummary.foodSubtotal)}\n• 과세 비품/소모품: ${formatCurrency(currentOrderTaxSummary.taxableSubtotal)}\n• 적용 세금 (${taxRateObj.name}): ${formatCurrency(currentOrderTaxSummary.taxAmount)}\n• 최종 결제액: ${grandTotal}\n\nB2B 물류업체로 발주 이메일을 전송하시겠습니까?`;
-
-  if (!confirm(confirmMsg)) return;
+  const emailVal = emailEl.value.trim();
+  if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { emailEl.focus(); return showToast("유효한 이메일 형식이 아닙니다.", "error"); }
 
   isSubmitting = true;
-  const submitBtn = document.querySelector('button[onclick="submitOrder()"]'), originalHTML = submitBtn ? submitBtn.innerHTML : "SUBMIT ORDER";
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "<span class='animate-pulse'>⏳ DISPATCHING...</span>"; submitBtn.classList.add('opacity-70', 'cursor-not-allowed'); }
-
-  clearTimeout(submitLockTimer);
-  submitLockTimer = setTimeout(() => { isSubmitting = false; if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed'); } }, 30000);
-
-  const uniqueBatchId = generateIdempotencyKey();
+  clearTimeout(fallbackLockTimer);
+  const saveBtn = document.getElementById(`saveBtn_${safeRowIdx}`); let originalText = "SAVE";
+  
+  if (saveBtn) { 
+      originalText = saveBtn.textContent; saveBtn.disabled = true; 
+      saveBtn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; 
+  }
+  
+  fallbackLockTimer = setTimeout(() => {
+      isSubmitting = false;
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = originalText; }
+  }, 25000);
+  
+  const payload = { rowIdx: safeRowIdx, state: stateEl.value.toUpperCase().trim(), city: cityEl.value.trim(), address: addrEl.value.trim(), attn: attnEl.value.trim(), email: emailVal, bizId: bizEl.value.trim() };
 
   try {
-    const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems, taxSummary: currentOrderTaxSummary, batchId: uniqueBatchId });
-    if (result && result.success) { 
-        showToast(result.message || `발주 완료 및 B2B 이메일 전송 성공 (번호: ${escapeHtml(result.batchId)})`, "success"); 
-        try{ localStorage.removeItem(`Y2C_CART_STATE_${clientName}`); }catch(e){}
-        setTimeout(() => fetchItems(), 1500); 
-    } 
-  } catch (error) { 
-    if(error.ledgerPending) { showToast(`⚠️ 원장 기록 지연: 관리자 확인 필요 (TX: ${safeDisplay(error.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); }
-    else { showToast(error.message, "error"); if(error.message.includes("재고") || error.message.includes("변동") || error.message.includes("취소") || error.message.includes("단가")) { setTimeout(() => fetchItems(), 1500); } }
+    const result = await executeApi("update_master_data", { client: payload });
+    if (result && result.success) {
+      if(saveBtn) { saveBtn.innerHTML = "✅ SAVED"; saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
+      showToast("마스터 데이터 저장 완료", "success"); setTimeout(() => fetchMasterData(), 1500); 
+    }
+  } catch (err) { 
+      showToast(err.message, "error"); 
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = originalText; } 
   } finally { 
-    isSubmitting = false; clearTimeout(submitLockTimer);
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; submitBtn.classList.remove('opacity-70', 'cursor-not-allowed'); } 
+      isSubmitting = false; clearTimeout(fallbackLockTimer); 
   }
 }
 
 // ============================================================================
-// 📁 엑셀 및 OCR 처리 엔진 (100% 무손실 보존)
+// 📊 ERP 매출 데이터 동기화 
 // ============================================================================
+const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
+
+function populateSalesYearSelector() {
+  const yearSelect = document.getElementById('salesYearSelector'); if (!yearSelect) return; yearSelect.innerHTML = ''; const currentYear = new Date().getFullYear();
+  for (let y = currentYear + 2; y >= 2022; y--) { const opt = document.createElement('option'); opt.value = y; opt.textContent = `${y} Fiscal Year`; if (y === currentYear) opt.selected = true; yearSelect.appendChild(opt); }
+}
+
+function populateSalesClientSelector() {
+  const clientSelect = document.getElementById('salesClientSelector'); if (!clientSelect || cachedClients.length === 0) return;
+  clientSelect.innerHTML = `<option value="">-- Select Franchise --</option>`;
+  cachedClients.forEach(c => { const opt = document.createElement('option'); opt.value = safeDisplay(c.name, ""); opt.textContent = safeDisplay(c.name, ""); clientSelect.appendChild(opt); });
+}
+
+window.loadSalesGrid = async function() {
+  const targetYear = document.getElementById('salesYearSelector')?.value, targetClient = document.getElementById('salesClientSelector')?.value, tbody = document.getElementById('salesGridBody');
+  if (!targetYear || !targetClient || !tbody) return;
+  
+  tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide font-inter"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
+  try {
+    const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
+    if (result && result.success) renderSalesGrid(result.records);
+  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8 font-inter">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
+}
+
+function renderSalesGrid(records) {
+  const tbody = document.getElementById('salesGridBody'); if (!tbody) return; tbody.innerHTML = '';
+  if(!Array.isArray(records)) return;
+
+  const inputStyle = "w-full max-w-[170px] mx-auto bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-center text-[13px] font-mono font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all shadow-sm";
+
+  records.forEach(r => {
+    const mIdx = Number(r.month);
+    if (!Number.isInteger(mIdx) || mIdx < 1 || mIdx > 12) return;
+
+    const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors border-b border-gray-50";
+    const badgeHTML = r.exists ? `<span class="px-3 py-1 text-[10px] font-black rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm font-inter">SAVED</span>` : `<span class="px-3 py-1 text-[10px] font-black rounded-md bg-gray-100 text-gray-400 border border-gray-200 shadow-sm font-inter">EMPTY</span>`;
+    
+    const safePos = parseStrictDecimal(r.pos);
+    const safeDel = parseStrictDecimal(r.delivery);
+    const safeTot = parseStrictDecimal(r.total);
+
+    tr.innerHTML = `
+      <td class="px-6 py-4 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap font-inter">${monthNames[mIdx - 1]}</td>
+      <td class="px-6 py-4 text-center"><input type="text" data-month="${mIdx}" value="${safePos > 0 ? safePos : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
+      <td class="px-6 py-4 text-center"><input type="text" data-month="${mIdx}" value="${safeDel > 0 ? safeDel : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
+      <td class="px-6 py-4 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${mIdx}">${formatCurrency(safeTot)}</td>
+      <td class="px-6 py-4 text-center whitespace-nowrap">${badgeHTML}</td>
+    `;
+    tbody.appendChild(tr);
+
+    const posInput = tr.querySelector('.sales-input-pos'), delInput = tr.querySelector('.sales-input-del');
+    if(posInput) posInput.addEventListener('input', () => recalcSalesRow(mIdx));
+    if(delInput) delInput.addEventListener('input', () => recalcSalesRow(mIdx));
+  });
+  recalculateKpis();
+}
+
+window.recalcSalesRow = function(month) {
+  const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
+  let p = parseStrictDecimal(posInput?.value), d = parseStrictDecimal(delInput?.value); 
+  const totalDisplay = document.getElementById(`rowTotal_${month}`); if (totalDisplay) totalDisplay.textContent = formatCurrency(p + d);
+  recalculateKpis();
+}
+
+function recalculateKpis() {
+  let totAnnual = 0, totPos = 0, totDel = 0;
+  for (let m = 1; m <= 12; m++) {
+    totPos += parseStrictDecimal(document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value);
+    totDel += parseStrictDecimal(document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value);
+  }
+  totAnnual = totPos + totDel;
+  const tTotal = document.getElementById('salesKpiTotal'), tPos = document.getElementById('salesKpiPos'), tDel = document.getElementById('salesKpiDelivery');
+  if (tTotal) tTotal.textContent = formatCurrency(totAnnual);
+  if (tPos) tPos.textContent = formatCurrency(totPos);
+  if (tDel) tDel.textContent = formatCurrency(totDel);
+}
+
+window.saveSalesGridData = async function() {
+  if (isSubmitting) return; 
+
+  const yearEl = document.getElementById('salesYearSelector'), clientEl = document.getElementById('salesClientSelector');
+  if (!yearEl || !clientEl) return showToast("매출 입력 요소를 찾을 수 없습니다.", "error");
+
+  const targetYear = yearEl.value, targetClient = clientEl.value;
+  if (!targetYear || !targetClient) return showToast("가맹점과 연도를 선택해 주세요.", "error");
+
+  const recordsToSave = [];
+  for (let m = 1; m <= 12; m++) {
+    const pos = parseStrictDecimal(document.querySelector(`.sales-input-pos[data-month="${m}"]`)?.value);
+    const delivery = parseStrictDecimal(document.querySelector(`.sales-input-del[data-month="${m}"]`)?.value);
+    recordsToSave.push({ month: m, pos: pos, delivery: delivery });
+  }
+
+  isSubmitting = true; clearTimeout(fallbackLockTimer);
+  const btn = document.getElementById('saveAllSalesBtn'); let originalHtml = "SAVE DATA";
+  
+  if (btn) { 
+      originalHtml = btn.innerHTML; btn.disabled = true; 
+      btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING...</span>`; 
+  }
+  
+  fallbackLockTimer = setTimeout(() => {
+      isSubmitting = false;
+      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+  }, 25000);
+  
+  try {
+    const result = await executeApi("save_sales_records", { year: targetYear, clientName: targetClient, records: recordsToSave });
+    if (result && result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
+  } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
+}
+
+// ============================================================================
+// 🛡️ B2B 조달 / 시스템 헬스 스캔 
+// ============================================================================
+function renderOrderMetrics(metrics) {
+  if(!metrics) return; const table = document.getElementById('hqOrdersGridBody')?.closest('table'); if(!table || !table.parentNode) return;
+
+  let kpiContainer = document.getElementById('y2cOrderMetrics');
+  if (!kpiContainer) {
+    kpiContainer = document.createElement('div'); kpiContainer.id = 'y2cOrderMetrics'; kpiContainer.className = userRole === "MASTER" ? 'grid grid-cols-2 gap-4 sm:gap-6 mb-8' : 'grid grid-cols-1 gap-4 sm:gap-6 mb-8';
+    table.parentNode.insertBefore(kpiContainer, table);
+    
+    if (userRole === "MASTER") {
+        const scanBtn = document.createElement('button'); 
+        scanBtn.id = "sysHealthScanBtn"; 
+        scanBtn.innerHTML = '<span data-i18n="sys_health_scan">🛡️ SYSTEM HEALTH SCAN</span>';
+        scanBtn.className = "w-full col-span-2 btn-charcoal py-4 rounded-2xl shadow-lg transition-all tracking-[0.2em] mb-4 font-black focus:outline-none focus:ring-2 focus:ring-[#1A1516] focus:ring-offset-2 hover:shadow-xl";
+        table.parentNode.insertBefore(scanBtn, kpiContainer);
+        scanBtn.addEventListener('click', runSystemAlertScan); 
+    }
+  }
+  
+  const safeTotalQty = parseStrictNonNegativeInteger(metrics.totalQty);
+  const safeTotalAmount = parseStrictDecimal(metrics.totalAmount);
+
+  let expenditureHtml = '';
+  if (userRole === "MASTER") {
+      expenditureHtml = `
+        <div class="bg-gradient-to-br from-[#E3000F] to-[#B9000C] border border-[#E3000F]/30 rounded-2xl p-6 shadow-lg relative overflow-hidden group">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700"></div>
+          <div class="flex items-center gap-3 mb-2 relative z-10"><div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-lg">💳</div><p class="text-[11px] font-black text-red-100 uppercase tracking-widest font-inter" data-i18n="b2b_expenditure">Total B2B Expenditure</p></div>
+          <h3 class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tighter relative z-10">${formatCurrency(safeTotalAmount)}</h3>
+        </div>`;
+  }
+
+  kpiContainer.innerHTML = `
+    <div class="bg-white premium-shadow rounded-2xl p-6 transition-shadow">
+      <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg">📦</div><p class="text-[11px] font-black text-gray-500 uppercase tracking-widest font-inter" data-i18n="b2b_volume">Total B2B Volume</p></div>
+      <h3 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">${safeTotalQty.toLocaleString()} <span class="text-xs text-gray-400 font-bold ml-1 font-inter">Units</span></h3>
+    </div> ${expenditureHtml}`;
+  if (window.applyTranslations) window.applyTranslations();
+}
+
+async function runSystemAlertScan(event) {
+  if (isSubmitting) return;
+  const btn = event?.currentTarget || document.getElementById('sysHealthScanBtn');
+  if(!btn) return showToast("시스템 스캔 버튼을 찾을 수 없습니다.", "error"); 
+  
+  isSubmitting = true; clearTimeout(fallbackLockTimer);
+  const originalText = btn.innerHTML; 
+  btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ DEEP SCANNING...</span>`;
+  
+  fallbackLockTimer = setTimeout(() => {
+      isSubmitting = false;
+      btn.disabled = false; btn.innerHTML = originalText;
+  }, 25000);
+
+  try {
+    const result = await executeApi("check_system_alerts");
+    const integResult = await executeApi("inventory_integrity_check");
+    if (result && result.success && integResult && integResult.success) { 
+        showToast("스캔 완료. 시스템 리포트가 생성되었습니다.", "success"); 
+        displayAlertModal(result.alerts, integResult.discrepancies); 
+    }
+  } catch (err) { showToast("스캔 실패: " + err.message, "error"); } finally { btn.disabled = false; btn.innerHTML = originalText; isSubmitting = false; clearTimeout(fallbackLockTimer); }
+}
+
+function displayAlertModal(alerts, discrepancies) {
+  alerts = (alerts && typeof alerts === "object" && !Array.isArray(alerts)) ? alerts : {};
+  alerts.lowStock = Array.isArray(alerts.lowStock) ? alerts.lowStock : [];
+  alerts.expiring = Array.isArray(alerts.expiring) ? alerts.expiring : [];
+  discrepancies = Array.isArray(discrepancies) ? discrepancies : [];
+
+  let modal = document.getElementById('alertModal');
+  if (!modal) {
+    modal = document.createElement('div'); modal.id = 'alertModal';
+    modal.className = 'fixed inset-0 bg-[#111827]/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300';
+    document.body.appendChild(modal);
+  }
+  
+  let html = `<div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden premium-shadow transform transition-transform scale-95 duration-300" id="alertModalContent">`;
+  html += `<div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-xl font-black tracking-widest font-montserrat">🛡️ SYSTEM HEALTH REPORT</h2><button id="alertModalCloseTop" class="text-gray-400 hover:text-white font-bold text-2xl focus:outline-none" type="button">&times;</button></div><div class="p-6 max-h-[70vh] overflow-y-auto hide-scrollbar font-inter">`;
+  
+  let hasIssues = false;
+
+  if (discrepancies.length > 0) {
+      hasIssues = true;
+      html += `<h3 class="font-black text-purple-600 mb-3 flex items-center gap-2"><span>🔍</span> Integrity Discrepancies (${discrepancies.length})</h3><div class="bg-purple-50 border border-purple-100 rounded-2xl p-5 mb-6"><ul class="space-y-3">`;
+      discrepancies.forEach(d => {
+          html += `<li class="flex flex-col text-[13px] border-b border-purple-100 pb-3"><div class="flex justify-between items-center mb-1.5"><span class="font-bold text-gray-800">[${escapeHtml(d.region)}] ${safeDisplay(d.name)} <span class="text-gray-400 font-normal ml-1 font-mono">(${safeDisplay(d.code)})</span></span><span class="font-black text-purple-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-purple-100">${safeDisplay(d.issue)}</span></div><div class="flex items-center gap-4 text-[11px] font-mono"><span class="text-gray-500">System Stock: <b class="${typeof d.system_stock === 'number' && d.system_stock < 0 ? 'text-[#E3000F]' : 'text-gray-800'}">${safeDisplay(d.system_stock)}</b></span><span class="text-gray-500">Batch Stock: <b class="text-gray-800">${safeDisplay(d.batch_stock)}</b></span><span class="text-gray-500">Diff: <b class="text-purple-600">${safeDisplay(d.difference)}</b></span></div></li>`;
+      });
+      html += `</ul></div>`;
+  }
+
+  if (alerts.lowStock.length > 0) {
+      hasIssues = true;
+      html += `<h3 class="font-black text-[#E3000F] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3><div class="bg-red-50 border border-red-100 rounded-2xl p-5 mb-6"><ul class="space-y-3">`;
+      alerts.lowStock.forEach(item => { html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2.5"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><span class="font-black text-[#E3000F] bg-white px-2.5 py-1 rounded-md shadow-sm border border-red-100">${safeDisplay(item.stock)}</span></li>`; });
+      html += `</ul></div>`;
+  }
+
+  if (alerts.expiring.length > 0) {
+      hasIssues = true;
+      html += `<h3 class="font-black text-amber-600 mb-3 flex items-center gap-2"><span>⏳</span> Expiration Alert (${alerts.expiring.length})</h3><div class="bg-amber-50 border border-amber-100 rounded-2xl p-5"><ul class="space-y-3">`;
+      alerts.expiring.forEach(item => {
+        let badge = item.daysLeft < 0 ? "기한 초과" : `D-${item.daysLeft}`, textCol = item.daysLeft < 0 ? "text-[#E3000F]" : "text-amber-600";
+        html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2.5"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${safeDisplay(item.date)} (${badge})</span><span class="font-bold text-gray-500 font-mono">Qty: ${safeDisplay(item.qty)}</span></div></li>`;
+      });
+      html += `</ul></div>`;
+  }
+
+  if (!hasIssues) { html += `<div class="text-center py-12"><span class="text-5xl drop-shadow-sm">✅</span><p class="mt-5 font-bold text-gray-500 font-inter">모든 데이터 무결성, 재고, 유통기한이 완벽하게 안정적입니다.</p></div>`; }
+
+  html += `</div><div class="p-5 bg-gray-50 border-t border-gray-100 text-center"><button id="alertModalCloseBottom" type="button" class="btn-gradient-pink px-10 py-3.5 rounded-xl font-black shadow-md uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2">Close Report</button></div></div>`;
+  modal.innerHTML = html; 
+  
+  modal.querySelector('#alertModalCloseTop')?.addEventListener('click', closeAlertModal);
+  modal.querySelector('#alertModalCloseBottom')?.addEventListener('click', closeAlertModal);
+  
+  modal.addEventListener('click', (e) => { if(e.target === modal) closeAlertModal(); });
+  window.addEventListener('keydown', handleAlertEsc);
+
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+  setTimeout(() => document.getElementById('alertModalContent')?.classList.remove('scale-95'), 50);
+}
+
+function handleAlertEsc(e) { if(e.key === "Escape") closeAlertModal(); }
+
+function closeAlertModal() {
+  const modal = document.getElementById('alertModal'), content = document.getElementById('alertModalContent');
+  if (!modal) return;
+  if (content) content.classList.add('scale-95'); 
+  modal.classList.add('opacity-0', 'pointer-events-none'); 
+  window.removeEventListener('keydown', handleAlertEsc);
+}
+
+function renderHqOrdersError(msg) {
+    const tbody = document.getElementById('hqOrdersGridBody');
+    if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-[#E3000F] font-bold tracking-wide font-inter">Error: ${escapeHtml(msg)}</td></tr>`;
+}
+
+// 🌟 본사 조달 매핑 통신
+async function fetchMappings() {
+  try {
+    const cacheKey = `MAPPINGS_HQ_${clientName}`;
+    const cached = await Y2C_DB.get(cacheKey);
+    if (cached) {
+        cachedMappings = cached.mappings || [];
+        cachedHqOrders = cached.hqOrders || [];
+        renderHqOrdersFast();
+        if(cached.orderMetrics) renderOrderMetrics(cached.orderMetrics);
+    }
+    
+    const result = await executeApi("get_procurement_data");
+    if (result && result.success) {
+      cachedMappings = Array.isArray(result.mappings) ? result.mappings : []; 
+      cachedHqOrders = Array.isArray(result.hqOrders) ? result.hqOrders : [];
+      
+      await Y2C_DB.set(cacheKey, { mappings: cachedMappings, hqOrders: cachedHqOrders, orderMetrics: result.orderMetrics });
+      
+      renderHqOrdersFast(); 
+      if(result.orderMetrics) renderOrderMetrics(result.orderMetrics);
+    } 
+  } catch (err) { 
+      if(cachedHqOrders.length === 0) {
+          renderHqOrdersError(err.message); showToast("조달 데이터 로드 실패: " + err.message, "error"); 
+      }
+  }
+}
+
+async function fetchCatalogForInbound() {
+  const cacheKey = `ADMIN_ITEMS_CACHE`;
+  const cached = await Y2C_DB.get(cacheKey);
+  if(cached) {
+      cachedItems = cached;
+      populateInboundRegionOptions();
+  }
+
+  try {
+    const result = await executeApi("get_items", { clientState: "DEFAULT" });
+    if (result && result.success) { 
+      cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
+      await Y2C_DB.set(cacheKey, cachedItems);
+      populateInboundRegionOptions();
+    }
+  } catch (e) { console.error("Catalog load failed", e); }
+}
+
+// ============================================================================
+// 🚀 [V40.2 핵심] Infinite Chunk Observer 탑재 HQ 조달 내역 렌더러
+// ============================================================================
+let hqObserver = null;
+let hqRenderIndex = 0;
+const HQ_CHUNK_SIZE = 30;
+const hqStatusInFlight = new Set();
+
+function renderHqOrdersFast() {
+    const tbody = document.getElementById('hqOrdersGridBody'); 
+    if(!tbody) return; 
+    if (hqObserver) { hqObserver.disconnect(); hqObserver = null; }
+
+    if(cachedHqOrders.length === 0) { 
+        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide font-inter">등록된 내역이 없습니다.</td></tr>`; 
+        return; 
+    }
+
+    // Sort descending by date
+    cachedHqOrders.sort((a,b) => new Date(b.date || 0) - new Date(a.date || 0));
+    tbody.innerHTML = '';
+    hqRenderIndex = 0;
+
+    hqObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            hqObserver.disconnect();
+            appendHqChunk();
+        }
+    }, { rootMargin: '400px' });
+
+    appendHqChunk();
+}
+
+function appendHqChunk() {
+    const tbody = document.getElementById('hqOrdersGridBody'); 
+    if(!tbody) return; 
+    
+    const endIdx = Math.min(hqRenderIndex + HQ_CHUNK_SIZE, cachedHqOrders.length);
+    const fragment = document.createDocumentFragment();
+
+    for (; hqRenderIndex < endIdx; hqRenderIndex++) {
+        const o = cachedHqOrders[hqRenderIndex];
+        
+        let statusClass = "bg-gray-100 text-gray-500 border-gray-200";
+        switch(o.status) {
+            case "HQ_PENDING": statusClass = "bg-purple-50 text-purple-700 border-purple-200"; break;
+            case "PREPARING": statusClass = "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200"; break;
+            case "ORDERED": statusClass = "bg-indigo-50 text-indigo-700 border-indigo-200"; break;
+            case "SHIPPED": statusClass = "bg-blue-50 text-blue-700 border-blue-200"; break;
+            case "ARRIVED": statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200"; break;
+            case "RECEIVED": statusClass = "bg-teal-50 text-teal-700 border-teal-200"; break;
+            case "COMPLETED": statusClass = "bg-gray-100 text-gray-800 border-gray-300"; break;
+            case "CANCELED": statusClass = "bg-red-50 text-red-700 border-red-200 line-through"; break;
+        }
+
+        const tr = document.createElement('tr'); 
+        tr.className = "hover:bg-red-50/20 transition-colors border-b border-gray-50";
+        tr.innerHTML = `
+            <td class="px-6 py-4 font-mono text-[11px] font-bold text-gray-500">${safeDisplay(o.id)}</td>
+            <td class="px-6 py-4 text-[12px] font-bold text-[var(--premium-charcoal)] font-inter">${formatDate(o.date)}</td>
+            <td class="px-6 py-4 text-[12px] font-black text-[#E3000F] font-inter">${safeDisplay(o.vendor)}</td>
+            <td class="px-6 py-4 text-[11px] font-bold text-gray-600 font-inter">${safeDisplay(o.region)}</td>
+            <td class="px-6 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate font-inter" title="${escapeHtml(o.items)}">${safeDisplay(o.items)}</td>
+            <td class="px-6 py-4 text-[12px] font-mono font-bold text-gray-800">${safeDisplay(o.eta)}</td>
+            <td class="px-6 py-4 text-center hq-status-cell"></td>
+        `;
+        
+        const select = document.createElement('select');
+        select.className = `text-[10px] font-black rounded-md border p-2 outline-none shadow-sm transition-all cursor-pointer font-inter ${statusClass}`;
+        
+        if (!HQ_ORDER_STATUSES.includes(o.status)) {
+            const invalidOpt = document.createElement('option');
+            invalidOpt.value = o.status; invalidOpt.textContent = `INVALID (${escapeHtml(o.status)})`;
+            invalidOpt.selected = true; invalidOpt.disabled = true;
+            select.appendChild(invalidOpt); select.disabled = true; 
+        } else {
+            HQ_ORDER_STATUSES.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status; option.textContent = HQ_STATUS_LABELS[status] || status; 
+                if (o.status === status) option.selected = true;
+                select.appendChild(option);
+            });
+        }
+        
+        select.addEventListener('change', async () => { 
+            const orderId = String(o.id || "");
+            if (hqStatusInFlight.has(orderId)) { select.value = o.status; return showToast("상태 변경이 이미 진행 중입니다.", "error"); }
+            hqStatusInFlight.add(orderId); select.disabled = true;
+            try { await updateHqOrderStatus(orderId, select.value); } 
+            finally { hqStatusInFlight.delete(orderId); select.disabled = false; }
+        });
+        
+        tr.querySelector('.hq-status-cell').appendChild(select); 
+        fragment.appendChild(tr);
+    }
+    tbody.appendChild(fragment);
+
+    if (hqRenderIndex < cachedHqOrders.length) {
+        const lastRow = tbody.lastElementChild;
+        if (lastRow) hqObserver.observe(lastRow);
+    }
+}
+
+let hqCartData = Object.create(null); 
+let cartSearchTimeout = null;
+
+window.openHqOrderCartModal = async function() {
+    if(cachedItems.length === 0) {
+        showToast("백엔드와 데이터를 동기화 중입니다. 잠시만 기다려주세요...", "success");
+        await fetchCatalogForInbound();
+        if(cachedItems.length === 0) return showToast("🚨 서버 접근이 차단되었습니다. 배포 권한 설정을 확인하세요.", "error");
+    }
+
+    let modal = document.getElementById('hqCartModal');
+    if(!modal) {
+        modal = document.createElement('div'); modal.id = 'hqCartModal';
+        modal.className = 'fixed inset-0 bg-[#111827]/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300';
+        document.body.appendChild(modal);
+    }
+
+    let itemsHtml = '';
+    cachedItems.forEach(item => {
+        const safeCode = safeDisplay(item.code), safeName = safeDisplay(item.name);
+        const translatedCat = translateDynamic(item.category, 'category');
+        const currentQty = hqCartData[item.code] || "";
+        
+        itemsHtml += `
+            <div class="hq-cart-item-row flex justify-between items-center p-4 border-b border-gray-100 hover:bg-red-50/50 transition-colors" data-name="${escapeHtml(safeName.toLowerCase())}">
+                <div class="flex flex-col">
+                    <span class="text-[13px] font-black text-[var(--premium-charcoal)] font-inter">${safeName}</span>
+                    <span class="text-[10px] font-mono font-bold text-gray-500 mt-1">[${safeCode}] ${safeDisplay(translatedCat)}</span>
+                </div>
+                <input type="number" min="0" data-code="${safeCode}" data-name="${safeName}" value="${escapeHtml(currentQty)}" placeholder="0" class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-sm font-bold text-[#E3000F] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-inner bg-gray-50 focus:bg-white transition-all">
+            </div>`;
+    });
+
+    modal.innerHTML = `
+        <div class="bg-white w-full max-w-2xl rounded-[2rem] overflow-hidden premium-shadow flex flex-col max-h-[85vh] transform transition-transform scale-95 duration-300" id="hqCartModalContent">
+            <div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-lg font-black tracking-widest uppercase flex items-center gap-3 font-montserrat"><span>🛒</span> Digital Procurement Cart</h2><button id="hqCartCloseTopBtn" class="text-gray-400 hover:text-white font-bold text-2xl transition-colors focus:outline-none" type="button">&times;</button></div>
+            <div class="p-5 bg-gray-50 border-b border-gray-200"><input type="text" id="hqCartSearchInput" placeholder="Search item name..." class="w-full text-[13px] p-3.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 transition-all shadow-sm"></div>
+            <div class="p-2 overflow-y-auto flex-grow hide-scrollbar">${itemsHtml}</div>
+            <div class="p-6 bg-white border-t border-gray-100 flex justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.02)]"><span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase font-inter">Enter Quantity & Confirm</span><button id="hqCartConfirmBtn" type="button" class="btn-gradient-pink px-10 py-3.5 rounded-xl font-black shadow-md uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2">Apply to Order</button></div>
+        </div>`;
+
+    modal.querySelector('#hqCartCloseTopBtn')?.addEventListener('click', closeHqCartModal);
+    
+    modal.querySelector('#hqCartSearchInput')?.addEventListener('input', (e) => {
+        clearTimeout(cartSearchTimeout);
+        cartSearchTimeout = setTimeout(() => filterHqCart(e.target.value), 200);
+    });
+    
+    modal.querySelector('#hqCartConfirmBtn')?.addEventListener('click', confirmHqCart);
+    modal.addEventListener('click', (e) => { if(e.target === modal) closeHqCartModal(); });
+    window.addEventListener('keydown', handleCartEsc);
+
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => document.getElementById('hqCartModalContent')?.classList.remove('scale-95'), 50);
+}
+
+function handleCartEsc(e) { if(e.key === "Escape") closeHqCartModal(); }
+
+function closeHqCartModal() {
+    const modal = document.getElementById('hqCartModal'), content = document.getElementById('hqCartModalContent');
+    if (!modal) return;
+    if (content) content.classList.add('scale-95');
+    modal.classList.add('opacity-0', 'pointer-events-none');
+    window.removeEventListener('keydown', handleCartEsc);
+}
+
+function filterHqCart(query) {
+    const term = String(query ?? "").trim().toLowerCase();
+    document.querySelectorAll('.hq-cart-item-row').forEach(row => { 
+        const name = String(row.getAttribute('data-name') || "");
+        row.style.display = name.includes(term) ? 'flex' : 'none'; 
+    });
+}
+
+function confirmHqCart() {
+    const inputs = document.querySelectorAll('.hq-cart-item-row input[type="number"]'); 
+    hqCartData = Object.create(null); let formattedStrings = [];
+
+    for (const input of inputs) {
+        const qty = parseStrictNonNegativeInteger(input.value); 
+        
+        if (qty > 0) { 
+            const code = input.getAttribute('data-code') || "", name = input.getAttribute('data-name') || "";
+            hqCartData[code] = qty; formattedStrings.push(`[${code}] ${name} x ${qty}`); 
+        }
+    }
+    
+    const itemsInput = document.getElementById('hqItemsInput');
+    if (itemsInput) {
+        itemsInput.value = formattedStrings.join(' / ');
+        if (formattedStrings.length > 0) { showToast(`${formattedStrings.length}개의 품목이 전산화되어 카트에 담겼습니다.`, "success"); } else { itemsInput.value = ''; }
+    }
+    closeHqCartModal();
+}
+
+function transformHqInputsToDigital() {
+    const regionInput = document.getElementById('hqRegionInput');
+    if (regionInput && regionInput.tagName === 'INPUT') {
+        const select = document.createElement('select'); select.id = 'hqRegionInput';
+        select.className = "w-full text-[13px] p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none text-center cursor-pointer font-black text-gray-800 bg-gray-50 focus:bg-white transition-all appearance-none shadow-sm";
+        select.innerHTML = '<option value="">-- Hub --</option><option value="ON">ON (Ontario)</option><option value="BC">BC (British Columbia)</option><option value="AB">AB (Alberta)</option>';
+        regionInput.parentNode.replaceChild(select, regionInput);
+    }
+    const itemsInput = document.getElementById('hqItemsInput');
+    if (itemsInput && !itemsInput.dataset.digitalized) { 
+        itemsInput.readOnly = true; 
+        itemsInput.classList.add('cursor-pointer', 'bg-red-50/50', 'text-[#E3000F]', 'font-bold', 'hover:border-[#E3000F]', 'transition-colors'); 
+        itemsInput.addEventListener('click', window.openHqOrderCartModal); 
+        itemsInput.dataset.digitalized = "true";
+    }
+}
+
+window.saveHqOrder = async function() {
+  if (isSubmitting) return;
+  const vendorInput = document.getElementById('hqVendorInput'), regionEl = document.getElementById('hqRegionInput'), itemsEl = document.getElementById('hqItemsInput');
+  
+  if(!regionEl || !itemsEl) return showToast("품목 및 허브 요소를 찾을 수 없습니다. 시스템 오류", "error");
+
+  const vendorName = vendorInput ? vendorInput.value.trim() : clientName, region = regionEl.value.toUpperCase().trim(), items = itemsEl.value.trim();
+  if(!vendorName || !region || !items) return showToast("모든 발주 정보를 기입해 주세요.", "error");
+  if(vendorName.length > 50) return showToast("벤더사명이 너무 깁니다.", "error");
+
+  isSubmitting = true; clearTimeout(fallbackLockTimer);
+  const btn = document.getElementById('btnSubmitHqOrder'); let originalHtml = "ADD ORDER";
+  if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; }
+
+  fallbackLockTimer = setTimeout(() => {
+      isSubmitting = false;
+      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+  }, 25000);
+
+  const uniqueBatchId = generateIdempotencyKey();
+  const localDate = new Date(), yyyy = localDate.getFullYear(), mm = String(localDate.getMonth() + 1).padStart(2, '0'), dd = String(localDate.getDate()).padStart(2, '0');
+  const payload = { id: uniqueBatchId, date: `${yyyy}-${mm}-${dd}`, vendor: vendorName, region: region, items: items, status: "HQ_PENDING", eta: "-" };
+  
+  try {
+    const result = await executeApi("upsert_hq_order", { order: payload });
+    if (result && result.success) { showToast("발주가 본사 전산에 등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; hqCartData = Object.create(null); fetchMappings(); }
+  } catch (err) { showToast("등록 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
+}
+
+window.updateHqOrderStatus = async function(orderId, status) {
+  const safeOrderId = String(orderId || "").trim(), safeStatus = String(status || "").trim().toUpperCase();
+  if (!safeOrderId) return showToast("주문 번호가 없습니다.", "error");
+  if (!HQ_ORDER_STATUSES.includes(safeStatus)) return showToast("허용되지 않은 주문 상태입니다.", "error");
+
+  try {
+    const result = await executeApi("update_hq_order_status", { orderId: safeOrderId, status: safeStatus }); 
+    if (result && result.success) { showToast(`Order ${safeOrderId} status updated`, "success"); fetchMappings(); }
+  } catch (err) { showToast(err.message, "error"); fetchMappings(); }
+}
+
+function populateInboundRegionOptions() {
+    const regionSelector = document.getElementById('inboundRegionSelector');
+    if (!regionSelector) return;
+    
+    let regions = ["ON", "BC", "AB", "SK", "MB", "QC"]; 
+    
+    if (cachedItems && cachedItems.length > 0 && cachedItems[0].stockBreakdown) {
+        const dynamicRegions = Object.keys(cachedItems[0].stockBreakdown);
+        if (dynamicRegions.length > 0) regions = dynamicRegions;
+    }
+    
+    let currentVal = regionSelector.value;
+    let html = `<option value="">-- Select Hub Region for Inbound --</option>`;
+    regions.forEach(reg => { html += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`; });
+    
+    regionSelector.innerHTML = html;
+    if (currentVal && regions.includes(currentVal)) { regionSelector.value = currentVal; }
+}
+
+function setupDragAndDrop() {
+  const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
+  
+  let regionSelector = document.getElementById('inboundRegionSelector');
+  if (regionSelector && !document.getElementById('linkedHqOrderId')) {
+      const input = document.createElement('input');
+      input.type = 'text'; input.id = 'linkedHqOrderId';
+      input.placeholder = "Link HQ Order ID (Optional, e.g. REQ-...)";
+      input.className = "w-full text-[13px] p-3.5 mt-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 text-center bg-gray-50 focus:bg-white transition-all shadow-sm";
+      regionSelector.parentNode.insertBefore(input, regionSelector.nextSibling);
+  }
+
+  const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
+
+  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('drop', (e) => { 
+      e.preventDefault(); 
+      clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); 
+      
+      const rs = document.getElementById('inboundRegionSelector');
+      if (rs && !rs.value) {
+          rs.focus(); rs.classList.add('border-[#E3000F]', 'animate-pulse');
+          setTimeout(() => rs.classList.remove('animate-pulse'), 1000);
+          showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); return;
+      }
+      handleExcelUpload(e); 
+  });
+  
+  const fileInput = document.getElementById('excelFileInput'); if(fileInput) {
+      const fiClone = fileInput.cloneNode(true); fileInput.parentNode.replaceChild(fiClone, fileInput);
+      fiClone.addEventListener('change', (e) => {
+          const rs = document.getElementById('inboundRegionSelector');
+          if (rs && !rs.value) {
+              e.target.value = ''; rs.focus(); rs.classList.add('border-[#E3000F]', 'animate-pulse');
+              setTimeout(() => rs.classList.remove('animate-pulse'), 1000);
+              showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); return;
+          }
+          handleExcelUpload(e);
+      });
+  }
+  
+  if (regionSelector) { regionSelector.addEventListener('change', function() { if (this.value) this.classList.remove('border-[#E3000F]'); }); }
+}
+
+async function loadHeavyLibrary(url, objName) {
+    if (window[objName] !== undefined) return true;
+    return new Promise((resolve, reject) => { 
+        const script = document.createElement('script'); script.src = url; 
+        script.onload = () => resolve(true); script.onerror = () => reject(false); 
+        document.head.appendChild(script); 
+    });
+}
+
 function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -806,31 +1175,9 @@ function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
     });
 }
 
-async function loadHeavyLibrary(url, objName) {
-    if (window[objName] !== undefined) return true;
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script'); script.src = url;
-        script.onload = () => resolve(true); 
-        script.onerror = () => { showToast(`${objName} 로드에 실패했습니다. 네트워크를 확인하세요.`, "error"); reject(false); };
-        document.head.appendChild(script);
-    });
-}
-
-function setupDragAndDrop() {
-  const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
-  const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
-
-  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
-  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
-  clone.addEventListener('drop', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); handleExcelUpload(e); });
-  
-  const fileInput = document.getElementById('excelFileInput');
-  if(fileInput) {
-      const fiClone = fileInput.cloneNode(true); fileInput.parentNode.replaceChild(fiClone, fileInput);
-      fiClone.addEventListener('change', handleExcelUpload);
-  }
-}
-
+// ============================================================================
+// 🚀 [V40.2 핵심] Time-Slicing (시분할) 비동기 엑셀 파싱 엔진 (OOM Freeze 방어)
+// ============================================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
   if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시 기다려주세요.", "error");
@@ -839,105 +1186,98 @@ async function handleExcelUpload(event) {
   if (file.size > 10 * 1024 * 1024) return showToast("파일 크기가 너무 큽니다. (최대 10MB 지원)", "error");
 
   isSubmitting = true;
-  const validExcelExts = [".xlsx", ".xls", ".csv"], validImgExts = [".png", ".jpg", ".jpeg"];
-  const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-  const statusText = document.getElementById('uploadStatusText');
+  const validExcelExts = [".xlsx", ".xls", ".csv"], validImgExts = [".png", ".jpg", ".jpeg"], fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
   if (validExcelExts.includes(fileExt)) {
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E3000F] font-bold font-inter">Loading Excel Engine...</span>`;
+    setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold font-inter">Loading Excel Engine...</span>`);
     try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
-    catch(e) { isSubmitting = false; return; }
+    catch(e) { isSubmitting = false; return showToast("엑셀 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
 
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E3000F] font-bold font-inter">Parsing Excel Document...</span>`;
-    
+    setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold font-inter">Parsing Excel Document...</span>`);
     const reader = new FileReader();
-    reader.onerror = () => { isSubmitting = false; if(statusText) statusText.innerHTML = "Drag & Drop vendor document here"; showToast("파일을 읽는 중 시스템 오류가 발생했습니다.", "error"); };
-    reader.onload = function(e) {
+    
+    reader.onerror = () => { isSubmitting = false; setUploadStatus("Drag & Drop vendor document here"); showToast("파일을 읽는 중 시스템 오류가 발생했습니다.", "error"); };
+    reader.onload = async function(e) {
       try {
-        const data = new Uint8Array(e.target.result), workbook = XLSX.read(data, {type: 'array'});
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]], jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
-        if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다.");
+        const data = new Uint8Array(e.target.result), workbook = XLSX.read(data, {type: 'array'}), worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+        if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다."); 
         
-        setTimeout(() => { processExcelData(jsonData, file.name); }, 50);
-        
-      } catch(err) {
-        isSubmitting = false; showToast("엑셀 파싱 중 오류 발생: " + err.message, "error"); 
-        if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
-      }
+        // 🌟 브라우저 렌더러에 쉴 틈을 주어 하얗게 질리는 것을 방지
+        setTimeout(async () => {
+            await processExcelData(jsonData, file.name);
+        }, 50);
+      } catch(err) { isSubmitting = false; showToast("엑셀 파싱 오류: " + err.message, "error"); setUploadStatus("Drag & Drop vendor document here"); }
     };
     reader.readAsArrayBuffer(file);
   } 
   else if (validImgExts.includes(fileExt)) {
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">Compressing Image...</span>`;
-    
-    let targetFile = file;
-    try { targetFile = await compressImage(file); } catch(e) { console.warn("[Y2C Telemetry] Compression fallback"); }
-
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">Loading AI OCR Engine...</span>`;
+    setUploadStatus(`<span class="animate-pulse text-indigo-500 font-bold font-inter">Loading AI OCR Engine...</span>`);
     try { await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js", "Tesseract"); } 
-    catch(e) { isSubmitting = false; return; }
+    catch(e) { isSubmitting = false; return showToast("AI 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
 
-    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">AI Vision OCR Scanning...</span>`;
-    
+    setUploadStatus(`<span class="animate-pulse text-indigo-500 font-bold font-inter">AI Vision OCR Scanning...</span>`);
     try {
-      const result = await Tesseract.recognize(targetFile, 'eng+kor', {
-        logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold font-inter">AI Vision Parsing: ${pct}%</span>`; } }
-      });
-      processOCRText(result.data.text, file.name);
-    } catch(err) {
-      isSubmitting = false; showToast("이미지 인식 실패: " + err.message, "error"); 
-      if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
-    }
+      let targetFile = file; try { targetFile = await compressImage(file); } catch(e) {}
+      const result = await Tesseract.recognize(targetFile, 'eng+kor', { logger: m => { if (m.status === 'recognizing text') { const pct = Math.floor(m.progress * 100); setUploadStatus(`<span class="text-indigo-500 font-bold font-inter">AI Vision Parsing: ${pct}%</span>`); } } });
+      await processOCRText(result.data.text, file.name);
+    } catch(err) { isSubmitting = false; showToast("이미지 인식 실패: " + err.message, "error"); setUploadStatus("Drag & Drop vendor document here"); }
   } else { 
-    isSubmitting = false; return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); 
+      isSubmitting = false; return showToast("지원하지 않는 포맷입니다. (.xlsx, .xls, .csv, .jpg, .jpeg, .png 지원)", "error"); 
   }
 }
 
-function processOCRText(text, filename) {
+async function processOCRText(text, filename) {
   const safeText = String(text || ""); const lines = safeText.split('\n'), jsonData = [];
   lines.forEach(line => {
     const dateMatch = line.match(/\d{4}-\d{2}-\d{2}/), expDate = dateMatch ? dateMatch[0] : "";
     const barcodeMatch = line.match(/\b\d{13,14}\b/), codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
     const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
-    let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGgLlMmCc]+\*\d+\b/g, '').replace(/,/g, ''); 
-    const nums = cleanLine.match(/\b\d+\b/g); 
-    let qty = 0;
+    let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGgLlMmCc]+\*\d+\b/g, '').replace(/,/g, '');
+    let nums = cleanLine.match(/\b\d+\b/g), qty = 0;
     
     if (nums && nums.length > 0) {
-      for(let i = nums.length - 1; i >= 0; i--) {
-        const n = parseStrictNonNegativeInteger(nums[i]);
-        if(n !== 0 && n < 10000 && String(n) !== itemCode) { qty = n; break; }
+      for(let i = nums.length - 1; i >= 0; i--) { 
+          const n = parseStrictNonNegativeInteger(nums[i]); 
+          if(n !== 0 && n < 10000 && String(n) !== itemCode) { qty = n; break; } 
       }
     }
     if(itemCode && itemCode.length >= 3 && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
   });
 
-  if (jsonData.length === 0) {
-    isSubmitting = false; showToast("이미지에서 품번 및 수량을 찾지 못했습니다.", "error");
-    const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here"; return;
-  }
-  processExcelData(jsonData, filename + " (OCR)");
+  if (jsonData.length === 0) { isSubmitting = false; showToast("이미지에서 품번 및 수량을 찾지 못했습니다.", "error"); setUploadStatus("Drag & Drop vendor document here"); return; }
+  await processExcelData(jsonData, filename + " (OCR)");
 }
 
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector');
-  if (!targetRegion || !targetRegion.value) {
-    isSubmitting = false; showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
-    const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here"; return;
-  }
+  if (!targetRegion || !targetRegion.value) { isSubmitting = false; showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); setUploadStatus("Drag & Drop vendor document here"); return; }
   const regionVal = targetRegion.value;
+  if (cachedItems.length === 0) { isSubmitting = false; showToast("카탈로그 데이터를 불러오는 중입니다. 잠시 후 시도하세요.", "error"); return; }
 
-  if (cachedItems.length === 0) {
-    isSubmitting = false; showToast("카탈로그 데이터를 불러오는 중입니다. 잠시 후 시도하세요.", "error"); return;
+  const linkedOrderIdInput = document.getElementById('linkedHqOrderId');
+  let finalLinkedOrderId = null;
+  if (linkedOrderIdInput && linkedOrderIdInput.value.trim() !== "") {
+      finalLinkedOrderId = String(linkedOrderIdInput.value).trim().toUpperCase();
+      if (!/^[\w-]+$/.test(finalLinkedOrderId)) {
+          isSubmitting = false; setUploadStatus("Drag & Drop vendor document here");
+          return showToast("연동할 발주 번호 형식이 올바르지 않습니다.", "error");
+      }
   }
 
   let inboundMap = Object.create(null), successCount = 0, validationErrors = [];
 
-  jsonData.forEach(row => {
+  for (let i = 0; i < jsonData.length; i++) {
+    // 🌟 [핵심] Time-Slicing: 200줄 처리 시마다 브라우저 UI 스레드에 양보 (무한 멈춤 방어)
+    if (i > 0 && i % 200 === 0) {
+        await new Promise(res => requestAnimationFrame(() => setTimeout(res, 0)));
+    }
+
+    const row = jsonData[i];
     let vItemCode = "", vQty = 0, vExp = ""; let qtyMatches = 0;
+
     Object.keys(row).forEach(k => {
-      let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
-      let valStr = String(row[k] || "").trim();
+      let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase(), valStr = String(row[k] || "").trim();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
       if (!vItemCode && cleanK === 'barcode') vItemCode = valStr;
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') {
@@ -950,116 +1290,113 @@ async function processExcelData(jsonData, filename) {
       if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
     });
 
-    if (qtyMatches > 1) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); return; }
+    if (qtyMatches > 1) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); continue; }
 
     const expString = String(vExp || "").trim();
     if (expString === "" || expString.toLowerCase() === "null" || expString === "-") { vExp = null; } 
     else { 
         vExp = parseStrictISODate(expString); 
-        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 올바르지 않은 유통기한 형식입니다: ${escapeHtml(expString)}`); return; }
+        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 올바르지 않은 유통기한 날짜 형식입니다: ${escapeHtml(expString)}`); continue; }
     }
-
+    
     const safeVItemCode = String(vItemCode || "").trim().toUpperCase();
 
     if (safeVItemCode.length >= 3 && vQty > 0 && qtyMatches === 1) {
-      let hqCode = null;
-      const mapObj = cachedMappings.find(m => String(m.vendorCode || "").trim().toUpperCase() === safeVItemCode);
-      if (mapObj) { hqCode = mapObj.hqCode; } else {
-        const directMatch = cachedItems.find(item => String(item.code || "").trim().toUpperCase() === safeVItemCode);
-        if (directMatch) hqCode = directMatch.code;
-      }
+      let hqCode = null, mapObj = cachedMappings.find(m => String(m.vendorCode || "").trim().toUpperCase() === safeVItemCode);
+      if (mapObj) { hqCode = mapObj.hqCode; } else { const directMatch = cachedItems.find(item => String(item.code || "").trim().toUpperCase() === safeVItemCode); if (directMatch) hqCode = directMatch.code; }
+      
       if (hqCode) {
-        if (!inboundMap[hqCode]) inboundMap[hqCode] = { totalQty: 0, batches: Object.create(null) };
-        inboundMap[hqCode].totalQty += vQty;
-        if (vExp) { inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty; }
+        const safeHqCode = String(hqCode || "").trim().toUpperCase();
+        const directMatch = cachedItems.find(item => String(item.code || "").trim().toUpperCase() === safeHqCode);
+        
+        if (directMatch && directMatch.expBreakdown && directMatch.expBreakdown[regionVal] !== undefined) {
+            if (!vExp) { validationErrors.push(`[${safeHqCode}] ${directMatch.name} 품목의 유통기한이 누락되었습니다.`); continue; }
+        }
+
+        if (!inboundMap[safeHqCode]) inboundMap[safeHqCode] = { totalQty: 0, batches: Object.create(null) };
+        inboundMap[safeHqCode].totalQty += vQty;
+        if (vExp) { inboundMap[safeHqCode].batches[vExp] = (inboundMap[safeHqCode].batches[vExp] || 0) + vQty; }
         successCount++;
       }
     }
-  });
+  }
 
   if (validationErrors.length > 0) {
-      isSubmitting = false; const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+      isSubmitting = false; setUploadStatus("Drag & Drop vendor document here");
       return showToast(`🚨 입고 실패 (데이터 오염 감지):\n\n${validationErrors.join('\n')}`, "error");
   }
 
-  if (successCount === 0) {
-    isSubmitting = false; const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
-    showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
-  }
+  if (successCount === 0) { isSubmitting = false; setUploadStatus("Drag & Drop vendor document here"); showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return; }
 
   const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
-    let newExpArr = [];
-    let sortedDates = Object.keys(inboundMap[hqCode].batches).sort();
+    let newExpArr = [], sortedDates = Object.keys(inboundMap[hqCode].batches).sort();
     sortedDates.forEach(d => { newExpArr.push(`${d}:${inboundMap[hqCode].batches[d]}`); });
-    const addedExpStr = newExpArr.join(' | ');
-    return { code: hqCode, stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, expBreakdown: { [regionVal]: addedExpStr } };
+    return { code: hqCode, stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, expBreakdown: { [regionVal]: newExpArr.join(' | ') } };
   });
 
-  const statusText = document.getElementById('uploadStatusText');
-  if(statusText) statusText.innerHTML = `<span class="animate-pulse text-emerald-600 font-bold font-inter">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
-  
-  const uniqueSyncId = generateIdempotencyKey();
+  const matchedRowCount = successCount;
+  const updatedItemCount = finalStockUpdates.length;
 
+  setUploadStatus(`<span class="animate-pulse text-emerald-600 font-bold font-inter">Synchronizing ${matchedRowCount} Rows (Atomic ADD)...</span>`);
+  
   try {
-    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: uniqueSyncId });
-    if (result && result.success) {
-      showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
-      if(statusText) statusText.innerHTML = `<span class="text-emerald-600 font-bold font-inter">✅ Uploaded: ${escapeHtml(filename)}</span>`;
-      setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); 
-    } 
+    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: generateIdempotencyKey(), linkedOrderId: finalLinkedOrderId }); 
+    if (result && result.success) { showToast(`입고 완료: ${updatedItemCount}개 품목 / ${matchedRowCount}개 행 누적 성공`, "success"); setUploadStatus(`<span class="text-emerald-600 font-bold font-inter">✅ Uploaded: ${escapeHtml(filename)}</span>`); setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); } 
   } catch (err) {
-    isSubmitting = false; 
-    if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
-    if(err.ledgerPending) { showToast(`✅ 재고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); }
-    else { showToast(err.message, "error"); if(err.message.includes("트래픽") || err.message.includes("동기화") || err.message.includes("일치")) { setTimeout(() => fetchItems(), 2000); } }
+    isSubmitting = false; setUploadStatus("Drag & Drop vendor document here");
+    if(err.ledgerPending) { showToast(`✅ 재고 입고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId || "N/A")})`, "success"); setTimeout(() => { fetchCatalogForInbound(); }, 2500); } 
+    else { showToast(err.message, "error"); }
   }
 }
 
-async function cancelOrder(batchId) {
+window.cancelOrder = async function(batchId) {
     if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
-    if (!batchId) {
-        batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: REQ-123456)");
-        if (!batchId) return;
+    if (!batchId) { 
+        batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: REQ-123456)"); 
+        if (!batchId) return; 
     }
     const safeBatchId = String(batchId).trim();
     if (safeBatchId.length > 50 || !/^[\w-]+$/.test(safeBatchId)) return showToast("주문 번호 형식이 올바르지 않습니다.", "error");
 
-    const confirmMsg = `정말 주문 [${escapeHtml(safeBatchId)}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 100% 복구됩니다.\n✔️ 물류사 및 본사로 [출고 중지 알림 이메일]이 자동 전송됩니다.`;
+    const confirmMsg = `정말 주문 [${safeBatchId}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 100% 복구됩니다.\n✔️ 물류사 및 본사로 [출고 중지 알림 이메일]이 자동 전송됩니다.`;
     if (!confirm(confirmMsg)) return;
 
-    isSubmitting = true; showToast("⏳ 시스템 취소 요청 및 재고 복구를 진행 중입니다...", "success");
+    isSubmitting = true; clearTimeout(fallbackLockTimer);
+    showToast("⏳ 시스템 취소 요청 및 재고 복구를 진행 중입니다...", "success");
     
-    clearTimeout(submitLockTimer);
-    submitLockTimer = setTimeout(() => { isSubmitting = false; showToast("취소 요청 시간이 초과되었습니다.", "error"); }, 25000);
+    fallbackLockTimer = setTimeout(() => {
+        isSubmitting = false;
+        showToast("취소 요청 시간이 초과되었습니다.", "error");
+    }, 25000);
 
     try {
         const result = await executeApi("cancel_order", { batchId: safeBatchId });
-        if (result && result.success) { showToast(`✅ ${escapeHtml(result.message)}`, "success"); setTimeout(() => fetchItems(), 1500); } 
+        if (result && result.success) { showToast(`✅ ${result.message}`, "success"); setTimeout(() => { fetchMappings(); fetchCatalogForInbound(); }, 1500); } 
     } catch (err) { 
-        if(err.ledgerPending) { showToast(`✅ 재고 복원 성공\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); } 
-        else { showToast(`❌ 취소 실패: ${escapeHtml(err.message)}`, "error"); }
-    } finally { isSubmitting = false; clearTimeout(submitLockTimer); }
+        if(err.ledgerPending) { showToast(`✅ 재고 복원 성공\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${err.txId})`, "success"); setTimeout(() => { fetchMappings(); fetchCatalogForInbound(); }, 2500); } 
+        else { showToast(`❌ 취소 실패: ${err.message}`, "error"); }
+    } finally { isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
-window.submitOrder = submitOrder; 
-window.fetchItems = fetchItems; 
-window.toggleStockEditMode = toggleStockEditMode; 
-window.applyRegionFilter = applyRegionFilter; 
-window.applyAiSuggestion = applyAiSuggestion; 
-window.calculateOrderTotal = calculateOrderTotal; 
-window.handleExcelUpload = handleExcelUpload;
-window.cancelOrder = cancelOrder; 
+window.switchAdminTab = switchAdminTab; window.handleExcelUpload = handleExcelUpload; window.saveHqOrder = saveHqOrder; 
 
-// ============================================================================
 // 🌟 시스템 초기화 바인딩
-// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  window.changeLanguage(currentLang);
-  applyGlobalRbacNavigation(); 
+  window.changeLanguage(currentLang); applyGlobalRbacNavigation(); setupDragAndDrop(); transformHqInputsToDigital();
   
-  if (userRole === "MASTER" || userRole === "VENDOR") {
-    fetchMappings().then(() => { fetchItems().then(setupDragAndDrop); });
-  } else { 
-    fetchItems(); 
+  if (userRole === "VENDOR") {
+      ['tabBtn_profiles', 'tabBtn_sales'].forEach(id => {
+          const btn = document.getElementById(id);
+          if (btn) { btn.classList.add('opacity-40', 'cursor-not-allowed'); btn.innerHTML += ' <span class="text-xs ml-1">🔒</span>'; const clone = btn.cloneNode(true); clone.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showToast("본사(MASTER) 전용 데이터입니다.", "error"); }); btn.parentNode.replaceChild(clone, btn); }
+      });
+      const hqVendorInput = document.getElementById('hqVendorInput');
+      if (hqVendorInput) { hqVendorInput.value = clientName; hqVendorInput.readOnly = true; hqVendorInput.classList.add('bg-gray-100', 'text-[#E3000F]', 'cursor-not-allowed', 'font-black'); }
+      switchAdminTab('hqorders'); fetchMappings().then(() => fetchCatalogForInbound()); 
+  } else if (userRole === "PARTNER") {
+      const adminSection = document.getElementById('section_admin_container') || document.querySelector('.admin-tabs-wrapper');
+      if(adminSection) adminSection.style.display = 'none';
+      fetchCatalogForInbound();
+  } else {
+      populateSalesYearSelector(); switchAdminTab('profiles'); fetchMasterData().then(() => fetchMappings()).then(() => fetchCatalogForInbound()); 
   }
 });
