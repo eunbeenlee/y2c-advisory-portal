@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V40.1 Fixed & Hardened)
- * [Absolute Null-Safe] SKU 누락 방어 무한 스크롤 렌더러, SWR 캐시, 메모리 락다운
+ * [Absolute Null-Safe] SKU 누락 방어 무한 스크롤 렌더러, 기능 100% 무손실 복원
  * ============================================================================
  */
 
@@ -144,6 +144,18 @@ function parseStrictDecimal(value) {
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
     return num; 
+}
+
+function parseStrictISODate(value) { 
+    if (value == null) return null;
+    const str = String(value).trim().toLowerCase(); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return null; 
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null; 
+    const [y, m, d] = str.split("-").map(Number); 
+    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; 
+    const date = new Date(Date.UTC(y, m - 1, d)); 
+    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; 
+    return str; 
 }
 
 function roundToCents(amount) { 
@@ -377,6 +389,12 @@ function populateRegionFilter() {
   filter.innerHTML = `<option value="ALL">Total Stock</option>`;
   regions.forEach(reg => { filter.innerHTML += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`; });
   filter.value = masterViewRegion;
+  
+  const inboundFilter = document.getElementById('inboundRegionSelector');
+  if (inboundFilter) {
+    inboundFilter.innerHTML = `<option value="">-- Select Hub Region for Inbound --</option>`;
+    regions.forEach(reg => { inboundFilter.innerHTML += `<option value="${escapeHtml(reg)}">Hub: ${escapeHtml(reg)}</option>`; });
+  }
 }
 
 function applyRegionFilter() { masterViewRegion = document.getElementById('regionFilter').value; renderTableItemsFast(cachedItems, true); }
@@ -407,7 +425,8 @@ window.saveCartState = function() {
 let infiniteObserver = null;
 let globalRenderData = [];
 let globalRenderIndex = 0;
-const RENDER_CHUNK_SIZE = 50; // 한 번에 그려낼 덩어리를 50개로 넉넉하게 확장하여 누락 방지
+// 🌟 100% 품목 출력을 위해 청크 사이즈를 50으로 넉넉하게 확장
+const RENDER_CHUNK_SIZE = 50; 
 
 function renderTableItemsFast(data = cachedItems, instantRender = false) {
   const tableBody = document.getElementById('itemTableBody'); 
@@ -446,6 +465,7 @@ function renderTableItemsFast(data = cachedItems, instantRender = false) {
   if (document.getElementById('kpiTotalValue')) document.getElementById('kpiTotalValue').innerText = userRole === "VENDOR" ? "N/A" : formatCurrency(totalValue);
   if (document.getElementById('kpiLowStock')) document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
 
+  // 🌟 스크롤 바닥 감지 옵저버 (Margin 400px 적용으로 끊김 없는 스크롤 보장)
   infiniteObserver = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
           infiniteObserver.disconnect(); 
@@ -460,6 +480,7 @@ function appendNextChunk() {
     const tableBody = document.getElementById('itemTableBody');
     if (!tableBody) return;
 
+    // 🌟 마지막 데이터까지 100% 안전하게 순회하도록 Math.min 적용
     const endIdx = Math.min(globalRenderIndex + RENDER_CHUNK_SIZE, globalRenderData.length);
     const isMasterOrVendor = (userRole === "MASTER" || userRole === "VENDOR");
     let savedCart = {};
@@ -546,16 +567,19 @@ function appendNextChunk() {
         htmlString += `<tr class="hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50"><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black tracking-tight whitespace-normal break-keep font-inter">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm font-inter">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50/50 border-l border-gray-100 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td></tr>`;
     }
 
+    // 🌟 안전하고 빠르게 DOM 끝에 부착
     tableBody.insertAdjacentHTML('beforeend', htmlString);
 
     if (window.applyTranslations) window.applyTranslations();
 
+    // 🌟 마지막 요소 감지 로직 100% 무결성 작동 보장
     if (globalRenderIndex < globalRenderData.length) {
         const lastRow = tableBody.lastElementChild;
         if (lastRow) infiniteObserver.observe(lastRow);
     }
 }
 
+// 🌟 [핵심 최적화 3] Event Delegation (이벤트 위임 록다운 - 메모리 누수 방어)
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('itemTableBody');
     if (tableBody) {
@@ -757,19 +781,284 @@ async function submitOrder() {
   }
 }
 
+// ============================================================================
+// 📁 엑셀 및 OCR 처리 엔진 (100% 무손실 보존)
+// ============================================================================
+function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image(); img.src = event.target.result;
+            img.onload = () => {
+                let width = img.width, height = img.height;
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) { height = Math.round((height *= maxWidth / width)); width = maxWidth; } 
+                    else { width = Math.round((width *= maxHeight / height)); height = maxHeight; }
+                }
+                const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(blob => { resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); }, 'image/jpeg', 0.8); 
+            };
+            img.onerror = error => resolve(file);
+        };
+        reader.onerror = error => resolve(file);
+    });
+}
+
+async function loadHeavyLibrary(url, objName) {
+    if (window[objName] !== undefined) return true;
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script'); script.src = url;
+        script.onload = () => resolve(true); 
+        script.onerror = () => { showToast(`${objName} 로드에 실패했습니다. 네트워크를 확인하세요.`, "error"); reject(false); };
+        document.head.appendChild(script);
+    });
+}
+
+function setupDragAndDrop() {
+  const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
+  const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
+
+  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('drop', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); handleExcelUpload(e); });
+  
+  const fileInput = document.getElementById('excelFileInput');
+  if(fileInput) {
+      const fiClone = fileInput.cloneNode(true); fileInput.parentNode.replaceChild(fiClone, fileInput);
+      fiClone.addEventListener('change', handleExcelUpload);
+  }
+}
+
+async function handleExcelUpload(event) {
+  event.preventDefault();
+  if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시 기다려주세요.", "error");
+
+  const file = event.dataTransfer ? event.dataTransfer.files[0] : event.target.files[0]; if (!file) return;
+  if (file.size > 10 * 1024 * 1024) return showToast("파일 크기가 너무 큽니다. (최대 10MB 지원)", "error");
+
+  isSubmitting = true;
+  const validExcelExts = [".xlsx", ".xls", ".csv"], validImgExts = [".png", ".jpg", ".jpeg"];
+  const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+  const statusText = document.getElementById('uploadStatusText');
+
+  if (validExcelExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E3000F] font-bold font-inter">Loading Excel Engine...</span>`;
+    try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
+    catch(e) { isSubmitting = false; return; }
+
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-[#E3000F] font-bold font-inter">Parsing Excel Document...</span>`;
+    
+    const reader = new FileReader();
+    reader.onerror = () => { isSubmitting = false; if(statusText) statusText.innerHTML = "Drag & Drop vendor document here"; showToast("파일을 읽는 중 시스템 오류가 발생했습니다.", "error"); };
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result), workbook = XLSX.read(data, {type: 'array'});
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]], jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+        if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다.");
+        
+        setTimeout(() => { processExcelData(jsonData, file.name); }, 50);
+        
+      } catch(err) {
+        isSubmitting = false; showToast("엑셀 파싱 중 오류 발생: " + err.message, "error"); 
+        if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } 
+  else if (validImgExts.includes(fileExt)) {
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">Compressing Image...</span>`;
+    
+    let targetFile = file;
+    try { targetFile = await compressImage(file); } catch(e) { console.warn("[Y2C Telemetry] Compression fallback"); }
+
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">Loading AI OCR Engine...</span>`;
+    try { await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js", "Tesseract"); } 
+    catch(e) { isSubmitting = false; return; }
+
+    if(statusText) statusText.innerHTML = `<span class="animate-pulse text-indigo-500 font-bold font-inter">AI Vision OCR Scanning...</span>`;
+    
+    try {
+      const result = await Tesseract.recognize(targetFile, 'eng+kor', {
+        logger: m => { if (m.status === 'recognizing text' && statusText) { const pct = Math.floor(m.progress * 100); statusText.innerHTML = `<span class="text-indigo-500 font-bold font-inter">AI Vision Parsing: ${pct}%</span>`; } }
+      });
+      processOCRText(result.data.text, file.name);
+    } catch(err) {
+      isSubmitting = false; showToast("이미지 인식 실패: " + err.message, "error"); 
+      if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+    }
+  } else { 
+    isSubmitting = false; return showToast("지원하지 않는 포맷입니다. (.xlsx, .jpg, .png 지원)", "error"); 
+  }
+}
+
+function processOCRText(text, filename) {
+  const safeText = String(text || ""); const lines = safeText.split('\n'), jsonData = [];
+  lines.forEach(line => {
+    const dateMatch = line.match(/\d{4}-\d{2}-\d{2}/), expDate = dateMatch ? dateMatch[0] : "";
+    const barcodeMatch = line.match(/\b\d{13,14}\b/), codeMatch = line.match(/\b[A-Z0-9]{5,15}\b/);
+    const itemCode = (codeMatch ? codeMatch[0] : (barcodeMatch ? barcodeMatch[0] : ""));
+    let cleanLine = line.replace(/\b\d+(\.\d+)?[KkGgLlMmCc]+\*\d+\b/g, '').replace(/,/g, ''); 
+    const nums = cleanLine.match(/\b\d+\b/g); 
+    let qty = 0;
+    
+    if (nums && nums.length > 0) {
+      for(let i = nums.length - 1; i >= 0; i--) {
+        const n = parseStrictNonNegativeInteger(nums[i]);
+        if(n !== 0 && n < 10000 && String(n) !== itemCode) { qty = n; break; }
+      }
+    }
+    if(itemCode && itemCode.length >= 3 && qty > 0) jsonData.push({ "Item#": itemCode, "Qty": qty, "Exp.Date": expDate });
+  });
+
+  if (jsonData.length === 0) {
+    isSubmitting = false; showToast("이미지에서 품번 및 수량을 찾지 못했습니다.", "error");
+    const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here"; return;
+  }
+  processExcelData(jsonData, filename + " (OCR)");
+}
+
+async function processExcelData(jsonData, filename) {
+  const targetRegion = document.getElementById('inboundRegionSelector');
+  if (!targetRegion || !targetRegion.value) {
+    isSubmitting = false; showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error");
+    const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here"; return;
+  }
+  const regionVal = targetRegion.value;
+
+  if (cachedItems.length === 0) {
+    isSubmitting = false; showToast("카탈로그 데이터를 불러오는 중입니다. 잠시 후 시도하세요.", "error"); return;
+  }
+
+  let inboundMap = Object.create(null), successCount = 0, validationErrors = [];
+
+  jsonData.forEach(row => {
+    let vItemCode = "", vQty = 0, vExp = ""; let qtyMatches = 0;
+    Object.keys(row).forEach(k => {
+      let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase();
+      let valStr = String(row[k] || "").trim();
+      if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
+      if (!vItemCode && cleanK === 'barcode') vItemCode = valStr;
+      if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') {
+          if (valStr !== "") { 
+              qtyMatches++; const parsedQty = parseStrictNonNegativeInteger(valStr);
+              if (parsedQty === 0 && valStr !== "0") { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 수량 형식이 잘못되었습니다: ${escapeHtml(valStr)}`); } 
+              else { vQty = parsedQty; }
+          }
+      }
+      if (cleanK === 'exp.date' || cleanK === 'expdate' || cleanK === '유통기한') vExp = valStr;
+    });
+
+    if (qtyMatches > 1) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 수량 컬럼이 중복 매칭되어 데이터를 덮어쓰는 것을 차단했습니다.`); return; }
+
+    const expString = String(vExp || "").trim();
+    if (expString === "" || expString.toLowerCase() === "null" || expString === "-") { vExp = null; } 
+    else { 
+        vExp = parseStrictISODate(expString); 
+        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 올바르지 않은 유통기한 형식입니다: ${escapeHtml(expString)}`); return; }
+    }
+
+    const safeVItemCode = String(vItemCode || "").trim().toUpperCase();
+
+    if (safeVItemCode.length >= 3 && vQty > 0 && qtyMatches === 1) {
+      let hqCode = null;
+      const mapObj = cachedMappings.find(m => String(m.vendorCode || "").trim().toUpperCase() === safeVItemCode);
+      if (mapObj) { hqCode = mapObj.hqCode; } else {
+        const directMatch = cachedItems.find(item => String(item.code || "").trim().toUpperCase() === safeVItemCode);
+        if (directMatch) hqCode = directMatch.code;
+      }
+      if (hqCode) {
+        if (!inboundMap[hqCode]) inboundMap[hqCode] = { totalQty: 0, batches: Object.create(null) };
+        inboundMap[hqCode].totalQty += vQty;
+        if (vExp) { inboundMap[hqCode].batches[vExp] = (inboundMap[hqCode].batches[vExp] || 0) + vQty; }
+        successCount++;
+      }
+    }
+  });
+
+  if (validationErrors.length > 0) {
+      isSubmitting = false; const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+      return showToast(`🚨 입고 실패 (데이터 오염 감지):\n\n${validationErrors.join('\n')}`, "error");
+  }
+
+  if (successCount === 0) {
+    isSubmitting = false; const statusText = document.getElementById('uploadStatusText'); if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+    showToast("마스터 DB와 매칭되는 품목이 0건입니다.", "error"); return;
+  }
+
+  const finalStockUpdates = Object.keys(inboundMap).map(hqCode => {
+    let newExpArr = [];
+    let sortedDates = Object.keys(inboundMap[hqCode].batches).sort();
+    sortedDates.forEach(d => { newExpArr.push(`${d}:${inboundMap[hqCode].batches[d]}`); });
+    const addedExpStr = newExpArr.join(' | ');
+    return { code: hqCode, stockBreakdown: { [regionVal]: inboundMap[hqCode].totalQty }, expBreakdown: { [regionVal]: addedExpStr } };
+  });
+
+  const statusText = document.getElementById('uploadStatusText');
+  if(statusText) statusText.innerHTML = `<span class="animate-pulse text-emerald-600 font-bold font-inter">Synchronizing ${successCount} Rows (Atomic ADD)...</span>`;
+  
+  const uniqueSyncId = generateIdempotencyKey();
+
+  try {
+    const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: uniqueSyncId });
+    if (result && result.success) {
+      showToast(`입고 완료: 엑셀/이미지 ${successCount}건 누적 성공`, "success");
+      if(statusText) statusText.innerHTML = `<span class="text-emerald-600 font-bold font-inter">✅ Uploaded: ${escapeHtml(filename)}</span>`;
+      setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); 
+    } 
+  } catch (err) {
+    isSubmitting = false; 
+    if(statusText) statusText.innerHTML = "Drag & Drop vendor document here";
+    if(err.ledgerPending) { showToast(`✅ 재고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); }
+    else { showToast(err.message, "error"); if(err.message.includes("트래픽") || err.message.includes("동기화") || err.message.includes("일치")) { setTimeout(() => fetchItems(), 2000); } }
+  }
+}
+
+async function cancelOrder(batchId) {
+    if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
+    if (!batchId) {
+        batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: REQ-123456)");
+        if (!batchId) return;
+    }
+    const safeBatchId = String(batchId).trim();
+    if (safeBatchId.length > 50 || !/^[\w-]+$/.test(safeBatchId)) return showToast("주문 번호 형식이 올바르지 않습니다.", "error");
+
+    const confirmMsg = `정말 주문 [${escapeHtml(safeBatchId)}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 100% 복구됩니다.\n✔️ 물류사 및 본사로 [출고 중지 알림 이메일]이 자동 전송됩니다.`;
+    if (!confirm(confirmMsg)) return;
+
+    isSubmitting = true; showToast("⏳ 시스템 취소 요청 및 재고 복구를 진행 중입니다...", "success");
+    
+    clearTimeout(submitLockTimer);
+    submitLockTimer = setTimeout(() => { isSubmitting = false; showToast("취소 요청 시간이 초과되었습니다.", "error"); }, 25000);
+
+    try {
+        const result = await executeApi("cancel_order", { batchId: safeBatchId });
+        if (result && result.success) { showToast(`✅ ${escapeHtml(result.message)}`, "success"); setTimeout(() => fetchItems(), 1500); } 
+    } catch (err) { 
+        if(err.ledgerPending) { showToast(`✅ 재고 복원 성공\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); } 
+        else { showToast(`❌ 취소 실패: ${escapeHtml(err.message)}`, "error"); }
+    } finally { isSubmitting = false; clearTimeout(submitLockTimer); }
+}
+
 window.submitOrder = submitOrder; 
 window.fetchItems = fetchItems; 
 window.toggleStockEditMode = toggleStockEditMode; 
 window.applyRegionFilter = applyRegionFilter; 
 window.applyAiSuggestion = applyAiSuggestion; 
 window.calculateOrderTotal = calculateOrderTotal; 
+window.handleExcelUpload = handleExcelUpload;
+window.cancelOrder = cancelOrder; 
 
+// ============================================================================
+// 🌟 시스템 초기화 바인딩
+// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang);
   applyGlobalRbacNavigation(); 
   
   if (userRole === "MASTER" || userRole === "VENDOR") {
-    fetchMappings().then(() => { fetchItems(); });
+    fetchMappings().then(() => { fetchItems().then(setupDragAndDrop); });
   } else { 
     fetchItems(); 
   }
