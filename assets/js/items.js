@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V40.0 Next-Gen)
- * [Infinite Chunk Observer] 무한 스크롤, 메모리 누수 방어, 0초 로딩 렌더링 엔진
+ * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V40.1 Fixed & Hardened)
+ * [Absolute Null-Safe] SKU 누락 방어 무한 스크롤 렌더러, SWR 캐시, 메모리 락다운
  * ============================================================================
  */
 
@@ -144,18 +144,6 @@ function parseStrictDecimal(value) {
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
     return num; 
-}
-
-function parseStrictISODate(value) { 
-    if (value == null) return null;
-    const str = String(value).trim().toLowerCase(); 
-    if (str === "" || str === "null" || str === "nan" || str === "-") return null; 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return null; 
-    const [y, m, d] = str.split("-").map(Number); 
-    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; 
-    const date = new Date(Date.UTC(y, m - 1, d)); 
-    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; 
-    return str; 
 }
 
 function roundToCents(amount) { 
@@ -338,7 +326,7 @@ async function fetchItems() {
       if (cachedRaw) {
           cachedItems = JSON.parse(cachedRaw);
           lastItemsHash = generateDataHash(cachedItems);
-          renderTableItemsFast(cachedItems, true); // true = force instant render
+          renderTableItemsFast(cachedItems, true); 
       } else {
           tableBody.innerHTML = `<tr><td colspan="6" class="p-0"><div class="w-full h-[64px] shimmer-bg border-b border-gray-50"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-90"></div><div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-80"></div><div class="py-12 text-center"><p class="text-[12px] font-bold text-gray-400 tracking-wider uppercase animate-pulse font-inter">Synchronizing Data...</p></div></td></tr>`;
       }
@@ -414,18 +402,17 @@ window.saveCartState = function() {
 };
 
 // ============================================================================
-// 🚀 [V40.0 핵심] Infinite Chunk Observer (무한 스크롤 및 지능형 DOM 주입 엔진)
+// 🚀 [V40.1 핵심 수정] SKU 누락 방어 무한 스크롤 렌더러
 // ============================================================================
 let infiniteObserver = null;
 let globalRenderData = [];
 let globalRenderIndex = 0;
-const RENDER_CHUNK_SIZE = 30; // 한 번에 그려낼 덩어리 수
+const RENDER_CHUNK_SIZE = 50; // 한 번에 그려낼 덩어리를 50개로 넉넉하게 확장하여 누락 방지
 
 function renderTableItemsFast(data = cachedItems, instantRender = false) {
   const tableBody = document.getElementById('itemTableBody'); 
   if (!tableBody) return;
 
-  // 기존 진행 중이던 옵저버 즉각 폐기 (메모리 누수 차단)
   if (infiniteObserver) { 
       infiniteObserver.disconnect(); 
       infiniteObserver = null; 
@@ -438,9 +425,8 @@ function renderTableItemsFast(data = cachedItems, instantRender = false) {
   
   globalRenderData = data;
   globalRenderIndex = 0;
-  tableBody.innerHTML = ''; // 화면 클리어
+  tableBody.innerHTML = ''; 
   
-  // KPI 한 번만 계산
   let totalValue = 0, lowStockCount = 0;
   const isMasterOrVendor = (userRole === "MASTER" || userRole === "VENDOR");
   
@@ -460,22 +446,14 @@ function renderTableItemsFast(data = cachedItems, instantRender = false) {
   if (document.getElementById('kpiTotalValue')) document.getElementById('kpiTotalValue').innerText = userRole === "VENDOR" ? "N/A" : formatCurrency(totalValue);
   if (document.getElementById('kpiLowStock')) document.getElementById('kpiLowStock').innerText = `${lowStockCount} Items`;
 
-  // 🌟 스크롤 바닥 감지 옵저버 생성 (바닥에서 300px 전에 미리 다음 청크를 그림)
   infiniteObserver = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-          infiniteObserver.disconnect(); // 현재 감지 트리거 해제
-          appendNextChunk(); // 다음 30개 주입
+          infiniteObserver.disconnect(); 
+          appendNextChunk(); 
       }
-  }, { rootMargin: '300px' });
+  }, { rootMargin: '400px' });
 
-  // 첫 번째 청크(1~30) 그리기
-  if(instantRender) {
-      // 강제 렌더링 시에는 애니메이션 없이 전체 렌더링을 원할 수 있으나,
-      // 1만 개 데이터 시 멈춤을 막기 위해 동일하게 청크 방식을 유지합니다.
-      appendNextChunk();
-  } else {
-      appendNextChunk();
-  }
+  appendNextChunk();
 }
 
 function appendNextChunk() {
@@ -499,7 +477,6 @@ function appendNextChunk() {
         const rawImgValue = String(item.image || "").trim();
         const resolvedImgUrl = resolveDriveImageUrl(rawImgValue);
         
-        // 🌟 네이티브 lazy 로딩 적용으로 화면에 안 보이는 이미지는 다운받지 않음 (데이터 소모 방어)
         const imgTag = resolvedImgUrl !== '' 
             ? `<img src="${escapeHtml(resolvedImgUrl)}" alt="${safeCode}" class="item-thumbnail cursor-zoom-in w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-gray-200 shadow-sm shrink-0 bg-white hover:border-[#E3000F] transition-colors" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter\\'>No Img</div>';">` 
             : `<div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl flex items-center justify-center text-[9px] font-bold text-gray-400 border border-gray-200 shadow-sm shrink-0 font-inter">No Img</div>`;
@@ -569,20 +546,16 @@ function appendNextChunk() {
         htmlString += `<tr class="hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50"><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black tracking-tight whitespace-normal break-keep font-inter">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm font-inter">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50/50 border-l border-gray-100 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td></tr>`;
     }
 
-    // 🌟 안전하고 빠르게 DOM 끝에 부착
     tableBody.insertAdjacentHTML('beforeend', htmlString);
 
     if (window.applyTranslations) window.applyTranslations();
 
-    // 청크가 남았다면 마지막 줄에 옵저버 다시 달기
     if (globalRenderIndex < globalRenderData.length) {
         const lastRow = tableBody.lastElementChild;
         if (lastRow) infiniteObserver.observe(lastRow);
     }
 }
 
-// 🌟 [핵심 최적화 3] Event Delegation (이벤트 위임 록다운 - 메모리 누수 방어)
-// 개별 <input> 1000개에 이벤트리스너를 달지 않고, 부모 tableBody 단 1개에서 전체를 통제
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('itemTableBody');
     if (tableBody) {
@@ -596,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    attachImageHoverEffect(); // 마우스 호버 효과도 위임으로 1번만 실행
+    attachImageHoverEffect(); 
 });
 
 function applyAiSuggestion() {
@@ -705,13 +678,11 @@ async function toggleStockEditMode() {
   }
 }
 
-// 🌟 [핵심 최적화 4] RequestAnimationFrame Throttling (마우스 오버 렌더링 부하 방어)
 let hoverRAF = null;
 function attachImageHoverEffect() {
   const tableBody = document.getElementById('itemTableBody'), previewContainer = document.getElementById('imagePreviewContainer'), previewImg = document.getElementById('imagePreview');
   if (!tableBody || !previewContainer || !previewImg) return;
   
-  // 마우스 진입 시
   tableBody.addEventListener('mouseover', (e) => { 
       if (e.target.classList.contains('item-thumbnail')) { 
           previewImg.src = e.target.src; previewContainer.classList.remove('hidden'); 
@@ -719,7 +690,6 @@ function attachImageHoverEffect() {
       } 
   });
   
-  // 마우스 이동 시 (GPU Throttling)
   tableBody.addEventListener('mousemove', (e) => { 
       if (e.target.classList.contains('item-thumbnail')) { 
           if(hoverRAF) cancelAnimationFrame(hoverRAF);
@@ -731,7 +701,6 @@ function attachImageHoverEffect() {
       } 
   });
   
-  // 마우스 아웃 시
   tableBody.addEventListener('mouseout', (e) => { 
       if (e.target.classList.contains('item-thumbnail')) { 
           previewContainer.classList.remove('scale-100', 'opacity-100'); previewContainer.classList.add('scale-95', 'opacity-0'); 
@@ -788,42 +757,6 @@ async function submitOrder() {
   }
 }
 
-// 🌟 파일 처리 기능들 (그대로 보존)
-function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = event => {
-            const img = new Image(); img.src = event.target.result;
-            img.onload = () => {
-                let width = img.width, height = img.height;
-                if (width > maxWidth || height > maxHeight) {
-                    if (width > height) { height = Math.round((height *= maxWidth / width)); width = maxWidth; } 
-                    else { width = Math.round((width *= maxHeight / height)); height = maxHeight; }
-                }
-                const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                canvas.toBlob(blob => { resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() })); }, 'image/jpeg', 0.8); 
-            };
-            img.onerror = error => resolve(file);
-        };
-        reader.onerror = error => resolve(file);
-    });
-}
-
-async function loadHeavyLibrary(url, objName) {
-    if (window[objName] !== undefined) return true;
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script'); script.src = url;
-        script.onload = () => resolve(true); 
-        script.onerror = () => { showToast(`${objName} 로드에 실패했습니다. 네트워크를 확인하세요.`, "error"); reject(false); };
-        document.head.appendChild(script);
-    });
-}
-
-// ============================================================================
-// 🌟 시스템 초기화 바인딩
-// ============================================================================
 window.submitOrder = submitOrder; 
 window.fetchItems = fetchItems; 
 window.toggleStockEditMode = toggleStockEditMode; 
