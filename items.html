@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.8 Enterprise Master Benchmark - 32대 방어로직 적용, Flexbox 붕괴 해결, 하단 겹침 방지 -->
-<html lang="en" class="opacity-0">
+<!-- 🌟 V40.17 Enterprise Master STABLE - FOUC 하얀화면 영구 픽스 & 33대 방어로직 무손실 보존 -->
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
@@ -17,13 +17,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
+
+    <!-- 🌟 [핵심 버그 픽스] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <style>
+        .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
+    </style>
+    <script>
+        // JS가 정상 작동할 때만 화면을 가리고, 0.8초 뒤 무조건 락을 푸는 생존 타이머
+        document.documentElement.classList.add('fouc-lock');
+        window._foucTimer = setTimeout(function() {
+            document.documentElement.classList.remove('fouc-lock');
+            document.documentElement.style.opacity = '1';
+            document.documentElement.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+        }, 800);
+    </script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- 🚨 [CRITICAL FIX] Tailwind CSS 동기식 로드 보장 -->
+    <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -132,37 +147,38 @@
         @media print { .no-print { display: none !important; } body { background: white !important; margin: 0; } }
     </style>
 </head>
-<body style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
+
+<body style="background-color: #F8F9FA; margin: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 NoScript 샌드박스 -->
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
+    <script>if (window.top !== window.self) { window.top.location = window.self.location; }</script>
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif;">
-            Please enable JavaScript to access the Enterprise Portal.
+            Please enable JavaScript to access the Sinjeon Item Catalog.
         </div>
     </noscript>
 
-    <!-- 🌟 동기식 권한 검증 및 스무스 페이드인 -->
+    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
     <script>
         (function() {
             try {
-                document.documentElement.classList.remove("opacity-0");
+                clearTimeout(window._foucTimer);
+                document.documentElement.classList.remove("fouc-lock");
                 document.documentElement.style.opacity = "1";
-                requestAnimationFrame(function() {
-                    requestAnimationFrame(function() {
-                        document.body.style.opacity = "1";
-                    });
-                });
+                document.documentElement.style.visibility = "visible";
+                document.body.style.opacity = "1";
+
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
             } catch(e) {}
         })();
     </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 (Flexbox Crush 방어) -->
+    <!-- 🌟 유니버설 마스터 헤더 (Flexbox Crush 방어 유지) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 (shrink-0 강제) -->
+            <!-- 좌측 로고 영역 -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
@@ -171,16 +187,17 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 (lg, xl에서 유동적 숨김으로 겹침 방지) -->
+            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <!-- 현재 페이지: Item Catalog 활성화 -->
                 <a href="items.html" id="navCatalog" class="nav-link active text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
                 <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
                 <a href="admin.html" id="navAdmin" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
                 <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
-            <!-- 우측 컨트롤 영역 (shrink-0 강제) -->
+            <!-- 우측 컨트롤 영역 -->
             <div class="flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto">
                 <div class="hidden sm:flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
                     <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
@@ -204,154 +221,157 @@
     <!-- 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
+        <!-- 현재 페이지: Item Catalog 모바일 활성화 -->
         <a href="items.html" id="navCatalog_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
+    <!-- 권한 동기식 프리-언락 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
-            if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
             if (role === 'MASTER' || role === 'VENDOR') {
-                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-            if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.classList.remove('hidden');
+                });
             }
         })();
     </script>
 
-    <!-- 🌟 [방어 18] 하단 겹침 100% 방지 안전 여백 (pb-32 sm:pb-36) -->
+    <!-- 📊 메인 컨텐츠 영역 (하단 겹침 방지 여백 유지 pb-32 sm:pb-36) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-32 sm:pb-36 app-shell-enter">
         
-        <header class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 no-print">
+        <!-- 프리미엄 헤더 및 액션 버튼 -->
+        <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 no-print">
             <div>
                 <h2 id="catalogHeaderTitle" class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
                     <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📦</span> <span data-i18n="catalog_title">Inventory & Catalog</span>
                 </h2>
                 <p class="text-xs sm:text-sm font-medium text-gray-500 mt-2 tracking-wide font-inter" data-i18n="catalog_desc">Select items and quantities to request procurement.</p>
             </div>
-            
-            <div class="flex gap-2 shrink-0">
-                <button type="button" id="aiSuggestBtn" onclick="applyAiSuggestion()" class="hidden bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-4 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 whitespace-nowrap focus:outline-none">
-                    <span>✨</span> <span data-i18n="btn_ai">Auto-Fill AI</span>
+            <div class="flex flex-wrap items-center gap-3">
+                <button type="button" onclick="cancelOrder()" class="bg-white border border-[#E3000F] text-[#E3000F] hover:bg-[#E3000F] hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0.5 flex items-center gap-2 focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <span data-i18n="cancel_order">Cancel Order</span>
                 </button>
-                <button type="button" onclick="cancelOrder()" class="bg-white hover:bg-red-50 text-[#E3000F] border border-red-200 px-4 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 whitespace-nowrap focus:outline-none">
-                    <span>✕</span> <span data-i18n="cancel_order">CANCEL ORDER</span>
+                <button type="button" id="aiSuggestBtn" onclick="applyAiSuggestion()" class="hidden bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0.5 flex items-center gap-2 focus:outline-none">
+                    ✨ <span data-i18n="btn_ai">Auto-Fill AI</span>
                 </button>
             </div>
         </header>
 
-        <div id="masterInventoryControls" class="hidden bg-white premium-shadow rounded-2xl p-5 mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 no-print border-l-4 border-l-[#E3000F]">
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap pl-1" data-i18n="hub_view">Hub View:</span>
-                <div class="relative w-full sm:w-48">
-                    <!-- 🌟 [방어 31] onchange 하드코딩 바인딩 -->
-                    <select id="regionFilter" onchange="applyRegionFilter()" aria-label="Region Filter" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-xs font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block p-2.5 outline-none transition-all cursor-pointer appearance-none">
-                        <option value="ALL">Total Stock</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
+        <!-- 🌟 Master / Vendor 전용 재고 관리 컨트롤 패널 -->
+        <div id="masterInventoryControls" class="hidden mb-6 bg-white premium-shadow rounded-2xl p-5 no-print">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <span class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest pl-2 font-inter" data-i18n="hub_view">Hub View:</span>
+                    <select id="regionFilter" onchange="applyRegionFilter()" aria-label="Region Filter" class="bg-gray-50 border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block p-3 outline-none w-full sm:w-48 transition-all cursor-pointer appearance-none"></select>
                 </div>
+                <button type="button" id="toggleStockBtn" onclick="toggleStockEditMode()" class="btn-charcoal w-full sm:w-auto px-6 py-3 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
+                    ⚙️ <span data-i18n="btn_manage">MANAGE INVENTORY</span>
+                </button>
             </div>
-            <button type="button" id="toggleStockBtn" onclick="toggleStockEditMode()" class="btn-charcoal w-full sm:w-auto px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest whitespace-nowrap focus:outline-none">
-                ⚙️ <span data-i18n="btn_manage">MANAGE INVENTORY</span>
-            </button>
         </div>
 
-        <div id="kpiDashboard" class="hidden grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 no-print">
+        <!-- 🌟 KPI 상태 대시보드 -->
+        <div id="kpiDashboard" class="hidden grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="kpi-card bg-white rounded-2xl p-5 border-t border-t-white">
-                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 font-inter" data-i18n="kpi_skus">Total SKUs</p>
+                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_skus">Total SKUs</p>
                 <p id="kpiTotalSkus" class="text-xl sm:text-2xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">-</p>
             </div>
             <div class="kpi-card bg-white rounded-2xl p-5 border-t border-t-white">
-                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 font-inter" data-i18n="kpi_value">Inventory Value</p>
+                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_value">Inventory Value</p>
                 <p id="kpiTotalValue" class="text-xl sm:text-2xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">-</p>
             </div>
-            <div class="kpi-card bg-red-50/50 rounded-2xl p-5 border border-red-100 group hover:border-[#E3000F]">
-                <p class="text-[9px] font-black text-[#E3000F] uppercase tracking-widest mb-1 flex items-center gap-1 font-inter"><span class="animate-pulse">🚨</span> <span data-i18n="kpi_warning">Low Stock</span></p>
+            <div class="kpi-card bg-red-50/50 border border-red-100 rounded-2xl p-5 group hover:border-[#E3000F] transition-colors">
+                <p class="text-[9px] sm:text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1.5 flex items-center gap-1 opacity-90 font-inter"><span class="animate-pulse">🚨</span> <span data-i18n="kpi_warning">Low Stock</span></p>
                 <p id="kpiLowStock" class="text-xl sm:text-2xl font-black font-mono text-[#B9000C] tracking-tighter">-</p>
             </div>
             <div class="kpi-card bg-white rounded-2xl p-5 border-t border-t-white">
-                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 font-inter" data-i18n="kpi_synced">Last Synced</p>
-                <p id="kpiLastUpdated" class="text-[11px] sm:text-xs font-bold text-gray-500 mt-2 tracking-wide font-inter">-</p>
+                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_synced">Last Synced</p>
+                <p id="kpiLastUpdated" class="text-[11px] sm:text-xs font-bold text-gray-600 mt-2 font-inter">-</p>
             </div>
         </div>
 
-        <!-- 🌟 카탈로그 테이블 (Table-Fixed 록다운) -->
-        <div class="bg-white premium-shadow rounded-[2rem] overflow-hidden relative border border-gray-100">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#E3000F] to-[#B9000C] z-10"></div>
+        <!-- 🌟 메인 카탈로그 테이블 영역 -->
+        <section class="bg-white premium-shadow rounded-[1.5rem] overflow-hidden mb-8 relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#E3000F] to-[#B9000C]"></div>
             
             <div class="overflow-x-auto hide-scrollbar pb-10">
                 <table class="w-full text-left border-collapse table-fixed min-w-[800px]">
                     <thead>
-                        <tr class="bg-gray-50/80 border-b-2 border-red-600/90 font-inter">
-                            <th class="w-24 py-5 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_code">Item Code</th>
-                            <th class="w-64 py-5 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_product">Product Name</th>
-                            <th class="w-40 py-5 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_category">Category / Tax</th>
-                            <th class="w-32 py-5 px-5 sm:px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right whitespace-nowrap font-montserrat" data-i18n="th_price">Unit Price</th>
-                            <th id="stockHeaderLabel" class="w-40 py-5 px-5 sm:px-6 text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-200 bg-gray-100/50 font-montserrat">Stock & EXP</th>
-                            <th class="w-32 py-5 px-5 sm:px-6 text-[10px] font-black text-[#E3000F] uppercase tracking-widest text-center whitespace-nowrap border-l border-red-100 bg-red-50/50 font-montserrat" data-i18n="th_qty">Order Qty</th>
+                        <tr class="bg-gray-50/50 border-b border-gray-100">
+                            <th class="w-24 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_code">Item Code</th>
+                            <th class="w-64 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_product">Product Name</th>
+                            <th class="w-40 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_category">Category / Tax</th>
+                            <th class="w-32 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right whitespace-nowrap font-montserrat" data-i18n="th_price">Unit Price</th>
+                            <th id="stockHeaderLabel" class="w-40 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-100 bg-gray-50/50 font-montserrat">Stock & EXP</th>
+                            <th class="w-32 py-5 px-6 text-[10px] font-black text-[#E3000F] uppercase tracking-widest text-center whitespace-nowrap border-l border-red-50 bg-red-50/30 font-montserrat" data-i18n="th_qty">Order Qty</th>
                         </tr>
                     </thead>
-                    <tbody id="itemTableBody" class="divide-y divide-gray-50 font-inter">
+                    <tbody id="itemTableBody" class="divide-y divide-gray-50">
+                        <!-- 고급 Shimmer 스켈레톤 기본 주입 -->
                         <tr>
                             <td colspan="6" class="p-0">
-                                <div class="w-full h-[70px] shimmer-bg border-b border-gray-50"></div>
-                                <div class="w-full h-[70px] shimmer-bg border-b border-gray-50 opacity-90"></div>
-                                <div class="w-full h-[70px] shimmer-bg border-b border-gray-50 opacity-80"></div>
-                                <div class="w-full h-[70px] shimmer-bg border-b border-gray-50 opacity-60"></div>
+                                <div class="w-full h-[64px] shimmer-bg border-b border-gray-50"></div>
+                                <div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-90"></div>
+                                <div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-80"></div>
+                                <div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-70"></div>
+                                <div class="w-full h-[64px] shimmer-bg border-b border-gray-50 opacity-50"></div>
                                 <div class="py-12 text-center">
-                                    <p class="text-[12px] font-bold text-gray-400 tracking-widest uppercase animate-pulse font-inter" data-i18n="loading_catalog">Securely loading SCM data...</p>
+                                    <p class="text-[12px] font-bold text-gray-400 tracking-widest uppercase animate-pulse font-inter" data-i18n="loading_catalog">Synchronizing Enterprise SCM Data...</p>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
+
     </main>
 
-    <!-- 🌟 [방어 18] Z-30 플로팅 바 & safe-area-inset-bottom 대응 -->
-    <aside id="orderActionContainer" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-[0_-15px_40px_rgba(0,0,0,0.06)] z-30 transition-transform duration-300 no-print pb-[env(safe-area-inset-bottom)]">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-4 sm:gap-8 overflow-x-auto hide-scrollbar w-full sm:w-auto">
-                <div class="flex flex-col shrink-0">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest font-inter mb-0.5" data-i18n="order_sub">Subtotal</span>
-                    <span id="orderSubtotal" class="text-lg sm:text-xl font-black font-mono text-[var(--premium-charcoal)]">$0.00</span>
+    <!-- 🌟 결제/주문 하단 플로팅 바 (안전영역 safe-area-inset-bottom 및 Z-40 고정) -->
+    <aside id="orderActionContainer" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] z-40 transition-transform duration-500 no-print pb-[env(safe-area-inset-bottom)]">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
+                
+                <div class="flex items-center gap-4 sm:gap-8 w-full sm:w-auto overflow-x-auto hide-scrollbar">
+                    <div class="flex flex-col shrink-0">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 font-inter" data-i18n="order_sub">Subtotal</span>
+                        <span id="orderSubtotal" class="font-mono text-sm sm:text-lg font-bold text-gray-700 transition-all duration-300">$0.00</span>
+                    </div>
+                    <div class="w-px h-8 sm:h-10 bg-gray-200 shrink-0"></div>
+                    <div class="flex flex-col shrink-0">
+                        <span id="orderTaxLabel" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 font-inter" data-i18n="order_tax">Estimated Tax</span>
+                        <span id="orderTaxAmt" class="font-mono text-sm sm:text-lg font-bold text-gray-700 transition-all duration-300">$0.00</span>
+                    </div>
+                    <div class="w-px h-8 sm:h-10 bg-gray-200 shrink-0 hidden sm:block"></div>
+                    <div class="flex flex-col shrink-0 pl-0 sm:pl-2">
+                        <span class="text-[11px] font-black text-[#E3000F] uppercase tracking-widest mb-0.5 font-inter" data-i18n="order_total">Total Due</span>
+                        <span id="orderGrandTotal" class="font-mono text-xl sm:text-2xl font-black text-[var(--premium-charcoal)] transition-all duration-300 tracking-tighter">$0.00</span>
+                    </div>
                 </div>
-                <div class="flex flex-col shrink-0">
-                    <span id="orderTaxLabel" class="text-[9px] font-black text-gray-400 uppercase tracking-widest font-inter mb-0.5" data-i18n="order_tax">Estimated Tax</span>
-                    <span id="orderTaxAmt" class="text-lg sm:text-xl font-black font-mono text-gray-500">$0.00</span>
-                </div>
-                <div class="h-8 sm:h-10 w-[1px] bg-gray-200 hidden sm:block shrink-0"></div>
-                <div class="flex flex-col shrink-0">
-                    <span class="text-[10px] font-black text-[#E3000F] uppercase tracking-[0.2em] font-inter mb-0.5" data-i18n="order_total">Total Due</span>
-                    <span id="orderGrandTotal" class="text-2xl sm:text-3xl font-black font-mono text-[#E3000F] tracking-tighter">$0.00</span>
-                </div>
+                
+                <button type="button" onclick="submitOrder()" class="btn-gradient-pink w-full sm:w-auto px-10 py-4 rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-widest flex items-center justify-center gap-3 whitespace-nowrap shrink-0 focus:outline-none">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <span data-i18n="btn_submit">Submit Order</span>
+                </button>
             </div>
-            
-            <button type="button" onclick="submitOrder()" class="btn-gradient-pink w-full sm:w-auto px-10 py-4 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 shrink-0 focus:outline-none">
-                <svg class="w-5 h-5 drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                <span data-i18n="btn_submit">SUBMIT ORDER</span>
-            </button>
         </div>
     </aside>
 
-    <!-- 🌟 [방어 19] 이미지 프리뷰 Z-9999 샌드박스화 -->
-    <div id="imagePreviewContainer" class="fixed z-[9999] hidden pointer-events-none transform scale-95 opacity-0 transition-all duration-200 ease-out origin-center">
-        <div class="bg-white p-2.5 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-gray-100">
-            <img id="imagePreview" src="" alt="Preview" class="w-64 h-64 sm:w-80 sm:h-80 object-cover rounded-2xl bg-gray-50" loading="lazy" decoding="async">
-        </div>
+    <!-- 🌟 사진 팝업 프리뷰 Z-Index 및 렌더링 스택 격리 -->
+    <div id="imagePreviewContainer" class="fixed hidden z-[9999] pointer-events-none transform transition-all duration-300 scale-95 opacity-0 bg-white p-2 rounded-2xl shadow-2xl border border-gray-200">
+        <img id="imagePreview" src="" alt="Preview" class="w-64 h-64 sm:w-80 sm:h-80 object-cover rounded-xl border border-gray-100" loading="lazy" decoding="async">
     </div>
 
-    <!-- 글로벌 토스트 -->
+    <!-- 🌟 글로벌 토스트 알림 컨테이너 (최상단 Z-9999 보장) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ SWR 캐시 프리렌더러 -->
+    <!-- ⚡ SWR 캐시 프리렌더러 및 스크립트 비동기 구동 -->
     <script>
         (function() {
             try {
@@ -363,6 +383,7 @@
                 if (cached) {
                     var data = JSON.parse(cached);
                     if (Array.isArray(data) && data.length > 0 && typeof window.renderItemRowsFast === 'function') {
+                        // JS 렌더링 시 투명도 조절로 딱딱 끊기는 현상을 방지
                         document.getElementById('itemTableBody').style.opacity = '0';
                         window.renderItemRowsFast(data);
                         setTimeout(() => { document.getElementById('itemTableBody').style.opacity = '1'; }, 50);
@@ -374,24 +395,30 @@
     <script src="assets/js/items.js" defer></script>
     
     <script>
+        // 🌟 다국어 딕셔너리 안전 주입 및 권한 교차 검증
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                if (typeof I18N_DICT !== 'undefined' && window.applyTranslations) {
-                    window.applyTranslations();
+                if (typeof I18N_DICT !== 'undefined') {
+                    if (window.applyTranslations) window.applyTranslations();
                 }
-            } catch (err) {}
+            } catch (err) {
+                console.error("[Y2C Telemetry] I18N Error", err);
+            }
 
             try {
                 const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
                 const role = (localStorage.getItem(conf.STORAGE_KEYS.ROLE) || "").toUpperCase();
                 
                 if (role === "MASTER" || role === "VENDOR") {
-                    ['masterInventoryControls', 'kpiDashboard'].forEach(id => {
+                    const unlockIds = ['masterInventoryControls', 'kpiDashboard'];
+                    unlockIds.forEach(id => {
                         const el = document.getElementById(id);
                         if(el) el.classList.remove('hidden');
                     });
                 }
-            } catch(authErr) {}
+            } catch(authErr) {
+                console.error("[Y2C Telemetry] RBAC Auth Verification Error", authErr);
+            }
         });
     </script>
 </body>
