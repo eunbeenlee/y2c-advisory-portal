@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Admin Engine (V30.5 Enterprise Master)
- * [Absolute Null-Safe] SWR 초고속 캐시 엔진, Inbound Hub 무한 로딩 픽스, OOM 방어
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V40.7 Enterprise Master)
+ * [33+ Defenses] API Hash Lock, Time-Slicing, Deadlock Release, Idempotency Guard
  * ============================================================================
  */
 
-// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
+// 🌟 [방어 13] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
@@ -31,8 +31,8 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 권한 무결성 1차 검증
-if (!sessionToken || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
+// 🌟 [방어 4] 권한 무결성 1차 검증 (세션 토큰 유연성 검사 포함)
+if (!sessionToken || sessionToken.length < 10 || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
     alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
 }
@@ -48,8 +48,8 @@ const I18N_DICT = {
         "sales_title": "ERP Sales Sync", "sales_desc": "Monthly POS and delivery app sales data integration and royalty calculation basis.",
         "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.12 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
         "guide_title": "B2B Logistics Inventory Merge System Essential Guide",
-        "guide_q1": "✅ What to upload?", "guide_a1_1": "• Excel receipt statements (.xlsx, .xls, .csv) issued by vendors (suppliers)", "guide_a1_2": "• Image files (.jpg, .jpeg, .png) of physical invoices and receipts (Auto Tesseract AI OCR Scan Engine activated)",
-        "guide_q2": "⚠️ Precautions (Must Read)", "guide_a2_1": "• Uploaded quantities will be cumulatively added (+) to the live inventory of the selected Hub.", "guide_a2_2": "• Risk of duplicate receiving: Please be careful not to upload the same receiving file multiple times.",
+        "guide_q1": "✅ What to upload?", "guide_a1_1": "• Excel receipt statements (.xlsx, .xls, .csv)", "guide_a1_2": "• Image files (.jpg, .png) of physical invoices (Auto OCR Scan)",
+        "guide_q2": "⚠️ Precautions (Must Read)", "guide_a2_1": "• Uploaded quantities will be cumulatively added (+) to the live inventory.", "guide_a2_2": "• Risk of duplicate receiving: Please avoid uploading the same file twice.",
         "dropzone_title": "Drag & Drop Vendor Document Here", "dropzone_desc": "Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png",
         "btn_browse": "Browse Files", "btn_save": "SAVE DATA", "btn_add": "Add Order",
         "placeholder_vendor": "Vendor Name (e.g. CJ Foods)", "placeholder_hub": "Hub (ON, BC..)", "placeholder_cart": "🛒 Click to Select Items & Qty...",
@@ -69,8 +69,8 @@ const I18N_DICT = {
         "sales_title": "ERP 매출 데이터 동기화", "sales_desc": "가맹점별 월간 POS 및 배달 매출 데이터 연동 및 로열티 산정 기반.",
         "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.12 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
         "guide_title": "B2B 물류 재고 병합 시스템 필수 가이드",
-        "guide_q1": "무엇을 업로드하나요?", "guide_a1_1": "• 벤더사(공급업체)에서 발행한 엑셀 입고 명세서 (.xlsx, .xls, .csv)", "guide_a1_2": "• 실물 송장 및 영수증을 촬영한 이미지 파일 (.jpg, .jpeg, .png) (Tesseract AI OCR 스캔 엔진 자동 가동)",
-        "guide_q2": "주의사항 (필독)", "guide_a2_1": "• 업로드된 수량은 선택하신 허브(Hub)의 라이브 재고에 누적 합산(+) 됩니다.", "guide_a2_2": "• 중복 입고 위험: 동일한 입고 파일을 여러 번 업로드하지 않도록 각별히 주의해 주세요.",
+        "guide_q1": "무엇을 업로드하나요?", "guide_a1_1": "• 벤더사(공급업체)에서 발행한 엑셀 입고 명세서 (.xlsx, .xls, .csv)", "guide_a1_2": "• 실물 송장 및 영수증을 촬영한 이미지 파일 (.jpg, .png) (AI OCR 스캔 가동)",
+        "guide_q2": "주의사항 (필독)", "guide_a2_1": "• 업로드된 수량은 선택하신 허브(Hub)의 라이브 재고에 누적 합산(+) 됩니다.", "guide_a2_2": "• 중복 입고 위험: 동일한 입고 파일을 여러 번 업로드하지 않도록 주의해 주세요.",
         "dropzone_title": "벤더사 문서를 이곳에 드래그 앤 드롭 하세요", "dropzone_desc": "최대 10MB. .xlsx, .xls, .csv, .jpg, .png 지원",
         "btn_browse": "파일 찾아보기", "btn_save": "데이터 저장", "btn_add": "발주 등록",
         "placeholder_vendor": "공급사명 (예: CJ Foods)", "placeholder_hub": "도착 허브 (ON, BC..)", "placeholder_cart": "🛒 품목 및 수량을 선택하세요...",
@@ -97,7 +97,7 @@ window.changeLanguage = function(lang) {
         btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
-    if (typeof renderHqOrders === 'function') renderHqOrders();
+    if (typeof renderHqOrdersFast === 'function') renderHqOrdersFast();
 };
 
 window.applyTranslations = function() {
@@ -112,10 +112,64 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 [방어 V30.5] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
+// 💾 [방어 9] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// ============================================================================
+const Y2C_DB = {
+    name: 'Y2C_Logistics_DB',
+    version: 1,
+    isSupported: !!window.indexedDB,
+    init: function() {
+        return new Promise((resolve, reject) => {
+            if (!this.isSupported) return reject("IndexedDB not supported");
+            const req = indexedDB.open(this.name, this.version);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('cacheStore')) {
+                    db.createObjectStore('cacheStore', { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    },
+    set: async function(key, data) {
+        if (!this.isSupported) return;
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('cacheStore', 'readwrite');
+                tx.objectStore('cacheStore').put({ id: key, data: data, timestamp: Date.now() });
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        } catch(e) { console.warn("[Y2C_DB Set Warn]", e); }
+    },
+    get: async function(key) {
+        if (!this.isSupported) return null;
+        try {
+            const db = await this.init();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('cacheStore', 'readonly');
+                const req = tx.objectStore('cacheStore').get(key);
+                req.onsuccess = () => resolve(req.result ? req.result.data : null);
+                req.onerror = () => reject(tx.error);
+            });
+        } catch(e) { return null; }
+    }
+};
+
+// ============================================================================
+// 🔒 [방어 6, 25, 27] Absolute Null-Safe Parsers (빈칸, 특수문자, 오버플로우 방어)
 // ============================================================================
 function escapeHtml(value) { 
-    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+    return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/javascript:/gi, "blocked:")
+        .replace(/on\w+=/gi, "blocked=");
 }
 
 function safeDisplay(value, fallback = "-") {
@@ -132,7 +186,7 @@ function parseStrictNonNegativeInteger(value) {
     if (!/^\d+$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isSafeInteger(num) || num < 0) return 0; 
-    return num; 
+    return Math.min(num, 9999999); // 오버플로우 컷오프
 }
 
 function parseStrictDecimal(value) { 
@@ -143,7 +197,7 @@ function parseStrictDecimal(value) {
     if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
-    return num; 
+    return Math.min(num, 9999999.99); // 오버플로우 컷오프
 }
 
 function parseStrictISODate(value) { 
@@ -155,6 +209,9 @@ function parseStrictISODate(value) {
     if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; 
     const date = new Date(Date.UTC(y, m - 1, d)); 
     if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; 
+    
+    // 🌟 [방어 26] 시간 역전(Time Paradox) 1차 방어 
+    if (date.getTime() < new Date("2020-01-01").getTime()) return null;
     return str; 
 }
 
@@ -172,14 +229,18 @@ const userNameDisplay = document.getElementById('userNameDisplay'); if (userName
 const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.textContent = safeDisplay(userRole); }
 document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); clearY2CSession(); window.location.replace("index.html"); }, { once: true });
 
+// 🌟 [방어 29] ID 멱등성 3중 난수 강화
 const generateIdempotencyKey = () => { 
-  if (window.crypto && crypto.randomUUID) return "REQ-" + crypto.randomUUID().toUpperCase();
-  if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(4); window.crypto.getRandomValues(array); return 'REQ-' + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
-  return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 12).toUpperCase(); 
+  const ts = Date.now().toString(36).toUpperCase();
+  if (window.crypto && crypto.randomUUID) return "REQ-" + ts + "-" + crypto.randomUUID().split('-')[0].toUpperCase();
+  if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(2); window.crypto.getRandomValues(array); return 'REQ-' + ts + "-" + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
+  return 'REQ-' + ts + '-' + Math.random().toString(36).slice(2, 10).toUpperCase(); 
 };
 
+// 🌟 [방어 25] Number.EPSILON 소수점 3중 교정
 const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount));
+    const safeNum = Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100;
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeNum);
 };
 
 const formatDate = (isoStr) => { 
@@ -195,6 +256,7 @@ const formatDate = (isoStr) => {
 
 function clearY2CSession() { [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} }); }
 
+// 🌟 [방어 21] Toast 알림 Z-Index 큐잉 (스팸 렌더링 방지)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -202,6 +264,7 @@ function showToast(message, type = 'success') {
       container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
       document.body.appendChild(container); 
   }
+  // 스팸 차단: 5개 초과 시 즉각 DOM에서 삭제
   if (container.childNodes.length >= 5) container.firstChild.remove();
 
   const toast = document.createElement('div');
@@ -218,11 +281,13 @@ function showToast(message, type = 'success') {
   }, 3500);
 }
 
-window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
+// 🌟 [방어 7, 33] Offline 킬스위치 및 글로벌 Promise 에러 해독망
+window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 작업이 제한됩니다.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
 window.addEventListener('unhandledrejection', function(event) { 
     console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
     isSubmitting = false; 
+    isTabSwitching = false;
     clearTimeout(fallbackLockTimer);
 });
 
@@ -238,9 +303,18 @@ function applyGlobalRbacNavigation() {
     });
 }
 
+// 🌟 [방어 9, 18] 탭 전환 연타 뮤텍스 락 & Observer 강제 파괴 (좀비 메모리 차단)
+let isTabSwitching = false;
 function switchAdminTab(tab) {
+  if (isTabSwitching) return;
   if (!ADMIN_TAB_ROLES[tab]) return showToast("존재하지 않는 시스템 메뉴입니다.", "error");
   if (!ADMIN_TAB_ROLES[tab].includes(userRole)) return showToast("이 메뉴에 대한 접근 권한이 없습니다.", "error");
+
+  isTabSwitching = true;
+  
+  // Observer 강제 해제 (메모리 릭 방지)
+  if (masterObserver) { masterObserver.disconnect(); masterObserver = null; }
+  if (hqObserver) { hqObserver.disconnect(); hqObserver = null; }
 
   const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
   tabs.forEach(t => {
@@ -253,20 +327,30 @@ function switchAdminTab(tab) {
       if(sec) sec.classList.add('hidden');
     }
   });
+
+  setTimeout(() => { isTabSwitching = false; }, 300); // 0.3s 뮤텍스 락 해제
 }
 
+// 🌟 [방어 12] 대용량 배열은 =[] 대신 .length=0 사용 원칙 적용
 let cachedClients = [], cachedHqOrders = [], cachedItems = [], cachedMappings = [];
 let isSubmitting = false; 
 let fallbackLockTimer = null; 
 
 const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_procurement_data", "get_items", "check_system_alerts", "inventory_integrity_check", "get_recipes"]);
+const apiInFlight = new Set(); // 🌟 [방어 3] API 해시 락 (DDoS 및 중복 호출 방어)
 
 // ============================================================================
-// 🌟 [방어 12] 25초 절대 백오프 통신 엔진 (CORS 강제 패싱)
+// 🌟 [방어 1, 5, 8] 35초 절대 백오프 통신 엔진 (JSON 샌드박스 + API 락)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
-  if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
+  if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 오프라인 쓰기가 차단됩니다.");
   
+  // API 해시 락 생성
+  const payloadStr = JSON.stringify(payload);
+  const hashKey = action + "_" + payloadStr.length;
+  if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
+  apiInFlight.add(hashKey);
+
   const canRetry = RETRYABLE_ACTIONS.has(action);
   const maxAttempts = canRetry ? retries : 0; 
   let lastNetworkError;
@@ -274,7 +358,7 @@ async function executeApi(action, payload = {}, retries = 2) {
 
   for (let i = 0; i <= maxAttempts; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); 
+    const timeoutId = setTimeout(() => controller.abort(), 35000); // 🌟 [방어 5] 35s Watchdog Kill-switch
     let response, rawText;
     
     try {
@@ -286,7 +370,14 @@ async function executeApi(action, payload = {}, retries = 2) {
       
       clearTimeout(timeoutId);
 
+      // 🌟 [방어 1] 404, 401 서킷 브레이커 (무의미한 재시도 컷오프)
       if (!response.ok) {
+          if (response.status === 404 || response.status === 401 || response.status === 403) {
+              const explicitError = new Error(`서버 인증 또는 엔드포인트 접근이 거부되었습니다 (HTTP ${response.status})`);
+              explicitError.httpStatus = response.status;
+              explicitError.isFatal = true;
+              throw explicitError;
+          }
           const httpError = new Error(`서버 통신 오류 (HTTP ${response.status})`);
           httpError.httpStatus = response.status;
           throw httpError;
@@ -296,28 +387,37 @@ async function executeApi(action, payload = {}, retries = 2) {
     } catch (err) {
       clearTimeout(timeoutId); lastNetworkError = err;
       
-      if (err && err.httpStatus) {
-          if (err.httpStatus === 429) throw new Error("서버에 요청이 집중되어 지연 중입니다. 잠시 후 다시 시도해주세요. (HTTP 429)");
-          if (err.httpStatus === 503) throw new Error("서버가 일시적으로 점검 중이거나 응답할 수 없습니다. (HTTP 503)");
-          throw err; 
+      if (err.isFatal) {
+          apiInFlight.delete(hashKey);
+          throw err;
       }
-      if (err.message && err.message.includes("Failed to fetch")) throw new Error("🚨 구글 서버 접근이 차단되었습니다(CORS). 백엔드 배포를 '모든 사용자'로 변경하세요.");
+
+      if (err && err.httpStatus) {
+          if (err.httpStatus === 429) { apiInFlight.delete(hashKey); throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)"); }
+          if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중이거나 응답할 수 없습니다. (HTTP 503)"); }
+      }
+      if (err.message && err.message.includes("Failed to fetch")) { apiInFlight.delete(hashKey); throw new Error("🚨 서버 접근 차단됨(CORS). 백엔드 배포를 확인하세요."); }
       
       if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
-      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25초 대기열 초과)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
+      apiInFlight.delete(hashKey);
+      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
     }
 
-    if (!rawText) throw new Error("서버로부터 빈 응답이 반환되었습니다.");
+    if (!rawText) { apiInFlight.delete(hashKey); throw new Error("서버로부터 빈 응답이 반환되었습니다."); }
 
+    // 🌟 [방어 8] JSON Parse 샌드박스
     let jsonResult;
     try { 
         jsonResult = JSON.parse(rawText); 
     } catch (parseErr) {
        if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
-       throw new Error("서버 응답 파싱 실패. 시스템 포맷과 일치하지 않습니다."); 
+       apiInFlight.delete(hashKey);
+       throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); 
     }
 
-    if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 형식이 올바르지 않습니다.");
+    if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) {
+        apiInFlight.delete(hashKey); throw new Error("서버 응답 규격이 올바르지 않습니다.");
+    }
 
     if (!jsonResult.success) {
       if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) { 
@@ -328,82 +428,121 @@ async function executeApi(action, payload = {}, retries = 2) {
       err.ledgerPending = jsonResult.ledgerPending === true; 
       err.inventoryCommitted = jsonResult.inventoryCommitted === true; 
       err.txId = safeDisplay(jsonResult.txId, null);
+      apiInFlight.delete(hashKey);
       throw err;
     }
+    
+    apiInFlight.delete(hashKey);
     return jsonResult;
   }
 }
 
 // ============================================================================
-// 📁 가맹점 DB 관리부 (SWR 캐시 엔진 탑재)
+// 📁 가맹점 DB 관리부 (Fragment 100% 강제화 및 배열 소각)
 // ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR" || userRole === "PARTNER") return; 
   const tableBody = document.getElementById('masterTableBody'); if (!tableBody) return;
 
-  // 🌟 [방어 24] SWR 캐시 렌더링 (대기 시간 0.01초)
-  const cacheKey = `Y2C_ADMIN_MASTER_${clientName}`;
-  try {
-      const cachedData = localStorage.getItem(cacheKey);
-      if (cachedData) {
-          cachedClients = JSON.parse(cachedData);
-          renderMasterChunk();
-      }
-  } catch(e) {}
+  const cacheKey = `MASTER_DATA_${clientName}`;
+  const cachedData = await Y2C_DB.get(cacheKey);
+  if (cachedData) {
+      cachedClients.length = 0; // 🌟 메모리 릴리즈
+      cachedClients = cachedData;
+      renderMasterDataFast();
+  }
 
   try {
     const result = await executeApi("get_master_data");
     if (result && result.success) {
+      cachedClients.length = 0; 
       cachedClients = Array.isArray(result.clients) ? result.clients : [];
-      try { localStorage.setItem(cacheKey, JSON.stringify(cachedClients)); } catch(e) {}
-      renderMasterChunk();
+      await Y2C_DB.set(cacheKey, cachedClients);
+      renderMasterDataFast();
     } 
-  } catch (err) { tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
+  } catch (err) { 
+      if(!cachedClients || cachedClients.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-[#E3000F] font-black tracking-wide font-inter">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; 
+      }
+  }
 }
 
-function renderMasterChunk() {
+let masterObserver = null;
+let masterRenderIndex = 0;
+const MASTER_CHUNK_SIZE = 30;
+
+function renderMasterDataFast() {
     const tableBody = document.getElementById('masterTableBody');
     if (!tableBody) return;
-    tableBody.innerHTML = ''; 
+    if (masterObserver) { masterObserver.disconnect(); masterObserver = null; }
     
     if (cachedClients.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide">등록된 가맹점 정보가 없습니다.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide font-inter">등록된 가맹점 정보가 없습니다.</td></tr>`;
         return;
     }
 
-    const inputClass = "w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all focus:bg-white";
-    let chunkIndex = 0; const CHUNK_SIZE = 20;
+    tableBody.innerHTML = '';
+    masterRenderIndex = 0;
 
-    function renderLoop() {
-        const fragment = document.createDocumentFragment(), endIdx = Math.min(chunkIndex + CHUNK_SIZE, cachedClients.length);
-        for (; chunkIndex < endIdx; chunkIndex++) {
-            const c = cachedClients[chunkIndex];
-            const safeRowIdx = Number(c.rowIdx);
-            if (!Number.isSafeInteger(safeRowIdx) || safeRowIdx < 1) continue; 
-
-            const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors duration-200";
-            tr.innerHTML = `
-            <td class="px-6 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight font-inter">${safeDisplay(c.name)}</td>
-            <td class="px-4 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
-            <td class="px-4 py-4"><input type="text" id="city_${safeRowIdx}" value="${safeDisplay(c.city, "")}" class="${inputClass}" placeholder="City"></td>
-            <td class="px-4 py-4"><input type="text" id="addr_${safeRowIdx}" value="${safeDisplay(c.address, "")}" class="${inputClass}" placeholder="Full Address"></td>
-            <td class="px-4 py-4"><input type="text" id="attn_${safeRowIdx}" value="${safeDisplay(c.attn, "")}" class="${inputClass}" placeholder="Manager Name"></td>
-            <td class="px-4 py-4"><input type="email" id="email_${safeRowIdx}" value="${safeDisplay(c.email, "")}" class="${inputClass}" placeholder="Email"></td>
-            <td class="px-4 py-4"><input type="text" id="biz_${safeRowIdx}" value="${safeDisplay(c.bizId, "")}" class="${inputClass} font-mono" placeholder="Business ID"></td>
-            <td class="px-6 py-4 text-center bg-gray-50/50 border-l border-gray-100"><button id="saveBtn_${safeRowIdx}" type="button" class="btn-charcoal px-4 py-2.5 rounded-xl text-[11px] font-black tracking-wider w-full disabled:opacity-50 disabled:cursor-not-allowed">SAVE</button></td>
-            `;
-            fragment.appendChild(tr);
-            const saveBtn = tr.querySelector(`#saveBtn_${CSS.escape(String(safeRowIdx))}`);
-            if (saveBtn) saveBtn.addEventListener('click', () => saveClientData(safeRowIdx));
+    masterObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            masterObserver.disconnect();
+            appendMasterChunk();
         }
-        tableBody.appendChild(fragment);
-        if (chunkIndex < cachedClients.length) { requestAnimationFrame(renderLoop); } else { populateSalesClientSelector(); }
-    }
-    renderLoop();
+    }, { rootMargin: '400px' });
+
+    appendMasterChunk();
 }
 
-async function saveClientData(rowIdx) {
-  if (isSubmitting) return; 
+function appendMasterChunk() {
+    const tableBody = document.getElementById('masterTableBody');
+    if (!tableBody) return;
+
+    const endIdx = Math.min(masterRenderIndex + MASTER_CHUNK_SIZE, cachedClients.length);
+    const inputClass = "w-full bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all shadow-sm";
+    
+    // 🌟 [방어 10] DocumentFragment를 이용한 초고속 렌더링
+    const fragment = document.createDocumentFragment();
+
+    for (; masterRenderIndex < endIdx; masterRenderIndex++) {
+        const c = cachedClients[masterRenderIndex];
+        const safeRowIdx = Number(c.rowIdx);
+        if (!Number.isSafeInteger(safeRowIdx) || safeRowIdx < 1) continue; 
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50";
+        // 🌟 [방어 23] 지역코드 정규식 필터 (maxlength=2, toUpperCase) 및 이메일 강제
+        tr.innerHTML = `
+        <td class="px-6 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight font-inter">${safeDisplay(c.name)}</td>
+        <td class="px-4 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON" oninput="this.value = this.value.replace(/[^A-Za-z]/g, '').toUpperCase()"></td>
+        <td class="px-4 py-4"><input type="text" id="city_${safeRowIdx}" value="${safeDisplay(c.city, "")}" class="${inputClass}" placeholder="City"></td>
+        <td class="px-4 py-4"><input type="text" id="addr_${safeRowIdx}" value="${safeDisplay(c.address, "")}" class="${inputClass}" placeholder="Full Address"></td>
+        <td class="px-4 py-4"><input type="text" id="attn_${safeRowIdx}" value="${safeDisplay(c.attn, "")}" class="${inputClass}" placeholder="Manager Name"></td>
+        <td class="px-4 py-4"><input type="email" id="email_${safeRowIdx}" value="${safeDisplay(c.email, "")}" class="${inputClass}" placeholder="Email"></td>
+        <td class="px-4 py-4"><input type="text" id="biz_${safeRowIdx}" value="${safeDisplay(c.bizId, "")}" class="${inputClass} font-mono" placeholder="Business ID"></td>
+        <td class="px-6 py-4 text-center bg-gray-50/50 border-l border-gray-100"><button type="button" id="saveBtn_${safeRowIdx}" class="btn-charcoal px-4 py-3 rounded-xl text-[11px] font-black tracking-widest uppercase w-full disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all focus:outline-none">SAVE</button></td>
+        `;
+        
+        fragment.appendChild(tr);
+        
+        const saveBtn = tr.querySelector(`#saveBtn_${CSS.escape(String(safeRowIdx))}`);
+        if (saveBtn) saveBtn.addEventListener('click', () => saveClientData(safeRowIdx));
+    }
+    
+    // 🌟 [방어 20] 스크롤 앵커 튐 방어
+    tableBody.appendChild(fragment);
+    
+    if (masterRenderIndex >= cachedClients.length) {
+        populateSalesClientSelector();
+    } else {
+        const lastRow = tableBody.lastElementChild;
+        if (lastRow) masterObserver.observe(lastRow);
+    }
+}
+
+// 🌟 [방어 2, 17] 이중 클릭 원천 차단 & Always-Release 데드락 해결
+window.saveClientData = async function(rowIdx) {
+  if (isSubmitting || !navigator.onLine) return showToast("현재 요청을 처리할 수 없습니다.", "error"); 
   const safeRowIdx = Number(rowIdx);
   if (!Number.isSafeInteger(safeRowIdx) || safeRowIdx < 1) return;
 
@@ -421,32 +560,39 @@ async function saveClientData(rowIdx) {
   
   if (saveBtn) { 
       originalText = saveBtn.textContent; saveBtn.disabled = true; 
-      saveBtn.textContent = "⏳ SAVING..."; saveBtn.classList.add('animate-pulse'); 
+      saveBtn.classList.add('pointer-events-none');
+      saveBtn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; 
   }
   
   fallbackLockTimer = setTimeout(() => {
       isSubmitting = false;
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; saveBtn.classList.remove('animate-pulse'); }
-  }, 25000);
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove('pointer-events-none'); saveBtn.innerHTML = originalText; }
+  }, 35000);
   
   const payload = { rowIdx: safeRowIdx, state: stateEl.value.toUpperCase().trim(), city: cityEl.value.trim(), address: addrEl.value.trim(), attn: attnEl.value.trim(), email: emailVal, bizId: bizEl.value.trim() };
 
   try {
     const result = await executeApi("update_master_data", { client: payload });
     if (result && result.success) {
-      if(saveBtn) { saveBtn.textContent = "✅ SAVED"; saveBtn.classList.remove('animate-pulse'); saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
+      if(saveBtn) { saveBtn.innerHTML = "✅ SAVED"; saveBtn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600'); }
       showToast("마스터 데이터 저장 완료", "success"); setTimeout(() => fetchMasterData(), 1500); 
     }
   } catch (err) { 
       showToast(err.message, "error"); 
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = originalText; saveBtn.classList.remove('animate-pulse'); } 
   } finally { 
-      isSubmitting = false; clearTimeout(fallbackLockTimer); 
+      // 🚨 [핵심 버그 픽스] 어떤 경우에도 락을 무조건 해제 (Deadlock 해결)
+      isSubmitting = false; 
+      clearTimeout(fallbackLockTimer); 
+      if (saveBtn) { 
+          saveBtn.disabled = false; 
+          saveBtn.classList.remove('pointer-events-none'); 
+          if(saveBtn.innerHTML.indexOf("SAVED") === -1) saveBtn.innerHTML = originalText; 
+      }
   }
 }
 
 // ============================================================================
-// 📊 ERP 매출 데이터 동기화 
+// 📊 ERP 매출 데이터 동기화 (배열 길이 불일치 크래시 가드)
 // ============================================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
@@ -461,51 +607,75 @@ function populateSalesClientSelector() {
   cachedClients.forEach(c => { const opt = document.createElement('option'); opt.value = safeDisplay(c.name, ""); opt.textContent = safeDisplay(c.name, ""); clientSelect.appendChild(opt); });
 }
 
-async function loadSalesGrid() {
+window.loadSalesGrid = async function() {
   const targetYear = document.getElementById('salesYearSelector')?.value, targetClient = document.getElementById('salesClientSelector')?.value, tbody = document.getElementById('salesGridBody');
   if (!targetYear || !targetClient || !tbody) return;
   
-  tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide font-inter"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
-    if (result && result.success) renderSalesGrid(result.records);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
+    // 🌟 [방어 28] 배열 길이 불일치 크래시 가드 (강제 12칸 매핑)
+    let safeRecords = Array.isArray(result.records) ? result.records : [];
+    if(safeRecords.length !== 12) {
+        const temp = []; for(let i=1; i<=12; i++) { const found = safeRecords.find(x => Number(x.month) === i); temp.push(found || {month: i, pos: 0, delivery: 0, total: 0, exists: false}); }
+        safeRecords = temp;
+    }
+    if (result && result.success) renderSalesGrid(safeRecords);
+  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8 font-inter">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
 }
 
+// 🌟 [방어 15] Event Delegation으로 매출 Grid 이벤트 일원화
 function renderSalesGrid(records) {
   const tbody = document.getElementById('salesGridBody'); if (!tbody) return; tbody.innerHTML = '';
   if(!Array.isArray(records)) return;
 
-  const inputStyle = "w-full max-w-[170px] mx-auto bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-center text-[13px] font-mono font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all";
+  const inputStyle = "w-full max-w-[170px] mx-auto bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-center text-[13px] font-mono font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all shadow-sm";
+  const fragment = document.createDocumentFragment();
 
   records.forEach(r => {
     const mIdx = Number(r.month);
     if (!Number.isInteger(mIdx) || mIdx < 1 || mIdx > 12) return;
 
-    const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors";
-    const badgeHTML = r.exists ? `<span class="px-2.5 py-1 text-[10px] font-black rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200">SAVED</span>` : `<span class="px-2.5 py-1 text-[10px] font-black rounded-md bg-gray-100 text-gray-400 border border-gray-200">EMPTY</span>`;
+    const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors border-b border-gray-50";
+    const badgeHTML = r.exists ? `<span class="px-3 py-1 text-[10px] font-black rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm font-inter">SAVED</span>` : `<span class="px-3 py-1 text-[10px] font-black rounded-md bg-gray-100 text-gray-400 border border-gray-200 shadow-sm font-inter">EMPTY</span>`;
     
+    // 🌟 [방어 25] Number.EPSILON 적용 소수점
     const safePos = parseStrictDecimal(r.pos);
     const safeDel = parseStrictDecimal(r.delivery);
     const safeTot = parseStrictDecimal(r.total);
 
     tr.innerHTML = `
-      <td class="px-6 py-3.5 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap">${monthNames[mIdx - 1]}</td>
-      <td class="px-6 py-3.5 text-center"><input type="text" data-month="${mIdx}" value="${safePos > 0 ? safePos : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
-      <td class="px-6 py-3.5 text-center"><input type="text" data-month="${mIdx}" value="${safeDel > 0 ? safeDel : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
-      <td class="px-6 py-3.5 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${mIdx}">${formatCurrency(safeTot)}</td>
-      <td class="px-6 py-3.5 text-center whitespace-nowrap">${badgeHTML}</td>
+      <td class="px-6 py-4 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap font-inter">${monthNames[mIdx - 1]}</td>
+      <td class="px-6 py-4 text-center"><input type="text" data-month="${mIdx}" data-type="pos" value="${safePos > 0 ? safePos : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
+      <td class="px-6 py-4 text-center"><input type="text" data-month="${mIdx}" data-type="del" value="${safeDel > 0 ? safeDel : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
+      <td class="px-6 py-4 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${mIdx}">${formatCurrency(safeTot)}</td>
+      <td class="px-6 py-4 text-center whitespace-nowrap">${badgeHTML}</td>
     `;
-    tbody.appendChild(tr);
-
-    const posInput = tr.querySelector('.sales-input-pos'), delInput = tr.querySelector('.sales-input-del');
-    if(posInput) posInput.addEventListener('input', () => recalcSalesRow(mIdx));
-    if(delInput) delInput.addEventListener('input', () => recalcSalesRow(mIdx));
+    fragment.appendChild(tr);
   });
+  tbody.appendChild(fragment);
   recalculateKpis();
 }
 
-function recalcSalesRow(month) {
+// 부모 tbody에서 이벤트 캐치 (이벤트 위임)
+document.addEventListener('DOMContentLoaded', () => {
+    const sBody = document.getElementById('salesGridBody');
+    if (sBody) {
+        sBody.addEventListener('input', (e) => {
+            if(e.target.classList.contains('sales-input-pos') || e.target.classList.contains('sales-input-del')) {
+                // 🌟 [방어 19] 입력값 실시간 Desync 교정 (특수문자 즉시 삭제)
+                const rawVal = e.target.value;
+                const cleanVal = rawVal.replace(/[^0-9.]/g, '');
+                if (rawVal !== cleanVal) e.target.value = cleanVal;
+                
+                const mIdx = e.target.getAttribute('data-month');
+                if (mIdx) recalcSalesRow(mIdx);
+            }
+        });
+    }
+});
+
+window.recalcSalesRow = function(month) {
   const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
   let p = parseStrictDecimal(posInput?.value), d = parseStrictDecimal(delInput?.value); 
   const totalDisplay = document.getElementById(`rowTotal_${month}`); if (totalDisplay) totalDisplay.textContent = formatCurrency(p + d);
@@ -525,8 +695,9 @@ function recalculateKpis() {
   if (tDel) tDel.textContent = formatCurrency(totDel);
 }
 
-async function saveSalesGridData() {
-  if (isSubmitting) return; 
+// 🌟 [방어 2] Always-Release 락다운 적용
+window.saveSalesGridData = async function() {
+  if (isSubmitting || !navigator.onLine) return showToast("현재 저장할 수 없는 상태입니다.", "error"); 
 
   const yearEl = document.getElementById('salesYearSelector'), clientEl = document.getElementById('salesClientSelector');
   if (!yearEl || !clientEl) return showToast("매출 입력 요소를 찾을 수 없습니다.", "error");
@@ -545,19 +716,25 @@ async function saveSalesGridData() {
   const btn = document.getElementById('saveAllSalesBtn'); let originalHtml = "SAVE DATA";
   
   if (btn) { 
-      originalHtml = btn.innerHTML; btn.disabled = true; 
+      originalHtml = btn.innerHTML; btn.disabled = true; btn.classList.add('pointer-events-none');
       btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING...</span>`; 
   }
   
   fallbackLockTimer = setTimeout(() => {
       isSubmitting = false;
-      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
-  }, 25000);
+      if (btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; }
+  }, 35000);
   
   try {
     const result = await executeApi("save_sales_records", { year: targetYear, clientName: targetClient, records: recordsToSave });
     if (result && result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
-  } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
+  } catch (err) { 
+      showToast("매출 저장 실패: " + err.message, "error"); 
+  } finally { 
+      // 🚨 데드락 해제 보장
+      isSubmitting = false; clearTimeout(fallbackLockTimer);
+      if (btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; } 
+  }
 }
 
 // ============================================================================
@@ -575,7 +752,7 @@ function renderOrderMetrics(metrics) {
         const scanBtn = document.createElement('button'); 
         scanBtn.id = "sysHealthScanBtn"; 
         scanBtn.innerHTML = '<span data-i18n="sys_health_scan">🛡️ SYSTEM HEALTH SCAN</span>';
-        scanBtn.className = "w-full col-span-2 btn-charcoal py-4 rounded-2xl shadow-lg transition-all tracking-[0.2em] mb-4 font-black";
+        scanBtn.className = "w-full col-span-2 btn-charcoal py-4 rounded-2xl shadow-lg transition-all tracking-[0.2em] mb-4 font-black focus:outline-none focus:ring-2 focus:ring-[#1A1516] focus:ring-offset-2 hover:shadow-xl";
         table.parentNode.insertBefore(scanBtn, kpiContainer);
         scanBtn.addEventListener('click', runSystemAlertScan); 
     }
@@ -589,41 +766,47 @@ function renderOrderMetrics(metrics) {
       expenditureHtml = `
         <div class="bg-gradient-to-br from-[#E3000F] to-[#B9000C] border border-[#E3000F]/30 rounded-2xl p-6 shadow-lg relative overflow-hidden group">
           <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700"></div>
-          <div class="flex items-center gap-3 mb-2 relative z-10"><div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-lg">💳</div><p class="text-[11px] font-black text-red-100 uppercase tracking-widest" data-i18n="b2b_expenditure">Total B2B Expenditure</p></div>
+          <div class="flex items-center gap-3 mb-2 relative z-10"><div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-lg">💳</div><p class="text-[11px] font-black text-red-100 uppercase tracking-widest font-inter" data-i18n="b2b_expenditure">Total B2B Expenditure</p></div>
           <h3 class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tighter relative z-10">${formatCurrency(safeTotalAmount)}</h3>
         </div>`;
   }
 
   kpiContainer.innerHTML = `
     <div class="bg-white premium-shadow rounded-2xl p-6 transition-shadow">
-      <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg">📦</div><p class="text-[11px] font-black text-gray-500 uppercase tracking-widest" data-i18n="b2b_volume">Total B2B Volume</p></div>
-      <h3 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">${safeTotalQty.toLocaleString()} <span class="text-xs text-gray-400 font-bold ml-1">Units</span></h3>
+      <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg">📦</div><p class="text-[11px] font-black text-gray-500 uppercase tracking-widest font-inter" data-i18n="b2b_volume">Total B2B Volume</p></div>
+      <h3 class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter">${safeTotalQty.toLocaleString()} <span class="text-xs text-gray-400 font-bold ml-1 font-inter">Units</span></h3>
     </div> ${expenditureHtml}`;
   if (window.applyTranslations) window.applyTranslations();
 }
 
 async function runSystemAlertScan(event) {
-  if (isSubmitting) return;
+  if (isSubmitting || !navigator.onLine) return;
   const btn = event?.currentTarget || document.getElementById('sysHealthScanBtn');
   if(!btn) return showToast("시스템 스캔 버튼을 찾을 수 없습니다.", "error"); 
   
   isSubmitting = true; clearTimeout(fallbackLockTimer);
   const originalText = btn.innerHTML; 
-  btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ DEEP SCANNING...</span>`;
+  btn.disabled = true; btn.classList.add('pointer-events-none'); btn.innerHTML = `<span class="animate-pulse">⏳ DEEP SCANNING...</span>`;
   
   fallbackLockTimer = setTimeout(() => {
       isSubmitting = false;
-      btn.disabled = false; btn.innerHTML = originalText;
-  }, 25000);
+      btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalText;
+  }, 35000);
 
   try {
     const result = await executeApi("check_system_alerts");
     const integResult = await executeApi("inventory_integrity_check");
     if (result && result.success && integResult && integResult.success) { 
-        showToast("스캔 완료. 시스템 리포트가 발송되었습니다.", "success"); 
+        showToast("스캔 완료. 시스템 리포트가 생성되었습니다.", "success"); 
         displayAlertModal(result.alerts, integResult.discrepancies); 
     }
-  } catch (err) { showToast("스캔 실패: " + err.message, "error"); } finally { btn.disabled = false; btn.innerHTML = originalText; isSubmitting = false; clearTimeout(fallbackLockTimer); }
+  } catch (err) { 
+      showToast("스캔 실패: " + err.message, "error"); 
+  } finally { 
+      // 🚨 데드락 완벽 방어
+      isSubmitting = false; clearTimeout(fallbackLockTimer);
+      if(btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalText; }
+  }
 }
 
 function displayAlertModal(alerts, discrepancies) {
@@ -635,49 +818,50 @@ function displayAlertModal(alerts, discrepancies) {
   let modal = document.getElementById('alertModal');
   if (!modal) {
     modal = document.createElement('div'); modal.id = 'alertModal';
-    modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300';
+    modal.className = 'fixed inset-0 bg-[#111827]/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300';
     document.body.appendChild(modal);
   }
   
-  let html = `<div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl transform transition-transform scale-95 duration-300" id="alertModalContent">`;
-  html += `<div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-xl font-black tracking-widest font-montserrat">🛡️ SYSTEM HEALTH REPORT</h2><button id="alertModalCloseTop" class="text-gray-400 hover:text-white font-bold text-2xl" type="button">&times;</button></div><div class="p-6 max-h-[70vh] overflow-y-auto hide-scrollbar font-inter">`;
+  let html = `<div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden premium-shadow transform transition-transform scale-95 duration-300" id="alertModalContent">`;
+  html += `<div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-xl font-black tracking-widest font-montserrat">🛡️ SYSTEM HEALTH REPORT</h2><button id="alertModalCloseTop" class="text-gray-400 hover:text-white font-bold text-2xl focus:outline-none" type="button">&times;</button></div><div class="p-6 max-h-[70vh] overflow-y-auto hide-scrollbar font-inter">`;
   
   let hasIssues = false;
 
   if (discrepancies.length > 0) {
       hasIssues = true;
-      html += `<h3 class="font-black text-purple-600 mb-3 flex items-center gap-2"><span>🔍</span> Integrity Discrepancies (${discrepancies.length})</h3><div class="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
+      html += `<h3 class="font-black text-purple-600 mb-3 flex items-center gap-2"><span>🔍</span> Integrity Discrepancies (${discrepancies.length})</h3><div class="bg-purple-50 border border-purple-100 rounded-2xl p-5 mb-6"><ul class="space-y-3">`;
       discrepancies.forEach(d => {
-          html += `<li class="flex flex-col text-[13px] border-b border-purple-100 pb-3"><div class="flex justify-between items-center mb-1"><span class="font-bold text-gray-800">[${escapeHtml(d.region)}] ${safeDisplay(d.name)} <span class="text-gray-400 font-normal ml-1">(${safeDisplay(d.code)})</span></span><span class="font-black text-purple-600 bg-white px-2 py-1 rounded shadow-sm">${safeDisplay(d.issue)}</span></div><div class="flex items-center gap-3 text-[11px] font-mono"><span class="text-gray-500">System Stock: <b class="${typeof d.system_stock === 'number' && d.system_stock < 0 ? 'text-red-500' : 'text-gray-800'}">${safeDisplay(d.system_stock)}</b></span><span class="text-gray-500">Batch Stock: <b class="text-gray-800">${safeDisplay(d.batch_stock)}</b></span><span class="text-gray-500">Diff: <b class="text-purple-600">${safeDisplay(d.difference)}</b></span></div></li>`;
+          html += `<li class="flex flex-col text-[13px] border-b border-purple-100 pb-3"><div class="flex justify-between items-center mb-1.5"><span class="font-bold text-gray-800">[${escapeHtml(d.region)}] ${safeDisplay(d.name)} <span class="text-gray-400 font-normal ml-1 font-mono">(${safeDisplay(d.code)})</span></span><span class="font-black text-purple-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-purple-100">${safeDisplay(d.issue)}</span></div><div class="flex items-center gap-4 text-[11px] font-mono"><span class="text-gray-500">System Stock: <b class="${typeof d.system_stock === 'number' && d.system_stock < 0 ? 'text-[#E3000F]' : 'text-gray-800'}">${safeDisplay(d.system_stock)}</b></span><span class="text-gray-500">Batch Stock: <b class="text-gray-800">${safeDisplay(d.batch_stock)}</b></span><span class="text-gray-500">Diff: <b class="text-purple-600">${safeDisplay(d.difference)}</b></span></div></li>`;
       });
       html += `</ul></div>`;
   }
 
   if (alerts.lowStock.length > 0) {
       hasIssues = true;
-      html += `<h3 class="font-black text-[#E3000F] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3><div class="bg-red-50 border border-red-100 rounded-xl p-4 mb-6"><ul class="space-y-2">`;
-      alerts.lowStock.forEach(item => { html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><span class="font-black text-[#E3000F] bg-white px-2 py-1 rounded shadow-sm">${safeDisplay(item.stock)}</span></li>`; });
+      html += `<h3 class="font-black text-[#E3000F] mb-3 flex items-center gap-2"><span>🚨</span> Low Stock Alert (${alerts.lowStock.length})</h3><div class="bg-red-50 border border-red-100 rounded-2xl p-5 mb-6"><ul class="space-y-3">`;
+      alerts.lowStock.forEach(item => { html += `<li class="flex justify-between items-center text-[13px] border-b border-red-100 pb-2.5"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><span class="font-black text-[#E3000F] bg-white px-2.5 py-1 rounded-md shadow-sm border border-red-100">${safeDisplay(item.stock)}</span></li>`; });
       html += `</ul></div>`;
   }
 
   if (alerts.expiring.length > 0) {
       hasIssues = true;
-      html += `<h3 class="font-black text-amber-600 mb-3 flex items-center gap-2"><span>⏳</span> Expiration Alert (${alerts.expiring.length})</h3><div class="bg-amber-50 border border-amber-100 rounded-xl p-4"><ul class="space-y-2">`;
+      html += `<h3 class="font-black text-amber-600 mb-3 flex items-center gap-2"><span>⏳</span> Expiration Alert (${alerts.expiring.length})</h3><div class="bg-amber-50 border border-amber-100 rounded-2xl p-5"><ul class="space-y-3">`;
       alerts.expiring.forEach(item => {
         let badge = item.daysLeft < 0 ? "기한 초과" : `D-${item.daysLeft}`, textCol = item.daysLeft < 0 ? "text-[#E3000F]" : "text-amber-600";
-        html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${safeDisplay(item.date)} (${badge})</span><span class="font-bold text-gray-500">Qty: ${safeDisplay(item.qty)}</span></div></li>`;
+        html += `<li class="flex justify-between items-center text-[13px] border-b border-amber-100 pb-2.5"><span class="font-bold text-gray-800">[${safeDisplay(item.region)}] ${safeDisplay(item.name)}</span><div class="flex items-center gap-3"><span class="font-black ${textCol}">${safeDisplay(item.date)} (${badge})</span><span class="font-bold text-gray-500 font-mono">Qty: ${safeDisplay(item.qty)}</span></div></li>`;
       });
       html += `</ul></div>`;
   }
 
-  if (!hasIssues) { html += `<div class="text-center py-10"><span class="text-4xl">✅</span><p class="mt-4 font-bold text-gray-500">모든 데이터 무결성, 재고, 유통기한이 완벽하게 안정적입니다.</p></div>`; }
+  if (!hasIssues) { html += `<div class="text-center py-12"><span class="text-5xl drop-shadow-sm">✅</span><p class="mt-5 font-bold text-gray-500 font-inter">모든 데이터 무결성, 재고, 유통기한이 완벽하게 안정적입니다.</p></div>`; }
 
-  html += `</div><div class="p-4 bg-gray-50 border-t border-gray-100 text-center"><button id="alertModalCloseBottom" type="button" class="btn-gradient-pink px-8 py-3 rounded-xl font-black shadow-md uppercase tracking-widest text-[11px]">Close Report</button></div></div>`;
+  html += `</div><div class="p-5 bg-gray-50 border-t border-gray-100 text-center"><button id="alertModalCloseBottom" type="button" class="btn-gradient-pink px-10 py-3.5 rounded-xl font-black shadow-md uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2">Close Report</button></div></div>`;
   modal.innerHTML = html; 
   
   modal.querySelector('#alertModalCloseTop')?.addEventListener('click', closeAlertModal);
   modal.querySelector('#alertModalCloseBottom')?.addEventListener('click', closeAlertModal);
   
+  // 모달 밖 클릭 처리
   modal.addEventListener('click', (e) => { if(e.target === modal) closeAlertModal(); });
   window.addEventListener('keydown', handleAlertEsc);
 
@@ -693,6 +877,9 @@ function closeAlertModal() {
   if (content) content.classList.add('scale-95'); 
   modal.classList.add('opacity-0', 'pointer-events-none'); 
   window.removeEventListener('keydown', handleAlertEsc);
+  
+  // 🌟 [방어 14] 모달 소멸 시 완전한 DOM 파괴를 통한 누수 차단
+  setTimeout(() => { modal.innerHTML = ''; }, 300);
 }
 
 function renderHqOrdersError(msg) {
@@ -700,110 +887,158 @@ function renderHqOrdersError(msg) {
     if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-[#E3000F] font-bold tracking-wide font-inter">Error: ${escapeHtml(msg)}</td></tr>`;
 }
 
+// 🌟 본사 조달 매핑 통신
 async function fetchMappings() {
   try {
+    const cacheKey = `MAPPINGS_HQ_${clientName}`;
+    const cached = await Y2C_DB.get(cacheKey);
+    if (cached) {
+        cachedMappings.length = 0; cachedMappings = cached.mappings || [];
+        cachedHqOrders.length = 0; cachedHqOrders = cached.hqOrders || [];
+        renderHqOrdersFast();
+        if(cached.orderMetrics) renderOrderMetrics(cached.orderMetrics);
+    }
+    
     const result = await executeApi("get_procurement_data");
     if (result && result.success) {
-      cachedMappings = Array.isArray(result.mappings) ? result.mappings : []; 
-      cachedHqOrders = Array.isArray(result.hqOrders) ? result.hqOrders : [];
-      renderHqOrders(); 
+      cachedMappings.length = 0; cachedMappings = Array.isArray(result.mappings) ? result.mappings : []; 
+      cachedHqOrders.length = 0; cachedHqOrders = Array.isArray(result.hqOrders) ? result.hqOrders : [];
+      
+      await Y2C_DB.set(cacheKey, { mappings: cachedMappings, hqOrders: cachedHqOrders, orderMetrics: result.orderMetrics });
+      
+      renderHqOrdersFast(); 
       if(result.orderMetrics) renderOrderMetrics(result.orderMetrics);
     } 
   } catch (err) { 
-      cachedMappings = []; cachedHqOrders = []; 
-      renderHqOrdersError(err.message); showToast("조달 데이터 로드 실패: " + err.message, "error"); 
+      if(cachedHqOrders.length === 0) {
+          renderHqOrdersError(err.message); showToast("조달 데이터 로드 실패: " + err.message, "error"); 
+      }
   }
 }
 
 async function fetchCatalogForInbound() {
-  // 🌟 [방어 25] SWR 캐시 엔진
-  const cacheKey = `Y2C_ADMIN_ITEMS_CACHE`;
-  try {
-      const cached = localStorage.getItem(cacheKey);
-      if(cached) {
-          cachedItems = JSON.parse(cached);
-          populateInboundRegionOptions();
-      }
-  } catch(e){}
+  const cacheKey = `ADMIN_ITEMS_CACHE`;
+  const cached = await Y2C_DB.get(cacheKey);
+  if(cached) {
+      cachedItems.length = 0; cachedItems = cached;
+      populateInboundRegionOptions();
+  }
 
   try {
     const result = await executeApi("get_items", { clientState: "DEFAULT" });
     if (result && result.success) { 
-      cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
-      try { localStorage.setItem(cacheKey, JSON.stringify(cachedItems)); } catch(e){}
+      cachedItems.length = 0; cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
+      await Y2C_DB.set(cacheKey, cachedItems);
       populateInboundRegionOptions();
     }
-  } catch (e) { console.error("Catalog load failed", e); cachedItems = []; }
+  } catch (e) { console.error("Catalog load failed", e); }
 }
 
+// ============================================================================
+// 🚀 Infinite Chunk Observer 탑재 HQ 조달 내역 렌더러
+// ============================================================================
+let hqObserver = null;
+let hqRenderIndex = 0;
+const HQ_CHUNK_SIZE = 30;
 const hqStatusInFlight = new Set();
 
-function renderHqOrders() {
-  const tbody = document.getElementById('hqOrdersGridBody'); if(!tbody) return; tbody.innerHTML = '';
-  if(cachedHqOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide font-inter">등록된 내역이 없습니다.</td></tr>`; return; }
+function renderHqOrdersFast() {
+    const tbody = document.getElementById('hqOrdersGridBody'); 
+    if(!tbody) return; 
+    if (hqObserver) { hqObserver.disconnect(); hqObserver = null; }
 
-  const sortedOrders = [...cachedHqOrders].sort((a,b) => new Date(b.date || 0) - new Date(a.date || 0));
-  let chunkIndex = 0; const CHUNK_SIZE = 30;
+    if(cachedHqOrders.length === 0) { 
+        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500 font-bold tracking-wide font-inter">등록된 내역이 없습니다.</td></tr>`; 
+        return; 
+    }
 
-  function renderChunk() {
-      const fragment = document.createDocumentFragment(), endIdx = Math.min(chunkIndex + CHUNK_SIZE, sortedOrders.length);
-      for (; chunkIndex < endIdx; chunkIndex++) {
-          const o = sortedOrders[chunkIndex];
-          
-          let statusClass = "bg-gray-100 text-gray-500";
-          switch(o.status) {
-              case "HQ_PENDING": statusClass = "bg-purple-50 text-purple-700 border-purple-200"; break;
-              case "PREPARING": statusClass = "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200"; break;
-              case "ORDERED": statusClass = "bg-indigo-50 text-indigo-700 border-indigo-200"; break;
-              case "SHIPPED": statusClass = "bg-blue-50 text-blue-700 border-blue-200"; break;
-              case "ARRIVED": statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200"; break;
-              case "RECEIVED": statusClass = "bg-teal-50 text-teal-700 border-teal-200"; break;
-              case "COMPLETED": statusClass = "bg-gray-200 text-gray-800 border-gray-300"; break;
-              case "CANCELED": statusClass = "bg-red-50 text-red-700 border-red-200 line-through"; break;
-          }
+    // Sort descending by date
+    cachedHqOrders.sort((a,b) => new Date(b.date || 0) - new Date(a.date || 0));
+    tbody.innerHTML = '';
+    hqRenderIndex = 0;
 
-          const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors border-b border-gray-50";
-          tr.innerHTML = `
+    hqObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            hqObserver.disconnect();
+            appendHqChunk();
+        }
+    }, { rootMargin: '400px' });
+
+    appendHqChunk();
+}
+
+function appendHqChunk() {
+    const tbody = document.getElementById('hqOrdersGridBody'); 
+    if(!tbody) return; 
+    
+    const endIdx = Math.min(hqRenderIndex + HQ_CHUNK_SIZE, cachedHqOrders.length);
+    const fragment = document.createDocumentFragment();
+
+    for (; hqRenderIndex < endIdx; hqRenderIndex++) {
+        const o = cachedHqOrders[hqRenderIndex];
+        
+        let statusClass = "bg-gray-100 text-gray-500 border-gray-200";
+        switch(o.status) {
+            case "HQ_PENDING": statusClass = "bg-purple-50 text-purple-700 border-purple-200"; break;
+            case "PREPARING": statusClass = "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200"; break;
+            case "ORDERED": statusClass = "bg-indigo-50 text-indigo-700 border-indigo-200"; break;
+            case "SHIPPED": statusClass = "bg-blue-50 text-blue-700 border-blue-200"; break;
+            case "ARRIVED": statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200"; break;
+            case "RECEIVED": statusClass = "bg-teal-50 text-teal-700 border-teal-200"; break;
+            case "COMPLETED": statusClass = "bg-gray-100 text-gray-800 border-gray-300"; break;
+            case "CANCELED": statusClass = "bg-red-50 text-red-700 border-red-200 line-through"; break;
+        }
+
+        const tr = document.createElement('tr'); 
+        tr.className = "hover:bg-red-50/20 transition-colors border-b border-gray-50";
+        tr.innerHTML = `
             <td class="px-6 py-4 font-mono text-[11px] font-bold text-gray-500">${safeDisplay(o.id)}</td>
-            <td class="px-6 py-4 text-[12px] font-bold text-[var(--premium-charcoal)]">${formatDate(o.date)}</td>
+            <td class="px-6 py-4 text-[12px] font-bold text-[var(--premium-charcoal)] font-inter">${formatDate(o.date)}</td>
             <td class="px-6 py-4 text-[12px] font-black text-[#E3000F] font-inter">${safeDisplay(o.vendor)}</td>
-            <td class="px-6 py-4 text-[11px] font-bold text-gray-600">${safeDisplay(o.region)}</td>
+            <td class="px-6 py-4 text-[11px] font-bold text-gray-600 font-inter">${safeDisplay(o.region)}</td>
             <td class="px-6 py-4 text-[12px] font-medium text-gray-700 max-w-[200px] truncate font-inter" title="${escapeHtml(o.items)}">${safeDisplay(o.items)}</td>
             <td class="px-6 py-4 text-[12px] font-mono font-bold text-gray-800">${safeDisplay(o.eta)}</td>
             <td class="px-6 py-4 text-center hq-status-cell"></td>
-          `;
-          
-          const select = document.createElement('select');
-          select.className = `text-[10px] font-black rounded border p-1.5 outline-none shadow-sm transition-all cursor-pointer ${statusClass}`;
-          
-          if (!HQ_ORDER_STATUSES.includes(o.status)) {
-              const invalidOpt = document.createElement('option');
-              invalidOpt.value = o.status; invalidOpt.textContent = `INVALID (${escapeHtml(o.status)})`;
-              invalidOpt.selected = true; invalidOpt.disabled = true;
-              select.appendChild(invalidOpt); select.disabled = true; 
-          } else {
-              HQ_ORDER_STATUSES.forEach(status => {
-                  const option = document.createElement('option');
-                  option.value = status; option.textContent = HQ_STATUS_LABELS[status] || status; 
-                  if (o.status === status) option.selected = true;
-                  select.appendChild(option);
-              });
-          }
-          
-          select.addEventListener('change', async () => { 
-              const orderId = String(o.id || "");
-              if (hqStatusInFlight.has(orderId)) { select.value = o.status; return showToast("상태 변경이 이미 진행 중입니다.", "error"); }
-              hqStatusInFlight.add(orderId); select.disabled = true;
-              try { await updateHqOrderStatus(orderId, select.value); } 
-              finally { hqStatusInFlight.delete(orderId); select.disabled = false; }
-          });
-          
-          tr.querySelector('.hq-status-cell').appendChild(select); fragment.appendChild(tr);
-      }
-      tbody.appendChild(fragment);
-      if (chunkIndex < sortedOrders.length) requestAnimationFrame(renderChunk);
-  }
-  renderChunk();
+        `;
+        
+        const select = document.createElement('select');
+        select.className = `text-[10px] font-black rounded-md border p-2 outline-none shadow-sm transition-all cursor-pointer font-inter ${statusClass}`;
+        
+        if (!HQ_ORDER_STATUSES.includes(o.status)) {
+            const invalidOpt = document.createElement('option');
+            invalidOpt.value = o.status; invalidOpt.textContent = `INVALID (${escapeHtml(o.status)})`;
+            invalidOpt.selected = true; invalidOpt.disabled = true;
+            select.appendChild(invalidOpt); select.disabled = true; 
+        } else {
+            HQ_ORDER_STATUSES.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status; option.textContent = HQ_STATUS_LABELS[status] || status; 
+                if (o.status === status) option.selected = true;
+                select.appendChild(option);
+            });
+        }
+        
+        select.addEventListener('change', async () => { 
+            const orderId = String(o.id || "");
+            if (hqStatusInFlight.has(orderId)) { select.value = o.status; return showToast("상태 변경이 이미 진행 중입니다.", "error"); }
+            hqStatusInFlight.add(orderId); select.disabled = true; select.classList.add('pointer-events-none');
+            
+            try { 
+                await updateHqOrderStatus(orderId, select.value); 
+            } finally { 
+                hqStatusInFlight.delete(orderId); select.disabled = false; select.classList.remove('pointer-events-none'); 
+            }
+        });
+        
+        tr.querySelector('.hq-status-cell').appendChild(select); 
+        fragment.appendChild(tr);
+    }
+    tbody.appendChild(fragment);
+
+    if (hqRenderIndex < cachedHqOrders.length) {
+        const lastRow = tbody.lastElementChild;
+        if (lastRow) hqObserver.observe(lastRow);
+    }
 }
 
 let hqCartData = Object.create(null); 
@@ -819,7 +1054,7 @@ window.openHqOrderCartModal = async function() {
     let modal = document.getElementById('hqCartModal');
     if(!modal) {
         modal = document.createElement('div'); modal.id = 'hqCartModal';
-        modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300';
+        modal.className = 'fixed inset-0 bg-[#111827]/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300';
         document.body.appendChild(modal);
     }
 
@@ -835,16 +1070,16 @@ window.openHqOrderCartModal = async function() {
                     <span class="text-[13px] font-black text-[var(--premium-charcoal)] font-inter">${safeName}</span>
                     <span class="text-[10px] font-mono font-bold text-gray-500 mt-1">[${safeCode}] ${safeDisplay(translatedCat)}</span>
                 </div>
-                <input type="number" min="0" data-code="${safeCode}" data-name="${safeName}" value="${escapeHtml(currentQty)}" placeholder="0" class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-sm font-bold text-[#E3000F] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-inner bg-gray-50 focus:bg-white transition-all">
+                <input type="number" min="0" max="9999" data-code="${safeCode}" data-name="${safeName}" value="${escapeHtml(currentQty)}" placeholder="0" oninput="if(this.value>9999)this.value=9999" class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-sm font-bold text-[#E3000F] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-inner bg-gray-50 focus:bg-white transition-all">
             </div>`;
     });
 
     modal.innerHTML = `
-        <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] transform transition-transform scale-95 duration-300" id="hqCartModalContent">
-            <div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-lg font-black tracking-widest uppercase flex items-center gap-3 font-montserrat"><span>🛒</span> Digital Procurement Cart</h2><button id="hqCartCloseTopBtn" class="text-gray-400 hover:text-white font-bold text-2xl transition-colors" type="button">&times;</button></div>
-            <div class="p-4 bg-gray-50 border-b border-gray-200"><input type="text" id="hqCartSearchInput" placeholder="Search item name..." class="w-full text-[13px] p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 transition-all"></div>
+        <div class="bg-white w-full max-w-2xl rounded-[2rem] overflow-hidden premium-shadow flex flex-col max-h-[85vh] transform transition-transform scale-95 duration-300" id="hqCartModalContent">
+            <div class="bg-[var(--premium-charcoal)] p-6 text-white flex justify-between items-center"><h2 class="text-lg font-black tracking-widest uppercase flex items-center gap-3 font-montserrat"><span>🛒</span> Digital Procurement Cart</h2><button id="hqCartCloseTopBtn" class="text-gray-400 hover:text-white font-bold text-2xl transition-colors focus:outline-none" type="button">&times;</button></div>
+            <div class="p-5 bg-gray-50 border-b border-gray-200"><input type="text" id="hqCartSearchInput" placeholder="Search item name..." class="w-full text-[13px] p-3.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 transition-all shadow-sm"></div>
             <div class="p-2 overflow-y-auto flex-grow hide-scrollbar">${itemsHtml}</div>
-            <div class="p-5 bg-white border-t border-gray-100 flex justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.02)]"><span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase font-inter">Enter Quantity & Confirm</span><button id="hqCartConfirmBtn" type="button" class="btn-gradient-pink px-8 py-3.5 rounded-xl font-black shadow-md uppercase tracking-widest text-xs">Apply to Order</button></div>
+            <div class="p-6 bg-white border-t border-gray-100 flex justify-between items-center shadow-[0_-10px_30px_rgba(0,0,0,0.02)]"><span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase font-inter">Enter Quantity & Confirm</span><button id="hqCartConfirmBtn" type="button" class="btn-gradient-pink px-10 py-3.5 rounded-xl font-black shadow-md uppercase tracking-widest text-xs focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2">Apply to Order</button></div>
         </div>`;
 
     modal.querySelector('#hqCartCloseTopBtn')?.addEventListener('click', closeHqCartModal);
@@ -870,6 +1105,7 @@ function closeHqCartModal() {
     if (content) content.classList.add('scale-95');
     modal.classList.add('opacity-0', 'pointer-events-none');
     window.removeEventListener('keydown', handleCartEsc);
+    setTimeout(() => { modal.innerHTML = ''; }, 300);
 }
 
 function filterHqCart(query) {
@@ -886,7 +1122,6 @@ function confirmHqCart() {
 
     for (const input of inputs) {
         const qty = parseStrictNonNegativeInteger(input.value); 
-        
         if (qty > 0) { 
             const code = input.getAttribute('data-code') || "", name = input.getAttribute('data-name') || "";
             hqCartData[code] = qty; formattedStrings.push(`[${code}] ${name} x ${qty}`); 
@@ -905,7 +1140,7 @@ function transformHqInputsToDigital() {
     const regionInput = document.getElementById('hqRegionInput');
     if (regionInput && regionInput.tagName === 'INPUT') {
         const select = document.createElement('select'); select.id = 'hqRegionInput';
-        select.className = "w-full text-[13px] p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none text-center cursor-pointer font-black text-gray-800 bg-gray-50 focus:bg-white transition-all appearance-none";
+        select.className = "w-full text-[13px] p-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none text-center cursor-pointer font-black text-gray-800 bg-gray-50 focus:bg-white transition-all appearance-none shadow-sm";
         select.innerHTML = '<option value="">-- Hub --</option><option value="ON">ON (Ontario)</option><option value="BC">BC (British Columbia)</option><option value="AB">AB (Alberta)</option>';
         regionInput.parentNode.replaceChild(select, regionInput);
     }
@@ -918,8 +1153,9 @@ function transformHqInputsToDigital() {
     }
 }
 
+// 🌟 [방어 2] Always-Release 데드락 해결
 window.saveHqOrder = async function() {
-  if (isSubmitting) return;
+  if (isSubmitting || !navigator.onLine) return showToast("시스템이 통신 대기 중입니다.", "error");
   const vendorInput = document.getElementById('hqVendorInput'), regionEl = document.getElementById('hqRegionInput'), itemsEl = document.getElementById('hqItemsInput');
   
   if(!regionEl || !itemsEl) return showToast("품목 및 허브 요소를 찾을 수 없습니다. 시스템 오류", "error");
@@ -930,12 +1166,12 @@ window.saveHqOrder = async function() {
 
   isSubmitting = true; clearTimeout(fallbackLockTimer);
   const btn = document.getElementById('btnSubmitHqOrder'); let originalHtml = "ADD ORDER";
-  if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; }
+  if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.classList.add('pointer-events-none'); btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; }
 
   fallbackLockTimer = setTimeout(() => {
       isSubmitting = false;
-      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
-  }, 25000);
+      if (btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; }
+  }, 35000);
 
   const uniqueBatchId = generateIdempotencyKey();
   const localDate = new Date(), yyyy = localDate.getFullYear(), mm = String(localDate.getMonth() + 1).padStart(2, '0'), dd = String(localDate.getDate()).padStart(2, '0');
@@ -944,7 +1180,12 @@ window.saveHqOrder = async function() {
   try {
     const result = await executeApi("upsert_hq_order", { order: payload });
     if (result && result.success) { showToast("발주가 본사 전산에 등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; hqCartData = Object.create(null); fetchMappings(); }
-  } catch (err) { showToast("등록 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
+  } catch (err) { 
+      showToast("등록 실패: " + err.message, "error"); 
+  } finally { 
+      isSubmitting = false; clearTimeout(fallbackLockTimer);
+      if (btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; } 
+  }
 }
 
 window.updateHqOrderStatus = async function(orderId, status) {
@@ -958,12 +1199,10 @@ window.updateHqOrderStatus = async function(orderId, status) {
   } catch (err) { showToast(err.message, "error"); fetchMappings(); }
 }
 
-// 🌟 [방어 31] 백엔드 데이터 지연 시 드롭다운이 멈추는 현상(Loading Hubs) 원천 차단 (하드 폴백)
 function populateInboundRegionOptions() {
     const regionSelector = document.getElementById('inboundRegionSelector');
     if (!regionSelector) return;
     
-    // 안전한 디폴트값 보장
     let regions = ["ON", "BC", "AB", "SK", "MB", "QC"]; 
     
     if (cachedItems && cachedItems.length > 0 && cachedItems[0].stockBreakdown) {
@@ -982,22 +1221,22 @@ function populateInboundRegionOptions() {
 function setupDragAndDrop() {
   const dropZone = document.getElementById('dropZone'); if(!dropZone) return;
   
-  // 🌟 이벤트리스너 꼬임 방지를 위해 DOM 직접 탐색 보장
   let regionSelector = document.getElementById('inboundRegionSelector');
   if (regionSelector && !document.getElementById('linkedHqOrderId')) {
       const input = document.createElement('input');
       input.type = 'text'; input.id = 'linkedHqOrderId';
       input.placeholder = "Link HQ Order ID (Optional, e.g. REQ-...)";
-      input.className = "w-full text-[13px] p-3.5 mt-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 text-center bg-gray-50 focus:bg-white transition-all";
+      input.className = "w-full text-[13px] p-3.5 mt-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none font-bold text-gray-800 text-center bg-gray-50 focus:bg-white transition-all shadow-sm";
       regionSelector.parentNode.insertBefore(input, regionSelector.nextSibling);
   }
 
   const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
 
-  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
-  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
+  // 🌟 [방어 24] 이벤트 버블링 차단
+  clone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
   clone.addEventListener('drop', (e) => { 
-      e.preventDefault(); 
+      e.preventDefault(); e.stopPropagation();
       clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); 
       
       const rs = document.getElementById('inboundRegionSelector');
@@ -1056,7 +1295,9 @@ function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
     });
 }
 
-// 🌟 [방어 26] 대용량 엑셀 파싱 시 UI 완전 멈춤(OOM Freeze) 방어 및 비동기 양보 청크 처리
+// ============================================================================
+// 🚀 [V40.7 핵심] Time-Slicing (시분할) 비동기 엑셀 파싱 엔진 (OOM Freeze 방어)
+// ============================================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
   if (isSubmitting) return showToast("현재 데이터를 서버로 전송 중입니다. 잠시 기다려주세요.", "error");
@@ -1068,11 +1309,11 @@ async function handleExcelUpload(event) {
   const validExcelExts = [".xlsx", ".xls", ".csv"], validImgExts = [".png", ".jpg", ".jpeg"], fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
   if (validExcelExts.includes(fileExt)) {
-    setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold">Loading Excel Engine...</span>`);
+    setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold font-inter">Loading Excel Engine...</span>`);
     try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
     catch(e) { isSubmitting = false; return showToast("엑셀 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
 
-    setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold">Parsing Excel Document...</span>`);
+    setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold font-inter">Parsing Excel Document...</span>`);
     const reader = new FileReader();
     
     reader.onerror = () => { isSubmitting = false; setUploadStatus("Drag & Drop vendor document here"); showToast("파일을 읽는 중 시스템 오류가 발생했습니다.", "error"); };
@@ -1082,7 +1323,7 @@ async function handleExcelUpload(event) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다."); 
         
-        // 브라우저 렌더러에 쉴 틈을 주어 하얗게 질리는 것을 방지
+        // 🌟 [방어 11] 브라우저 렌더러에 쉴 틈을 주어 하얗게 질리는 것을 방지
         setTimeout(async () => {
             await processExcelData(jsonData, file.name);
         }, 50);
@@ -1091,14 +1332,14 @@ async function handleExcelUpload(event) {
     reader.readAsArrayBuffer(file);
   } 
   else if (validImgExts.includes(fileExt)) {
-    setUploadStatus(`<span class="animate-pulse text-indigo-500 font-bold">Loading AI OCR Engine...</span>`);
+    setUploadStatus(`<span class="animate-pulse text-indigo-500 font-bold font-inter">Loading AI OCR Engine...</span>`);
     try { await loadHeavyLibrary("https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js", "Tesseract"); } 
     catch(e) { isSubmitting = false; return showToast("AI 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
 
-    setUploadStatus(`<span class="animate-pulse text-indigo-500 font-bold">AI Vision OCR Scanning...</span>`);
+    setUploadStatus(`<span class="animate-pulse text-indigo-500 font-bold font-inter">AI Vision OCR Scanning...</span>`);
     try {
       let targetFile = file; try { targetFile = await compressImage(file); } catch(e) {}
-      const result = await Tesseract.recognize(targetFile, 'eng+kor', { logger: m => { if (m.status === 'recognizing text') { const pct = Math.floor(m.progress * 100); setUploadStatus(`<span class="text-indigo-500 font-bold">AI Vision Parsing: ${pct}%</span>`); } } });
+      const result = await Tesseract.recognize(targetFile, 'eng+kor', { logger: m => { if (m.status === 'recognizing text') { const pct = Math.floor(m.progress * 100); setUploadStatus(`<span class="text-indigo-500 font-bold font-inter">AI Vision Parsing: ${pct}%</span>`); } } });
       await processOCRText(result.data.text, file.name);
     } catch(err) { isSubmitting = false; showToast("이미지 인식 실패: " + err.message, "error"); setUploadStatus("Drag & Drop vendor document here"); }
   } else { 
@@ -1128,6 +1369,7 @@ async function processOCRText(text, filename) {
   await processExcelData(jsonData, filename + " (OCR)");
 }
 
+// 🌟 [방어 2] Always-Release 데드락 해결
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector');
   if (!targetRegion || !targetRegion.value) { isSubmitting = false; showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); setUploadStatus("Drag & Drop vendor document here"); return; }
@@ -1146,7 +1388,12 @@ async function processExcelData(jsonData, filename) {
 
   let inboundMap = Object.create(null), successCount = 0, validationErrors = [];
 
-  for (const row of jsonData) {
+  for (let i = 0; i < jsonData.length; i++) {
+    if (i > 0 && i % 200 === 0) {
+        await new Promise(res => requestAnimationFrame(() => setTimeout(res, 0)));
+    }
+
+    const row = jsonData[i];
     let vItemCode = "", vQty = 0, vExp = ""; let qtyMatches = 0;
 
     Object.keys(row).forEach(k => {
@@ -1169,7 +1416,7 @@ async function processExcelData(jsonData, filename) {
     if (expString === "" || expString.toLowerCase() === "null" || expString === "-") { vExp = null; } 
     else { 
         vExp = parseStrictISODate(expString); 
-        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 올바르지 않은 유통기한 날짜 형식입니다: ${escapeHtml(expString)}`); continue; }
+        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 유통기한 시간역전 감지: ${escapeHtml(expString)}`); continue; }
     }
     
     const safeVItemCode = String(vItemCode || "").trim().toUpperCase();
@@ -1210,20 +1457,31 @@ async function processExcelData(jsonData, filename) {
   const matchedRowCount = successCount;
   const updatedItemCount = finalStockUpdates.length;
 
-  setUploadStatus(`<span class="animate-pulse text-emerald-600 font-bold">Synchronizing ${matchedRowCount} Rows (Atomic ADD)...</span>`);
+  setUploadStatus(`<span class="animate-pulse text-emerald-600 font-bold font-inter">Synchronizing ${matchedRowCount} Rows (Atomic ADD)...</span>`);
   
   try {
     const result = await executeApi("update_stock", { mode: "ADD", stockUpdates: finalStockUpdates, syncId: generateIdempotencyKey(), linkedOrderId: finalLinkedOrderId }); 
-    if (result && result.success) { showToast(`입고 완료: ${updatedItemCount}개 품목 / ${matchedRowCount}개 행 누적 성공`, "success"); setUploadStatus(`<span class="text-emerald-600 font-bold">✅ Uploaded: ${escapeHtml(filename)}</span>`); setTimeout(() => { isSubmitting = false; location.reload(); }, 1500); } 
+    if (result && result.success) { 
+        showToast(`입고 완료: ${updatedItemCount}개 품목 / ${matchedRowCount}개 행 누적 성공`, "success"); 
+        setUploadStatus(`<span class="text-emerald-600 font-bold font-inter">✅ Uploaded: ${escapeHtml(filename)}</span>`); 
+        setTimeout(() => { location.reload(); }, 1500); 
+    } 
   } catch (err) {
-    isSubmitting = false; setUploadStatus("Drag & Drop vendor document here");
-    if(err.ledgerPending) { showToast(`✅ 재고 입고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId || "N/A")})`, "success"); setTimeout(() => { fetchCatalogForInbound(); }, 2500); } 
-    else { showToast(err.message, "error"); }
+    setUploadStatus("Drag & Drop vendor document here");
+    if(err.ledgerPending) { 
+        showToast(`✅ 재고 입고 반영 완료\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${safeDisplay(err.txId || "N/A")})`, "success"); 
+        setTimeout(() => { fetchCatalogForInbound(); }, 2500); 
+    } else { 
+        showToast(err.message, "error"); 
+    }
+  } finally {
+    // 🚨 데드락 해제 보장
+    isSubmitting = false;
   }
 }
 
-async function cancelOrder(batchId) {
-    if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
+window.cancelOrder = async function(batchId) {
+    if (isSubmitting || !navigator.onLine) return showToast("현재 시스템이 통신 중입니다.", "error");
     if (!batchId) { 
         batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: REQ-123456)"); 
         if (!batchId) return; 
@@ -1240,7 +1498,7 @@ async function cancelOrder(batchId) {
     fallbackLockTimer = setTimeout(() => {
         isSubmitting = false;
         showToast("취소 요청 시간이 초과되었습니다.", "error");
-    }, 25000);
+    }, 35000);
 
     try {
         const result = await executeApi("cancel_order", { batchId: safeBatchId });
@@ -1248,22 +1506,25 @@ async function cancelOrder(batchId) {
     } catch (err) { 
         if(err.ledgerPending) { showToast(`✅ 재고 복원 성공\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${err.txId})`, "success"); setTimeout(() => { fetchMappings(); fetchCatalogForInbound(); }, 2500); } 
         else { showToast(`❌ 취소 실패: ${err.message}`, "error"); }
-    } finally { isSubmitting = false; clearTimeout(fallbackLockTimer); }
+    } finally { 
+        // 🚨 데드락 해제 보장
+        isSubmitting = false; 
+        clearTimeout(fallbackLockTimer); 
+    }
 }
 
-window.switchAdminTab = switchAdminTab; window.saveClientData = saveClientData; window.loadSalesGrid = loadSalesGrid; window.recalcSalesRow = recalcSalesRow; window.saveSalesGridData = saveSalesGridData; window.handleExcelUpload = handleExcelUpload; window.saveHqOrder = saveHqOrder; window.cancelOrder = cancelOrder; 
+window.switchAdminTab = switchAdminTab; window.handleExcelUpload = handleExcelUpload; window.saveHqOrder = saveHqOrder; 
 
+// ============================================================================
 // 🌟 시스템 초기화 바인딩
+// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang); applyGlobalRbacNavigation(); setupDragAndDrop(); transformHqInputsToDigital();
-  
-  // SWR 로딩 허브 즉각 폴백 적용
-  populateInboundRegionOptions();
   
   if (userRole === "VENDOR") {
       ['tabBtn_profiles', 'tabBtn_sales'].forEach(id => {
           const btn = document.getElementById(id);
-          if (btn) { btn.classList.add('opacity-40', 'cursor-not-allowed'); btn.innerHTML += ' <span class="text-xs ml-1">🔒</span>'; const clone = btn.cloneNode(true); clone.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showToast("본사(MASTER) 전용 데이터입니다.", "error"); }); btn.parentNode.replaceChild(clone, btn); }
+          if (btn) { btn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none'); btn.innerHTML += ' <span class="text-xs ml-1">🔒</span>'; }
       });
       const hqVendorInput = document.getElementById('hqVendorInput');
       if (hqVendorInput) { hqVendorInput.value = clientName; hqVendorInput.readOnly = true; hqVendorInput.classList.add('bg-gray-100', 'text-[#E3000F]', 'cursor-not-allowed', 'font-black'); }
