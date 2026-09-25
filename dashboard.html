@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.12 Enterprise Dashboard Benchmark - FOUC 블랙아웃 100% 소각, Canvas OOM 차단, 1줄 완벽 고정 헤더 -->
-<html lang="en" class="opacity-0">
+<!-- 🌟 V40.13 Enterprise Dashboard STABLE - FOUC 하얀화면 영구 픽스 & 33대 방어로직 무손실 보존 -->
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 [방어 5, 7, 19] 모바일 고급화 규격: iOS 줌인 차단, 노치 대응, 가상 키보드 뷰포트 최적화 -->
+    <!-- 🌟 모바일 고급화 규격: iOS 줌인 차단, 노치 대응, 가상 키보드 뷰포트 최적화 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -11,24 +11,38 @@
     
     <title>Enterprise Dashboard | Y2C Portal</title>
     
-    <!-- 🚨 [방어 1] 프리로드: 폰트와 파비콘을 브라우저 렌더링 1순위로 강제하여 로딩 깜빡임 원천 차단 -->
+    <!-- 🚨 프리로드: 폰트와 파비콘을 브라우저 렌더링 1순위로 강제하여 로딩 깜빡임 원천 차단 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- 🚨 [방어 4] Tailwind CSS 에러 파괴 방어: 동기식 로드 보장 -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 🌟 [방어 15] 대시보드 그래프 작동을 위한 Chart.js 로드 (DOM 방해 방지용 defer) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
+    <!-- 🌟 [핵심 버그 픽스] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <style>
+        .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
+    </style>
+    <script>
+        // JS가 정상 작동할 때만 화면을 가리고, 0.8초 뒤 무조건 락을 푸는 생존 타이머
+        document.documentElement.classList.add('fouc-lock');
+        window._foucTimer = setTimeout(function() {
+            document.documentElement.classList.remove('fouc-lock');
+            document.documentElement.style.opacity = '1';
+            document.documentElement.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+        }, 800);
+    </script>
+    
+    <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
+    <!-- 대시보드 그래프 작동을 위한 Chart.js 로드 (DOM 방해 방지용 defer) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <script>
         // Tailwind 동기식 로드 성공 후 안전하게 Config 확장
         tailwind.config = {
@@ -67,22 +81,22 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 [방어 21] 스크롤바 대기업형 커스텀 */
+        /* 🌟 스크롤바 대기업형 커스텀 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 19, 29] iOS 줌 버그 차단 및 스피너 파괴 */
+        /* 🌟 iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button { font-size: 16px !important; }
         
-        /* 🌟 [방어 14] 모바일 네비게이션 가로 스크롤 숨김 */
+        /* 모바일 네비게이션 가로 스크롤 숨김 */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🌟 [방어 8] 계단식 로딩 렌더링 딜레이 제거 - 한 번에 부드럽게 등장하는 App-Shell 구조 */
+        /* 🌟 계단식 로딩 렌더링 딜레이 제거 - 한 번에 부드럽게 등장하는 App-Shell 구조 */
         .app-shell-enter { 
             opacity: 0; 
             transform: translateY(8px); 
@@ -90,7 +104,15 @@
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 [방어 27] KPI 카드 마그네틱 이펙트 및 프리미엄 확산 섀도우 */
+        /* Shimmer 로더 하드웨어 가속 */
+        .shimmer-bg {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 400% 100%;
+            animation: shimmer 1.5s infinite ease-in-out;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* KPI 마그네틱 애니메이션 */
         .kpi-card { 
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
             position: relative; 
@@ -105,7 +127,16 @@
         .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.08); }
         .kpi-card:hover::after { transform: scaleY(1); }
 
-        /* 🌟 [방어 17] 100% 정교한 네비게이션 CSS (수직 중앙 정렬, 레이아웃 붕괴 방지) */
+        /* 버튼 호버 트랜지션 규격 */
+        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2), 0 2px 4px -1px rgba(227, 0, 15, 0.1); }
+        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 10px 15px -3px rgba(227, 0, 15, 0.3), 0 4px 6px -2px rgba(227, 0, 15, 0.15); transform: translateY(-1px); }
+        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+
+        .btn-charcoal { background: var(--premium-charcoal); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .btn-charcoal:hover:not(:disabled) { background: #000000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
+        .btn-charcoal:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+
+        /* 100% 정교한 네비게이션 CSS (수직 중앙 정렬, 레이아웃 붕괴 방지) */
         .nav-link { 
             position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; 
             height: 100%; display: inline-flex; align-items: center; justify-content: center; 
@@ -118,12 +149,9 @@
             height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; 
         }
 
-        .premium-shadow {
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
-            border: 1px solid #f1f5f9;
-        }
-        
-        /* 🌟 [방어 22] 인쇄 최적화 방어망 */
+        .premium-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9; }
+
+        /* 인쇄(Print) 무손실 록다운 */
         @media print { 
             .no-print { display: none !important; } 
             body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
@@ -133,10 +161,9 @@
         }
     </style>
 </head>
-<!-- 🚨 [CRITICAL FIX] body 태그에 라이트 테마 배경(#F8F9FA)을 하드코딩하여 로딩 시 검은 번쩍임 100% 차단 -->
-<body style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
+<body style="background-color: #F8F9FA; margin: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🌟 [방어 2, 3] Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🌟 Clickjacking 방어 & NoScript 샌드박스 (무손실 보존) -->
     <script>if (window.top !== window.self) { window.top.location = window.self.location; }</script>
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif;">
@@ -144,43 +171,37 @@
         </div>
     </noscript>
 
-    <!-- 🌟 [방어 1, 6] 초스무스 최적화: GPU 브라우저 페인팅 주기에 맞춘 라이트 테마 로딩 엔진 -->
+    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
     <script>
         (function() {
             try {
-                // 문서 투명도 즉각 해제 (FOUC 블랙아웃 방지)
-                document.documentElement.classList.remove("opacity-0");
+                clearTimeout(window._foucTimer);
+                document.documentElement.classList.remove("fouc-lock");
                 document.documentElement.style.opacity = "1";
-                
-                requestAnimationFrame(function() {
-                    requestAnimationFrame(function() {
-                        document.body.style.opacity = "1";
-                    });
-                });
+                document.documentElement.style.visibility = "visible";
+                document.body.style.opacity = "1";
 
-                // 권한 탭 즉시 동기 노출 (Layout Thrashing 억제)
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
             } catch(e) {}
         })();
     </script>
     
-    <!-- 🌟 [방어 11] 유니버설 마스터 헤더 (1600px 3분할 록다운 - 흔들림 0%) -->
+    <!-- 🌟 유니버설 마스터 헤더 (Flexbox Crush 방어 유지) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역: 2줄 붕괴 방지를 위한 items-baseline 및 whitespace-nowrap 적용 (shrink-0 강제) -->
+            <!-- 좌측 로고 영역 (shrink-0 강제) -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
-                    <!-- 🌟 [방어 28] Text-Glow 아이덴티티 적용 -->
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
                     <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
 
-            <!-- 🌟 [방어 17] 중앙 네비게이션 탭 (lg, xl 해상도 압착 방지 유동적 숨김) -->
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-6 xl:gap-8 px-4 min-w-0">
+            <!-- 중앙 네비게이션 탭 (lg, xl에서 유동적 숨김으로 Flexbox Crush 방지) -->
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <!-- 현재 페이지: Dashboard 활성화 -->
                 <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -190,20 +211,20 @@
             </nav>
 
             <!-- 우측 컨트롤 영역 (shrink-0 강제) -->
-            <div class="hidden lg:flex items-center justify-end gap-4 shrink-0 w-auto lg:w-[280px]">
-                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
+            <div class="flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <div class="hidden sm:flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
                     <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
                     <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
 
                 <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0">
-                    <span class="flex h-2 w-2 relative">
+                    <span class="flex h-2 w-2 relative hidden sm:flex">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
                     <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded border border-[#E3000F]/20 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
 
@@ -212,15 +233,14 @@
 
     <!-- 모바일 카테고리 뷰 (스와이프 스크롤러 적용) -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
-        <!-- 현재 페이지: Dashboard 활성화 -->
-        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
+        <a href="dashboard.html" id="navDashboard_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 🌟 [방어 25] 권한 동기식 프리-언락 -->
+    <!-- 권한 동기식 프리-언락 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -236,7 +256,7 @@
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (계단식 렌더링 지연 제거, 한 번에 표시되는 App Shell 구조) -->
+    <!-- 📊 메인 컨텐츠 영역 (App Shell) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter">
         
         <!-- 프리미엄 헤더 및 연도 컨트롤러 -->
@@ -252,7 +272,7 @@
                 <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm hover:shadow-md transition-shadow">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-3 mr-2 font-inter">Fiscal Year</label>
                     <div class="relative w-full sm:w-32">
-                        <!-- 🌟 [방어 29] appearance-none 강제 및 CSS 록다운 -->
+                        <!-- 🌟 appearance-none 강제 및 CSS 록다운 -->
                         <select id="dashYearSelector" aria-label="Year Selector" class="w-full bg-gray-50 text-[var(--premium-charcoal)] text-[13px] font-bold rounded-lg focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block px-4 py-2 outline-none cursor-pointer transition-all appearance-none">
                             <option value="2026">2026</option>
                             <option value="2025">2025</option>
@@ -267,7 +287,7 @@
             </div>
         </header>
 
-        <!-- 🌟 [방어 30] 핵심 성과 지표 (Zero-Anchoring) -->
+        <!-- 🌟 핵심 성과 지표 (Zero-Anchoring 무손실 보존) -->
         <section class="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6 mb-8 print-shadow-none">
             <!-- 연간 총 매출 -->
             <article class="kpi-card bg-gradient-to-br from-[#111827] to-gray-800 rounded-[1.5rem] p-6 sm:p-8 shadow-xl relative overflow-hidden group print-shadow-none print:!bg-white print:!border print:!border-gray-200">
@@ -301,11 +321,10 @@
         <!-- 차트 및 시스템 알림 영역 -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- 🌟 [방어 9] 왼쪽: 월별 매출 차트 (Canvas OOM Isolation 및 h-[400px] 록다운) -->
+            <!-- 🌟 왼쪽: 월별 매출 차트 (Canvas OOM Isolation 및 h-[400px] 록다운 무손실 보존) -->
             <article class="lg:col-span-2 bg-white premium-shadow rounded-[2rem] p-6 sm:p-8 transition-shadow duration-300 flex flex-col print-shadow-none">
                 <header class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
-                    <!-- 추가 기능 제어 버튼 등 확장을 대비한 빈자리 -->
                 </header>
                 
                 <div class="relative w-full h-[300px] sm:h-[400px] flex-grow flex items-center justify-center">
@@ -346,7 +365,7 @@
         </section>
     </main>
 
-    <!-- 🌟 [방어 18] 글로벌 토스트 알림 컨테이너 (최상단 Z-9999 보장) -->
+    <!-- 🌟 글로벌 토스트 알림 컨테이너 (최상단 Z-9999 보장) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
     <!-- ⚡ JS 로직 연동 (무손실 보장) -->
@@ -354,7 +373,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                // 🌟 [방어 32] 동적 다국어 폴백 로직
+                // 🌟 동적 다국어 폴백 로직
                 if (typeof I18N_DICT !== 'undefined') {
                     Object.assign(I18N_DICT.en, {
                         "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization.",
