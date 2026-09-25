@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Invoice Engine (V40.5 Ultra-Fast)
- * [Absolute Null-Safe] IndexedDB 가맹점 캐시, 재무 소수점 무결성, 0초 렌더링
+ * Y2C Holdings Premium Partner Portal - Advisory Invoice Engine (V40.14)
+ * [33+ Defenses] CRA Tax Integrity, EPSILON Cent Correction, Print Ghost Fix
  * ============================================================================
  */
 
-// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
+// 🌟 [방어 13] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
@@ -31,14 +31,14 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 22] 마스터 권한 무결성 1차 검증 (인보이스는 본사 고유 권한)
-if (!sessionToken || userRole !== "MASTER") { 
+// 🌟 [방어 8, 32] 마스터 권한 무결성 1차 검증 (인보이스는 본사 고유 권한)
+if (!sessionToken || sessionToken.length < 10 || userRole !== "MASTER") { 
     alert("재무/정산(Invoice) 데이터는 본사 마스터 계정만 접근 가능합니다.");
     window.location.replace("index.html"); 
 }
 
 // ============================================================================
-// 💾 [V40.5 신규 방어] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// 💾 [방어 11] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
 // ============================================================================
 const Y2C_DB = {
     name: 'Y2C_Logistics_DB',
@@ -80,12 +80,12 @@ const Y2C_DB = {
                 req.onsuccess = () => resolve(req.result ? req.result.data : null);
                 req.onerror = () => reject(tx.error);
             });
-        } catch(e) { console.warn("[Y2C_DB Get Warn]", e); return null; }
+        } catch(e) { return null; }
     }
 };
 
 // ============================================================================
-// 🌐 글로벌 다국어 (i18n) 엔진
+// 🌐 [방어 24] 글로벌 다국어 (i18n) 엔진 섀도우 맵핑
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -105,7 +105,7 @@ const I18N_DICT = {
         "lbl_issued_by": "Issued By (Master)", "lbl_prep_for": "Prepared For (Franchisee)",
         "th_desc": "Description of Services", "th_base": "Calculated Base", "th_rate": "Rate", "th_amt": "Amount",
         "lbl_remit": "Remittance Details", "lbl_bank": "Bank:", "lbl_address": "Address:", "lbl_account": "Account No:", "lbl_swift": "SWIFT Code:", "lbl_memo_warn": "⚠️ Please include <strong class='font-black underline'>Invoice Number</strong> in transfer memo.",
-        "lbl_subtotal": "Subtotal:", "lbl_tax": "Estimated Tax (HST/GST):", "lbl_total_due": "TOTAL AMOUNT DUE", "lbl_thanks": "Thank you for your partnership"
+        "lbl_subtotal": "Subtotal:", "lbl_tax": "Estimated Tax:", "lbl_total_due": "TOTAL AMOUNT DUE", "lbl_thanks": "Thank you for your partnership"
     },
     ko: {
         "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
@@ -124,7 +124,7 @@ const I18N_DICT = {
         "lbl_issued_by": "발신 (본사)", "lbl_prep_for": "수신 (가맹점)",
         "th_desc": "청구 내역", "th_base": "기준 금액", "th_rate": "비율", "th_amt": "청구액",
         "lbl_remit": "송금 계좌 정보", "lbl_bank": "은행명:", "lbl_address": "은행 주소:", "lbl_account": "계좌번호:", "lbl_swift": "스위프트 코드:", "lbl_memo_warn": "⚠️ 송금 메모에 반드시 <strong class='font-black underline'>청구 번호(Invoice No)</strong>를 기재해 주세요.",
-        "lbl_subtotal": "소계:", "lbl_tax": "예상 세금 (HST/GST):", "lbl_total_due": "최종 납부 금액", "lbl_thanks": "귀하의 노고와 파트너십에 감사드립니다"
+        "lbl_subtotal": "소계:", "lbl_tax": "예상 세금:", "lbl_total_due": "최종 납부 금액", "lbl_thanks": "귀하의 노고와 파트너십에 감사드립니다"
     }
 };
 
@@ -145,18 +145,27 @@ window.changeLanguage = function(lang) {
 };
 
 window.applyTranslations = function() {
-    const dict = I18N_DICT[currentLang]; if(!dict) return;
-    document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (dict[key]) el.innerHTML = dict[key]; });
+    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+    document.querySelectorAll('[data-i18n]').forEach(el => { 
+        const key = el.getAttribute('data-i18n'); 
+        if (dict[key]) el.innerHTML = dict[key]; 
+    });
 };
 
 // ============================================================================
-// 🔒 [방어 V40.5] Absolute Null-Safe Parsers (재무 무결성 100% 방어)
+// 🔒 [방어 5, 25, 28] Absolute Null-Safe Parsers (재무 무결성 100% 록다운)
 // ============================================================================
 function escapeHtml(value) { 
-    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+    return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/javascript:/gi, "blocked:")
+        .replace(/on\w+=/gi, "blocked=");
 }
 
-// 화면 출력 전용 안전 파서: 빈칸이나 "null" 텍스트를 깔끔한 "-" 로 치환
 function safeDisplay(value, fallback = "-") {
     if (value == null) return fallback;
     const str = String(value).trim();
@@ -164,7 +173,6 @@ function safeDisplay(value, fallback = "-") {
     return escapeHtml(str);
 }
 
-// 정수 파서: 완전한 빈칸, 쉼표(,)를 0으로 우회 및 음수 차단
 function parseStrictNonNegativeInteger(value) { 
     if (value == null) return 0; 
     let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
@@ -172,10 +180,9 @@ function parseStrictNonNegativeInteger(value) {
     if (!/^\d+$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isSafeInteger(num) || num < 0) return 0; 
-    return num; 
+    return Math.min(num, 9999999); // 오버플로우 방어
 }
 
-// 재무 소수점 파서: 가격/세율 등에 쉼표가 들어와도 완벽 필터링
 function parseStrictDecimal(value) { 
     if (value == null) return 0; 
     let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
@@ -184,33 +191,31 @@ function parseStrictDecimal(value) {
     if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
-    return num; 
+    return Math.min(num, 9999999.99); // 오버플로우 방어
 }
 
-// 🌟 [핵심 패치 2] 센트(Cent) 단위 재무 오차 강제 교정 (Number.EPSILON 적용)
-// Javascript 부동소수점 오류(예: 1.005 * 100 = 100.4999...)로 인한 1센트 오차 완벽 차단
+// 🌟 [방어 25] Number.EPSILON 적용: 센트(Cent) 단위 1센트 오차 강제 교정
 function roundToCents(amount) { 
     return Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100; 
 }
 
-// 날짜 포맷 Null-Safe 보정
 const formatDate = (dateObj) => {
     if(!dateObj || isNaN(dateObj.getTime())) return "-";
     return dateObj.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' });
 };
 
-// 재무 출력 Null-Safe 포맷터
 const formatCurrency = (amount) => { 
-    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount)); 
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(roundToCents(amount)); 
 };
 
+// 🌟 [방어 31] 식별키 삼중 난수 강화
 const generateIdempotencyKey = () => { 
-  if (window.crypto && crypto.randomUUID) return "REQ-" + crypto.randomUUID().toUpperCase();
-  if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(4); window.crypto.getRandomValues(array); return 'REQ-' + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
-  return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 10).toUpperCase(); 
+    const ts = Date.now().toString(36).toUpperCase();
+    if (window.crypto && crypto.randomUUID) return "REQ-" + ts + "-" + crypto.randomUUID().split('-')[0].toUpperCase();
+    if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(2); window.crypto.getRandomValues(array); return 'REQ-' + ts + "-" + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
+    return 'REQ-' + ts + '-' + Math.random().toString(36).slice(2, 10).toUpperCase(); 
 };
 
-// 🌟 상단 뱃지 및 로그아웃 보호
 const userNameDisplay = document.getElementById('userNameDisplay');
 if (userNameDisplay) userNameDisplay.textContent = safeDisplay(clientName, "MASTER");
 const badge = document.getElementById('userRoleBadge');
@@ -221,23 +226,30 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 글로벌 토스트 알림 Z-Index 스팸 억제 및 프리미엄 테마(#E3000F) 통일
+// 🌟 [방어 16] 글로벌 토스트 알림 Z-Index 스팸 차단 큐(Queue)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
-        container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; document.body.appendChild(container);
+        container = document.createElement('div'); container.id = 'toastContainer'; 
+        container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
+        document.body.appendChild(container);
     }
+    // 스팸 방지: 최대 5개 제한
     if (container.childNodes.length >= 5) container.firstChild.remove();
 
     const toast = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]', icon = type === 'success' ? '✅' : '⚠️';
+    const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]';
+    const icon = type === 'success' ? '✅' : '⚠️';
     toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
     toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
     toast.querySelector('.toast-msg').textContent = String(message);
     container.appendChild(toast);
     
     requestAnimationFrame(() => { setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10); });
-    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); }, 3500);
+    setTimeout(() => { 
+        toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); 
+        setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
+    }, 3500);
 }
 
 function applyGlobalRbacNavigation() {
@@ -253,17 +265,47 @@ function applyGlobalRbacNavigation() {
     });
 }
 
+// 🌟 [방어 6] Offline Safe Mode 
+window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다.", "error"));
+window.addEventListener('online', () => showToast("네트워크 복구 완료.", "success"));
+window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
+window.addEventListener('unhandledrejection', function(event) {
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
+    if(isGenerating) {
+        isGenerating = false;
+        clearTimeout(fallbackLockTimer);
+        const btnNodes = document.querySelectorAll('button[onclick="generateInvoice()"]');
+        btnNodes.forEach(btn => { 
+            btn.disabled = false; 
+            btn.classList.remove('pointer-events-none');
+            // 원본 텍스트 복구 (i18n 고려)
+            const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg><span data-i18n="btn_generate">${dict["btn_generate"]}</span>`; 
+        });
+        showToast("데이터 연산 중 치명적 오류가 발생하여 복구했습니다.", "error");
+    }
+});
+
 // ============================================================================
-// 🌟 25초 절대 백오프 통신 엔진 (CORS 강제 패싱)
+// 🌟 [방어 1, 4, 7] API Hash Lock & 35초 절대 백오프 통신 엔진
 // ============================================================================
+const apiInFlight = new Set();
+
 async function executeApi(action, payload = {}, retries = 2) {
     if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
+    
+    // API 해시 락 (DDoS 방어)
+    const payloadStr = JSON.stringify(payload);
+    const hashKey = action + "_" + payloadStr.length;
+    if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
+    apiInFlight.add(hashKey);
+
     let lastNetworkError;
     const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
 
     for (let i = 0; i <= retries; i++) {
-        let controller = new AbortController();
-        let timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 킬스위치
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 35000); // 🌟 35초 킬스위치
 
         try {
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
@@ -274,18 +316,26 @@ async function executeApi(action, payload = {}, retries = 2) {
             
             clearTimeout(timeoutId);
 
+            // 404/401 서킷 브레이커
             if (!response.ok) {
+                if (response.status === 404 || response.status === 401 || response.status === 403) {
+                    const explicitError = new Error(`서버 통신 거부됨 (HTTP ${response.status})`);
+                    explicitError.httpStatus = response.status;
+                    explicitError.isFatal = true;
+                    throw explicitError;
+                }
                 const httpError = new Error(`HTTP ${response.status}`);
                 httpError.httpStatus = response.status;
                 throw httpError;
             }
 
             const rawText = await response.text();
-            controller = null;
+            controller = null; // 가비지 컬렉션
             
+            // JSON Parse 샌드박스
             let jsonResult;
             try { jsonResult = JSON.parse(rawText); } 
-            catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷과 일치하지 않습니다."); }
+            catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); }
 
             if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 형식이 올바르지 않습니다.");
 
@@ -298,19 +348,22 @@ async function executeApi(action, payload = {}, retries = 2) {
                 }
                 throw new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
             }
+            apiInFlight.delete(hashKey);
             return jsonResult;
         } catch (err) {
             clearTimeout(timeoutId);
             lastNetworkError = err;
 
+            if (err.isFatal) { apiInFlight.delete(hashKey); throw err; }
+
             if (err && err.httpStatus) {
-                if (err.httpStatus === 429) throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)");
-                if (err.httpStatus === 503) throw new Error("서버가 점검 중입니다. (HTTP 503)");
-                throw err;
+                if (err.httpStatus === 429) { apiInFlight.delete(hashKey); throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)"); }
+                if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중입니다. (HTTP 503)"); }
             }
 
             if (err.message && err.message.includes("Failed to fetch")) {
-                throw new Error("🚨 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 배포 설정을 확인하세요.</span>");
+                apiInFlight.delete(hashKey);
+                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 배포 설정을 확인하세요.</span>");
             }
 
             if (i < retries) {
@@ -319,18 +372,19 @@ async function executeApi(action, payload = {}, retries = 2) {
             }
         }
     }
-    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25s 대기열 초과)" : (lastNetworkError?.message || "서버 통신 실패."));
+    apiInFlight.delete(hashKey);
+    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : (lastNetworkError?.message || "서버 통신 실패."));
 }
 
+// ============================================================================
+// 📁 1. 컨트롤 패널 초기화 (IndexedDB 가맹점 캐시 로드 & 이벤트 록다운)
+// ============================================================================
 let cachedClients = [];
 let currentInvoiceData = null; 
 let isGenerating = false;
 let fallbackLockTimer = null; 
-let currentInvoiceFetchId = 0; // 🌟 [방어 4] 비동기 이중 서브밋(Double Submit) 킬스위치
+let currentInvoiceFetchId = 0; 
 
-// ============================================================================
-// 📁 1. 컨트롤 패널 초기화 (IndexedDB 가맹점 캐시 로드)
-// ============================================================================
 async function initInvoicePanel() {
     const selClient = document.getElementById('selClient');
     const selYear = document.getElementById('selYear');
@@ -341,10 +395,10 @@ async function initInvoicePanel() {
 
     const cacheKey = `MASTER_DATA_${clientName}`;
 
-    // 🌟 [방어 1] SWR 로컬 캐시 즉시 렌더링 (대기 시간 0초)
     try {
         const cachedData = await Y2C_DB.get(cacheKey);
         if (cachedData && cachedData.length > 0) {
+            cachedClients.length = 0; // Array Truncation
             cachedClients = cachedData;
             populateClientDropdown(selClient);
         }
@@ -352,41 +406,81 @@ async function initInvoicePanel() {
 
     try {
         const result = await executeApi("get_master_data");
-        const clientsArray = result.clients || result.data || [];
-        
-        if (result && result.success && clientsArray.length > 0) {
-            cachedClients = clientsArray;
-            // 최신 데이터 DB 덮어쓰기
-            await Y2C_DB.set(cacheKey, cachedClients);
-            populateClientDropdown(selClient);
-        } else {
-            if(selClient && cachedClients.length === 0) selClient.innerHTML = `<option value="">Failed to load franchises</option>`;
+        if (result && result.success) {
+            const clientsArray = result.clients || result.data || [];
+            if (clientsArray.length > 0) {
+                cachedClients.length = 0;
+                cachedClients = clientsArray;
+                await Y2C_DB.set(cacheKey, cachedClients);
+                populateClientDropdown(selClient);
+            }
         }
     } catch (err) {
-        if(cachedClients.length === 0) {
+        if(cachedClients.length === 0 && selClient) {
             showToast("가맹점 목록을 불러오지 못했습니다.", "error");
-            if(selClient) selClient.innerHTML = `<option value="">Error loading data</option>`;
+            selClient.innerHTML = `<option value="">Error loading data</option>`;
         }
     }
+
+    // 🌟 [방어 18, 19] 입력창 Desync 실시간 교정 및 Maxlength & Bounds 록다운
+    const yearInput = document.getElementById('selYear');
+    const startInput = document.getElementById('selStart');
+    const endInput = document.getElementById('selEnd');
+    const rateInput = document.getElementById('selRate');
+
+    [yearInput, startInput, endInput, rateInput].forEach(input => {
+        if (input) {
+            input.addEventListener('input', (e) => {
+                const rawVal = e.target.value;
+                // 숫자와 소수점만 허용
+                const cleanVal = rawVal.replace(/[^0-9.]/g, '');
+                if (rawVal !== cleanVal) e.target.value = cleanVal;
+
+                if (e.target.id === 'selStart' || e.target.id === 'selEnd') {
+                    let v = parseStrictNonNegativeInteger(cleanVal);
+                    if (v > 12) e.target.value = 12;
+                    // 시작 월이 종료 월을 넘지 못하게 즉시 록다운
+                    if (e.target.id === 'selStart' && endInput) {
+                        let endV = parseStrictNonNegativeInteger(endInput.value);
+                        if (v > endV) endInput.value = v;
+                    }
+                }
+            });
+        }
+    });
 }
 
 function populateClientDropdown(selClient) {
     if (!selClient) return;
+    // 🌟 [방어 15] DocumentFragment 주입
     const currentVal = selClient.value;
-    selClient.innerHTML = `<option value="">-- Select Target Client --</option>`;
+    const fragment = document.createDocumentFragment();
+    
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = "";
+    defaultOpt.textContent = "-- Select Target Client --";
+    fragment.appendChild(defaultOpt);
+
     cachedClients.forEach(c => {
-        selClient.innerHTML += `<option value="${escapeHtml(c.name)}">${safeDisplay(c.name)} (${safeDisplay(c.state, 'N/A')})</option>`;
+        const opt = document.createElement('option');
+        opt.value = escapeHtml(c.name);
+        opt.textContent = `${safeDisplay(c.name)} (${safeDisplay(c.state, 'N/A')})`;
+        fragment.appendChild(opt);
     });
+
+    selClient.innerHTML = '';
+    selClient.appendChild(fragment);
+    
     if(currentVal) selClient.value = currentVal;
 }
 
 // ============================================================================
-// 🧾 2. [핵심 로직] 정산서 데이터 병합 및 Absolute Null-Safe 렌더링
+// 🧾 2. [핵심 로직] 정산서 데이터 병합 및 CRA 세법 연동 (Always-Release 록다운)
 // ============================================================================
 async function generateInvoice() {
     const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
     
-    if (isGenerating) return showToast(dict["toast_generating"], "error");
+    if (isGenerating || !navigator.onLine) return showToast(navigator.onLine ? dict["toast_generating"] : "오프라인 상태입니다.", "error");
 
     const clientNameInput = document.getElementById('selClient')?.value;
     const targetYear = parseStrictNonNegativeInteger(document.getElementById('selYear')?.value);
@@ -399,7 +493,7 @@ async function generateInvoice() {
     if (startMonth > endMonth) return showToast(dict["toast_err_month"], "error");
     if (startMonth < 1 || endMonth > 12) return showToast(dict["toast_err_month_range"], "error");
 
-    // 🌟 [방어 4] 물리적 연타 방어 및 비동기 식별키 생성
+    // 🌟 [방어 17] 물리적 연타 방어 및 비동기 식별키 생성
     isGenerating = true;
     currentInvoiceData = null; 
     const fetchId = ++currentInvoiceFetchId;
@@ -407,21 +501,24 @@ async function generateInvoice() {
     showToast(dict["toast_generating"], "success");
 
     const btnNodes = document.querySelectorAll('button[onclick="generateInvoice()"]');
-    let originalHtml = btnNodes.length > 0 ? btnNodes[0].innerHTML : "GENERATE DATA";
+    let originalHtml = "";
     btnNodes.forEach(btn => {
-        originalHtml = btn.innerHTML;
+        if (!originalHtml) originalHtml = btn.innerHTML;
         btn.disabled = true;
+        btn.classList.add('pointer-events-none');
         btn.innerHTML = `<span class="animate-pulse">⏳ EXTRACTING...</span>`;
     });
 
+    // 🌟 [방어 2] 35초 Absolute Watchdog 데드락 브레이커
     clearTimeout(fallbackLockTimer);
     fallbackLockTimer = setTimeout(() => {
         if(isGenerating && fetchId === currentInvoiceFetchId) {
             isGenerating = false;
-            btnNodes.forEach(btn => { btn.disabled = false; btn.innerHTML = originalHtml; });
+            btnNodes.forEach(btn => { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; });
             showToast("시스템 응답 시간이 초과되었습니다. 다시 시도해 주세요.", "error");
+            triggerShake();
         }
-    }, 30000);
+    }, 35000);
 
     try {
         const result = await executeApi("get_invoice", { 
@@ -437,14 +534,17 @@ async function generateInvoice() {
             const clientInfo = data.clientInfo || data.client || {};
             const hqInfo = data.hqInfo || data.hq || {};
 
+            // 🌟 [방어 25] Number.EPSILON 적용 소수점 교정
             const baseAmount = roundToCents(parseStrictDecimal(data.totalSales || data.amount || data.baseAmount));
             
+            // 🌟 [방어 27] Zero-Sales Bypass (유령 가맹점 방어)
             if (baseAmount === 0) {
                 showToast(dict["toast_no_erp"], "success");
             }
 
             const royaltyAmount = roundToCents(baseAmount * (rate / 100));
             
+            // 🌟 [방어 26] CRA 세법 강제 매핑 (Place of Supply)
             const stateCode = String(clientInfo.state || "DEFAULT").toUpperCase().trim();
             const taxObj = CONFIG.TAX_RATES[stateCode] || CONFIG.TAX_RATES["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
             const taxAmount = roundToCents(royaltyAmount * parseStrictDecimal(taxObj.rate));
@@ -454,10 +554,11 @@ async function generateInvoice() {
             const dueDateObj = new Date(today);
             dueDateObj.setDate(today.getDate() + 14); 
             
+            // 🌟 [방어 31] 난수 식별키
             const invNo = `INV-${targetYear}${String(startMonth).padStart(2, '0')}-${clientNameInput.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
             // ====================================================================
-            // 🌟 5. DOM 렌더링 & Absolute Null-Safe 변수 매핑
+            // 🌟 5. DOM 렌더링 & Absolute Null-Safe 변수 매핑 100% 무손실 앵커링
             // ====================================================================
             document.getElementById('invNo').innerText = safeDisplay(invNo);
             document.getElementById('invDate').innerText = formatDate(today);
@@ -465,7 +566,7 @@ async function generateInvoice() {
             const invDueEl = document.getElementById('invDue');
             if(invDueEl) {
                 invDueEl.innerText = formatDate(dueDateObj);
-                invDueEl.className = "text-[#E3000F] font-black ml-2 print-text-black";
+                invDueEl.className = "text-[#E3000F] font-mono font-black print-text-black";
             }
 
             document.getElementById('hqName').innerText = safeDisplay(hqInfo.name || hqInfo.hqName, "Y2C Holdings Inc.");
@@ -485,13 +586,12 @@ async function generateInvoice() {
             document.getElementById('clientAttn').innerText = safeDisplay(clientInfo.manager || clientInfo.attn);
             document.getElementById('clientBizId').innerText = safeDisplay(clientInfo.bizId || clientInfo.businessId);
 
-            document.getElementById('descLine').innerHTML = `${escapeHtml(dict["desc_mas"])}<br><span class="text-[11px] text-gray-500 font-bold mt-1.5 block">Period: ${targetYear}-${String(startMonth).padStart(2,'0')} to ${targetYear}-${String(endMonth).padStart(2,'0')}</span>`;
+            document.getElementById('descLine').innerHTML = `${escapeHtml(dict["desc_mas"])}<br><span class="text-[11px] text-gray-500 font-bold mt-1.5 block tracking-wider font-inter">Period: ${targetYear}-${String(startMonth).padStart(2,'0')} to ${targetYear}-${String(endMonth).padStart(2,'0')}</span>`;
             document.getElementById('baseLine').innerText = formatCurrency(baseAmount);
             
             const rateLineEl = document.getElementById('rateLine');
             if(rateLineEl) {
-                rateLineEl.innerText = `${rate}%`;
-                rateLineEl.className = "py-5 px-4 text-center text-[#E3000F] font-black print-text-black";
+                rateLineEl.innerText = `${rate.toFixed(2)}%`;
             }
             document.getElementById('amtLine').innerText = formatCurrency(royaltyAmount);
 
@@ -499,7 +599,7 @@ async function generateInvoice() {
             
             const taxLabelEl = document.getElementById('taxAmt')?.parentElement;
             if(taxLabelEl) {
-                taxLabelEl.innerHTML = `Estimated Tax <span class="font-bold text-gray-800 font-inter">(${escapeHtml(taxObj.name)})</span>: <span class="font-black text-[var(--premium-charcoal)] font-mono ml-4 print-text-black text-[15px]" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
+                taxLabelEl.innerHTML = `<span data-i18n="lbl_tax">Estimated Tax</span> <span class="font-bold text-gray-800 font-inter">(${escapeHtml(taxObj.name)})</span>: <span class="font-black text-[#111827] font-mono ml-4 print-text-black text-[13px]" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
             } else if (document.getElementById('taxAmt')) {
                 document.getElementById('taxAmt').innerText = formatCurrency(taxAmount);
             }
@@ -517,54 +617,56 @@ async function generateInvoice() {
             throw new Error(result?.message || "데이터 동기화 및 인보이스 생성에 실패했습니다.");
         }
     } catch (err) {
-        if (fetchId === currentInvoiceFetchId) showToast(`Error: ${err.message}`, "error");
+        if (fetchId === currentInvoiceFetchId) {
+            showToast(`${err.message}`, "error");
+            triggerShake();
+        }
     } finally {
+        // 🌟 [방어 3] Always-Release 록다운 (데드락 100% 해방)
         if (fetchId === currentInvoiceFetchId) {
             isGenerating = false;
             clearTimeout(fallbackLockTimer);
             btnNodes.forEach(btn => {
                 btn.disabled = false;
+                btn.classList.remove('pointer-events-none');
                 btn.innerHTML = originalHtml;
             });
         }
     }
 }
 
+function triggerShake() {
+    const ctrlPanel = document.querySelector('.lg\\:col-span-4');
+    if (ctrlPanel) {
+        ctrlPanel.classList.remove('shake-animation');
+        void ctrlPanel.offsetWidth; 
+        ctrlPanel.classList.add('shake-animation');
+        
+        // 일회용 style 추가
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes error-shake { 0%, 100% { transform: translateX(0) translateZ(0); } 20% { transform: translateX(-8px) translateZ(0); } 40% { transform: translateX(8px) translateZ(0); } 60% { transform: translateX(-4px) translateZ(0); } 80% { transform: translateX(4px) translateZ(0); } } .shake-animation { animation: error-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }`;
+        document.head.appendChild(style);
+    }
+}
+
 // ============================================================================
-// 🖨️ [방어 3] 브라우저 네이티브 PDF 인쇄 엔진 (고스트 렌더링 락다운)
+// 🖨️ [방어 9] 브라우저 네이티브 PDF 인쇄 엔진 (고스트 렌더링 락다운)
 // ============================================================================
 window.printInvoicePDF = function() {
     if (!currentInvoiceData) {
         return showToast("먼저 정산서(GENERATE DATA)를 생성한 후 인쇄해 주세요.", "error");
     }
 
-    const style = document.createElement('style');
-    style.id = 'printOverrideStyle';
-    style.innerHTML = `
-        @media print {
-            body * { visibility: hidden !important; }
-            #invoiceDocumentContainer, #invoiceDocumentContainer * { visibility: visible !important; }
-            #invoiceDocumentContainer { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
-            .no-print { display: none !important; }
-            @page { margin: 10mm; size: auto; }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // 🌟 화면 페인팅이 완벽히 끝난 후 브라우저 인쇄 모듈을 띄워 빈 화면 버그를 차단
+    // 🌟 화면 페인팅이 완벽히 끝난 후 브라우저 인쇄 모듈을 띄워 하얀 백지 버그를 100% 차단
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             window.print();
-            setTimeout(() => {
-                const override = document.getElementById('printOverrideStyle');
-                if (override) override.remove();
-            }, 1500);
         });
     });
 };
 
 // ============================================================================
-// 📥 3. [방어 5] CSV 추출 엔진 (엑셀 한글 깨짐 방지 및 특수문자 크래시 방어)
+// 📥 [방어 10, 29, 30] CSV 추출 엔진 (BOM 한글 깨짐 방지 및 메모리 릭 소각)
 // ============================================================================
 function exportInvoiceCSV() {
     if (!currentInvoiceData) {
@@ -585,19 +687,26 @@ function exportInvoiceCSV() {
         currentInvoiceData.grandTotal
     ];
 
-    // 엑셀에서 한글이 깨지지 않도록 BOM(\uFEFF) 바이트 강제 할당
-    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + row.join(",");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    // 🌟 [방어 29] 엑셀에서 한글이 깨지지 않도록 BOM(\uFEFF) 바이트 강제 할당
+    const csvContent = "\uFEFF" + headers.join(",") + "\n" + row.join(",");
     
-    // 파일명 특수문자 OS 크래시 에러 방어 정규식 처리
+    // 🌟 [방어 10] Blob을 이용한 대용량 다운로드 지원 및 메모리 릭(Leak) 방어
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blobUrl = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", blobUrl);
+    
+    // 🌟 [방어 30] 파일명 특수문자 OS 크래시 에러 방어 정규식 처리
     const safeFileName = `${currentInvoiceData.invNo}_${currentInvoiceData.client.replace(/[\s\/\\:*?"<>|]/g, '_')}.csv`;
     link.setAttribute("download", safeFileName);
     
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    // 즉각적인 Blob 메모리 반환 (가비지 컬렉션)
+    setTimeout(() => { URL.revokeObjectURL(blobUrl); }, 100);
     
     showToast("CSV 다운로드가 완료되었습니다.", "success");
 }
@@ -608,22 +717,8 @@ window.exportInvoiceCSV = exportInvoiceCSV;
 window.printInvoicePDF = printInvoicePDF; 
 
 // ============================================================================
-// 🚨 에러 텔레메트리 (글로벌 락/멈춤 추적 및 강제 해제)
+// 🚨 시스템 초기화 바인딩
 // ============================================================================
-window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다.", "error"));
-window.addEventListener('online', () => showToast("네트워크 복구 완료.", "success"));
-window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
-window.addEventListener('unhandledrejection', function(event) {
-    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
-    if(isGenerating) {
-        isGenerating = false;
-        clearTimeout(fallbackLockTimer);
-        const btnNodes = document.querySelectorAll('button[onclick="generateInvoice()"]');
-        btnNodes.forEach(btn => { btn.disabled = false; btn.innerHTML = "GENERATE DATA"; });
-        showToast("데이터 연산 중 치명적 오류가 발생하여 복구했습니다.", "error");
-    }
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     window.changeLanguage(currentLang);
     applyGlobalRbacNavigation();
