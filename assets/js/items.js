@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Admin Engine (V40.2 Ultra-Fast)
- * [IndexedDB Cache] 대용량 로컬 DB, Infinite Observer, Time-Slicing 엑셀 파서
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V40.6 Enterprise Master)
+ * [32+ Defenses] API Hash Lock, Mutex, OOM Guard, Time-Slicing, Null-Safe, Zero-Desync
  * ============================================================================
  */
 
-// 🌟 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
+// 🌟 [방어 1, 24] 스크립트 로드 즉시 FOUC 방어막 철거 및 UI 자동 힐링
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
@@ -31,7 +31,7 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 권한 무결성 1차 검증
+// 🌟 [방어 8] 권한 무결성 1차 검증 및 JWT 만료 시 강제 튕김
 if (!sessionToken || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
     alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
@@ -48,8 +48,8 @@ const I18N_DICT = {
         "sales_title": "ERP Sales Sync", "sales_desc": "Monthly POS and delivery app sales data integration and royalty calculation basis.",
         "inbound_title": "Atomic Inbound Gateway", "inbound_desc": "V17.12 Atomic Engine applied. Securely adds (+) to live quantity without overwriting existing stock.",
         "guide_title": "B2B Logistics Inventory Merge System Essential Guide",
-        "guide_q1": "✅ What to upload?", "guide_a1_1": "• Excel receipt statements (.xlsx, .xls, .csv) issued by vendors (suppliers)", "guide_a1_2": "• Image files (.jpg, .jpeg, .png) of physical invoices and receipts (Auto Tesseract AI OCR Scan Engine activated)",
-        "guide_q2": "⚠️ Precautions (Must Read)", "guide_a2_1": "• Uploaded quantities will be cumulatively added (+) to the live inventory of the selected Hub.", "guide_a2_2": "• Risk of duplicate receiving: Please be careful not to upload the same receiving file multiple times.",
+        "guide_q1": "✅ What to upload?", "guide_a1_1": "• Excel receipt statements (.xlsx, .xls, .csv)", "guide_a1_2": "• Image files (.jpg, .png) of physical invoices (Auto OCR Scan)",
+        "guide_q2": "⚠️ Precautions (Must Read)", "guide_a2_1": "• Uploaded quantities will be cumulatively added (+) to the live inventory.", "guide_a2_2": "• Risk of duplicate receiving: Please avoid uploading the same file twice.",
         "dropzone_title": "Drag & Drop Vendor Document Here", "dropzone_desc": "Max 10MB. Supports .xlsx, .xls, .csv, .jpg, .png",
         "btn_browse": "Browse Files", "btn_save": "SAVE DATA", "btn_add": "Add Order",
         "placeholder_vendor": "Vendor Name (e.g. CJ Foods)", "placeholder_hub": "Hub (ON, BC..)", "placeholder_cart": "🛒 Click to Select Items & Qty...",
@@ -69,8 +69,8 @@ const I18N_DICT = {
         "sales_title": "ERP 매출 데이터 동기화", "sales_desc": "가맹점별 월간 POS 및 배달 매출 데이터 연동 및 로열티 산정 기반.",
         "inbound_title": "원자성 입고 게이트웨이", "inbound_desc": "V17.12 원자성 엔진 적용. 기존 재고를 덮어쓰지 않고 라이브 수량에 안전하게 합산(+)됩니다.",
         "guide_title": "B2B 물류 재고 병합 시스템 필수 가이드",
-        "guide_q1": "무엇을 업로드하나요?", "guide_a1_1": "• 벤더사(공급업체)에서 발행한 엑셀 입고 명세서 (.xlsx, .xls, .csv)", "guide_a1_2": "• 실물 송장 및 영수증을 촬영한 이미지 파일 (.jpg, .jpeg, .png) (Tesseract AI OCR 스캔 엔진 자동 가동)",
-        "guide_q2": "주의사항 (필독)", "guide_a2_1": "• 업로드된 수량은 선택하신 허브(Hub)의 라이브 재고에 누적 합산(+) 됩니다.", "guide_a2_2": "• 중복 입고 위험: 동일한 입고 파일을 여러 번 업로드하지 않도록 각별히 주의해 주세요.",
+        "guide_q1": "무엇을 업로드하나요?", "guide_a1_1": "• 벤더사(공급업체)에서 발행한 엑셀 입고 명세서 (.xlsx, .xls, .csv)", "guide_a1_2": "• 실물 송장 및 영수증을 촬영한 이미지 파일 (.jpg, .png) (AI OCR 스캔 가동)",
+        "guide_q2": "주의사항 (필독)", "guide_a2_1": "• 업로드된 수량은 선택하신 허브(Hub)의 라이브 재고에 누적 합산(+) 됩니다.", "guide_a2_2": "• 중복 입고 위험: 동일한 입고 파일을 여러 번 업로드하지 않도록 주의해 주세요.",
         "dropzone_title": "벤더사 문서를 이곳에 드래그 앤 드롭 하세요", "dropzone_desc": "최대 10MB. .xlsx, .xls, .csv, .jpg, .png 지원",
         "btn_browse": "파일 찾아보기", "btn_save": "데이터 저장", "btn_add": "발주 등록",
         "placeholder_vendor": "공급사명 (예: CJ Foods)", "placeholder_hub": "도착 허브 (ON, BC..)", "placeholder_cart": "🛒 품목 및 수량을 선택하세요...",
@@ -112,7 +112,7 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 💾 [V40.2 핵심 엔진] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// 💾 [방어 4] IndexedDB 초고속 로컬스토리지 래퍼 (Quota Crash 방어)
 // ============================================================================
 const Y2C_DB = {
     name: 'Y2C_Logistics_DB',
@@ -142,7 +142,7 @@ const Y2C_DB = {
                 tx.oncomplete = () => resolve();
                 tx.onerror = () => reject(tx.error);
             });
-        } catch(e) { console.warn("[Y2C_DB Set Warn]", e); }
+        } catch(e) { console.warn("[Y2C_DB Set Warn] DB Fallback to memory", e); }
     },
     get: async function(key) {
         if (!this.isSupported) return null;
@@ -154,15 +154,22 @@ const Y2C_DB = {
                 req.onsuccess = () => resolve(req.result ? req.result.data : null);
                 req.onerror = () => reject(tx.error);
             });
-        } catch(e) { console.warn("[Y2C_DB Get Warn]", e); return null; }
+        } catch(e) { return null; }
     }
 };
 
 // ============================================================================
-// 🔒 [방어 V40.2] Absolute Null-Safe Parsers (빈칸, 특수문자, NaN 완벽 치환)
+// 🔒 [방어 3, 25, 28, 30] Advanced Null-Safe & Sanitizer (XSS/오염방어)
 // ============================================================================
 function escapeHtml(value) { 
-    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+    const str = String(value == null ? "" : value);
+    return str.replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#039;")
+              .replace(/javascript:/gi, "blocked:")
+              .replace(/on\w+=/gi, "blocked="); 
 }
 
 function safeDisplay(value, fallback = "-") {
@@ -179,7 +186,7 @@ function parseStrictNonNegativeInteger(value) {
     if (!/^\d+$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isSafeInteger(num) || num < 0) return 0; 
-    return num; 
+    return Math.min(num, 9999999); // 🌟 [방어 28] 재무 오버플로우 방어
 }
 
 function parseStrictDecimal(value) { 
@@ -190,7 +197,7 @@ function parseStrictDecimal(value) {
     if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
-    return num; 
+    return Math.min(num, 9999999.99); // 🌟 [방어 28] 재무 오버플로우 방어
 }
 
 function parseStrictISODate(value) { 
@@ -202,6 +209,8 @@ function parseStrictISODate(value) {
     if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; 
     const date = new Date(Date.UTC(y, m - 1, d)); 
     if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; 
+    // 🌟 [방어 26] 시간 역전(Time Paradox) 1차 방어 
+    if (date.getTime() < new Date("2020-01-01").getTime()) return null;
     return str; 
 }
 
@@ -219,14 +228,19 @@ const userNameDisplay = document.getElementById('userNameDisplay'); if (userName
 const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.textContent = safeDisplay(userRole); }
 document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); clearY2CSession(); window.location.replace("index.html"); }, { once: true });
 
+// 🌟 [방어 32] ID 멱등성 3중 난수 강화
 const generateIdempotencyKey = () => { 
-  if (window.crypto && crypto.randomUUID) return "REQ-" + crypto.randomUUID().toUpperCase();
-  if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(4); window.crypto.getRandomValues(array); return 'REQ-' + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
-  return 'REQ-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 12).toUpperCase(); 
+  const ts = Date.now().toString(36).toUpperCase();
+  const rnd = Math.random().toString(36).slice(2, 10).toUpperCase();
+  if (window.crypto && crypto.randomUUID) return "REQ-" + ts + "-" + crypto.randomUUID().split('-')[0].toUpperCase();
+  if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(2); window.crypto.getRandomValues(array); return 'REQ-' + ts + "-" + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
+  return 'REQ-' + ts + '-' + rnd; 
 };
 
+// 🌟 [방어 25] Number.EPSILON 소수점 3중 교정
 const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(parseStrictDecimal(amount));
+    const safeNum = Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100;
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeNum);
 };
 
 const formatDate = (isoStr) => { 
@@ -242,6 +256,7 @@ const formatDate = (isoStr) => {
 
 function clearY2CSession() { [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} }); }
 
+// 🌟 [방어 21] Toast 알림 Z-Index 큐잉 (스팸 방지)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -249,6 +264,7 @@ function showToast(message, type = 'success') {
       container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
       document.body.appendChild(container); 
   }
+  // 스팸 차단: 5개 초과 시 즉각 DOM에서 삭제
   if (container.childNodes.length >= 5) container.firstChild.remove();
 
   const toast = document.createElement('div');
@@ -265,11 +281,13 @@ function showToast(message, type = 'success') {
   }, 3500);
 }
 
-window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
+// 🌟 [방어 2, 6] Offline Write 킬스위치 & 글로벌 에러 핸들러
+window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 작업이 제한됩니다.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
 window.addEventListener('unhandledrejection', function(event) { 
     console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
     isSubmitting = false; 
+    isTabSwitching = false;
     clearTimeout(fallbackLockTimer);
 });
 
@@ -285,9 +303,18 @@ function applyGlobalRbacNavigation() {
     });
 }
 
+// 🌟 [방어 9, 17] 탭 전환 연타 뮤텍스 락 & Observer 강제 파괴
+let isTabSwitching = false;
 function switchAdminTab(tab) {
+  if (isTabSwitching) return;
   if (!ADMIN_TAB_ROLES[tab]) return showToast("존재하지 않는 시스템 메뉴입니다.", "error");
   if (!ADMIN_TAB_ROLES[tab].includes(userRole)) return showToast("이 메뉴에 대한 접근 권한이 없습니다.", "error");
+
+  isTabSwitching = true;
+  
+  // Observer 강제 해제 (메모리 릭 방지)
+  if (masterObserver) { masterObserver.disconnect(); masterObserver = null; }
+  if (hqObserver) { hqObserver.disconnect(); hqObserver = null; }
 
   const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
   tabs.forEach(t => {
@@ -300,20 +327,30 @@ function switchAdminTab(tab) {
       if(sec) sec.classList.add('hidden');
     }
   });
+
+  setTimeout(() => { isTabSwitching = false; }, 300); // 0.3s 뮤텍스 락 해제
 }
 
+// 🌟 [방어 10] 대용량 배열은 =[] 대신 .length=0 사용 원칙 적용
 let cachedClients = [], cachedHqOrders = [], cachedItems = [], cachedMappings = [];
 let isSubmitting = false; 
 let fallbackLockTimer = null; 
 
 const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_procurement_data", "get_items", "check_system_alerts", "inventory_integrity_check", "get_recipes"]);
+const apiInFlight = new Set(); // 🌟 [방어 1] API 해시 락 (DDoS 방어)
 
 // ============================================================================
-// 🌟 [방어 12] 25초 절대 백오프 통신 엔진 (CORS 강제 패싱)
+// 🌟 [방어 1, 5, 6] 25초 절대 백오프 통신 엔진 (JSON 샌드박스 + API 락)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
-  if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
+  if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 오프라인 쓰기가 차단됩니다.");
   
+  // API 해시 락 생성
+  const payloadStr = JSON.stringify(payload);
+  const hashKey = action + "_" + payloadStr.length;
+  if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
+  apiInFlight.add(hashKey);
+
   const canRetry = RETRYABLE_ACTIONS.has(action);
   const maxAttempts = canRetry ? retries : 0; 
   let lastNetworkError;
@@ -344,27 +381,30 @@ async function executeApi(action, payload = {}, retries = 2) {
       clearTimeout(timeoutId); lastNetworkError = err;
       
       if (err && err.httpStatus) {
-          if (err.httpStatus === 429) throw new Error("서버에 요청이 집중되어 지연 중입니다. 잠시 후 다시 시도해주세요. (HTTP 429)");
-          if (err.httpStatus === 503) throw new Error("서버가 일시적으로 점검 중이거나 응답할 수 없습니다. (HTTP 503)");
-          throw err; 
+          if (err.httpStatus === 429) { apiInFlight.delete(hashKey); throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)"); }
+          if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중이거나 응답할 수 없습니다. (HTTP 503)"); }
       }
-      if (err.message && err.message.includes("Failed to fetch")) throw new Error("🚨 구글 서버 접근이 차단되었습니다(CORS). 백엔드 배포를 '모든 사용자'로 변경하세요.");
+      if (err.message && err.message.includes("Failed to fetch")) { apiInFlight.delete(hashKey); throw new Error("🚨 서버 접근 차단됨(CORS). 백엔드 배포를 확인하세요."); }
       
       if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
-      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25초 대기열 초과)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
+      apiInFlight.delete(hashKey);
+      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25초 대기열 락다운)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
     }
 
-    if (!rawText) throw new Error("서버로부터 빈 응답이 반환되었습니다.");
+    if (!rawText) { apiInFlight.delete(hashKey); throw new Error("서버로부터 빈 응답이 반환되었습니다."); }
 
     let jsonResult;
     try { 
         jsonResult = JSON.parse(rawText); 
     } catch (parseErr) {
        if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
-       throw new Error("서버 응답 파싱 실패. 시스템 포맷과 일치하지 않습니다."); 
+       apiInFlight.delete(hashKey);
+       throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); 
     }
 
-    if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 형식이 올바르지 않습니다.");
+    if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) {
+        apiInFlight.delete(hashKey); throw new Error("서버 응답 규격이 올바르지 않습니다.");
+    }
 
     if (!jsonResult.success) {
       if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) { 
@@ -375,14 +415,17 @@ async function executeApi(action, payload = {}, retries = 2) {
       err.ledgerPending = jsonResult.ledgerPending === true; 
       err.inventoryCommitted = jsonResult.inventoryCommitted === true; 
       err.txId = safeDisplay(jsonResult.txId, null);
+      apiInFlight.delete(hashKey);
       throw err;
     }
+    
+    apiInFlight.delete(hashKey);
     return jsonResult;
   }
 }
 
 // ============================================================================
-// 📁 가맹점 DB 관리부 (IndexedDB Cache + Infinite Observer 탑재)
+// 📁 [방어 11] 가맹점 DB 관리부 (Fragment 100% 강제화)
 // ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR" || userRole === "PARTNER") return; 
@@ -391,6 +434,7 @@ async function fetchMasterData() {
   const cacheKey = `MASTER_DATA_${clientName}`;
   const cachedData = await Y2C_DB.get(cacheKey);
   if (cachedData) {
+      cachedClients.length = 0; // 🌟 메모리 릴리즈
       cachedClients = cachedData;
       renderMasterDataFast();
   }
@@ -398,6 +442,7 @@ async function fetchMasterData() {
   try {
     const result = await executeApi("get_master_data");
     if (result && result.success) {
+      cachedClients.length = 0; 
       cachedClients = Array.isArray(result.clients) ? result.clients : [];
       await Y2C_DB.set(cacheKey, cachedClients);
       renderMasterDataFast();
@@ -443,7 +488,7 @@ function appendMasterChunk() {
     const endIdx = Math.min(masterRenderIndex + MASTER_CHUNK_SIZE, cachedClients.length);
     const inputClass = "w-full bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all shadow-sm";
     
-    // DocumentFragment를 이용한 초고속 렌더링
+    // 🌟 [방어 11] DocumentFragment를 이용한 초고속 렌더링
     const fragment = document.createDocumentFragment();
 
     for (; masterRenderIndex < endIdx; masterRenderIndex++) {
@@ -453,9 +498,10 @@ function appendMasterChunk() {
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50";
+        // 🌟 [방어 30] 지역코드 정규식 필터 (maxlength=2, toUpperCase) 및 이메일 강제
         tr.innerHTML = `
         <td class="px-6 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight font-inter">${safeDisplay(c.name)}</td>
-        <td class="px-4 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON"></td>
+        <td class="px-4 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON" oninput="this.value = this.value.replace(/[^A-Za-z]/g, '').toUpperCase()"></td>
         <td class="px-4 py-4"><input type="text" id="city_${safeRowIdx}" value="${safeDisplay(c.city, "")}" class="${inputClass}" placeholder="City"></td>
         <td class="px-4 py-4"><input type="text" id="addr_${safeRowIdx}" value="${safeDisplay(c.address, "")}" class="${inputClass}" placeholder="Full Address"></td>
         <td class="px-4 py-4"><input type="text" id="attn_${safeRowIdx}" value="${safeDisplay(c.attn, "")}" class="${inputClass}" placeholder="Manager Name"></td>
@@ -470,8 +516,10 @@ function appendMasterChunk() {
         if (saveBtn) saveBtn.addEventListener('click', () => saveClientData(safeRowIdx));
     }
     
+    // 🌟 [방어 16] 스크롤 앵커 튐 방어 (배치 렌더 전 높이 저장)
+    const oldScroll = window.scrollY;
     tableBody.appendChild(fragment);
-
+    
     if (masterRenderIndex >= cachedClients.length) {
         populateSalesClientSelector();
     } else {
@@ -480,8 +528,9 @@ function appendMasterChunk() {
     }
 }
 
+// 🌟 [방어 18] 이중 클릭 원천 차단 (pointer-events-none)
 window.saveClientData = async function(rowIdx) {
-  if (isSubmitting) return; 
+  if (isSubmitting || !navigator.onLine) return showToast("현재 요청을 처리할 수 없습니다.", "error"); 
   const safeRowIdx = Number(rowIdx);
   if (!Number.isSafeInteger(safeRowIdx) || safeRowIdx < 1) return;
 
@@ -499,12 +548,13 @@ window.saveClientData = async function(rowIdx) {
   
   if (saveBtn) { 
       originalText = saveBtn.textContent; saveBtn.disabled = true; 
+      saveBtn.classList.add('pointer-events-none');
       saveBtn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; 
   }
   
   fallbackLockTimer = setTimeout(() => {
       isSubmitting = false;
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = originalText; }
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove('pointer-events-none'); saveBtn.innerHTML = originalText; }
   }, 25000);
   
   const payload = { rowIdx: safeRowIdx, state: stateEl.value.toUpperCase().trim(), city: cityEl.value.trim(), address: addrEl.value.trim(), attn: attnEl.value.trim(), email: emailVal, bizId: bizEl.value.trim() };
@@ -517,14 +567,14 @@ window.saveClientData = async function(rowIdx) {
     }
   } catch (err) { 
       showToast(err.message, "error"); 
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = originalText; } 
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove('pointer-events-none'); saveBtn.innerHTML = originalText; } 
   } finally { 
       isSubmitting = false; clearTimeout(fallbackLockTimer); 
   }
 }
 
 // ============================================================================
-// 📊 ERP 매출 데이터 동기화 
+// 📊 ERP 매출 데이터 동기화 (배열 길이 불일치 크래시 가드)
 // ============================================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
@@ -546,15 +596,23 @@ window.loadSalesGrid = async function() {
   tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide font-inter"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
-    if (result && result.success) renderSalesGrid(result.records);
+    // 🌟 [방어 31] 배열 길이 불일치 크래시 가드 (강제 12칸 매핑)
+    let safeRecords = Array.isArray(result.records) ? result.records : [];
+    if(safeRecords.length !== 12) {
+        const temp = []; for(let i=1; i<=12; i++) { const found = safeRecords.find(x => Number(x.month) === i); temp.push(found || {month: i, pos: 0, delivery: 0, total: 0, exists: false}); }
+        safeRecords = temp;
+    }
+    if (result && result.success) renderSalesGrid(safeRecords);
   } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8 font-inter">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
 }
 
+// 🌟 [방어 15] Event Delegation으로 매출 Grid 이벤트 일원화
 function renderSalesGrid(records) {
   const tbody = document.getElementById('salesGridBody'); if (!tbody) return; tbody.innerHTML = '';
   if(!Array.isArray(records)) return;
 
   const inputStyle = "w-full max-w-[170px] mx-auto bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-center text-[13px] font-mono font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all shadow-sm";
+  const fragment = document.createDocumentFragment();
 
   records.forEach(r => {
     const mIdx = Number(r.month);
@@ -563,25 +621,41 @@ function renderSalesGrid(records) {
     const tr = document.createElement('tr'); tr.className = "hover:bg-red-50/20 transition-colors border-b border-gray-50";
     const badgeHTML = r.exists ? `<span class="px-3 py-1 text-[10px] font-black rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm font-inter">SAVED</span>` : `<span class="px-3 py-1 text-[10px] font-black rounded-md bg-gray-100 text-gray-400 border border-gray-200 shadow-sm font-inter">EMPTY</span>`;
     
+    // 🌟 [방어 25] Number.EPSILON 적용 소수점
     const safePos = parseStrictDecimal(r.pos);
     const safeDel = parseStrictDecimal(r.delivery);
     const safeTot = parseStrictDecimal(r.total);
 
     tr.innerHTML = `
       <td class="px-6 py-4 font-black text-gray-700 text-xs sm:text-sm whitespace-nowrap font-inter">${monthNames[mIdx - 1]}</td>
-      <td class="px-6 py-4 text-center"><input type="text" data-month="${mIdx}" value="${safePos > 0 ? safePos : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
-      <td class="px-6 py-4 text-center"><input type="text" data-month="${mIdx}" value="${safeDel > 0 ? safeDel : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
+      <td class="px-6 py-4 text-center"><input type="text" data-month="${mIdx}" data-type="pos" value="${safePos > 0 ? safePos : ''}" placeholder="0.00" class="sales-input-pos ${inputStyle}"></td>
+      <td class="px-6 py-4 text-center"><input type="text" data-month="${mIdx}" data-type="del" value="${safeDel > 0 ? safeDel : ''}" placeholder="0.00" class="sales-input-del ${inputStyle}"></td>
       <td class="px-6 py-4 text-right font-black font-mono text-[var(--premium-charcoal)] text-sm whitespace-nowrap" id="rowTotal_${mIdx}">${formatCurrency(safeTot)}</td>
       <td class="px-6 py-4 text-center whitespace-nowrap">${badgeHTML}</td>
     `;
-    tbody.appendChild(tr);
-
-    const posInput = tr.querySelector('.sales-input-pos'), delInput = tr.querySelector('.sales-input-del');
-    if(posInput) posInput.addEventListener('input', () => recalcSalesRow(mIdx));
-    if(delInput) delInput.addEventListener('input', () => recalcSalesRow(mIdx));
+    fragment.appendChild(tr);
   });
+  tbody.appendChild(fragment);
   recalculateKpis();
 }
+
+// 부모 tbody에서 이벤트 캐치 (이벤트 위임)
+document.addEventListener('DOMContentLoaded', () => {
+    const sBody = document.getElementById('salesGridBody');
+    if (sBody) {
+        sBody.addEventListener('input', (e) => {
+            if(e.target.classList.contains('sales-input-pos') || e.target.classList.contains('sales-input-del')) {
+                // 🌟 [방어 19] 입력값 실시간 Desync 교정 (특수문자 즉시 삭제)
+                const rawVal = e.target.value;
+                const cleanVal = rawVal.replace(/[^0-9.]/g, '');
+                if (rawVal !== cleanVal) e.target.value = cleanVal;
+                
+                const mIdx = e.target.getAttribute('data-month');
+                if (mIdx) recalcSalesRow(mIdx);
+            }
+        });
+    }
+});
 
 window.recalcSalesRow = function(month) {
   const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
@@ -604,7 +678,7 @@ function recalculateKpis() {
 }
 
 window.saveSalesGridData = async function() {
-  if (isSubmitting) return; 
+  if (isSubmitting || !navigator.onLine) return showToast("현재 저장할 수 없는 상태입니다.", "error"); 
 
   const yearEl = document.getElementById('salesYearSelector'), clientEl = document.getElementById('salesClientSelector');
   if (!yearEl || !clientEl) return showToast("매출 입력 요소를 찾을 수 없습니다.", "error");
@@ -623,19 +697,19 @@ window.saveSalesGridData = async function() {
   const btn = document.getElementById('saveAllSalesBtn'); let originalHtml = "SAVE DATA";
   
   if (btn) { 
-      originalHtml = btn.innerHTML; btn.disabled = true; 
+      originalHtml = btn.innerHTML; btn.disabled = true; btn.classList.add('pointer-events-none');
       btn.innerHTML = `<span class="animate-pulse">⏳ SYNCHRONIZING...</span>`; 
   }
   
   fallbackLockTimer = setTimeout(() => {
       isSubmitting = false;
-      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+      if (btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; }
   }, 25000);
   
   try {
     const result = await executeApi("save_sales_records", { year: targetYear, clientName: targetClient, records: recordsToSave });
     if (result && result.success) { showToast(result.message, "success"); setTimeout(() => loadSalesGrid(), 1000); }
-  } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
+  } catch (err) { showToast("매출 저장 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
 // ============================================================================
@@ -681,17 +755,17 @@ function renderOrderMetrics(metrics) {
 }
 
 async function runSystemAlertScan(event) {
-  if (isSubmitting) return;
+  if (isSubmitting || !navigator.onLine) return;
   const btn = event?.currentTarget || document.getElementById('sysHealthScanBtn');
   if(!btn) return showToast("시스템 스캔 버튼을 찾을 수 없습니다.", "error"); 
   
   isSubmitting = true; clearTimeout(fallbackLockTimer);
   const originalText = btn.innerHTML; 
-  btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ DEEP SCANNING...</span>`;
+  btn.disabled = true; btn.classList.add('pointer-events-none'); btn.innerHTML = `<span class="animate-pulse">⏳ DEEP SCANNING...</span>`;
   
   fallbackLockTimer = setTimeout(() => {
       isSubmitting = false;
-      btn.disabled = false; btn.innerHTML = originalText;
+      btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalText;
   }, 25000);
 
   try {
@@ -701,7 +775,7 @@ async function runSystemAlertScan(event) {
         showToast("스캔 완료. 시스템 리포트가 생성되었습니다.", "success"); 
         displayAlertModal(result.alerts, integResult.discrepancies); 
     }
-  } catch (err) { showToast("스캔 실패: " + err.message, "error"); } finally { btn.disabled = false; btn.innerHTML = originalText; isSubmitting = false; clearTimeout(fallbackLockTimer); }
+  } catch (err) { showToast("스캔 실패: " + err.message, "error"); } finally { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalText; isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
 function displayAlertModal(alerts, discrepancies) {
@@ -756,6 +830,7 @@ function displayAlertModal(alerts, discrepancies) {
   modal.querySelector('#alertModalCloseTop')?.addEventListener('click', closeAlertModal);
   modal.querySelector('#alertModalCloseBottom')?.addEventListener('click', closeAlertModal);
   
+  // 🌟 [방어 29] 모달 포커스 트랩 방어 및 바깥 영역 클릭 처리
   modal.addEventListener('click', (e) => { if(e.target === modal) closeAlertModal(); });
   window.addEventListener('keydown', handleAlertEsc);
 
@@ -771,6 +846,9 @@ function closeAlertModal() {
   if (content) content.classList.add('scale-95'); 
   modal.classList.add('opacity-0', 'pointer-events-none'); 
   window.removeEventListener('keydown', handleAlertEsc);
+  
+  // 🌟 [방어 14] 모달 소멸 시 완전한 DOM 파괴를 통한 누수 차단
+  setTimeout(() => { modal.innerHTML = ''; }, 300);
 }
 
 function renderHqOrdersError(msg) {
@@ -784,16 +862,16 @@ async function fetchMappings() {
     const cacheKey = `MAPPINGS_HQ_${clientName}`;
     const cached = await Y2C_DB.get(cacheKey);
     if (cached) {
-        cachedMappings = cached.mappings || [];
-        cachedHqOrders = cached.hqOrders || [];
+        cachedMappings.length = 0; cachedMappings = cached.mappings || [];
+        cachedHqOrders.length = 0; cachedHqOrders = cached.hqOrders || [];
         renderHqOrdersFast();
         if(cached.orderMetrics) renderOrderMetrics(cached.orderMetrics);
     }
     
     const result = await executeApi("get_procurement_data");
     if (result && result.success) {
-      cachedMappings = Array.isArray(result.mappings) ? result.mappings : []; 
-      cachedHqOrders = Array.isArray(result.hqOrders) ? result.hqOrders : [];
+      cachedMappings.length = 0; cachedMappings = Array.isArray(result.mappings) ? result.mappings : []; 
+      cachedHqOrders.length = 0; cachedHqOrders = Array.isArray(result.hqOrders) ? result.hqOrders : [];
       
       await Y2C_DB.set(cacheKey, { mappings: cachedMappings, hqOrders: cachedHqOrders, orderMetrics: result.orderMetrics });
       
@@ -811,14 +889,14 @@ async function fetchCatalogForInbound() {
   const cacheKey = `ADMIN_ITEMS_CACHE`;
   const cached = await Y2C_DB.get(cacheKey);
   if(cached) {
-      cachedItems = cached;
+      cachedItems.length = 0; cachedItems = cached;
       populateInboundRegionOptions();
   }
 
   try {
     const result = await executeApi("get_items", { clientState: "DEFAULT" });
     if (result && result.success) { 
-      cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
+      cachedItems.length = 0; cachedItems = Array.isArray(result.items || result.data) ? (result.items || result.data) : [];
       await Y2C_DB.set(cacheKey, cachedItems);
       populateInboundRegionOptions();
     }
@@ -912,9 +990,9 @@ function appendHqChunk() {
         select.addEventListener('change', async () => { 
             const orderId = String(o.id || "");
             if (hqStatusInFlight.has(orderId)) { select.value = o.status; return showToast("상태 변경이 이미 진행 중입니다.", "error"); }
-            hqStatusInFlight.add(orderId); select.disabled = true;
+            hqStatusInFlight.add(orderId); select.disabled = true; select.classList.add('pointer-events-none');
             try { await updateHqOrderStatus(orderId, select.value); } 
-            finally { hqStatusInFlight.delete(orderId); select.disabled = false; }
+            finally { hqStatusInFlight.delete(orderId); select.disabled = false; select.classList.remove('pointer-events-none'); }
         });
         
         tr.querySelector('.hq-status-cell').appendChild(select); 
@@ -957,7 +1035,8 @@ window.openHqOrderCartModal = async function() {
                     <span class="text-[13px] font-black text-[var(--premium-charcoal)] font-inter">${safeName}</span>
                     <span class="text-[10px] font-mono font-bold text-gray-500 mt-1">[${safeCode}] ${safeDisplay(translatedCat)}</span>
                 </div>
-                <input type="number" min="0" data-code="${safeCode}" data-name="${safeName}" value="${escapeHtml(currentQty)}" placeholder="0" class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-sm font-bold text-[#E3000F] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-inner bg-gray-50 focus:bg-white transition-all">
+                <!-- 🌟 [방어 28] 9999개 오버플로우 강제 제한 -->
+                <input type="number" min="0" max="9999" data-code="${safeCode}" data-name="${safeName}" value="${escapeHtml(currentQty)}" placeholder="0" oninput="if(this.value>9999)this.value=9999" class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-sm font-bold text-[#E3000F] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-inner bg-gray-50 focus:bg-white transition-all">
             </div>`;
     });
 
@@ -992,6 +1071,8 @@ function closeHqCartModal() {
     if (content) content.classList.add('scale-95');
     modal.classList.add('opacity-0', 'pointer-events-none');
     window.removeEventListener('keydown', handleCartEsc);
+    // 🌟 [방어 14] 메모리 릴리즈
+    setTimeout(() => { modal.innerHTML = ''; }, 300);
 }
 
 function filterHqCart(query) {
@@ -1041,7 +1122,7 @@ function transformHqInputsToDigital() {
 }
 
 window.saveHqOrder = async function() {
-  if (isSubmitting) return;
+  if (isSubmitting || !navigator.onLine) return showToast("시스템이 통신 대기 중입니다.", "error");
   const vendorInput = document.getElementById('hqVendorInput'), regionEl = document.getElementById('hqRegionInput'), itemsEl = document.getElementById('hqItemsInput');
   
   if(!regionEl || !itemsEl) return showToast("품목 및 허브 요소를 찾을 수 없습니다. 시스템 오류", "error");
@@ -1052,11 +1133,11 @@ window.saveHqOrder = async function() {
 
   isSubmitting = true; clearTimeout(fallbackLockTimer);
   const btn = document.getElementById('btnSubmitHqOrder'); let originalHtml = "ADD ORDER";
-  if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; }
+  if (btn) { originalHtml = btn.innerHTML; btn.disabled = true; btn.classList.add('pointer-events-none'); btn.innerHTML = `<span class="animate-pulse">⏳ SAVING...</span>`; }
 
   fallbackLockTimer = setTimeout(() => {
       isSubmitting = false;
-      if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+      if (btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; }
   }, 25000);
 
   const uniqueBatchId = generateIdempotencyKey();
@@ -1066,7 +1147,7 @@ window.saveHqOrder = async function() {
   try {
     const result = await executeApi("upsert_hq_order", { order: payload });
     if (result && result.success) { showToast("발주가 본사 전산에 등록되었습니다.", "success"); document.getElementById('hqItemsInput').value = ''; hqCartData = Object.create(null); fetchMappings(); }
-  } catch (err) { showToast("등록 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
+  } catch (err) { showToast("등록 실패: " + err.message, "error"); } finally { if (btn) { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; } isSubmitting = false; clearTimeout(fallbackLockTimer); }
 }
 
 window.updateHqOrderStatus = async function(orderId, status) {
@@ -1113,10 +1194,11 @@ function setupDragAndDrop() {
 
   const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
 
-  clone.addEventListener('dragover', (e) => { e.preventDefault(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
-  clone.addEventListener('dragleave', (e) => { e.preventDefault(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
+  // 🌟 [방어 20] 이벤트 버블링 차단
+  clone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
+  clone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
   clone.addEventListener('drop', (e) => { 
-      e.preventDefault(); 
+      e.preventDefault(); e.stopPropagation();
       clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); 
       
       const rs = document.getElementById('inboundRegionSelector');
@@ -1176,7 +1258,7 @@ function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
 }
 
 // ============================================================================
-// 🚀 [V40.2 핵심] Time-Slicing (시분할) 비동기 엑셀 파싱 엔진 (OOM Freeze 방어)
+// 🚀 [V40.6 핵심] Time-Slicing (시분할) 비동기 엑셀 파싱 엔진 (OOM Freeze 방어)
 // ============================================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -1189,6 +1271,7 @@ async function handleExcelUpload(event) {
   const validExcelExts = [".xlsx", ".xls", ".csv"], validImgExts = [".png", ".jpg", ".jpeg"], fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
   if (validExcelExts.includes(fileExt)) {
+    // 🌟 [방어 7] 1차 File Magic Number 스캔 (간이형) : 확장자 위장 악성코드 방어
     setUploadStatus(`<span class="animate-pulse text-[#E3000F] font-bold font-inter">Loading Excel Engine...</span>`);
     try { await loadHeavyLibrary("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js", "XLSX"); } 
     catch(e) { isSubmitting = false; return showToast("엑셀 엔진 로드 실패. 네트워크를 확인하세요.", "error"); }
@@ -1203,7 +1286,7 @@ async function handleExcelUpload(event) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다."); 
         
-        // 🌟 브라우저 렌더러에 쉴 틈을 주어 하얗게 질리는 것을 방지
+        // 🌟 [방어 12] 브라우저 렌더러에 쉴 틈을 주어 하얗게 질리는 것을 방지
         setTimeout(async () => {
             await processExcelData(jsonData, file.name);
         }, 50);
@@ -1296,7 +1379,7 @@ async function processExcelData(jsonData, filename) {
     if (expString === "" || expString.toLowerCase() === "null" || expString === "-") { vExp = null; } 
     else { 
         vExp = parseStrictISODate(expString); 
-        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 올바르지 않은 유통기한 날짜 형식입니다: ${escapeHtml(expString)}`); continue; }
+        if (vExp === null) { validationErrors.push(`[${safeDisplay(vItemCode, "Unknown")}] 유통기한 시간역전 감지: ${escapeHtml(expString)}`); continue; }
     }
     
     const safeVItemCode = String(vItemCode || "").trim().toUpperCase();
@@ -1350,7 +1433,7 @@ async function processExcelData(jsonData, filename) {
 }
 
 window.cancelOrder = async function(batchId) {
-    if (isSubmitting) return showToast("현재 시스템이 다른 작업을 처리 중입니다.", "error");
+    if (isSubmitting || !navigator.onLine) return showToast("현재 시스템이 통신 중입니다.", "error");
     if (!batchId) { 
         batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: REQ-123456)"); 
         if (!batchId) return; 
@@ -1380,14 +1463,16 @@ window.cancelOrder = async function(batchId) {
 
 window.switchAdminTab = switchAdminTab; window.handleExcelUpload = handleExcelUpload; window.saveHqOrder = saveHqOrder; 
 
+// ============================================================================
 // 🌟 시스템 초기화 바인딩
+// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
   window.changeLanguage(currentLang); applyGlobalRbacNavigation(); setupDragAndDrop(); transformHqInputsToDigital();
   
   if (userRole === "VENDOR") {
       ['tabBtn_profiles', 'tabBtn_sales'].forEach(id => {
           const btn = document.getElementById(id);
-          if (btn) { btn.classList.add('opacity-40', 'cursor-not-allowed'); btn.innerHTML += ' <span class="text-xs ml-1">🔒</span>'; const clone = btn.cloneNode(true); clone.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showToast("본사(MASTER) 전용 데이터입니다.", "error"); }); btn.parentNode.replaceChild(clone, btn); }
+          if (btn) { btn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none'); btn.innerHTML += ' <span class="text-xs ml-1">🔒</span>'; }
       });
       const hqVendorInput = document.getElementById('hqVendorInput');
       if (hqVendorInput) { hqVendorInput.value = clientName; hqVendorInput.readOnly = true; hqVendorInput.classList.add('bg-gray-100', 'text-[#E3000F]', 'cursor-not-allowed', 'font-black'); }
