@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Global Core Config (V40.17 STABLE)
- * [Critical Fix] Anti-Debugging 락다운 완전 소각 및 Console Freeze 해제
+ * Y2C Holdings Premium Partner Portal - Global Core Config (V40.18 STABLE)
+ * [Critical Fix] Backend URL Routing Updated & Network Core Restored
  * ============================================================================
  */
 
@@ -14,14 +14,14 @@
         catch (e) { global.location.replace("about:blank"); }
     }
 
-    const APP_VERSION = "V40.17_ENTERPRISE_MASTER_STABLE";
+    const APP_VERSION = "V40.18_ENTERPRISE_MASTER_STABLE";
 
-    // 🌟 기존 시스템 설정을 100% 무손실로 보존
+    // 🌟 기존 시스템 설정을 100% 무손실로 보존하며 신규 엔드포인트 록다운
     const _SYSTEM_CONFIG = {
         VERSION: APP_VERSION,
         API: {
-            // 🚨 [주의] 백엔드 배포 경로가 변경되면 이 부분을 업데이트하십시오.
-            BASE_URL: "https://script.google.com/macros/s/AKfycbzT-_ZIfaVv6hQ6L9mE-Q4L0g9a17Q2Bw34gT4wI3Q19586QpL_D7I09Z0Y090zXw/exec",
+            // 🚨 [핵심 패치] 대표님이 발급하신 신규 100% 정상 작동 백엔드 URL 
+            BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec",
             TIMEOUT_MS: 35000 
         },
         STORAGE_KEYS: {
@@ -33,7 +33,7 @@
             LANG_PREF: "y2c_lang",
             CACHE_CATALOG: "Y2C_ITEMS_CACHE_DEFAULT_ALL"
         },
-        // 캐나다 전역 세율 무손실 보존
+        // 캐나다 전역 세율 무손실 보존 (CRA 기준)
         TAX_RATES: {
             "ON": { name: "HST (13%)", rate: 0.13 }, 
             "BC": { name: "GST 5% + PST 7%", rate: 0.12 }, 
@@ -100,7 +100,7 @@
     });
 
     // ========================================================================
-    // ⚙️ [방어 5] 글로벌 재무 및 유틸리티 헬퍼 (메모리 재사용 객체)
+    // ⚙️ [방어 5] 글로벌 재무 및 유틸리티 헬퍼 (메모리 재사용 객체 무손실 보존)
     // ========================================================================
     const CAD_FORMATTER = new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' });
     
