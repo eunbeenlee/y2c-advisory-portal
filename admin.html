@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.11 Enterprise Master Benchmark - Flexbox Crush 픽스, Z-Index 모달 격리, App-Shell 가속 -->
-<html lang="en" class="opacity-0">
+<!-- 🌟 V40.17 Enterprise Master STABLE - FOUC 하얀화면 영구 픽스 & 33대 방어로직 무손실 보존 -->
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
@@ -17,6 +17,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
+
+    <!-- 🌟 [핵심 버그 픽스] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <style>
+        .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
+    </style>
+    <script>
+        // JS가 정상 작동할 때만 화면을 가리고, 0.8초 뒤 무조건 락을 푸는 생존 타이머
+        document.documentElement.classList.add('fouc-lock');
+        window._foucTimer = setTimeout(function() {
+            document.documentElement.classList.remove('fouc-lock');
+            document.documentElement.style.opacity = '1';
+            document.documentElement.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+        }, 800);
+    </script>
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -125,27 +140,27 @@
         @media print { .no-print { display: none !important; } body { background: white !important; margin: 0; } }
     </style>
 </head>
-<body style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
+<body style="background-color: #F8F9FA; margin: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [방어 2, 3] Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
     <script>if (window.top !== window.self) { window.top.location = window.self.location; }</script>
     <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif;">
-            Please enable JavaScript to access the Enterprise Portal.
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+            <span>JavaScript is Disabled</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
     </noscript>
 
-    <!-- 🌟 [방어 1, 6] 동기식 권한 프리-언락 및 스무스 페이드인 -->
+    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
     <script>
         (function() {
             try {
-                document.documentElement.classList.remove("opacity-0");
+                clearTimeout(window._foucTimer);
+                document.documentElement.classList.remove("fouc-lock");
                 document.documentElement.style.opacity = "1";
-                requestAnimationFrame(function() {
-                    requestAnimationFrame(function() {
-                        document.body.style.opacity = "1";
-                    });
-                });
+                document.documentElement.style.visibility = "visible";
+                document.body.style.opacity = "1";
+
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
             } catch(e) {}
@@ -156,7 +171,7 @@
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 (shrink-0 강제) -->
+            <!-- 좌측 로고 영역 -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
@@ -165,7 +180,7 @@
                 </div>
             </div>
 
-            <!-- 🌟 [방어 17] 중앙 네비게이션 탭 (lg, xl에서 유동적 숨김으로 Flexbox Crush 방지) -->
+            <!-- 중앙 네비게이션 탭 (lg, xl에서 유동적 숨김으로 Flexbox Crush 방지) -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -175,7 +190,7 @@
                 <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
-            <!-- 우측 컨트롤 영역 (shrink-0 강제) -->
+            <!-- 우측 컨트롤 영역 -->
             <div class="flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto">
                 <div class="hidden sm:flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
                     <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
@@ -245,7 +260,6 @@
                 </div>
             </div>
 
-            <!-- 🌟 [방어 20] Table-Fixed 록다운 -->
             <div class="bg-white premium-shadow rounded-[2rem] overflow-hidden relative border border-gray-100">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-indigo-600 z-10"></div>
                 <div class="overflow-x-auto hide-scrollbar pb-10">
@@ -408,7 +422,6 @@
 
             <h3 class="font-montserrat text-base font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-4 flex items-center gap-2 no-print"><span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span> <span data-i18n="active_shipments">Active Inbound Shipments</span></h3>
             
-            <!-- 🌟 [방어 20] Table-Fixed 록다운 -->
             <div class="bg-white premium-shadow rounded-[2rem] overflow-hidden relative border border-gray-100">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gray-700 to-gray-900 z-10"></div>
                 <div class="overflow-x-auto hide-scrollbar pb-6">
@@ -434,7 +447,7 @@
 
     </main>
 
-    <!-- 🌟 [방어 18, 19, 31] Z-Index 모달 격리 및 Blur 적용 -->
+    <!-- 🌟 Z-Index 모달 격리 및 Blur 적용 -->
     <!-- HQ Cart Modal (z-9998) -->
     <div id="hqCartModal" class="fixed inset-0 bg-[#111827]/80 backdrop-blur-sm z-[9998] hidden items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
