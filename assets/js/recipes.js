@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Recipe Center Engine (V40.7 Enterprise)
- * [32+ Defenses] Observer Deadlock Fix, Event Delegation, SWR Cache, OOM Guard
+ * Y2C Holdings Premium Partner Portal - Advisory Invoice Engine (V40.14)
+ * [33+ Defenses] CRA Tax Integrity, EPSILON Cent Correction, Print Ghost Fix
  * ============================================================================
  */
 
-// 🌟 [방어 24] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인)
+// 🌟 [방어 13] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
@@ -31,15 +31,14 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 8] 권한 무결성 검증 (VENDOR 접근 원천 차단)
-if (!sessionToken || !clientName) { window.location.replace("index.html"); }
-if (userRole === "VENDOR") { 
-    alert("레시피 보안 구역입니다. 열람 권한이 없습니다."); 
-    window.location.replace("items.html"); 
+// 🌟 [방어 8, 32] 마스터 권한 무결성 1차 검증 (인보이스는 본사 고유 권한)
+if (!sessionToken || sessionToken.length < 10 || userRole !== "MASTER") { 
+    alert("재무/정산(Invoice) 데이터는 본사 마스터 계정만 접근 가능합니다.");
+    window.location.replace("index.html"); 
 }
 
 // ============================================================================
-// 💾 [방어 7] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// 💾 [방어 11] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
 // ============================================================================
 const Y2C_DB = {
     name: 'Y2C_Logistics_DB',
@@ -81,36 +80,51 @@ const Y2C_DB = {
                 req.onsuccess = () => resolve(req.result ? req.result.data : null);
                 req.onerror = () => reject(tx.error);
             });
-        } catch(e) { console.warn("[Y2C_DB Get Warn]", e); return null; }
+        } catch(e) { return null; }
     }
 };
 
 // ============================================================================
-// 🌐 [방어 22, 29] 글로벌 & 동적 데이터 번역 (i18n) 엔진 탑재
+// 🌐 [방어 24] 글로벌 다국어 (i18n) 엔진 섀도우 맵핑
 // ============================================================================
 const I18N_DICT = {
     en: {
         "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
-        "logout": "LOGOUT", "cancel_order": "Cancel Order",
-        "recipe_title": "Official Recipe Center", "recipe_desc": "Standardized operational manuals and cooking instructions.",
-        "search_placeholder": "Search recipes by name or ingredient...",
-        "all_recipes": "All Recipes", "no_recipes": "No recipes found.", "uncategorized": "Uncategorized",
-        "btn_view": "View Instruction", "modal_close": "Close Recipe", "modal_ing": "Ingredients", "modal_inst": "Instructions", "modal_tips": "Pro Tips & Warnings"
+        "logout": "LOGOUT",
+        "toast_generating": "Synchronizing data and generating invoice...",
+        "toast_success": "Invoice successfully generated.",
+        "toast_no_erp": "ERP sales for this period is $0.00. Generating basic invoice.",
+        "toast_err_client": "Please select a franchise client.",
+        "toast_err_year": "Please enter a valid year.",
+        "toast_err_month": "Start month cannot be greater than end month.",
+        "toast_err_month_range": "Months must be between 1 and 12.",
+        "btn_generate": "GENERATE DATA",
+        "desc_mas": "Management Advisory Services",
+        "inv_ctrl_title": "Invoice Control Panel", "lbl_client": "Target Client", "lbl_year": "Target Year", "lbl_rate": "Rate (%)", "lbl_start": "Start Month", "lbl_end": "End Month", "btn_pdf": "🖨️ PDF", "btn_csv": "📥 CSV",
+        "doc_title": "Statement of Account", "lbl_inv_no": "Invoice No:", "lbl_date": "Date of Issue:", "lbl_due": "Due Date:",
+        "lbl_issued_by": "Issued By (Master)", "lbl_prep_for": "Prepared For (Franchisee)",
+        "th_desc": "Description of Services", "th_base": "Calculated Base", "th_rate": "Rate", "th_amt": "Amount",
+        "lbl_remit": "Remittance Details", "lbl_bank": "Bank:", "lbl_address": "Address:", "lbl_account": "Account No:", "lbl_swift": "SWIFT Code:", "lbl_memo_warn": "⚠️ Please include <strong class='font-black underline'>Invoice Number</strong> in transfer memo.",
+        "lbl_subtotal": "Subtotal:", "lbl_tax": "Estimated Tax:", "lbl_total_due": "TOTAL AMOUNT DUE", "lbl_thanks": "Thank you for your partnership"
     },
     ko: {
         "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
-        "logout": "로그아웃", "cancel_order": "발주 취소",
-        "recipe_title": "공식 레시피 센터", "recipe_desc": "표준 조리 매뉴얼, 식자재 정량 및 운영 가이드라인.",
-        "search_placeholder": "요리명 또는 식자재로 레시피 검색...",
-        "all_recipes": "전체 레시피", "no_recipes": "검색된 레시피가 없습니다.", "uncategorized": "미분류",
-        "btn_view": "레시피 보기", "modal_close": "닫기", "modal_ing": "식자재 및 정량", "modal_inst": "조리 순서", "modal_tips": "팁 & 주의사항"
-    }
-}
-
-const DYNAMIC_I18N = {
-    recipeCategory: {
-        en: { "떡볶이": "Tteokbokki", "튀김": "Fried Items", "튀김류": "Fried Items", "면": "Noodles", "면류": "Noodles", "일반": "General", "음료": "Beverages" },
-        ko: { "TTEOKBOKKI": "떡볶이", "FRIED": "튀김류", "NOODLE": "면류", "GENERAL": "일반/기타", "BEVERAGE": "음료" }
+        "logout": "로그아웃",
+        "toast_generating": "데이터를 동기화하고 정산서를 생성합니다...",
+        "toast_success": "정산서가 성공적으로 생성되었습니다.",
+        "toast_no_erp": "해당 기간의 ERP 매출이 $0.00 입니다. 기본 인보이스를 발행합니다.",
+        "toast_err_client": "가맹점을 선택해 주세요.",
+        "toast_err_year": "정확한 연도를 입력해 주세요.",
+        "toast_err_month": "시작 월은 종료 월보다 클 수 없습니다.",
+        "toast_err_month_range": "월은 1~12 사이여야 합니다.",
+        "btn_generate": "정산서 생성",
+        "desc_mas": "경영 자문 수수료 (로열티)",
+        "inv_ctrl_title": "정산 제어 패널", "lbl_client": "대상 가맹점", "lbl_year": "정산 연도", "lbl_rate": "수수료율 (%)", "lbl_start": "시작 월", "lbl_end": "종료 월", "btn_pdf": "🖨️ PDF 인쇄", "btn_csv": "📥 CSV 다운로드",
+        "doc_title": "정산 청구서", "lbl_inv_no": "청구 번호:", "lbl_date": "발행일:", "lbl_due": "납부 기한:",
+        "lbl_issued_by": "발신 (본사)", "lbl_prep_for": "수신 (가맹점)",
+        "th_desc": "청구 내역", "th_base": "기준 금액", "th_rate": "비율", "th_amt": "청구액",
+        "lbl_remit": "송금 계좌 정보", "lbl_bank": "은행명:", "lbl_address": "은행 주소:", "lbl_account": "계좌번호:", "lbl_swift": "스위프트 코드:", "lbl_memo_warn": "⚠️ 송금 메모에 반드시 <strong class='font-black underline'>청구 번호(Invoice No)</strong>를 기재해 주세요.",
+        "lbl_subtotal": "소계:", "lbl_tax": "예상 세금:", "lbl_total_due": "최종 납부 금액", "lbl_thanks": "귀하의 노고와 파트너십에 감사드립니다"
     }
 };
 
@@ -119,7 +133,7 @@ try { currentLang = localStorage.getItem('y2c_lang') === 'ko' ? 'ko' : 'en'; } c
 
 window.changeLanguage = function(lang) {
     const safeLang = lang === "ko" ? "ko" : "en";
-    currentLang = safeLang;
+    currentLang = safeLang; 
     try { localStorage.setItem('y2c_lang', safeLang); } catch(e){}
     
     const btnEn = document.getElementById('lang_en'), btnKo = document.getElementById('lang_ko');
@@ -127,32 +141,21 @@ window.changeLanguage = function(lang) {
         btnEn.className = safeLang === 'en' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
         btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all";
     }
-    if (typeof window.applyTranslations === 'function') window.applyTranslations();
-    if(allRecipes && allRecipes.length > 0) { buildCategoryFilters(); filterRecipes(); }
+    if (window.applyTranslations) window.applyTranslations();
 };
 
 window.applyTranslations = function() {
     const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dict[key]) el.innerHTML = dict[key];
-    });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-i18n-placeholder');
-        if (dict[key]) el.placeholder = dict[key];
+    document.querySelectorAll('[data-i18n]').forEach(el => { 
+        const key = el.getAttribute('data-i18n'); 
+        if (dict[key]) el.innerHTML = dict[key]; 
     });
 };
 
-function translateDynamic(text, type) {
-    if(!text) return text;
-    const tStr = String(text).trim().toUpperCase();
-    const map = DYNAMIC_I18N[type] && DYNAMIC_I18N[type][currentLang];
-    if(map) { for(let key in map) { if(tStr.includes(key.toUpperCase())) return map[key]; } }
-    return text;
-}
-
-// 🌟 [방어 3, 28] Advanced XSS Sanitizer 및 Null-Safe 치환
-function escapeHtml(value) {
+// ============================================================================
+// 🔒 [방어 5, 25, 28] Absolute Null-Safe Parsers (재무 무결성 100% 록다운)
+// ============================================================================
+function escapeHtml(value) { 
     return String(value == null ? "" : value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -163,18 +166,67 @@ function escapeHtml(value) {
         .replace(/on\w+=/gi, "blocked=");
 }
 
-const userNameDisplay = document.getElementById('userNameDisplay');
-if (userNameDisplay) userNameDisplay.textContent = escapeHtml(clientName);
+function safeDisplay(value, fallback = "-") {
+    if (value == null) return fallback;
+    const str = String(value).trim();
+    if (str === "" || str.toLowerCase() === "null" || str.toLowerCase() === "nan") return fallback;
+    return escapeHtml(str);
+}
 
+function parseStrictNonNegativeInteger(value) { 
+    if (value == null) return 0; 
+    let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
+    if (!/^\d+$/.test(str)) return 0; 
+    const num = Number(str); 
+    if (!Number.isSafeInteger(num) || num < 0) return 0; 
+    return Math.min(num, 9999999); // 오버플로우 방어
+}
+
+function parseStrictDecimal(value) { 
+    if (value == null) return 0; 
+    let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
+    if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
+    if (str.startsWith('.')) str = '0' + str; 
+    if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
+    const num = Number(str); 
+    if (!Number.isFinite(num)) return 0; 
+    return Math.min(num, 9999999.99); // 오버플로우 방어
+}
+
+// 🌟 [방어 25] Number.EPSILON 적용: 센트(Cent) 단위 1센트 오차 강제 교정
+function roundToCents(amount) { 
+    return Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100; 
+}
+
+const formatDate = (dateObj) => {
+    if(!dateObj || isNaN(dateObj.getTime())) return "-";
+    return dateObj.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: '2-digit' });
+};
+
+const formatCurrency = (amount) => { 
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(roundToCents(amount)); 
+};
+
+// 🌟 [방어 31] 식별키 삼중 난수 강화
+const generateIdempotencyKey = () => { 
+    const ts = Date.now().toString(36).toUpperCase();
+    if (window.crypto && crypto.randomUUID) return "REQ-" + ts + "-" + crypto.randomUUID().split('-')[0].toUpperCase();
+    if (window.crypto && crypto.getRandomValues) { const array = new Uint32Array(2); window.crypto.getRandomValues(array); return 'REQ-' + ts + "-" + Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('').toUpperCase(); }
+    return 'REQ-' + ts + '-' + Math.random().toString(36).slice(2, 10).toUpperCase(); 
+};
+
+const userNameDisplay = document.getElementById('userNameDisplay');
+if (userNameDisplay) userNameDisplay.textContent = safeDisplay(clientName, "MASTER");
 const badge = document.getElementById('userRoleBadge');
-if(badge) { badge.classList.remove('hidden'); badge.textContent = escapeHtml(userRole); }
+if(badge) { badge.classList.remove('hidden'); badge.textContent = safeDisplay(userRole); }
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => { 
     [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 20] 토스트 알림 Z-Index 붕괴 방어 및 스팸 차단 큐(Queue)
+// 🌟 [방어 16] 글로벌 토스트 알림 Z-Index 스팸 차단 큐(Queue)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -182,18 +234,22 @@ function showToast(message, type = 'success') {
         container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
         document.body.appendChild(container);
     }
-    // 큐 5개 제한 (가장 오래된 것 파괴)
+    // 스팸 방지: 최대 5개 제한
     if (container.childNodes.length >= 5) container.firstChild.remove();
 
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]';
     const icon = type === 'success' ? '✅' : '⚠️';
     toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
-    toast.innerHTML = `<span class="text-lg">${icon}</span> <span>${escapeHtml(message)}</span>`;
+    toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
+    toast.querySelector('.toast-msg').textContent = String(message);
     container.appendChild(toast);
     
     requestAnimationFrame(() => { setTimeout(() => { toast.classList.remove('translate-y-[-100%]', 'opacity-0'); toast.classList.add('translate-y-0', 'opacity-100'); }, 10); });
-    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+    setTimeout(() => { 
+        toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); 
+        setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
+    }, 3500);
 }
 
 function applyGlobalRbacNavigation() {
@@ -201,43 +257,55 @@ function applyGlobalRbacNavigation() {
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
 
     Object.keys(rbacRules).forEach(id => {
-        const el = document.getElementById(id);
-        const allowedRoles = rbacRules[id];
-        
+        const el = document.getElementById(id), allowedRoles = rbacRules[id];
         if (el && !allowedRoles.includes(userRole)) {
-            el.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
-            el.innerHTML += ' <span class="text-[11px] ml-1 opacity-80">🔒</span>';
-            el.removeAttribute('href'); 
-            
-            const clone = el.cloneNode(true);
-            clone.addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation();
-                showToast("해당 메뉴는 열람 권한이 없습니다.", "error");
-            });
-            el.parentNode.replaceChild(clone, el);
+            el.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale'); el.innerHTML += ' <span class="text-[11px] ml-1 opacity-80">🔒</span>'; el.removeAttribute('href'); 
+            const clone = el.cloneNode(true); clone.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); showToast("해당 메뉴는 열람 권한이 없습니다.", "error"); }); el.parentNode.replaceChild(clone, el);
         }
     });
 }
 
+// 🌟 [방어 6] Offline Safe Mode 
+window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다.", "error"));
+window.addEventListener('online', () => showToast("네트워크 복구 완료.", "success"));
+window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
+window.addEventListener('unhandledrejection', function(event) {
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason);
+    if(isGenerating) {
+        isGenerating = false;
+        clearTimeout(fallbackLockTimer);
+        const btnNodes = document.querySelectorAll('button[onclick="generateInvoice()"]');
+        btnNodes.forEach(btn => { 
+            btn.disabled = false; 
+            btn.classList.remove('pointer-events-none');
+            // 원본 텍스트 복구 (i18n 고려)
+            const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg><span data-i18n="btn_generate">${dict["btn_generate"]}</span>`; 
+        });
+        showToast("데이터 연산 중 치명적 오류가 발생하여 복구했습니다.", "error");
+    }
+});
+
 // ============================================================================
-// 🌟 [방어 1, 4, 6] API Hash Lock & 25초 킬스위치 (JSON 샌드박스 탑재)
+// 🌟 [방어 1, 4, 7] API Hash Lock & 35초 절대 백오프 통신 엔진
 // ============================================================================
 const apiInFlight = new Set();
 
-async function executeApi(action, payload = {}, retries = 3) {
-    if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 연결을 확인하세요.");
-    let lastNetworkError;
-    const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
-
-    // API Hash Lock 생성 (DDoS 방어)
-    const payloadStr = JSON.stringify(safePayload);
+async function executeApi(action, payload = {}, retries = 2) {
+    if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
+    
+    // API 해시 락 (DDoS 방어)
+    const payloadStr = JSON.stringify(payload);
     const hashKey = action + "_" + payloadStr.length;
     if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
     apiInFlight.add(hashKey);
 
+    let lastNetworkError;
+    const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
+
     for (let i = 0; i <= retries; i++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 강제 타임아웃
+        const timeoutId = setTimeout(() => controller.abort(), 35000); // 🌟 35초 킬스위치
 
         try {
             const response = await fetch(CONFIG.API?.BASE_URL || "", {
@@ -247,21 +315,29 @@ async function executeApi(action, payload = {}, retries = 3) {
             });
             
             clearTimeout(timeoutId);
-            
+
+            // 404/401 서킷 브레이커
             if (!response.ok) {
+                if (response.status === 404 || response.status === 401 || response.status === 403) {
+                    const explicitError = new Error(`서버 통신 거부됨 (HTTP ${response.status})`);
+                    explicitError.httpStatus = response.status;
+                    explicitError.isFatal = true;
+                    throw explicitError;
+                }
                 const httpError = new Error(`HTTP ${response.status}`);
                 httpError.httpStatus = response.status;
                 throw httpError;
             }
 
             const rawText = await response.text();
-            controller = null; 
+            controller = null; // 가비지 컬렉션
             
+            // JSON Parse 샌드박스
             let jsonResult;
             try { jsonResult = JSON.parse(rawText); } 
-            catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷과 일치하지 않습니다."); }
+            catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); }
 
-            if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 규격 오염.");
+            if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 형식이 올바르지 않습니다.");
 
             if (!jsonResult.success) {
                 if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
@@ -277,7 +353,9 @@ async function executeApi(action, payload = {}, retries = 3) {
         } catch (err) {
             clearTimeout(timeoutId);
             lastNetworkError = err;
-            
+
+            if (err.isFatal) { apiInFlight.delete(hashKey); throw err; }
+
             if (err && err.httpStatus) {
                 if (err.httpStatus === 429) { apiInFlight.delete(hashKey); throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)"); }
                 if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중입니다. (HTTP 503)"); }
@@ -285,7 +363,7 @@ async function executeApi(action, payload = {}, retries = 3) {
 
             if (err.message && err.message.includes("Failed to fetch")) {
                 apiInFlight.delete(hashKey);
-                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 스크립트 배포 설정을 확인하세요.</span>");
+                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 배포 설정을 확인하세요.</span>");
             }
 
             if (i < retries) {
@@ -295,334 +373,354 @@ async function executeApi(action, payload = {}, retries = 3) {
         }
     }
     apiInFlight.delete(hashKey);
-    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (25초 대기열 초과)" : (lastNetworkError?.message || "서버 통신 실패. 잠시 후 새로고침 해주세요."));
+    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : (lastNetworkError?.message || "서버 통신 실패."));
 }
 
 // ============================================================================
-// 🍳 [V40.7 핵심] 레시피 데이터 파이프라인 (SWR Cache + Hash Lock + Isolation)
+// 📁 1. 컨트롤 패널 초기화 (IndexedDB 가맹점 캐시 로드 & 이벤트 록다운)
 // ============================================================================
-let allRecipes = [];
-let currentCategory = "All Recipes";
-let searchDebounceTimer = null;
-let lastRenderHash = ""; 
+let cachedClients = [];
+let currentInvoiceData = null; 
+let isGenerating = false;
+let fallbackLockTimer = null; 
+let currentInvoiceFetchId = 0; 
 
-function generateRecipeHash(arr) {
-    if (!arr || arr.length === 0) return "";
-    return arr.length + "_" + (arr[0]?.title?.length || 0) + "_" + (arr[arr.length-1]?.title?.length || 0);
-}
+async function initInvoicePanel() {
+    const selClient = document.getElementById('selClient');
+    const selYear = document.getElementById('selYear');
+    
+    if (selYear) {
+        selYear.value = new Date().getFullYear();
+    }
 
-async function fetchRecipes() {
-    const grid = document.getElementById('recipeGrid');
-    if (!grid) return;
+    const cacheKey = `MASTER_DATA_${clientName}`;
 
-    const cacheKey = "Y2C_RECIPES_CACHE_V40";
-
-    // 🌟 1. IndexedDB 기반 0.01초 로컬 캐시 즉시 렌더링
     try {
-        const cachedRaw = await Y2C_DB.get(cacheKey);
-        if (cachedRaw && Array.isArray(cachedRaw) && cachedRaw.length > 0) {
-            allRecipes.length = 0; // 🌟 [방어 13] Array 파괴
-            allRecipes = cachedRaw;
-            buildCategoryFilters();
-            filterRecipes();
+        const cachedData = await Y2C_DB.get(cacheKey);
+        if (cachedData && cachedData.length > 0) {
+            cachedClients.length = 0; // Array Truncation
+            cachedClients = cachedData;
+            populateClientDropdown(selClient);
         }
     } catch(e) {}
 
-    // 🌟 2. 백그라운드 서버 통신 및 최신화
     try {
-        const result = await executeApi("get_recipes");
-        
+        const result = await executeApi("get_master_data");
         if (result && result.success) {
-            // 🌟 [방어 27] Array Type Checking
-            let dataPayload = result.recipes || result.data || result || [];
-            if (!Array.isArray(dataPayload)) dataPayload = []; 
-            
-            // 🌟 [방어 5, 31] Corrupted Node 격리 및 필수값 필터링
-            dataPayload = dataPayload.filter(r => r && typeof r === 'object' && r.title);
-            
-            const newHash = generateRecipeHash(dataPayload);
-            const oldHash = generateRecipeHash(allRecipes);
-
-            // 🌟 [방어 17] Hash Validation Render
-            if (newHash !== oldHash || allRecipes.length === 0) {
-                allRecipes.length = 0;
-                allRecipes = dataPayload;
-                try { await Y2C_DB.set(cacheKey, allRecipes); } catch(e) {}
-                buildCategoryFilters();
-                filterRecipes();
+            const clientsArray = result.clients || result.data || [];
+            if (clientsArray.length > 0) {
+                cachedClients.length = 0;
+                cachedClients = clientsArray;
+                await Y2C_DB.set(cacheKey, cachedClients);
+                populateClientDropdown(selClient);
             }
-        } else {
-            if (allRecipes.length === 0) throw new Error(result?.message || "레시피 데이터를 불러올 수 없습니다.");
         }
     } catch (err) {
-        if (allRecipes.length === 0) {
-            grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E3000F] font-black tracking-widest uppercase font-inter">${escapeHtml(err.message || "로딩 오류")}</div>`;
-            showToast("데이터를 불러오지 못했습니다.", "error");
+        if(cachedClients.length === 0 && selClient) {
+            showToast("가맹점 목록을 불러오지 못했습니다.", "error");
+            selClient.innerHTML = `<option value="">Error loading data</option>`;
         }
     }
-}
 
-// 🌟 [방어 18] 카테고리 필터 Mutex Lock
-let isCategorySwitching = false;
+    // 🌟 [방어 18, 19] 입력창 Desync 실시간 교정 및 Maxlength & Bounds 록다운
+    const yearInput = document.getElementById('selYear');
+    const startInput = document.getElementById('selStart');
+    const endInput = document.getElementById('selEnd');
+    const rateInput = document.getElementById('selRate');
 
-function buildCategoryFilters() {
-    const filterContainer = document.getElementById('recipeCategoryFilters');
-    if (!filterContainer) return;
-    
-    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
-    const allRecipesLabel = dict["all_recipes"];
-    
-    // 🌟 [방어 25] Category Fallback
-    const categories = [allRecipesLabel, ...new Set(allRecipes.map(r => r.category || dict["uncategorized"]))];
-    filterContainer.innerHTML = '';
-    
-    if (currentCategory === "All Recipes" || currentCategory === "전체 레시피") {
-        currentCategory = allRecipesLabel;
-    }
+    [yearInput, startInput, endInput, rateInput].forEach(input => {
+        if (input) {
+            input.addEventListener('input', (e) => {
+                const rawVal = e.target.value;
+                // 숫자와 소수점만 허용
+                const cleanVal = rawVal.replace(/[^0-9.]/g, '');
+                if (rawVal !== cleanVal) e.target.value = cleanVal;
 
-    categories.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.innerText = (cat === allRecipesLabel) ? cat : translateDynamic(cat, 'recipeCategory');
-        
-        if (cat === currentCategory) {
-            btn.className = "bg-[#E3000F] text-white px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs uppercase tracking-widest shadow-md whitespace-nowrap transition-all font-inter";
-        } else {
-            btn.className = "bg-white border border-gray-200 text-gray-500 hover:text-[#E3000F] hover:bg-red-50/50 hover:border-[#E3000F] px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95 font-inter";
-        }
-        
-        btn.onclick = () => { 
-            if(isCategorySwitching) return;
-            isCategorySwitching = true;
-            currentCategory = cat; 
-            buildCategoryFilters(); 
-            filterRecipes(); 
-            setTimeout(() => { isCategorySwitching = false; }, 200);
-        };
-        filterContainer.appendChild(btn);
-    });
-}
-
-function filterRecipes() {
-    const searchInput = document.getElementById('recipeSearchInput');
-    // 🌟 [방어 21] 검색어 대소문자 정규화 및 공백 제거
-    const searchTerm = searchInput ? String(searchInput.value || "").toLowerCase().trim() : "";
-    
-    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
-    const allRecipesLabel = dict["all_recipes"];
-
-    const filtered = allRecipes.filter(r => {
-        const safeTitle = String(r.title || "").toLowerCase();
-        const safeIngredients = String(r.ingredients || "").toLowerCase();
-        const safeCategory = String(r.category || dict["uncategorized"]);
-
-        const matchCat = (currentCategory === allRecipesLabel || safeCategory === currentCategory);
-        const matchSearch = (safeTitle.includes(searchTerm) || safeIngredients.includes(searchTerm));
-        
-        return matchCat && matchSearch;
-    });
-
-    renderRecipesFast(filtered);
-}
-
-// 🌟 [방어 15] DOM 연산 폭주를 막는 Search Debouncing (300ms)
-function handleSearchInput() {
-    clearTimeout(searchDebounceTimer);
-    searchDebounceTimer = setTimeout(filterRecipes, 300);
-}
-
-// ============================================================================
-// ⚡ [방어 9, 12, 16] Infinite Chunk Observer (무한 스크롤 & 데드락 자동 힐링)
-// ============================================================================
-let recipeObserver = null;
-let globalFilteredRecipes = [];
-let recipeRenderIndex = 0;
-const RECIPE_CHUNK_SIZE = 24; 
-
-function renderRecipesFast(recipes) {
-    const grid = document.getElementById('recipeGrid');
-    if (!grid) return;
-
-    // 🌟 [방어 11] 기존 옵저버 100% 파괴
-    if (recipeObserver) { 
-        recipeObserver.disconnect(); 
-        recipeObserver = null; 
-    }
-    
-    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
-
-    // 🌟 [방어 23] Empty State Auto-Healing
-    if (!recipes || recipes.length === 0) {
-        grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 font-bold tracking-widest uppercase font-inter flex flex-col items-center gap-3"><span class="text-3xl">📭</span><span>${dict["no_recipes"]}</span></div>`;
-        return;
-    }
-    
-    globalFilteredRecipes.length = 0;
-    globalFilteredRecipes = recipes;
-    recipeRenderIndex = 0;
-    grid.innerHTML = '';
-
-    // 🌟 바닥 감지 옵저버 부착 (여유 마진 500px)
-    recipeObserver = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-            recipeObserver.disconnect();
-            appendRecipeChunk();
-        }
-    }, { rootMargin: '500px' });
-
-    appendRecipeChunk();
-}
-
-function appendRecipeChunk() {
-    const grid = document.getElementById('recipeGrid');
-    if (!grid) return;
-
-    const endIdx = Math.min(recipeRenderIndex + RECIPE_CHUNK_SIZE, globalFilteredRecipes.length);
-    
-    // 🌟 [방어 12] DocumentFragment 조립식 주입
-    const fragment = document.createDocumentFragment();
-    const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
-
-    for (; recipeRenderIndex < endIdx; recipeRenderIndex++) {
-        const recipe = globalFilteredRecipes[recipeRenderIndex];
-        const delay = (recipeRenderIndex % 12) * 30; // 스태거 애니메이션
-        
-        const card = document.createElement('div');
-        // 🌟 [방어 10] Event Delegation을 위해 data-index 심기
-        card.className = `recipe-card bg-white premium-shadow rounded-[1.5rem] p-6 sm:p-7 flex flex-col h-full cinematic-enter group cursor-pointer`;
-        card.style.animationDelay = `${delay}ms`;
-        card.setAttribute('data-index', recipeRenderIndex);
-        
-        const catText = recipe.category || dict["uncategorized"];
-        const translatedCat = escapeHtml(translateDynamic(catText, 'recipeCategory'));
-        const titleText = escapeHtml(recipe.title || 'Untitled Recipe');
-        const ingText = escapeHtml(recipe.ingredients || 'Details inside...');
-
-        // 🌟 [방어 26] Text Truncation Guard (line-clamp-3)
-        card.innerHTML = `
-            <div class="mb-5">
-                <span class="px-3 py-1.5 bg-[#E3000F]/10 text-[#E3000F] font-black text-[9px] uppercase tracking-widest rounded-md border border-[#E3000F]/20 font-inter">${translatedCat}</span>
-            </div>
-            <h3 class="text-lg sm:text-xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight mb-2.5 leading-tight group-hover:text-[#E3000F] transition-colors">${titleText}</h3>
-            <p class="text-[12px] font-medium text-gray-500 line-clamp-3 mb-5 flex-grow font-inter leading-relaxed">${ingText}</p>
-            <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
-                <span class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest flex items-center gap-1.5 group-hover:text-[#E3000F] transition-colors font-inter">${dict["btn_view"]}</span>
-                <div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#E3000F] group-hover:text-white transition-colors text-gray-400">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-                </div>
-            </div>
-        `;
-        fragment.appendChild(card);
-    }
-    
-    grid.appendChild(fragment);
-
-    // 🌟 [방어 9] Observer 데드락 자동 힐링
-    // 컨텐츠가 화면을 다 채우지 못해 스크롤이 생기지 않으면, 즉각 다음 청크를 덧붙여서 데드락 탈출
-    requestAnimationFrame(() => {
-        if (recipeRenderIndex < globalFilteredRecipes.length) {
-            if (grid.scrollHeight <= window.innerHeight) {
-                appendRecipeChunk();
-            } else {
-                const lastCard = grid.lastElementChild;
-                if (lastCard) recipeObserver.observe(lastCard);
-            }
-        }
-    });
-}
-
-// 🌟 [방어 10] Event Delegation (메모리 사용량 99% 단축)
-document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.getElementById('recipeGrid');
-    if (grid) {
-        grid.addEventListener('click', (e) => {
-            const card = e.target.closest('.recipe-card');
-            if (card) {
-                const idx = card.getAttribute('data-index');
-                if (idx !== null && globalFilteredRecipes[idx]) {
-                    openRecipeModal(globalFilteredRecipes[idx]);
+                if (e.target.id === 'selStart' || e.target.id === 'selEnd') {
+                    let v = parseStrictNonNegativeInteger(cleanVal);
+                    if (v > 12) e.target.value = 12;
+                    // 시작 월이 종료 월을 넘지 못하게 즉시 록다운
+                    if (e.target.id === 'selStart' && endInput) {
+                        let endV = parseStrictNonNegativeInteger(endInput.value);
+                        if (v > endV) endInput.value = v;
+                    }
                 }
-            }
-        });
-    }
-});
+            });
+        }
+    });
+}
+
+function populateClientDropdown(selClient) {
+    if (!selClient) return;
+    // 🌟 [방어 15] DocumentFragment 주입
+    const currentVal = selClient.value;
+    const fragment = document.createDocumentFragment();
+    
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = "";
+    defaultOpt.textContent = "-- Select Target Client --";
+    fragment.appendChild(defaultOpt);
+
+    cachedClients.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = escapeHtml(c.name);
+        opt.textContent = `${safeDisplay(c.name)} (${safeDisplay(c.state, 'N/A')})`;
+        fragment.appendChild(opt);
+    });
+
+    selClient.innerHTML = '';
+    selClient.appendChild(fragment);
+    
+    if(currentVal) selClient.value = currentVal;
+}
 
 // ============================================================================
-// 🌟 [방어 14, 19, 32] 레시피 모달 메모리 파괴 & Body Scroll Lock
+// 🧾 2. [핵심 로직] 정산서 데이터 병합 및 CRA 세법 연동 (Always-Release 록다운)
 // ============================================================================
-function openRecipeModal(recipe) {
+async function generateInvoice() {
     const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
     
-    const catText = recipe.category || dict["uncategorized"];
-    document.getElementById('recipeModalCategory').textContent = escapeHtml(translateDynamic(catText, 'recipeCategory'));
+    if (isGenerating || !navigator.onLine) return showToast(navigator.onLine ? dict["toast_generating"] : "오프라인 상태입니다.", "error");
+
+    const clientNameInput = document.getElementById('selClient')?.value;
+    const targetYear = parseStrictNonNegativeInteger(document.getElementById('selYear')?.value);
+    const rate = parseStrictDecimal(document.getElementById('selRate')?.value); 
+    const startMonth = parseStrictNonNegativeInteger(document.getElementById('selStart')?.value);
+    const endMonth = parseStrictNonNegativeInteger(document.getElementById('selEnd')?.value);
+
+    if (!clientNameInput) return showToast(dict["toast_err_client"], "error");
+    if (targetYear === 0) return showToast(dict["toast_err_year"], "error");
+    if (startMonth > endMonth) return showToast(dict["toast_err_month"], "error");
+    if (startMonth < 1 || endMonth > 12) return showToast(dict["toast_err_month_range"], "error");
+
+    // 🌟 [방어 17] 물리적 연타 방어 및 비동기 식별키 생성
+    isGenerating = true;
+    currentInvoiceData = null; 
+    const fetchId = ++currentInvoiceFetchId;
     
-    document.getElementById('recipeModalTitle').textContent = escapeHtml(recipe.title || 'Untitled');
-    document.getElementById('recipeModalIngredients').textContent = escapeHtml(recipe.ingredients || 'No ingredients listed.');
-    document.getElementById('recipeModalInstructions').textContent = escapeHtml(recipe.instructions || 'No instructions provided.');
-    document.getElementById('recipeModalTips').textContent = escapeHtml(recipe.tips || 'No special tips for this recipe.');
-    
-    const modal = document.getElementById('recipeModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        // 🚨 [방어 19] 모달 오픈 시 배경 화면 스크롤 강제 잠금 
-        document.body.style.overflow = 'hidden';
-        
-        // 🌟 [방어 32] Keyboard Accessibility (ESC로 닫기)
-        window.addEventListener('keydown', handleModalEsc);
+    showToast(dict["toast_generating"], "success");
+
+    const btnNodes = document.querySelectorAll('button[onclick="generateInvoice()"]');
+    let originalHtml = "";
+    btnNodes.forEach(btn => {
+        if (!originalHtml) originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.classList.add('pointer-events-none');
+        btn.innerHTML = `<span class="animate-pulse">⏳ EXTRACTING...</span>`;
+    });
+
+    // 🌟 [방어 2] 35초 Absolute Watchdog 데드락 브레이커
+    clearTimeout(fallbackLockTimer);
+    fallbackLockTimer = setTimeout(() => {
+        if(isGenerating && fetchId === currentInvoiceFetchId) {
+            isGenerating = false;
+            btnNodes.forEach(btn => { btn.disabled = false; btn.classList.remove('pointer-events-none'); btn.innerHTML = originalHtml; });
+            showToast("시스템 응답 시간이 초과되었습니다. 다시 시도해 주세요.", "error");
+            triggerShake();
+        }
+    }, 35000);
+
+    try {
+        const result = await executeApi("get_invoice", { 
+            clientName: clientNameInput, targetYear, startMonth, endMonth 
+        });
+
+        // 🌟 응답이 늦게 도착하여 다른 연산이 시작되었다면 폐기 처리
+        if (fetchId !== currentInvoiceFetchId) return;
+
+        if (result && result.success) {
+            const data = result.data || result.invoiceData || result.invoice || result || {};
+            
+            const clientInfo = data.clientInfo || data.client || {};
+            const hqInfo = data.hqInfo || data.hq || {};
+
+            // 🌟 [방어 25] Number.EPSILON 적용 소수점 교정
+            const baseAmount = roundToCents(parseStrictDecimal(data.totalSales || data.amount || data.baseAmount));
+            
+            // 🌟 [방어 27] Zero-Sales Bypass (유령 가맹점 방어)
+            if (baseAmount === 0) {
+                showToast(dict["toast_no_erp"], "success");
+            }
+
+            const royaltyAmount = roundToCents(baseAmount * (rate / 100));
+            
+            // 🌟 [방어 26] CRA 세법 강제 매핑 (Place of Supply)
+            const stateCode = String(clientInfo.state || "DEFAULT").toUpperCase().trim();
+            const taxObj = CONFIG.TAX_RATES[stateCode] || CONFIG.TAX_RATES["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
+            const taxAmount = roundToCents(royaltyAmount * parseStrictDecimal(taxObj.rate));
+            const grandTotal = roundToCents(royaltyAmount + taxAmount);
+
+            const today = new Date();
+            const dueDateObj = new Date(today);
+            dueDateObj.setDate(today.getDate() + 14); 
+            
+            // 🌟 [방어 31] 난수 식별키
+            const invNo = `INV-${targetYear}${String(startMonth).padStart(2, '0')}-${clientNameInput.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 9000 + 1000)}`;
+
+            // ====================================================================
+            // 🌟 5. DOM 렌더링 & Absolute Null-Safe 변수 매핑 100% 무손실 앵커링
+            // ====================================================================
+            document.getElementById('invNo').innerText = safeDisplay(invNo);
+            document.getElementById('invDate').innerText = formatDate(today);
+            
+            const invDueEl = document.getElementById('invDue');
+            if(invDueEl) {
+                invDueEl.innerText = formatDate(dueDateObj);
+                invDueEl.className = "text-[#E3000F] font-mono font-black print-text-black";
+            }
+
+            document.getElementById('hqName').innerText = safeDisplay(hqInfo.name || hqInfo.hqName, "Y2C Holdings Inc.");
+            document.getElementById('hqAddress').innerText = safeDisplay(hqInfo.address || hqInfo.hqAddress);
+            document.getElementById('hqContact').innerText = safeDisplay(hqInfo.contact || hqInfo.phone);
+            document.getElementById('hqRegNo').innerText = safeDisplay(hqInfo.regNo || hqInfo.businessNo);
+            document.getElementById('hqRep').innerText = safeDisplay(hqInfo.rep || hqInfo.representative);
+            
+            document.getElementById('hqBank').innerText = safeDisplay(hqInfo.bankName || hqInfo.bank);
+            document.getElementById('hqBankAddress').innerText = safeDisplay(hqInfo.bankAddress || hqInfo.bankAddr || hqInfo.address);
+            document.getElementById('hqAccount').innerText = safeDisplay(hqInfo.accountNo || hqInfo.account);
+            document.getElementById('hqSwift').innerText = safeDisplay(hqInfo.swift || hqInfo.swiftCode);
+
+            document.getElementById('clientName').innerText = safeDisplay(clientInfo.name || clientNameInput);
+            document.getElementById('clientAddress').innerText = safeDisplay(clientInfo.address);
+            document.getElementById('clientCity').innerText = safeDisplay(`${clientInfo.city || "-"}, ${clientInfo.state || "-"}`);
+            document.getElementById('clientAttn').innerText = safeDisplay(clientInfo.manager || clientInfo.attn);
+            document.getElementById('clientBizId').innerText = safeDisplay(clientInfo.bizId || clientInfo.businessId);
+
+            document.getElementById('descLine').innerHTML = `${escapeHtml(dict["desc_mas"])}<br><span class="text-[11px] text-gray-500 font-bold mt-1.5 block tracking-wider font-inter">Period: ${targetYear}-${String(startMonth).padStart(2,'0')} to ${targetYear}-${String(endMonth).padStart(2,'0')}</span>`;
+            document.getElementById('baseLine').innerText = formatCurrency(baseAmount);
+            
+            const rateLineEl = document.getElementById('rateLine');
+            if(rateLineEl) {
+                rateLineEl.innerText = `${rate.toFixed(2)}%`;
+            }
+            document.getElementById('amtLine').innerText = formatCurrency(royaltyAmount);
+
+            document.getElementById('subTotal').innerText = formatCurrency(royaltyAmount);
+            
+            const taxLabelEl = document.getElementById('taxAmt')?.parentElement;
+            if(taxLabelEl) {
+                taxLabelEl.innerHTML = `<span data-i18n="lbl_tax">Estimated Tax</span> <span class="font-bold text-gray-800 font-inter">(${escapeHtml(taxObj.name)})</span>: <span class="font-black text-[#111827] font-mono ml-4 print-text-black text-[13px]" id="taxAmt">${formatCurrency(taxAmount)}</span>`;
+            } else if (document.getElementById('taxAmt')) {
+                document.getElementById('taxAmt').innerText = formatCurrency(taxAmount);
+            }
+            
+            document.getElementById('totalDue').innerText = formatCurrency(grandTotal);
+
+            // 🌟 CSV Export 및 PDF 인쇄를 위한 데이터 영속성 무결성 캐시 저장
+            currentInvoiceData = {
+                invNo, date: formatDate(today), client: clientNameInput, 
+                baseAmount, rate, royaltyAmount, taxName: taxObj.name, taxAmount, grandTotal
+            };
+
+            showToast(dict["toast_success"], "success");
+        } else {
+            throw new Error(result?.message || "데이터 동기화 및 인보이스 생성에 실패했습니다.");
+        }
+    } catch (err) {
+        if (fetchId === currentInvoiceFetchId) {
+            showToast(`${err.message}`, "error");
+            triggerShake();
+        }
+    } finally {
+        // 🌟 [방어 3] Always-Release 록다운 (데드락 100% 해방)
+        if (fetchId === currentInvoiceFetchId) {
+            isGenerating = false;
+            clearTimeout(fallbackLockTimer);
+            btnNodes.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('pointer-events-none');
+                btn.innerHTML = originalHtml;
+            });
+        }
     }
 }
 
-function handleModalEsc(e) {
-    if (e.key === "Escape") closeRecipeModal();
-}
-
-window.closeRecipeModal = function() {
-    const modal = document.getElementById('recipeModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+function triggerShake() {
+    const ctrlPanel = document.querySelector('.lg\\:col-span-4');
+    if (ctrlPanel) {
+        ctrlPanel.classList.remove('shake-animation');
+        void ctrlPanel.offsetWidth; 
+        ctrlPanel.classList.add('shake-animation');
         
-        // 🚨 배경 스크롤 원복 & 이벤트 리스너 해제
-        document.body.style.overflow = '';
-        window.removeEventListener('keydown', handleModalEsc);
-        
-        // 🌟 [방어 14] OOM 방어: 닫힐 때 텍스트 강제 소각 (가비지 컬렉션 유도)
-        setTimeout(() => {
-            document.getElementById('recipeModalTitle').textContent = '';
-            document.getElementById('recipeModalIngredients').textContent = '';
-            document.getElementById('recipeModalInstructions').textContent = '';
-            document.getElementById('recipeModalTips').textContent = '';
-        }, 300);
+        // 일회용 style 추가
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes error-shake { 0%, 100% { transform: translateX(0) translateZ(0); } 20% { transform: translateX(-8px) translateZ(0); } 40% { transform: translateX(8px) translateZ(0); } 60% { transform: translateX(-4px) translateZ(0); } 80% { transform: translateX(4px) translateZ(0); } } .shake-animation { animation: error-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }`;
+        document.head.appendChild(style);
     }
 }
 
-// 🌟 [방어 2] 오프라인 킬스위치 및 텔레메트리 에러 가드
-window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다.", "error"));
-window.addEventListener('online', () => { showToast("네트워크 복구 완료.", "success"); fetchRecipes(); });
-window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
-window.addEventListener('unhandledrejection', function(event) { console.error("[Y2C Telemetry Promise Rejection]", event.reason); });
+// ============================================================================
+// 🖨️ [방어 9] 브라우저 네이티브 PDF 인쇄 엔진 (고스트 렌더링 락다운)
+// ============================================================================
+window.printInvoicePDF = function() {
+    if (!currentInvoiceData) {
+        return showToast("먼저 정산서(GENERATE DATA)를 생성한 후 인쇄해 주세요.", "error");
+    }
+
+    // 🌟 화면 페인팅이 완벽히 끝난 후 브라우저 인쇄 모듈을 띄워 하얀 백지 버그를 100% 차단
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            window.print();
+        });
+    });
+};
 
 // ============================================================================
-// 🌟 시스템 초기화 및 멱등성 록다운 (Idempotent Init)
+// 📥 [방어 10, 29, 30] CSV 추출 엔진 (BOM 한글 깨짐 방지 및 메모리 릭 소각)
 // ============================================================================
-let isInitialized = false;
+function exportInvoiceCSV() {
+    if (!currentInvoiceData) {
+        return showToast("먼저 정산서(GENERATE DATA)를 생성한 후 다운로드 해주세요.", "error");
+    }
 
+    // 엑셀 열(Column) 파괴 방지를 위한 필드 쌍따옴표 캡슐화
+    const headers = ["Invoice No", "Issue Date", "Client", "Base Amount", "Rate (%)", "Royalty Amount", "Tax Type", "Tax Amount", "Total Due"];
+    const row = [
+        currentInvoiceData.invNo,
+        currentInvoiceData.date,
+        `"${currentInvoiceData.client}"`,
+        currentInvoiceData.baseAmount,
+        currentInvoiceData.rate,
+        currentInvoiceData.royaltyAmount,
+        `"${currentInvoiceData.taxName}"`,
+        currentInvoiceData.taxAmount,
+        currentInvoiceData.grandTotal
+    ];
+
+    // 🌟 [방어 29] 엑셀에서 한글이 깨지지 않도록 BOM(\uFEFF) 바이트 강제 할당
+    const csvContent = "\uFEFF" + headers.join(",") + "\n" + row.join(",");
+    
+    // 🌟 [방어 10] Blob을 이용한 대용량 다운로드 지원 및 메모리 릭(Leak) 방어
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blobUrl = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", blobUrl);
+    
+    // 🌟 [방어 30] 파일명 특수문자 OS 크래시 에러 방어 정규식 처리
+    const safeFileName = `${currentInvoiceData.invNo}_${currentInvoiceData.client.replace(/[\s\/\\:*?"<>|]/g, '_')}.csv`;
+    link.setAttribute("download", safeFileName);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // 즉각적인 Blob 메모리 반환 (가비지 컬렉션)
+    setTimeout(() => { URL.revokeObjectURL(blobUrl); }, 100);
+    
+    showToast("CSV 다운로드가 완료되었습니다.", "success");
+}
+
+// 글로벌 네임스페이스 바인딩
+window.generateInvoice = generateInvoice;
+window.exportInvoiceCSV = exportInvoiceCSV;
+window.printInvoicePDF = printInvoicePDF; 
+
+// ============================================================================
+// 🚨 시스템 초기화 바인딩
+// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 🌟 [방어 30] 멱등성 보장
-    if (isInitialized) return;
-    isInitialized = true;
-
-    // 다국어 번역 및 권한 통제 락(Lock) 가동
     window.changeLanguage(currentLang);
     applyGlobalRbacNavigation();
-
-    // 🌟 [방어 15] 검색창 디바운스 리스너 부착
-    const searchInput = document.getElementById('recipeSearchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', handleSearchInput);
-    }
-    
-    // 엔진 가동
-    fetchRecipes();
+    initInvoicePanel();
 });
