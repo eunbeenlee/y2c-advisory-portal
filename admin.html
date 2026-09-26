@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.26 Enterprise Master ULTIMATE - Strict RBAC Routing, Zero-Loss Validation & 11 Acceleration Fixes -->
+<!-- 🌟 V40.29 Enterprise Master ULTIMATE - Infinite Refresh Hotfix, Strict RBAC Routing & 10 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [방어 4] 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 거대 테이블 가독성 보호) -->
+    <!-- 🌟 [방어 4] 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 마스터 데이터 가독성 보호) -->
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -13,7 +13,7 @@
     
     <title>Master DB & Operations | Y2C Portal</title>
     
-    <!-- 🚀 [가속 채널 2] API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
 
@@ -21,7 +21,7 @@
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [가속 채널 2] 폰트 로딩 CSSOM 블로킹 타파 -->
+    <!-- 🚀 [방어 6] 폰트 로딩 CSSOM 블로킹 타파 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
@@ -29,7 +29,7 @@
 
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [방어 11] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -43,12 +43,11 @@
             if (mainBody) mainBody.style.opacity = '1';
         }, 800);
 
-        // Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        // 🚀 [방어 7] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
     
-    <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
@@ -75,7 +74,7 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 [방어 10] 터치 딜레이 및 바운스 스크롤 완벽 차단, 터치 잔상 소각 */
+        /* 터치 딜레이 및 바운스 스크롤 완벽 차단, 파란색 터치 잔상 소각 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -94,7 +93,7 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 7] iOS 줌 버그 차단 및 스피너 파괴 */
+        /* 🌟 [방어 9] iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
@@ -109,7 +108,7 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🚀 [가속 채널 3] DOM GPU 가속 및 렌더링 병목 타파 */
+        /* 🚀 [방어 8] DOM GPU 가속 및 렌더링 병목 타파 (Content-Visibility) */
         section { content-visibility: auto; contain-intrinsic-size: auto 1000px; }
         tbody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; }
 
@@ -127,6 +126,7 @@
             background-size: 400% 100%;
             animation: shimmer 1.5s infinite ease-in-out;
             transform: translateZ(0); /* GPU Acceleration */
+            pointer-events: none;
         }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
@@ -153,7 +153,6 @@
         .btn-charcoal:hover:not(:disabled) { background: #000000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
-        /* 100% 정교한 네비게이션 CSS */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
@@ -172,10 +171,9 @@
     </style>
 </head>
 
-<!-- 🌟 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [방어 9] Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
     <script>
         try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
     </script>
@@ -186,7 +184,7 @@
         </div>
     </noscript>
 
-    <!-- 🌟 [방어 1] JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 -->
+    <!-- 🌟 [방어 1, 2] JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 (무한 루프 100% 원천 차단) -->
     <script>
         (function() {
             try {
@@ -200,19 +198,19 @@
                 var token = String(localStorage.getItem("y2c_token") || "").trim();
                 window.__INITIAL_ROLE__ = userRole;
 
-                // 🚨 미인증/토큰 소실 계정 강제 축출
+                // 미인증 계정 강제 축출
                 if (!userRole || userRole === "NULL" || !token || token.length < 10) {
                     window.location.replace("index.html");
                     return;
                 }
 
-                // 🚨 [방어 1] PARTNER 계정의 마스터DB 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
+                // 🚨 [가혹 조건 방어] PARTNER 계정의 마스터DB 불법 진입 시 강제 축출 (Inline Page-Kick)
                 if (userRole === "PARTNER") {
                     window.location.replace("dashboard.html");
                     return; // 렌더링 즉시 중단
                 }
 
-                // 🚨 통합 권한 라우터 무결성 복원
+                // 통합 권한 라우터 무결성 복원
                 if (userRole === 'MASTER' || userRole === 'PARTNER') {
                     ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
                         var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
@@ -250,7 +248,7 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
+            <!-- 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -281,7 +279,7 @@
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 -->
+    <!-- 모바일 카테고리 뷰 (shrink-0 방어막 추가) -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -291,7 +289,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 🚀 [가속 채널 3] Zero-Latency 인라인 탭 라우터 (무손실 보존) -->
+    <!-- 🚀 Zero-Latency 인라인 탭 라우터 (무손실 보존) -->
     <script>
         window._fastTabSwitch = function(tabId) {
             const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
@@ -312,12 +310,12 @@
         };
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 8] Z-Index Stack 격리 isolation: isolate 적용) -->
+    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 5] Z-Index Stack 격리 isolation: isolate 적용) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-20 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 관리자 탭 스위처 -->
         <div class="flex overflow-x-auto hide-scrollbar gap-2 mb-8 bg-white p-2 rounded-2xl premium-shadow border border-gray-100/50 no-print shrink-0">
-            <!-- 🌟 초기 활성 탭 UI 사전 고정 -->
+            <!-- 초기 활성 탭 UI 사전 고정 -->
             <button id="tabBtn_profiles" onclick="_fastTabSwitch('profiles')" class="px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-md whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
             <button id="tabBtn_sales" onclick="_fastTabSwitch('sales')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_sales">ERP Sales</span></button>
             <button id="tabBtn_inbound" onclick="_fastTabSwitch('inbound')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
@@ -326,7 +324,7 @@
 
         <!-- ========================================== -->
         <!-- 1. Franchise Profiles (마스터 전용) -->
-        <!-- 🚨 [방어 2] SFP 블랭크 버그 원천 픽스: hidden 클래스 제거로 뼈대 즉시 노출 -->
+        <!-- 🚨 [방어 3] SFP 블랭크 버그 원천 픽스: hidden 제거로 뼈대 즉시 노출 -->
         <!-- ========================================== -->
         <section id="section_profiles">
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 no-print">
@@ -525,7 +523,7 @@
 
     </main>
 
-    <!-- 🌟 프리미엄 푸터 (공통 100% 무손실 보존) -->
+    <!-- 🌟 프리미엄 푸터 (공통 모듈 100% 무손실 보존) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -538,7 +536,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.26 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.29 STABLE</span>
                 </div>
             </div>
         </div>
@@ -554,9 +552,8 @@
     <!-- 글로벌 토스트 (z-9999) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ JS 로직 연동 (무손실 보장) -->
+    <!-- 🚨 무한 새로고침 자폭 유발 스크립트(auth.js) 완전 소각 및 i18n 단독 로드 -->
     <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/auth.js"></script>
     <script src="assets/js/admin.js" defer></script>
     
     <script>
