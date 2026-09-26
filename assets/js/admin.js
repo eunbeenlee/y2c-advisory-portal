@@ -1,26 +1,32 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Admin Engine (V40.14 Enterprise)
- * [33+ Defenses] API Hash Lock, Time-Slicing, Mutex Lock, Zero-Deletion, OOM Guard
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V40.18 Enterprise)
+ * [Critical Fix] Config Dependency Crash Fix, Fetch Retry Bypass, Mutex Release
  * ============================================================================
  */
 
-// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
+// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
         requestAnimationFrame(function() {
+            docEl.classList.remove("fouc-lock");
             docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
             docEl.classList.remove("opacity-0");
             docEl.style.opacity = "1";
+            docEl.style.visibility = "visible";
             document.body.classList.remove("opacity-0");
             document.body.style.opacity = "1";
         });
     });
 } catch(e) {}
 
-const CONFIG = window.SYSTEM_CONFIG || {};
-const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+// 🌟 [방어 2] Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
+// config.js가 로드에 실패하거나 지워지더라도 프론트엔드가 절대 죽지 않도록 자체 생존 변수 구축
+const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {};
+const FALLBACK_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
+const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : FALLBACK_API_URL;
+const STORAGE = (CONFIG.STORAGE_KEYS) ? CONFIG.STORAGE_KEYS : { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
 
 let userRole = "", clientName = "", sessionToken = "";
 try {
@@ -31,14 +37,14 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 7] 권한 무결성 1차 검증 (세션 토큰 유연성 검사 포함)
+// 권한 무결성 1차 검증
 if (!sessionToken || sessionToken.length < 10 || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
     alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
 }
 
 // ============================================================================
-// 💾 [방어 9] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// 💾 IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시 무손실 보존)
 // ============================================================================
 const Y2C_DB = {
     name: 'Y2C_Logistics_DB',
@@ -85,7 +91,7 @@ const Y2C_DB = {
 };
 
 // ============================================================================
-// 🔒 [방어 3, 25, 26, 28] Advanced Null-Safe Parsers (재무 무결성 100% 록다운)
+// 🔒 Advanced Null-Safe Parsers (재무 무결성 100% 록다운 무손실 보존)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
@@ -106,7 +112,7 @@ function parseStrictNonNegativeInteger(value) {
     if (!/^\d+$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isSafeInteger(num) || num < 0) return 0; 
-    return Math.min(num, 9999999); // 🌟 오버플로우 방어
+    return Math.min(num, 9999999); 
 }
 
 function parseStrictDecimal(value) { 
@@ -117,7 +123,7 @@ function parseStrictDecimal(value) {
     if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
-    return Math.min(num, 9999999.99); // 🌟 오버플로우 방어
+    return Math.min(num, 9999999.99); 
 }
 
 function parseStrictISODate(value) { 
@@ -129,7 +135,6 @@ function parseStrictISODate(value) {
     if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; 
     const date = new Date(Date.UTC(y, m - 1, d)); 
     if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; 
-    // 🌟 시간 역전(Time Paradox) 방어 
     if (date.getTime() < new Date("2020-01-01").getTime()) return null;
     return str; 
 }
@@ -141,14 +146,13 @@ function setUploadStatus(html) {
 
 const HQ_ORDER_STATUSES = Object.freeze(["HQ_PENDING", "PREPARING", "ORDERED", "SHIPPED", "ARRIVED", "RECEIVED", "COMPLETED", "CANCELED"]);
 const HQ_STATUS_LABELS = Object.freeze({ HQ_PENDING: "접수 대기", PREPARING: "준비 중", ORDERED: "발주 완료", SHIPPED: "선적 완료", ARRIVED: "캐나다 입항", RECEIVED: "입고 완료", COMPLETED: "처리 종결", CANCELED: "주문 취소" });
-
 const ADMIN_TAB_ROLES = Object.freeze({ profiles: ["MASTER"], sales: ["MASTER"], inbound: ["MASTER", "VENDOR"], hqorders: ["MASTER", "VENDOR"] });
 
 const userNameDisplay = document.getElementById('userNameDisplay'); if (userNameDisplay) userNameDisplay.textContent = safeDisplay(clientName || userRole);
 const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.textContent = safeDisplay(userRole); }
 document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); clearY2CSession(); window.location.replace("index.html"); }, { once: true });
 
-// 🌟 [방어 29] ID 멱등성 3중 난수 강화
+// ID 멱등성 3중 난수 강화
 const generateIdempotencyKey = () => { 
   const ts = Date.now().toString(36).toUpperCase();
   if (window.crypto && crypto.randomUUID) return "REQ-" + ts + "-" + crypto.randomUUID().split('-')[0].toUpperCase();
@@ -156,7 +160,6 @@ const generateIdempotencyKey = () => {
   return 'REQ-' + ts + '-' + Math.random().toString(36).slice(2, 10).toUpperCase(); 
 };
 
-// 🌟 [방어 25] Number.EPSILON 소수점 3중 교정
 const formatCurrency = (amount) => {
     const safeNum = Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100;
     return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(safeNum);
@@ -175,7 +178,7 @@ const formatDate = (isoStr) => {
 
 function clearY2CSession() { [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} }); }
 
-// 🌟 [방어 19] 토스트 알림 Z-Index 큐잉 (스팸 렌더링 방지)
+// 토스트 알림 Z-Index 큐잉
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -199,7 +202,6 @@ function showToast(message, type = 'success') {
   }, 3500);
 }
 
-// 🌟 [방어 2, 8] Offline 킬스위치 및 글로벌 Promise 에러 해독망
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 작업이 제한됩니다.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
 window.addEventListener('unhandledrejection', function(event) { 
@@ -221,7 +223,6 @@ function applyGlobalRbacNavigation() {
     });
 }
 
-// 🌟 [방어 11, 18] 탭 전환 연타 뮤텍스 락 & Observer 강제 파괴 (좀비 메모리 차단)
 let isTabSwitching = false;
 function switchAdminTab(tab) {
   if (isTabSwitching) return;
@@ -245,40 +246,38 @@ function switchAdminTab(tab) {
     }
   });
 
-  setTimeout(() => { isTabSwitching = false; }, 300); // 뮤텍스 락 해제
+  setTimeout(() => { isTabSwitching = false; }, 300); 
 }
 
-// 🌟 [방어 13] 대용량 배열은 =[] 대신 .length=0 사용 원칙 적용
 let cachedClients = [], cachedHqOrders = [], cachedItems = [], cachedMappings = [];
 let isSubmitting = false; 
 let fallbackLockTimer = null; 
 
 const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_procurement_data", "get_items", "check_system_alerts", "inventory_integrity_check", "get_recipes"]);
-const apiInFlight = new Set(); // 🌟 [방어 1] API 해시 락 (DDoS 방어)
+const apiInFlight = new Set(); 
 
 // ============================================================================
-// 🌟 [방어 1, 4, 5, 6] 35초 절대 백오프 통신 엔진 (JSON 샌드박스 + API 락)
+// 🌟 [방어 3] 35초 절대 백오프 통신 엔진 ("Failed to fetch" 즉시 자폭 버그 소각)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 오프라인 쓰기가 차단됩니다.");
   
-  const payloadStr = JSON.stringify(payload);
-  const hashKey = action + "_" + payloadStr.length;
+  const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
+  const hashKey = action + "_" + JSON.stringify(safePayload).length;
   if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
   apiInFlight.add(hashKey);
 
   const canRetry = RETRYABLE_ACTIONS.has(action);
   const maxAttempts = canRetry ? retries : 0; 
   let lastNetworkError;
-  const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
 
   for (let i = 0; i <= maxAttempts; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 35000); // 35s Watchdog Kill-switch
+    const timeoutId = setTimeout(() => controller.abort(), 35000); 
     let response, rawText;
     
     try {
-      response = await fetch(CONFIG.API.BASE_URL, {
+      response = await fetch(TARGET_API_URL, {
         method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
         body: JSON.stringify({ ...safePayload, action: action, token: sessionToken }), 
         signal: controller.signal
@@ -309,11 +308,15 @@ async function executeApi(action, payload = {}, retries = 2) {
           if (err.httpStatus === 429) { apiInFlight.delete(hashKey); throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)"); }
           if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중이거나 응답할 수 없습니다. (HTTP 503)"); }
       }
-      if (err.message && err.message.includes("Failed to fetch")) { apiInFlight.delete(hashKey); throw new Error("🚨 서버 접근 차단됨(CORS). 백엔드 배포를 확인하세요."); }
+      
+      // 🚨 [핵심 버그 픽스] Failed to fetch 즉시 자폭 로직을 소각하고 백오프 재시도 허용
+      if (err.message && err.message.includes("Failed to fetch")) { 
+          lastNetworkError = new Error("🚨 서버 접근 지연(CORS) 또는 네트워크 단절."); 
+      }
       
       if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
       apiInFlight.delete(hashKey);
-      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
+      throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
     }
 
     if (!rawText) { apiInFlight.delete(hashKey); throw new Error("서버로부터 빈 응답이 반환되었습니다."); }
@@ -351,7 +354,7 @@ async function executeApi(action, payload = {}, retries = 2) {
 }
 
 // ============================================================================
-// 📁 가맹점 DB 관리부 (Fragment 일괄 렌더링 강제화)
+// 📁 가맹점 DB 관리부 (Fragment 일괄 렌더링 강제화 유지)
 // ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR" || userRole === "PARTNER") return; 
@@ -360,7 +363,7 @@ async function fetchMasterData() {
   const cacheKey = `MASTER_DATA_${clientName}`;
   const cachedData = await Y2C_DB.get(cacheKey);
   if (cachedData) {
-      cachedClients.length = 0; // 메모리 릴리즈
+      cachedClients.length = 0; 
       cachedClients = cachedData;
       renderMasterDataFast();
   }
@@ -414,7 +417,6 @@ function appendMasterChunk() {
     const endIdx = Math.min(masterRenderIndex + MASTER_CHUNK_SIZE, cachedClients.length);
     const inputClass = "w-full bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all shadow-sm";
     
-    // 🌟 [방어 12] DocumentFragment를 이용한 초고속 렌더링
     const fragment = document.createDocumentFragment();
 
     for (; masterRenderIndex < endIdx; masterRenderIndex++) {
@@ -424,7 +426,6 @@ function appendMasterChunk() {
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50";
-        // 🌟 [방어 23] 지역코드 정규식 필터 (maxlength=2, toUpperCase) 및 이메일 강제
         tr.innerHTML = `
         <td class="px-6 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap tracking-tight font-inter">${safeDisplay(c.name)}</td>
         <td class="px-4 py-4 text-center"><input type="text" id="state_${safeRowIdx}" value="${safeDisplay(c.state, "")}" class="${inputClass} text-center uppercase" maxlength="2" placeholder="ON" oninput="this.value = this.value.replace(/[^A-Za-z]/g, '').toUpperCase()"></td>
@@ -444,7 +445,6 @@ function appendMasterChunk() {
     
     tableBody.appendChild(fragment);
     
-    // 🌟 [방어 10] Observer 데드락 자동 힐링
     if (masterRenderIndex >= cachedClients.length) {
         populateSalesClientSelector();
     } else {
@@ -460,7 +460,6 @@ function appendMasterChunk() {
     }
 }
 
-// 🌟 [방어 17] 이중 클릭 원천 차단 (pointer-events-none) 및 무조건 락 해제
 window.saveClientData = async function(rowIdx) {
   if (isSubmitting || !navigator.onLine) return showToast("현재 요청을 처리할 수 없습니다.", "error"); 
   const safeRowIdx = Number(rowIdx);
@@ -510,7 +509,7 @@ window.saveClientData = async function(rowIdx) {
 }
 
 // ============================================================================
-// 📊 ERP 매출 데이터 동기화 (배열 길이 불일치 크래시 가드)
+// 📊 ERP 매출 데이터 동기화 (배열 길이 불일치 크래시 가드 유지)
 // ============================================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
@@ -532,7 +531,6 @@ window.loadSalesGrid = async function() {
   tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide font-inter"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
-    // 🌟 [방어 27] 배열 길이 불일치 크래시 가드 (강제 12칸 매핑)
     let safeRecords = Array.isArray(result.records) ? result.records : [];
     if(safeRecords.length !== 12) {
         const temp = []; for(let i=1; i<=12; i++) { const found = safeRecords.find(x => Number(x.month) === i); temp.push(found || {month: i, pos: 0, delivery: 0, total: 0, exists: false}); }
@@ -573,7 +571,6 @@ function renderSalesGrid(records) {
   recalculateKpis();
 }
 
-// 🌟 [방어 15, 20] Event Delegation으로 매출 Grid 이벤트 일원화 및 Desync 교정
 document.addEventListener('DOMContentLoaded', () => {
     const sBody = document.getElementById('salesGridBody');
     if (sBody) {
@@ -610,7 +607,6 @@ function recalculateKpis() {
   if (tDel) tDel.textContent = formatCurrency(totDel);
 }
 
-// 🌟 [방어 17] Always-Release 락다운 적용
 window.saveSalesGridData = async function() {
   if (isSubmitting || !navigator.onLine) return showToast("현재 저장할 수 없는 상태입니다.", "error"); 
 
@@ -652,7 +648,7 @@ window.saveSalesGridData = async function() {
 }
 
 // ============================================================================
-// 🛡️ B2B 조달 / 시스템 헬스 스캔 
+// 🛡️ B2B 조달 / 시스템 헬스 스캔 무손실 보존
 // ============================================================================
 function renderOrderMetrics(metrics) {
   if(!metrics) return; const table = document.getElementById('hqOrdersGridBody')?.closest('table'); if(!table || !table.parentNode) return;
@@ -789,8 +785,6 @@ function closeAlertModal() {
   if (content) content.classList.add('scale-95'); 
   modal.classList.add('opacity-0', 'pointer-events-none'); 
   window.removeEventListener('keydown', handleAlertEsc);
-  
-  // 🌟 [방어 15] 모달 소멸 시 완전한 DOM 파괴를 통한 누수 차단
   setTimeout(() => { modal.innerHTML = ''; }, 300);
 }
 
@@ -799,7 +793,6 @@ function renderHqOrdersError(msg) {
     if(tbody) tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-[#E3000F] font-bold tracking-wide font-inter">Error: ${escapeHtml(msg)}</td></tr>`;
 }
 
-// 🌟 본사 조달 매핑 통신
 async function fetchMappings() {
   try {
     const cacheKey = `MAPPINGS_HQ_${clientName}`;
@@ -929,7 +922,6 @@ function appendHqChunk() {
             });
         }
         
-        // 🌟 [방어 2] HQ Order Status Race Condition 방어 (셀렉트 동기 잠금)
         select.addEventListener('change', async () => { 
             const orderId = String(o.id || "");
             if (hqStatusInFlight.has(orderId)) { select.value = o.status; return showToast("상태 변경이 이미 진행 중입니다.", "error"); }
@@ -952,7 +944,6 @@ function appendHqChunk() {
     }
     tbody.appendChild(fragment);
 
-    // 🌟 [방어 10] Observer 데드락 힐링
     if (hqRenderIndex < cachedHqOrders.length) {
         requestAnimationFrame(() => {
             const grid = document.getElementById('section_hqorders');
@@ -973,7 +964,7 @@ window.openHqOrderCartModal = async function() {
     if(cachedItems.length === 0) {
         showToast("백엔드와 데이터를 동기화 중입니다. 잠시만 기다려주세요...", "success");
         await fetchCatalogForInbound();
-        if(cachedItems.length === 0) return showToast("🚨 서버 접근이 차단되었습니다. 배포 권한 설정을 확인하세요.", "error");
+        if(cachedItems.length === 0) return showToast("🚨 서버 접근이 지연되고 있습니다.", "error");
     }
 
     let modal = document.getElementById('hqCartModal');
@@ -1041,7 +1032,6 @@ function filterHqCart(query) {
     });
 }
 
-// 🌟 [방어 30, 31] B2B 카트 동적 병합 및 빈 페이로드 소각
 function confirmHqCart() {
     const inputs = document.querySelectorAll('.hq-cart-item-row input[type="number"]'); 
     hqCartData = Object.create(null); let formattedStrings = [];
@@ -1157,7 +1147,6 @@ function setupDragAndDrop() {
 
   const clone = dropZone.cloneNode(true); dropZone.parentNode.replaceChild(clone, dropZone);
 
-  // 🌟 [방어 24] 드래그 앤 드롭 버블링 차단 (브라우저 파일 열림 방지)
   clone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); clone.classList.add('bg-red-50/20', 'border-[#E3000F]'); });
   clone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); clone.classList.remove('bg-red-50/20', 'border-[#E3000F]'); });
   clone.addEventListener('drop', (e) => { 
@@ -1189,7 +1178,6 @@ function setupDragAndDrop() {
   if (regionSelector) { regionSelector.addEventListener('change', function() { if (this.value) this.classList.remove('border-[#E3000F]'); }); }
 }
 
-// 🌟 [방어 16] Lazy Load Caching
 async function loadHeavyLibrary(url, objName) {
     if (window[objName] !== undefined) return true;
     return new Promise((resolve, reject) => { 
@@ -1222,7 +1210,7 @@ function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
 }
 
 // ============================================================================
-// 🚀 [V40.14 핵심] Time-Slicing 비동기 엑셀 파싱 엔진 (Atomic Array Crush 픽스)
+// 🚀 Time-Slicing 비동기 엑셀 파싱 엔진 (Atomic Array Crush 픽스 무손실 보존)
 // ============================================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -1249,7 +1237,6 @@ async function handleExcelUpload(event) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
         if (jsonData.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다."); 
         
-        // 🌟 [방어 14] 렌더링 스레드 휴식을 위한 비동기 양보
         setTimeout(async () => {
             await processExcelData(jsonData, file.name);
         }, 50);
@@ -1295,7 +1282,6 @@ async function processOCRText(text, filename) {
   await processExcelData(jsonData, filename + " (OCR)");
 }
 
-// 🌟 [방어 1] Inbound Atomic Array Crush 픽스 (다중 매핑 병합 알고리즘 정규화)
 async function processExcelData(jsonData, filename) {
   const targetRegion = document.getElementById('inboundRegionSelector');
   if (!targetRegion || !targetRegion.value) { isSubmitting = false; showToast("입고될 기준 지역(Hub)을 먼저 선택해 주세요.", "error"); setUploadStatus("Drag & Drop vendor document here"); return; }
@@ -1315,7 +1301,6 @@ async function processExcelData(jsonData, filename) {
   let inboundMap = Object.create(null), successCount = 0, validationErrors = [];
 
   for (let i = 0; i < jsonData.length; i++) {
-    // 🌟 [방어 14] Time-Slicing
     if (i > 0 && i % 200 === 0) {
         await new Promise(res => requestAnimationFrame(() => setTimeout(res, 0)));
     }
@@ -1323,7 +1308,6 @@ async function processExcelData(jsonData, filename) {
     const row = jsonData[i];
     let vItemCode = "", vQty = 0, vExp = ""; let qtyMatches = 0;
 
-    // 🌟 [방어 32] 다중 헤더 Regex 대응
     Object.keys(row).forEach(k => {
       let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase(), valStr = String(row[k] || "").trim();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
@@ -1361,7 +1345,6 @@ async function processExcelData(jsonData, filename) {
             if (!vExp) { validationErrors.push(`[${safeHqCode}] ${directMatch.name} 품목의 유통기한이 누락되었습니다.`); continue; }
         }
 
-        // 🌟 [핵심 버그 픽스] 중복 품번 발생 시 완벽한 병합(Merge) 로직 구현
         if (!inboundMap[safeHqCode]) inboundMap[safeHqCode] = { totalQty: 0, batches: Object.create(null) };
         inboundMap[safeHqCode].totalQty += vQty;
         if (vExp) { inboundMap[safeHqCode].batches[vExp] = (inboundMap[safeHqCode].batches[vExp] || 0) + vQty; }
@@ -1404,7 +1387,6 @@ async function processExcelData(jsonData, filename) {
         showToast(err.message, "error"); 
     }
   } finally {
-    // 데드락 해제
     isSubmitting = false;
   }
 }
