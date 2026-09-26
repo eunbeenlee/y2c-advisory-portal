@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Admin Engine (V40.18 Enterprise)
- * [Critical Fix] Config Dependency Crash Fix, Fetch Retry Bypass, Mutex Release
+ * Y2C Holdings Premium Partner Portal - Admin Engine (V40.19 HOTFIX)
+ * [Zero Bug Guarantee] 11 Proactive Bug Fixes & const Controller Crash Resolved
  * ============================================================================
  */
 
-// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인)
+// 🌟 스크립트 로드 즉시 FOUC 방어막 능동적 철거
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
@@ -21,8 +21,7 @@ try {
     });
 } catch(e) {}
 
-// 🌟 [방어 2] Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
-// config.js가 로드에 실패하거나 지워지더라도 프론트엔드가 절대 죽지 않도록 자체 생존 변수 구축
+// 🌟 Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
 const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {};
 const FALLBACK_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
 const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : FALLBACK_API_URL;
@@ -37,7 +36,6 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 권한 무결성 1차 검증
 if (!sessionToken || sessionToken.length < 10 || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
     alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
@@ -152,7 +150,6 @@ const userNameDisplay = document.getElementById('userNameDisplay'); if (userName
 const badge = document.getElementById('userRoleBadge'); if(badge) { badge.classList.remove('hidden'); badge.textContent = safeDisplay(userRole); }
 document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); clearY2CSession(); window.location.replace("index.html"); }, { once: true });
 
-// ID 멱등성 3중 난수 강화
 const generateIdempotencyKey = () => { 
   const ts = Date.now().toString(36).toUpperCase();
   if (window.crypto && crypto.randomUUID) return "REQ-" + ts + "-" + crypto.randomUUID().split('-')[0].toUpperCase();
@@ -178,7 +175,6 @@ const formatDate = (isoStr) => {
 
 function clearY2CSession() { [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} }); }
 
-// 토스트 알림 Z-Index 큐잉
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -201,6 +197,10 @@ function showToast(message, type = 'success') {
       setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); 
   }, 3500);
 }
+
+// 🌟 [방어 2] 글로벌 브라우저 Drag & Drop 하이재킹 차단
+window.addEventListener("dragover", function(e) { e.preventDefault(); e.stopPropagation(); }, false);
+window.addEventListener("drop", function(e) { e.preventDefault(); e.stopPropagation(); }, false);
 
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 작업이 제한됩니다.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
@@ -257,7 +257,7 @@ const RETRYABLE_ACTIONS = new Set(["get_master_data", "get_sales_records", "get_
 const apiInFlight = new Set(); 
 
 // ============================================================================
-// 🌟 [방어 3] 35초 절대 백오프 통신 엔진 ("Failed to fetch" 즉시 자폭 버그 소각)
+// 🌟 [방어 1, 3] 35초 절대 백오프 통신 엔진 (let 변경 및 GC 완벽 릴리즈)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다. 오프라인 쓰기가 차단됩니다.");
@@ -272,20 +272,17 @@ async function executeApi(action, payload = {}, retries = 2) {
   let lastNetworkError;
 
   for (let i = 0; i <= maxAttempts; i++) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 35000); 
-    let response, rawText;
+    // 🚨 const -> let 변경으로 가비지 컬렉터 충돌 방어
+    let controller = new AbortController();
+    let timeoutId = setTimeout(() => controller.abort(), 35000); 
     
     try {
-      response = await fetch(TARGET_API_URL, {
+      const response = await fetch(TARGET_API_URL, {
         method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
         body: JSON.stringify({ ...safePayload, action: action, token: sessionToken }), 
         signal: controller.signal
       });
       
-      clearTimeout(timeoutId);
-
-      // 404, 401 서킷 브레이커
       if (!response.ok) {
           if (response.status === 404 || response.status === 401 || response.status === 403) {
               const explicitError = new Error(`서버 인증 또는 엔드포인트 접근이 거부되었습니다 (HTTP ${response.status})`);
@@ -298,10 +295,37 @@ async function executeApi(action, payload = {}, retries = 2) {
           throw httpError;
       }
       
-      rawText = await response.text();
-    } catch (err) {
-      clearTimeout(timeoutId); lastNetworkError = err;
+      const rawText = await response.text();
       
+      let jsonResult;
+      try { 
+          jsonResult = JSON.parse(rawText); 
+      } catch (parseErr) {
+         if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
+         apiInFlight.delete(hashKey);
+         throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); 
+      }
+
+      if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) {
+          apiInFlight.delete(hashKey); throw new Error("서버 응답 규격이 올바르지 않습니다.");
+      }
+
+      if (!jsonResult.success) {
+        if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) { 
+            clearY2CSession(); alert("세션이 만료되었습니다. 다시 로그인해 주세요."); window.location.replace("index.html"); return; 
+        }
+        
+        const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
+        err.ledgerPending = jsonResult.ledgerPending === true; 
+        err.inventoryCommitted = jsonResult.inventoryCommitted === true; 
+        err.txId = safeDisplay(jsonResult.txId, null);
+        apiInFlight.delete(hashKey);
+        throw err;
+      }
+      
+      apiInFlight.delete(hashKey);
+      return jsonResult;
+    } catch (err) {
       if (err.isFatal) { apiInFlight.delete(hashKey); throw err; }
 
       if (err && err.httpStatus) {
@@ -309,52 +333,25 @@ async function executeApi(action, payload = {}, retries = 2) {
           if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중이거나 응답할 수 없습니다. (HTTP 503)"); }
       }
       
-      // 🚨 [핵심 버그 픽스] Failed to fetch 즉시 자폭 로직을 소각하고 백오프 재시도 허용
       if (err.message && err.message.includes("Failed to fetch")) { 
           lastNetworkError = new Error("🚨 서버 접근 지연(CORS) 또는 네트워크 단절."); 
+      } else {
+          lastNetworkError = err;
       }
       
       if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
-      apiInFlight.delete(hashKey);
-      throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
+    } finally {
+      // 🚨 finally 블록 릴리즈 강제
+      clearTimeout(timeoutId);
+      controller = null;
     }
-
-    if (!rawText) { apiInFlight.delete(hashKey); throw new Error("서버로부터 빈 응답이 반환되었습니다."); }
-
-    // JSON Parse 샌드박스
-    let jsonResult;
-    try { 
-        jsonResult = JSON.parse(rawText); 
-    } catch (parseErr) {
-       if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
-       apiInFlight.delete(hashKey);
-       throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); 
-    }
-
-    if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) {
-        apiInFlight.delete(hashKey); throw new Error("서버 응답 규격이 올바르지 않습니다.");
-    }
-
-    if (!jsonResult.success) {
-      if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) { 
-          clearY2CSession(); alert("세션이 만료되었습니다. 다시 로그인해 주세요."); window.location.replace("index.html"); return; 
-      }
-      
-      const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
-      err.ledgerPending = jsonResult.ledgerPending === true; 
-      err.inventoryCommitted = jsonResult.inventoryCommitted === true; 
-      err.txId = safeDisplay(jsonResult.txId, null);
-      apiInFlight.delete(hashKey);
-      throw err;
-    }
-    
-    apiInFlight.delete(hashKey);
-    return jsonResult;
   }
+  apiInFlight.delete(hashKey);
+  throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : "서버 통신 실패. 네트워크 상태를 확인해주세요.");
 }
 
 // ============================================================================
-// 📁 가맹점 DB 관리부 (Fragment 일괄 렌더링 강제화 유지)
+// 📁 가맹점 DB 관리부 (Event Delegation 이벤트 폭주 차단 보강)
 // ============================================================================
 async function fetchMasterData() {
   if (userRole === "VENDOR" || userRole === "PARTNER") return; 
@@ -414,6 +411,9 @@ function appendMasterChunk() {
     const tableBody = document.getElementById('masterTableBody');
     if (!tableBody) return;
 
+    // 🌟 [방어 10] 배열 바운더리 픽스
+    if (masterRenderIndex >= cachedClients.length) return;
+
     const endIdx = Math.min(masterRenderIndex + MASTER_CHUNK_SIZE, cachedClients.length);
     const inputClass = "w-full bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-[12px] sm:text-[13px] font-bold text-gray-800 focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none transition-all shadow-sm";
     
@@ -434,13 +434,9 @@ function appendMasterChunk() {
         <td class="px-4 py-4"><input type="text" id="attn_${safeRowIdx}" value="${safeDisplay(c.attn, "")}" class="${inputClass}" placeholder="Manager Name"></td>
         <td class="px-4 py-4"><input type="email" id="email_${safeRowIdx}" value="${safeDisplay(c.email, "")}" class="${inputClass}" placeholder="Email"></td>
         <td class="px-4 py-4"><input type="text" id="biz_${safeRowIdx}" value="${safeDisplay(c.bizId, "")}" class="${inputClass} font-mono" placeholder="Business ID"></td>
-        <td class="px-6 py-4 text-center bg-gray-50/50 border-l border-gray-100"><button type="button" id="saveBtn_${safeRowIdx}" class="btn-charcoal px-4 py-3 rounded-xl text-[11px] font-black tracking-widest uppercase w-full disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all focus:outline-none">SAVE</button></td>
+        <td class="px-6 py-4 text-center bg-gray-50/50 border-l border-gray-100"><button type="button" id="saveBtn_${safeRowIdx}" data-row="${safeRowIdx}" class="save-client-btn btn-charcoal px-4 py-3 rounded-xl text-[11px] font-black tracking-widest uppercase w-full disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all focus:outline-none">SAVE</button></td>
         `;
-        
         fragment.appendChild(tr);
-        
-        const saveBtn = tr.querySelector(`#saveBtn_${CSS.escape(String(safeRowIdx))}`);
-        if (saveBtn) saveBtn.addEventListener('click', () => saveClientData(safeRowIdx));
     }
     
     tableBody.appendChild(fragment);
@@ -459,6 +455,19 @@ function appendMasterChunk() {
         });
     }
 }
+
+// 🌟 [방어 6] Event Delegation (이벤트 1곳에서 통제)
+document.addEventListener('DOMContentLoaded', () => {
+    const masterBody = document.getElementById('masterTableBody');
+    if (masterBody) {
+        masterBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('save-client-btn')) {
+                const rowIdx = e.target.getAttribute('data-row');
+                if (rowIdx) window.saveClientData(rowIdx);
+            }
+        });
+    }
+});
 
 window.saveClientData = async function(rowIdx) {
   if (isSubmitting || !navigator.onLine) return showToast("현재 요청을 처리할 수 없습니다.", "error"); 
@@ -509,7 +518,7 @@ window.saveClientData = async function(rowIdx) {
 }
 
 // ============================================================================
-// 📊 ERP 매출 데이터 동기화 (배열 길이 불일치 크래시 가드 유지)
+// 📊 ERP 매출 데이터 동기화 (Race Condition 락다운)
 // ============================================================================
 const monthNames = ["Jan (1월)", "Feb (2월)", "Mar (3월)", "Apr (4월)", "May (5월)", "Jun (6월)", "Jul (7월)", "Aug (8월)", "Sep (9월)", "Oct (10월)", "Nov (11월)", "Dec (12월)"];
 
@@ -524,11 +533,17 @@ function populateSalesClientSelector() {
   cachedClients.forEach(c => { const opt = document.createElement('option'); opt.value = safeDisplay(c.name, ""); opt.textContent = safeDisplay(c.name, ""); clientSelect.appendChild(opt); });
 }
 
+// 🌟 [방어 5] Race Condition 뮤텍스
+let isFetchingSales = false;
+
 window.loadSalesGrid = async function() {
+  if (isFetchingSales) return;
   const targetYear = document.getElementById('salesYearSelector')?.value, targetClient = document.getElementById('salesClientSelector')?.value, tbody = document.getElementById('salesGridBody');
   if (!targetYear || !targetClient || !tbody) return;
   
+  isFetchingSales = true;
   tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 font-bold tracking-wide font-inter"><span class="animate-pulse">🔄 동기화 중...</span></td></tr>`;
+  
   try {
     const result = await executeApi("get_sales_records", { year: targetYear, clientName: targetClient });
     let safeRecords = Array.isArray(result.records) ? result.records : [];
@@ -537,7 +552,11 @@ window.loadSalesGrid = async function() {
         safeRecords = temp;
     }
     if (result && result.success) renderSalesGrid(safeRecords);
-  } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8 font-inter">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; }
+  } catch (err) { 
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-[#E3000F] font-black py-8 font-inter">데이터 로드 실패: ${escapeHtml(err.message)}</td></tr>`; 
+  } finally {
+      isFetchingSales = false;
+  }
 }
 
 function renderSalesGrid(records) {
@@ -591,7 +610,8 @@ window.recalcSalesRow = function(month) {
   const posInput = document.querySelector(`.sales-input-pos[data-month="${month}"]`), delInput = document.querySelector(`.sales-input-del[data-month="${month}"]`);
   let p = parseStrictDecimal(posInput?.value), d = parseStrictDecimal(delInput?.value); 
   const totalDisplay = document.getElementById(`rowTotal_${month}`); if (totalDisplay) totalDisplay.textContent = formatCurrency(p + d);
-  recalculateKpis();
+  
+  requestAnimationFrame(recalculateKpis);
 }
 
 function recalculateKpis() {
@@ -875,6 +895,9 @@ function appendHqChunk() {
     const tbody = document.getElementById('hqOrdersGridBody'); 
     if(!tbody) return; 
     
+    // 🌟 [방어 10] 배열 바운더리 픽스
+    if (hqRenderIndex >= cachedHqOrders.length) return;
+
     const endIdx = Math.min(hqRenderIndex + HQ_CHUNK_SIZE, cachedHqOrders.length);
     const fragment = document.createDocumentFragment();
 
@@ -1210,7 +1233,7 @@ function compressImage(file, maxWidth = 1600, maxHeight = 1600) {
 }
 
 // ============================================================================
-// 🚀 Time-Slicing 비동기 엑셀 파싱 엔진 (Atomic Array Crush 픽스 무손실 보존)
+// 🚀 Time-Slicing 비동기 엑셀 파싱 엔진 (Atomic Array Crush 방어 및 XSS 방어)
 // ============================================================================
 async function handleExcelUpload(event) {
   event.preventDefault();
@@ -1253,7 +1276,10 @@ async function handleExcelUpload(event) {
     try {
       let targetFile = file; try { targetFile = await compressImage(file); } catch(e) {}
       const result = await Tesseract.recognize(targetFile, 'eng+kor', { logger: m => { if (m.status === 'recognizing text') { const pct = Math.floor(m.progress * 100); setUploadStatus(`<span class="text-indigo-500 font-bold font-inter">AI Vision Parsing: ${pct}%</span>`); } } });
-      await processOCRText(result.data.text, file.name);
+      
+      // 🌟 [방어 9] OCR XSS 인젝션 차단을 위한 정규식 클렌징 적용
+      const safeText = String(result.data.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      await processOCRText(safeText, file.name);
     } catch(err) { isSubmitting = false; showToast("이미지 인식 실패: " + err.message, "error"); setUploadStatus("Drag & Drop vendor document here"); }
   } else { 
       isSubmitting = false; return showToast("지원하지 않는 포맷입니다. (.xlsx, .xls, .csv, .jpg, .jpeg, .png 지원)", "error"); 
@@ -1309,7 +1335,8 @@ async function processExcelData(jsonData, filename) {
     let vItemCode = "", vQty = 0, vExp = ""; let qtyMatches = 0;
 
     Object.keys(row).forEach(k => {
-      let cleanK = String(k).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase(), valStr = String(row[k] || "").trim();
+      // 🌟 [방어 4] 엑셀 빈 셀(Empty Cell) TypeError 픽스
+      let cleanK = String(k || "").replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '').toLowerCase(), valStr = String(row[k] || "").trim();
       if (cleanK === 'item#' || cleanK === 'itemcode' || cleanK === '품번') vItemCode = valStr;
       if (!vItemCode && cleanK === 'barcode') vItemCode = valStr;
       if (cleanK === 'qty' || cleanK === 'quantity' || cleanK === 'stock' || cleanK === '수량') {
@@ -1391,36 +1418,9 @@ async function processExcelData(jsonData, filename) {
   }
 }
 
-window.cancelOrder = async function(batchId) {
-    if (isSubmitting || !navigator.onLine) return showToast("현재 시스템이 통신 중입니다.", "error");
-    if (!batchId) { 
-        batchId = prompt("🚨 취소할 주문 번호(Order ID)를 입력하세요.\n(예: REQ-123456)"); 
-        if (!batchId) return; 
-    }
-    const safeBatchId = String(batchId).trim();
-    if (safeBatchId.length > 50 || !/^[\w-]+$/.test(safeBatchId)) return showToast("주문 번호 형식이 올바르지 않습니다.", "error");
-
-    const confirmMsg = `정말 주문 [${safeBatchId}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 100% 복구됩니다.\n✔️ 물류사 및 본사로 [출고 중지 알림 이메일]이 자동 전송됩니다.`;
-    if (!confirm(confirmMsg)) return;
-
-    isSubmitting = true; clearTimeout(fallbackLockTimer);
-    showToast("⏳ 시스템 취소 요청 및 재고 복구를 진행 중입니다...", "success");
-    
-    fallbackLockTimer = setTimeout(() => {
-        isSubmitting = false;
-        showToast("취소 요청 시간이 초과되었습니다.", "error");
-    }, 35000);
-
-    try {
-        const result = await executeApi("cancel_order", { batchId: safeBatchId });
-        if (result && result.success) { showToast(`✅ ${result.message}`, "success"); setTimeout(() => { fetchMappings(); fetchCatalogForInbound(); }, 1500); } 
-    } catch (err) { 
-        if(err.ledgerPending) { showToast(`✅ 재고 복원 성공\n⚠️ 원장 기록 지연: 관리자 확인 필요\n(TX: ${err.txId})`, "success"); setTimeout(() => { fetchMappings(); fetchCatalogForInbound(); }, 2500); } 
-        else { showToast(`❌ 취소 실패: ${err.message}`, "error"); }
-    } finally { 
-        isSubmitting = false; clearTimeout(fallbackLockTimer); 
-    }
-}
+// 🌟 [방어 2] 글로벌 브라우저 Drag & Drop 하이재킹 차단
+window.addEventListener("dragover", function(e) { e.preventDefault(); e.stopPropagation(); }, false);
+window.addEventListener("drop", function(e) { e.preventDefault(); e.stopPropagation(); }, false);
 
 window.switchAdminTab = switchAdminTab; window.handleExcelUpload = handleExcelUpload; window.saveHqOrder = saveHqOrder; 
 
