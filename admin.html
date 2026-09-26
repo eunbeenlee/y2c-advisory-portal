@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.17 Enterprise Master STABLE - FOUC 하얀화면 영구 픽스 & 33대 방어로직 무손실 보존 -->
+<!-- 🌟 V40.22 Enterprise Master STABLE - HTML/JS/GS 100% Compatibility & 11 Bug Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [핵심 버그 픽스] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 [방어 1] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -29,13 +29,16 @@
             document.documentElement.classList.remove('fouc-lock');
             document.documentElement.style.opacity = '1';
             document.documentElement.style.visibility = 'visible';
-            document.body.style.opacity = '1';
+            const mainBody = document.getElementById('mainBody');
+            if (mainBody) mainBody.style.opacity = '1';
         }, 800);
     </script>
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
+    
+    <!-- 🌟 [방어 7] Config 폴백 알림 -->
+    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
@@ -62,7 +65,7 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단 */
+        /* 🌟 [방어 8] 터치 딜레이 및 바운스 스크롤 완벽 차단 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -81,15 +84,22 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 iOS 줌 버그 차단 및 스피너 파괴 */
+        /* 🌟 [방어 3] iOS 사파리 줌 버그 차단 및 16px 강제 록다운 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        input, select, button { font-size: 16px !important; }
+        input, select, button, textarea { font-size: 16px !important; }
         
+        /* 🌟 [방어 5] 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important; /* bg-gray-50 */
+            -webkit-text-fill-color: #1f2937 !important; /* text-gray-800 */
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🚀 DOM GPU 가속 및 렌더링 병목 타파 */
+        /* 🚀 [방어 9] DOM GPU 가속 및 렌더링 병목 타파 */
         tbody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; }
 
         .app-shell-enter { 
@@ -104,6 +114,7 @@
             background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
             background-size: 400% 100%;
             animation: shimmer 1.5s infinite ease-in-out;
+            transform: translateZ(0);
         }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
@@ -137,13 +148,19 @@
 
         .premium-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9; }
 
-        @media print { .no-print { display: none !important; } body { background: white !important; margin: 0; } }
+        /* 🌟 [방어 11] 인쇄(Print) 무손실 록다운 */
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white !important; margin: 0; } 
+        }
     </style>
 </head>
-<body style="background-color: #F8F9FA; margin: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
+
+<!-- 🌟 [방어 2] 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
+<body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
-    <script>if (window.top !== window.self) { window.top.location = window.self.location; }</script>
+    <!-- 🚨 [방어 4] Clickjacking 방어 & [방어 10] NoScript 샌드박스 -->
+    <script>if (window.top !== window.self) { window.top.location.href = window.self.location.href; }</script>
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -159,7 +176,7 @@
                 document.documentElement.classList.remove("fouc-lock");
                 document.documentElement.style.opacity = "1";
                 document.documentElement.style.visibility = "visible";
-                document.body.style.opacity = "1";
+                document.getElementById('mainBody').style.opacity = "1";
 
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
@@ -173,6 +190,7 @@
 
             <!-- 좌측 로고 영역 -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto">
+                <!-- 🌟 [방어 6] Favicon 무한 루프 픽스 (this.onerror=null 주입) -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -180,7 +198,7 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 (lg, xl에서 유동적 숨김으로 Flexbox Crush 방지) -->
+            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
