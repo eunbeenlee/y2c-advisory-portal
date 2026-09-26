@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.22 Enterprise Dashboard STABLE - HTML/JS/GS 100% Compatibility & 11 Bug Fixes -->
+<!-- 🌟 V40.23 Enterprise Dashboard ULTIMATE - Zero-Latency SFP Rendering & 11 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,12 @@
     
     <title>Enterprise Dashboard | Y2C Portal</title>
     
+    <!-- 🚀 [가속 채널 1] API 서버 및 차트 라이브러리 조기 연결 (DNS Prefetch & Preconnect) -->
+    <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://script.google.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
     <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 (로딩 깜빡임 원천 차단) -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -18,7 +24,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [방어 2] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 [방어 9] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -35,9 +41,7 @@
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 🌟 [방어 7] Config 폴백 알림 -->
-    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
+    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
 
     <!-- 🌟 Chart.js 비동기 로드 (렌더링 방해 금지) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
@@ -67,7 +71,7 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단 */
+        /* 🌟 [방어 7] 터치 딜레이 및 바운스 스크롤 완벽 차단, 터치 잔상 소각 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -80,28 +84,40 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 스크롤바 대기업형 커스텀 */
+        /* 🌟 스크롤바 대기업형 커스텀 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 4] iOS 줌 버그 차단 */
+        /* 🌟 iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
+
+        /* 브라우저 자동완성 덮어쓰기 무효화 */
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
+            -webkit-text-fill-color: #1f2937 !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* 🚀 [가속 채널 3] DOM GPU 가속 및 렌더링 병목 타파 */
+        section { content-visibility: auto; contain-intrinsic-size: auto 600px; }
+
+        /* 🚀 [가속 채널 2] Will-Change 메모리 선할당 */
         .app-shell-enter { 
             opacity: 0; 
             transform: translateY(8px); 
             animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            will-change: transform, opacity;
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 [방어 9] Shimmer 로더 하드웨어 가속 */
+        /* Shimmer 로더 하드웨어 가속 */
         .shimmer-bg {
             background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
             background-size: 400% 100%;
@@ -129,6 +145,10 @@
         .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 10px 15px -3px rgba(227, 0, 15, 0.3), 0 4px 6px -2px rgba(227, 0, 15, 0.15); transform: translateY(-1px); }
         .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
+        .btn-charcoal { background: var(--premium-charcoal); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .btn-charcoal:hover:not(:disabled) { background: #000000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
+        .btn-charcoal:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
@@ -136,7 +156,7 @@
 
         .premium-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9; }
 
-        /* 🌟 [방어 11] 인쇄(Print) 무손실 록다운 */
+        /* 인쇄(Print) 무손실 록다운 */
         @media print { 
             .no-print { display: none !important; } 
             body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
@@ -147,19 +167,20 @@
     </style>
 </head>
 
-<!-- 🌟 [방어 3] 초기 투명 처리(opacity: 0)로 JS Load Flash 방어 -->
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [방어 6] Clickjacking 방어 & [방어 10] NoScript 샌드박스 -->
-    <script>if (window.top !== window.self) { window.top.location.href = window.self.location.href; }</script>
+    <!-- 🚨 [방어 10] Clickjacking 방어 & NoScript 샌드박스 -->
+    <script>
+        try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
+    </script>
     <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
             <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
     </noscript>
 
-    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 -->
+    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
     <script>
         (function() {
             try {
@@ -179,9 +200,9 @@
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 -->
+            <!-- 좌측 로고 영역 (shrink-0 강제) -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <!-- 🌟 [방어 8] Favicon 404 루프 방어 -->
+                <!-- 🌟 [방어 8] Favicon 404 무한 루프 픽스 (this.onerror=null 주입) -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -200,8 +221,8 @@
             </nav>
 
             <!-- 우측 컨트롤 영역 -->
-            <div class="flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <div class="hidden sm:flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
+            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
                     <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
                     <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
@@ -245,8 +266,8 @@
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (App Shell) -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter">
+    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 8] Z-Index Stack 격리 isolation: isolate 적용) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 헤더 및 연도 컨트롤러 -->
         <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 no-print">
@@ -277,7 +298,6 @@
 
         <!-- 🌟 핵심 성과 지표 (Zero-Anchoring 무손실 보존) -->
         <section class="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6 mb-8 print-shadow-none">
-            <!-- 연간 총 매출 -->
             <article class="kpi-card bg-gradient-to-br from-[#111827] to-gray-800 rounded-[1.5rem] p-6 sm:p-8 shadow-xl relative overflow-hidden group print-shadow-none print:!bg-white print:!border print:!border-gray-200">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700 no-print"></div>
                 <div class="relative z-10 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-4 border border-white/5 shadow-inner text-xl print:!bg-gray-100 print:!text-black print:!border-gray-200">💰</div>
@@ -287,7 +307,6 @@
                 </div>
             </article>
 
-            <!-- POS 매출 -->
             <article class="kpi-card bg-white rounded-[1.5rem] p-6 sm:p-8 print-shadow-none">
                 <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4 border border-blue-100 shadow-inner text-xl text-blue-500">🍽️</div>
                 <div>
@@ -296,7 +315,6 @@
                 </div>
             </article>
 
-            <!-- 배달 플랫폼 매출 -->
             <article class="kpi-card bg-white rounded-[1.5rem] p-6 sm:p-8 print-shadow-none">
                 <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-4 border border-emerald-100 shadow-inner text-xl text-emerald-500">🛵</div>
                 <div>
@@ -353,11 +371,33 @@
         </section>
     </main>
 
+    <!-- 🌟 프리미엄 푸터 (공통 100% 무손실 보존) -->
+    <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
+                    &copy; 2026 Y2C Holdings. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
+                </p>
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        System Online
+                    </span>
+                    <span class="text-gray-300">|</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.23 STABLE</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- 🌟 글로벌 토스트 알림 컨테이너 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
     <!-- ⚡ JS 로직 연동 (무손실 보장) -->
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/dashboard.js" defer></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             try {
