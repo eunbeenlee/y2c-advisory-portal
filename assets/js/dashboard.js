@@ -1,7 +1,7 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Dashboard Engine (V40.18 Enterprise)
- * [Critical Fix] Config Dependency Crash Fix, Fetch Retry Bypass, Mutex Release
+ * Y2C Holdings Premium Partner Portal - Dashboard Engine (V40.19 HOTFIX)
+ * [Critical Fix] TypeError: Assignment to constant variable (controller) Fixed
  * ============================================================================
  */
 
@@ -22,7 +22,6 @@ try {
 } catch(e) {}
 
 // 🌟 [방어 2] Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
-// config.js가 로드에 실패하거나 지워지더라도 프론트엔드가 절대 죽지 않도록 자체 생존 변수 구축
 const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {};
 const FALLBACK_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
 const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : FALLBACK_API_URL;
@@ -40,7 +39,7 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 권한 무결성 1차 검증 및 JWT 만료 시 강제 튕김
+// 🌟 권한 무결성 1차 검증
 if (!sessionToken || sessionToken.length < 10 || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
     alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
@@ -94,7 +93,7 @@ const Y2C_DB = {
 };
 
 // ============================================================================
-// 🌐 다국어(i18n) 딕셔너리 및 차트 동기화 (기존 로직 100% 무손실 보존)
+// 🌐 다국어(i18n) 딕셔너리 및 차트 동기화
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -144,7 +143,7 @@ window.applyTranslations = function() {
 };
 
 // ============================================================================
-// 🔒 Absolute Null-Safe Parsers (재무 무결성 100% 록다운 보존)
+// 🔒 Absolute Null-Safe Parsers (재무 무결성)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
@@ -188,7 +187,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 토스트 알림 Z-Index 스팸 차단 큐(Queue)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -202,7 +200,7 @@ function showToast(message, type = 'success') {
     const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-[#E3000F]';
     const icon = type === 'success' ? '✅' : '⚠️';
     toast.className = `transform transition-all duration-300 translate-y-[-100%] opacity-0 flex items-center gap-3 ${bgColor} text-white px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-auto min-w-[300px] font-bold tracking-wide text-sm font-inter`;
-    toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg"></span>`;
+    toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="toast-msg whitespace-pre-line"></span>`;
     toast.querySelector('.toast-msg').textContent = String(message);
     container.appendChild(toast);
     
@@ -210,7 +208,6 @@ function showToast(message, type = 'success') {
     setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3500);
 }
 
-// 오프라인 킬스위치 및 텔레메트리
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 오프라인 캐시 모드로 전환됩니다.", "error"));
 window.addEventListener('online', () => { showToast("네트워크 복구 완료. 라이브 데이터를 동기화합니다.", "success"); if(!isFetchingDashboard) fetchDashboardData(); });
 window.addEventListener('unhandledrejection', function(event) { 
@@ -221,7 +218,7 @@ window.addEventListener('unhandledrejection', function(event) {
 });
 
 // ============================================================================
-// 🌟 [방어 3] 35초 절대 백오프 통신 엔진 ("Failed to fetch" 즉시 자폭 버그 100% 철거)
+// 🚨 [핵심 버그 픽스] API 통신 엔진 (Assignment to constant variable 완벽 해결)
 // ============================================================================
 const apiInFlight = new Set(); 
 
@@ -229,8 +226,6 @@ async function executeApi(action, payload = {}, retries = 2) {
     if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다.");
     
     const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
-    
-    // API Hash Lock (단일 액션 기준 중복 호출 방어)
     const hashKey = action;
     if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
     apiInFlight.add(hashKey);
@@ -238,8 +233,9 @@ async function executeApi(action, payload = {}, retries = 2) {
     let lastNetworkError;
 
     for (let i = 0; i <= retries; i++) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 35000); // 35s Watchdog
+        // 🚨 [HOTFIX] const -> let 변경으로 가비지 컬렉터 초기화 시 TypeError(자폭 현상) 원천 차단
+        let controller = new AbortController();
+        let timeoutId = setTimeout(() => controller.abort(), 35000);
 
         try {
             const response = await fetch(TARGET_API_URL, {
@@ -250,7 +246,6 @@ async function executeApi(action, payload = {}, retries = 2) {
             
             clearTimeout(timeoutId);
             
-            // 404, 401 서킷 브레이커 (무의미한 재시도 컷오프)
             if (!response.ok) {
                 if (response.status === 404 || response.status === 401 || response.status === 403) {
                     const explicitError = new Error(`서버 엔드포인트 접근 거부 (HTTP ${response.status})`);
@@ -264,9 +259,10 @@ async function executeApi(action, payload = {}, retries = 2) {
             }
 
             const rawText = await response.text();
-            controller = null; // 가비지 컬렉션
             
-            // JSON Parse 샌드박스
+            // 🚨 이제 변수가 let이므로 문제 없이 null이 할당되고 메모리 누수가 방어됩니다.
+            controller = null; 
+            
             let jsonResult;
             try { jsonResult = JSON.parse(rawText); } 
             catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); }
@@ -298,8 +294,6 @@ async function executeApi(action, payload = {}, retries = 2) {
                 if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중입니다. (HTTP 503)"); }
             }
 
-            // 🚨 [핵심 버그 픽스] "Failed to fetch" 발생 시 즉시 throw 하여 시스템을 죽이는 로직을 소각!
-            // 대신 lastNetworkError에 담고 재시도(Retry) 루프가 끝까지 돌도록 양보합니다.
             if (err.message && err.message.includes("Failed to fetch")) {
                 lastNetworkError = new Error("🚨 구글 서버 접근 지연(CORS) 또는 네트워크 단절.");
             }
@@ -315,7 +309,7 @@ async function executeApi(action, payload = {}, retries = 2) {
 }
 
 // ============================================================================
-// 📈 Chart.js OOM 방어 및 렌더링 파이프라인 무손실 보존
+// 📈 Chart.js OOM 방어 및 렌더링 파이프라인
 // ============================================================================
 let salesChartInstance = null;
 let isFetchingDashboard = false;
@@ -327,7 +321,7 @@ function populateYearSelector() {
     
     yearSelect.innerHTML = ''; 
     const currentYear = new Date().getFullYear();
-    const targetYear = Math.max(currentYear, 2026); // 최소 2026년 보장
+    const targetYear = Math.max(currentYear, 2026);
     
     for (let y = targetYear + 1; y >= 2024; y--) { 
         const opt = document.createElement('option'); 
@@ -348,7 +342,6 @@ function resetRefreshButton() {
     }
 }
 
-// 새로고침 연타(Race Condition) 방어 및 메인 Fetch 함수
 async function fetchDashboardData() {
     if (isFetchingDashboard) return;
     
@@ -363,7 +356,6 @@ async function fetchDashboardData() {
         btn.disabled = true;
     }
 
-    // 35초 데드락 방지 타이머
     clearTimeout(dashboardLockTimer);
     dashboardLockTimer = setTimeout(() => {
         isFetchingDashboard = false;
@@ -373,7 +365,6 @@ async function fetchDashboardData() {
 
     const cacheKey = `DASHBOARD_DATA_${targetYear}_${targetClient}`;
 
-    // 1. Offline & Cache Fallback 렌더링 (0.01초)
     try {
         const cachedRaw = await Y2C_DB.get(cacheKey);
         if (cachedRaw) {
@@ -381,7 +372,6 @@ async function fetchDashboardData() {
         }
     } catch(e) {}
 
-    // 2. 라이브 서버 통신 및 최신화
     try {
         const result = await executeApi("get_dashboard", { targetYear: targetYear, clientName: targetClient });
         
@@ -400,7 +390,6 @@ async function fetchDashboardData() {
             throw new Error(result?.message || "대시보드 데이터를 불러올 수 없습니다.");
         }
     } catch (err) {
-        // 에러 발생 시 UI Auto-Healing (기존 화면 유지하고 토스트만 띄움)
         showToast(`데이터 갱신 실패: ${err.message}`, "error");
     } finally {
         isFetchingDashboard = false;
@@ -409,11 +398,9 @@ async function fetchDashboardData() {
     }
 }
 
-// 애니메이션 카운팅 및 차트 무손실 렌더링
 function renderDashboardKpiAndChart(data) {
     if (!data) return;
 
-    // YTD 무결성 검증 (POS + Delivery = Total) 보정
     let safeYtdPos = parseStrictDecimal(data.ytdPos);
     let safeYtdDel = parseStrictDecimal(data.ytdDelivery);
     let safeYtdTotal = parseStrictDecimal(data.ytdTotal);
@@ -430,14 +417,12 @@ function renderDashboardKpiAndChart(data) {
     if (ePos) ePos.textContent = formatCurrency(safeYtdPos);
     if (eDel) eDel.textContent = formatCurrency(safeYtdDel);
 
-    // 배열 길이 불일치 크래시 가드 (강제 12개월 패딩)
     let rawSales = Array.isArray(data.monthlySales) ? data.monthlySales : [];
     const paddedSales = [];
     for (let i = 0; i < 12; i++) {
         paddedSales.push(rawSales[i] ? parseStrictDecimal(rawSales[i]) : 0);
     }
 
-    // Chart.js Instance Destroyer (OOM 100% 차단)
     if (salesChartInstance) {
         salesChartInstance.destroy();
         salesChartInstance = null;
@@ -546,18 +531,13 @@ function renderDashboardKpiAndChart(data) {
     });
 }
 
-// ============================================================================
-// 🌟 시스템 초기화 및 멱등성 록다운 (Idempotent Init)
-// ============================================================================
 let isInitialized = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     if (isInitialized) return;
     isInitialized = true;
 
-    // 다국어 번역 및 권한 통제 락(Lock) 가동
     window.changeLanguage(currentLang);
-    
     populateYearSelector();
 
     const refreshBtn = document.getElementById('refreshChartBtn');
@@ -565,6 +545,5 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshBtn.addEventListener('click', fetchDashboardData);
     }
     
-    // 엔진 가동 (데이터 로드)
     fetchDashboardData();
 });
