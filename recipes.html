@@ -296,6 +296,25 @@
         </div>
     </main>
 
+    <!-- 🌟 프리미엄 푸터 (다른 페이지와 통일성을 맞추기 위해 누락된 부분 추가) -->
+    <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
+                    &copy; 2026 Y2C Holdings. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
+                </p>
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        System Online
+                    </span>
+                    <span class="text-gray-300">|</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.18 STABLE</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- 🌟 Z-Index 모달 격리 및 Blur 적용 (모든 DOM ID 무손실 앵커링) -->
     <!-- Recipe Modal (z-9998) -->
     <div id="recipeModal" class="fixed inset-0 bg-[#111827]/85 backdrop-blur-md z-[9998] hidden items-center justify-center p-4 sm:p-6 opacity-0 pointer-events-none transition-opacity duration-300">
@@ -352,8 +371,19 @@
     <!-- 글로벌 토스트 (z-9999) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ JS 로직 연동 (무손실 보장) -->
+    <!-- ⚡ JS 로직 연동 (다른 코드 대비 누락된 공통 코어 모듈 추가) -->
+    <!-- 1. Firebase 기반 인증/DB를 사용하는 환경일 경우를 대비한 표준 스크립트 셋 -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- 2. 공통 로직 스크립트 추가 (다국어 및 계정 관리) -->
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/auth.js"></script>
+    
+    <!-- 3. 현재 페이지 전용 스크립트 -->
     <script src="assets/js/recipes.js" defer></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             try {
