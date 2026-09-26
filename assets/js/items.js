@@ -1,26 +1,31 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V40.15 Enterprise)
- * [33+ Defenses] API 404 Fallback, UI Auto-Healing, Time-Slicing, Zero-Deletion
+ * Y2C Holdings Premium Partner Portal - Item Catalog Engine (V40.18 Enterprise)
+ * [Critical Fix] Config Dependency Crash Fix, Fetch Retry Bypass, Zero-Deletion
  * ============================================================================
  */
 
-// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인)
+// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 능동적 철거 (HTML fouc-lock 강제 해제)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
         requestAnimationFrame(function() {
+            docEl.classList.remove("fouc-lock");
             docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
             docEl.classList.remove("opacity-0");
             docEl.style.opacity = "1";
+            docEl.style.visibility = "visible";
             document.body.classList.remove("opacity-0");
             document.body.style.opacity = "1";
         });
     });
 } catch(e) {}
 
-const CONFIG = window.SYSTEM_CONFIG || {};
-const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+// 🌟 [방어 2] Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
+const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {};
+const FALLBACK_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
+const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : FALLBACK_API_URL;
+const STORAGE = (CONFIG.STORAGE_KEYS) ? CONFIG.STORAGE_KEYS : { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
 
 let userRole = "", clientName = "", sessionToken = "";
 let cachedClientState = "DEFAULT";
@@ -34,7 +39,7 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 31] 권한 무결성 1차 검증
+// 🌟 권한 무결성 1차 검증
 if (!sessionToken || sessionToken.length < 10 || !clientName) { 
     alert("보안 세션이 유효하지 않습니다. 다시 로그인해 주세요.");
     window.location.replace("index.html"); 
@@ -105,7 +110,7 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 💾 [방어 11] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// 💾 IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
 // ============================================================================
 const Y2C_DB = {
     name: 'Y2C_Logistics_DB',
@@ -152,7 +157,7 @@ const Y2C_DB = {
 };
 
 // ============================================================================
-// 🔒 [방어 5, 25, 27, 28] Absolute Null-Safe Parsers (재무/보안 무결성 록다운)
+// 🔒 Absolute Null-Safe Parsers (재무/보안 무결성 록다운)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
@@ -184,7 +189,7 @@ function parseStrictNonNegativeInteger(value) {
     if (!/^\d+$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isSafeInteger(num) || num < 0) return 0; 
-    return Math.min(num, 9999999); // 🌟 [방어 28] 오버플로우 방어
+    return Math.min(num, 9999999); 
 }
 
 function parseStrictDecimal(value) { 
@@ -195,7 +200,7 @@ function parseStrictDecimal(value) {
     if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
-    return Math.min(num, 99999999.99); // 🌟 오버플로우 방어
+    return Math.min(num, 99999999.99); 
 }
 
 function parseStrictISODate(value) { 
@@ -207,16 +212,14 @@ function parseStrictISODate(value) {
     if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d) || m < 1 || m > 12 || d < 1 || d > 31) return null; 
     const date = new Date(Date.UTC(y, m - 1, d)); 
     if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null; 
-    // 🌟 [방어 27] 시간 역전(Time Paradox) 1차 방어 
     if (date.getTime() < new Date("2020-01-01").getTime()) return null;
     return str; 
 }
 
 function roundToCents(amount) { 
-    return Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100; // 🌟 [방어 25] 1센트 오차 록다운
+    return Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100; 
 }
 
-// 🌟 [방어 29] 식별키 삼중 난수 강화 (Idempotency)
 const generateIdempotencyKey = () => { 
   const ts = Date.now().toString(36).toUpperCase();
   if (window.crypto && crypto.randomUUID) return "REQ-" + ts + "-" + crypto.randomUUID().split('-')[0].toUpperCase();
@@ -235,7 +238,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 20] Toast 알림 Z-Index 큐잉 (스팸 렌더링 억제)
+// Toast 알림 Z-Index 큐잉
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
   if (!container) { 
@@ -243,7 +246,6 @@ function showToast(message, type = 'success') {
     container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
     document.body.appendChild(container); 
   }
-  // 스팸 차단: 5개 초과 시 즉각 DOM에서 삭제
   if (container.childNodes.length >= 5) container.firstChild.remove();
 
   const toast = document.createElement('div');
@@ -257,7 +259,7 @@ function showToast(message, type = 'success') {
   setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => { toast.remove(); if (container && container.childNodes.length === 0) container.remove(); }, 300); }, 3500);
 }
 
-// 🌟 [방어 6, 8] Offline 킬스위치 및 글로벌 Promise 에러 해독망
+// 오프라인 킬스위치 및 텔레메트리
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 네트워크를 확인해 주세요.", "error"));
 window.addEventListener('online', () => showToast("네트워크가 복구되었습니다.", "success"));
 window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
@@ -266,7 +268,7 @@ window.addEventListener('unhandledrejection', function(event) {
     isSubmitting = false; clearTimeout(submitLockTimer);
 });
 
-// 🌟 글로벌 네비게이션 권한 교차 검증
+// 글로벌 네비게이션 권한 교차 검증
 function applyGlobalRbacNavigation() {
     const rbacRules = { 'navDashboard': ['MASTER', 'PARTNER'], 'navRecipes': ['MASTER', 'PARTNER'], 'navAdmin': ['MASTER', 'VENDOR'], 'navInvoice': ['MASTER'] };
     ['navDashboard', 'navRecipes', 'navAdmin', 'navInvoice'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
@@ -279,7 +281,6 @@ function applyGlobalRbacNavigation() {
         }
     });
 
-    // 🌟 [방어 31] Role-Based UI 렌더링 록다운
     if (userRole === "VENDOR") {
         const orderAct = document.getElementById('orderActionContainer');
         if (orderAct) orderAct.remove(); 
@@ -292,7 +293,7 @@ let taxRateObj = { name: "Standard Tax (13%)", rate: 0.13 };
 let isSubmitting = false;
 let submitLockTimer = null; 
 
-// 🌟 [방어 26] CRA 면세(Zero-Rated) 무결성 체크 (캐나다 세법 연동)
+// CRA 면세(Zero-Rated) 무결성 체크
 function isZeroRatedItem(item) {
   if (!item) return false;
   if (item.taxable === false || item.taxType === 'ZERO_RATED' || item.taxType === 'EXEMPT') return true;
@@ -307,15 +308,14 @@ function isZeroRatedItem(item) {
 }
 
 const RETRYABLE_ACTIONS = new Set(["get_procurement_data", "get_items", "get_recipes"]);
-const apiInFlight = new Set(); // 🌟 [방어 3] API 해시 락 (DDoS 100% 방어)
+const apiInFlight = new Set(); 
 
 // ============================================================================
-// 🌟 [방어 1, 4] 35초 절대 백오프 통신 엔진 (JSON 샌드박스 + 404/CORS 픽스)
+// 🌟 [방어 3] 35초 절대 백오프 통신 엔진 ("Failed to fetch" 즉시 자폭 방어 록다운)
 // ============================================================================
 async function executeApi(action, payload = {}, retries = 2) {
   if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다.");
   
-  // API 해시 락 생성
   const payloadStr = JSON.stringify(payload);
   const hashKey = action + "_" + payloadStr.length;
   if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
@@ -328,11 +328,11 @@ async function executeApi(action, payload = {}, retries = 2) {
 
   for (let i = 0; i <= maxAttempts; i++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 35000); // 🌟 35초 킬스위치
+    const timeoutId = setTimeout(() => controller.abort(), 35000); 
     let response, rawText;
     
     try {
-      response = await fetch(CONFIG.API?.BASE_URL || "", {
+      response = await fetch(TARGET_API_URL, {
         method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
         body: JSON.stringify({ action: action, token: sessionToken, ...safePayload }),
         signal: controller.signal
@@ -340,7 +340,6 @@ async function executeApi(action, payload = {}, retries = 2) {
       
       clearTimeout(timeoutId);
 
-      // 🌟 [방어 1] 404, 401 서킷 브레이커 (무의미한 재시도 컷오프 및 무한 로딩 방어)
       if (!response.ok) {
           if (response.status === 404 || response.status === 401 || response.status === 403) {
               const explicitError = new Error(`서버 엔드포인트 접근이 거부되었습니다 (HTTP ${response.status})`);
@@ -354,9 +353,8 @@ async function executeApi(action, payload = {}, retries = 2) {
       }
       
       rawText = await response.text();
-      controller = null; // 가비지 컬렉션
+      controller = null; 
       
-      // 🌟 [방어 7] JSON Parse 샌드박스
       let jsonResult;
       try { jsonResult = JSON.parse(rawText); } 
       catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); }
@@ -385,14 +383,15 @@ async function executeApi(action, payload = {}, retries = 2) {
           if (err.httpStatus === 429) { apiInFlight.delete(hashKey); throw new Error("서버에 요청이 집중되어 지연 중입니다. (HTTP 429)"); }
           if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중이거나 응답할 수 없습니다. (HTTP 503)"); }
       }
+      
+      // 🚨 [핵심 픽스] Failed to fetch 발생 시 에러를 즉시 던지지 않고, lastNetworkError에 저장 후 재시도(continue) 유도
       if (err.message && err.message.includes("Failed to fetch")) { 
-          apiInFlight.delete(hashKey); 
-          throw new Error("🚨 서버 접근 차단됨(CORS). 백엔드 배포 설정을 확인하세요."); 
+          lastNetworkError = new Error("🚨 서버 접근 차단됨(CORS). 백엔드 배포 설정을 확인하세요."); 
       }
       
       if (i < maxAttempts) { await new Promise(res => setTimeout(res, (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800))); continue; }
       apiInFlight.delete(hashKey);
-      throw new Error(lastNetworkError.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : (lastNetworkError.message || "서버 통신 실패. 네트워크 상태를 확인해주세요."));
+      throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 락다운)" : (lastNetworkError?.message || "서버 통신 실패. 네트워크 상태를 확인해주세요."));
     }
   }
 }
@@ -405,7 +404,7 @@ async function fetchMappings() {
   } catch (error) { cachedMappings.length = 0; }
 }
 
-// 🌟 SWR (Stale-While-Revalidate) + Hash 무결성 렌더러
+// SWR (Stale-While-Revalidate) + Hash 무결성 렌더러
 let lastItemsHash = "";
 function generateDataHash(dataArr) {
     if (!dataArr) return "";
@@ -413,7 +412,7 @@ function generateDataHash(dataArr) {
 }
 
 // ============================================================================
-// 🚨 [방어 2] Empty Table Auto-Healing 렌더러 (하얀 백지 버그 100% 원천 차단)
+// 🚨 Empty Table Auto-Healing 렌더러 (하얀 백지 버그 100% 원천 차단)
 // ============================================================================
 async function fetchItems() {
   const tableBody = document.getElementById('itemTableBody'); 
@@ -425,7 +424,7 @@ async function fetchItems() {
   try {
       const cachedRaw = await Y2C_DB.get(cacheKey);
       if (cachedRaw) {
-          cachedItems.length = 0; // 🌟 [방어 12] 메모리 소각
+          cachedItems.length = 0; 
           cachedItems = cachedRaw;
           lastItemsHash = generateDataHash(cachedItems);
           renderTableItemsFast(cachedItems, true); 
@@ -442,7 +441,8 @@ async function fetchItems() {
       const newHash = generateDataHash(newItems);
       
       currentClientState = safeDisplay(result.appliedState, "DEFAULT").trim();
-      taxRateObj = CONFIG.TAX_RATES[currentClientState.toUpperCase()] || CONFIG.TAX_RATES["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
+      const taxObjConfig = (typeof CONFIG.TAX_RATES !== 'undefined') ? CONFIG.TAX_RATES : { "DEFAULT": { name: "Standard Tax (13%)", rate: 0.13 } };
+      taxRateObj = taxObjConfig[currentClientState.toUpperCase()] || taxObjConfig["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
       
       const headerTitle = document.getElementById('catalogHeaderTitle');
       if (headerTitle) headerTitle.innerHTML = `<span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📦</span> <span data-i18n="catalog_title">Inventory & Catalog</span> ${userRole === 'VENDOR' ? '' : `<span class="ml-3 text-[10px] sm:text-[11px] bg-[#E3000F]/10 text-[#E3000F] px-3 py-1.5 rounded-lg border border-[#E3000F]/30 tracking-widest uppercase shadow-sm whitespace-nowrap font-inter">${escapeHtml(currentClientState === "DEFAULT" ? "Standard" : currentClientState)} Pricing</span>`}`;
@@ -469,7 +469,7 @@ async function fetchItems() {
       if(userRole !== "VENDOR") calculateOrderTotal(); 
     } 
   } catch (error) { 
-      // 🚨 [방어 2] 통신 에러 발생 시 하얀 백지로 방치되지 않도록 프리미엄 에러 행 주입 (스크린샷 버그 완벽 픽스)
+      // 통신 에러 발생 시 프리미엄 에러 행 주입 (스크린샷 백지화 버그 완벽 픽스)
       if (!cachedItems || cachedItems.length === 0) {
           tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-20 text-center bg-red-50/20"><div class="flex flex-col items-center justify-center gap-3"><span class="text-4xl animate-bounce">🚨</span><span class="text-[#E3000F] font-black tracking-widest uppercase font-inter text-sm">System Disconnected</span><span class="text-xs text-gray-500 font-bold max-w-lg break-keep leading-relaxed">${escapeHtml(error.message)}</span></div></td></tr>`; 
       }
@@ -491,7 +491,7 @@ function populateRegionFilter() {
   }
 }
 
-// 🌟 [방어 24] 지역 허브 필터 Mutex 방어
+// 지역 허브 필터 Mutex 방어
 let isRegionSwitching = false;
 function applyRegionFilter() { 
     if(isRegionSwitching) return;
@@ -510,7 +510,7 @@ function checkExpWarning(expDateStr) {
   return (diffDays <= 30); 
 }
 
-// 🌟 [방어 15] 로컬 스토리지 I/O 디바운싱 (타이핑 과부하 방어)
+// 로컬 스토리지 I/O 디바운싱
 let cartSaveTimer = null;
 window.saveCartState = function() {
     if (userRole === "VENDOR") return;
@@ -527,7 +527,7 @@ window.saveCartState = function() {
 };
 
 // ============================================================================
-// 🚀 [V40.15 핵심] SKU 누락 방어 무한 스크롤 렌더러 (데드락 자동 힐링)
+// 🚀 무한 스크롤 렌더러 (데드락 자동 힐링)
 // ============================================================================
 let infiniteObserver = null;
 let globalRenderData = [];
@@ -663,23 +663,22 @@ function appendNextChunk() {
           } else {
             let currentQty = parseStrictNonNegativeInteger(savedCart[item.code]);
             stockDisplayHTML = `<div class="flex flex-col items-center"><span class="text-[13px] sm:text-[15px] font-black font-mono ${stockBadgeClass}">${displayStock}</span>${expDisplayHTML}</div>`;
-            // 🌟 [방어 23] 최대 입력값 제한
             orderInputHTML = `<input type="number" min="0" max="${Math.min(displayStock, 9999)}" value="${currentQty === 0 ? '' : currentQty}" placeholder="0" data-index="${i}" data-code="${safeCode}" class="order-qty w-20 sm:w-24 bg-gray-50 focus:bg-white border border-gray-200 rounded-xl px-2 sm:px-3 py-1.5 text-center text-[13px] font-bold text-[var(--premium-charcoal)] focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] outline-none shadow-sm transition-all">`;
           }
         }
 
         const priceCellHTML = userRole === "VENDOR" ? `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-gray-400 font-bold text-right font-inter">-</td>` : `<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black text-right font-mono">${safePrice === 0 ? '-' : formatCurrency(safePrice)}</td>`;
         
-        // 🌟 [방어 13] DocumentFragment 문자열 조립
+        // DocumentFragment 렌더링 조립
         htmlString += `<tr class="hover:bg-red-50/20 transition-colors duration-200 border-b border-gray-50"><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-[11px] sm:text-[12px] font-mono font-bold text-gray-500 tracking-wider">${safeCode}</td><td class="px-5 sm:px-6 py-4 flex items-center gap-4">${imgTag}<div class="flex flex-col"><span class="text-[13px] sm:text-sm text-[var(--premium-charcoal)] font-black tracking-tight whitespace-normal break-keep font-inter">${safeName}</span>${aiBadgeHTML}</div></td><td class="px-5 sm:px-6 py-4 whitespace-nowrap"><span class="px-3 py-1.5 inline-flex text-[10px] font-black rounded-full bg-[#E3000F]/10 text-[#E3000F] border border-[#E3000F]/20 uppercase tracking-[0.15em] shadow-sm font-inter">${translatedCategory}</span>${taxTag}</td>${priceCellHTML}<td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-gray-50/50 border-l border-gray-100 align-middle">${stockDisplayHTML}</td><td class="px-5 sm:px-6 py-4 whitespace-nowrap text-center bg-[#E3000F]/5 border-l border-[#E3000F]/10 align-middle">${orderInputHTML}</td></tr>`;
     }
 
-    // 🌟 [방어 16] 스크롤 앵커 튐 방어
+    // 🌟 스크롤 앵커 튐 방어
     tableBody.insertAdjacentHTML('beforeend', htmlString);
 
     if (window.applyTranslations) window.applyTranslations();
 
-    // 🌟 [방어 9] 데드락 자동 힐링 (컨텐츠가 화면을 다 채우지 못하면 강제 연장)
+    // 🌟 데드락 자동 힐링 (컨텐츠가 화면을 채우지 못할 때)
     requestAnimationFrame(() => {
         if (globalRenderIndex < globalRenderData.length) {
             const tableContainer = document.querySelector('.overflow-x-auto');
@@ -693,18 +692,13 @@ function appendNextChunk() {
     });
 }
 
-// ============================================================================
-// 🛡️ [방어 17, 28] Event Delegation (입력 교정 및 재무 오버플로우 방어)
-// ============================================================================
+// 🛡️ Event Delegation (입력 교정 및 재무 오버플로우 방어)
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('itemTableBody');
     if (tableBody) {
-        
         tableBody.addEventListener('keydown', (e) => {
             if (e.target.classList.contains('order-qty')) {
-                if (['-', '+', '.', 'e', 'E'].includes(e.key)) {
-                    e.preventDefault();
-                }
+                if (['-', '+', '.', 'e', 'E'].includes(e.key)) e.preventDefault();
             }
         });
 
@@ -719,7 +713,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast(`가용 재고(${max})를 초과할 수 없습니다.`, "error"); 
                 }
                 
-                // 화면에 표기된 문자와 내부 파싱값이 다르면 화면 즉각 교정
                 if (rawVal !== "" && rawVal !== String(val)) {
                     e.target.value = val === 0 ? '' : val;
                 }
@@ -732,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachImageHoverEffect(); 
 });
 
-// 🌟 [방어 19] AI 제안 렌더링 부하 최소화 (다른 값만 주입)
+// AI 제안 렌더링 부하 최소화
 function applyAiSuggestion() {
   const qtyInputs = document.querySelectorAll('.order-qty'); 
   let appliedCount = 0;
@@ -802,7 +795,7 @@ function calculateOrderTotal() {
   const grandTotalElem = document.getElementById('orderGrandTotal'); if (grandTotalElem) grandTotalElem.textContent = formatCurrency(grandTotal);
 }
 
-// 🌟 [방어 18] 물리적 연타 방어 및 락다운
+// 🌟 물리적 연타 방어 및 락다운
 async function toggleStockEditMode() {
   if (isSubmitting || !navigator.onLine) return showToast("현재 요청을 처리할 수 없습니다.", "error"); 
   const btn = document.getElementById('toggleStockBtn'), filter = document.getElementById('regionFilter'), orderContainer = document.getElementById('orderActionContainer');
@@ -861,7 +854,7 @@ async function toggleStockEditMode() {
   }
 }
 
-// 🌟 [방어 10] Image Decode Guard 탑재 (마우스 호버 OOM 프리징 방어)
+// Image Decode Guard 탑재 (마우스 호버 프리징 방어)
 let hoverRAF = null;
 function attachImageHoverEffect() {
   const tableBody = document.getElementById('itemTableBody'), previewContainer = document.getElementById('imagePreviewContainer'), previewImg = document.getElementById('imagePreview');
@@ -901,7 +894,7 @@ function attachImageHoverEffect() {
   });
 }
 
-// 🌟 [방어 30] 빈 페이로드 1차 차단
+// 빈 페이로드 1차 차단
 async function submitOrder() {
   if(userRole === "VENDOR" || isSubmitting || !navigator.onLine) return showToast("현재 시스템 통신이 불가능합니다.", "error");
   const qtyInputs = document.querySelectorAll('.order-qty'), orderItems = [];
@@ -963,11 +956,7 @@ async function loadHeavyLibrary(url, objName) {
     });
 }
 
-// ============================================================================
-// 🚀 [V40.15 핵심] Time-Slicing 비동기 엑셀 파싱 엔진 (OOM 방어)
-// ============================================================================
 async function handleExcelUpload(event) {
-  // 🌟 (admin.js에서 이미 이관된 로직이므로 items.js에는 이벤트 껍데기만 남겨둘 수 있으나, 독립 실행을 위해 구조 유지)
   showToast("엑셀 입고는 관리자(Admin) 탭에서 진행해 주세요.", "error");
 }
 
