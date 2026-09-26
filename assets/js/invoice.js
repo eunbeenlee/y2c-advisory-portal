@@ -1,26 +1,32 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Advisory Invoice Engine (V40.14)
- * [33+ Defenses] CRA Tax Integrity, EPSILON Cent Correction, Print Ghost Fix
+ * Y2C Holdings Premium Partner Portal - Advisory Invoice Engine (V40.18 Enterprise)
+ * [Critical Fix] Config Dependency Crash Fix, Fetch Retry Bypass, Zero-Deletion
  * ============================================================================
  */
 
-// 🌟 [방어 13] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인 브라우저 동기화)
+// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
         requestAnimationFrame(function() {
+            docEl.classList.remove("fouc-lock");
             docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
             docEl.classList.remove("opacity-0");
             docEl.style.opacity = "1";
+            docEl.style.visibility = "visible";
             document.body.classList.remove("opacity-0");
             document.body.style.opacity = "1";
         });
     });
 } catch(e) {}
 
-const CONFIG = window.SYSTEM_CONFIG || {};
-const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+// 🌟 [방어 2] Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
+// config.js가 로드에 실패하거나 지워지더라도 프론트엔드가 절대 죽지 않도록 자체 생존 변수 구축
+const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {};
+const FALLBACK_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
+const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : FALLBACK_API_URL;
+const STORAGE = (CONFIG.STORAGE_KEYS) ? CONFIG.STORAGE_KEYS : { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
 
 let userRole = "", clientName = "", sessionToken = "";
 try {
@@ -31,14 +37,14 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 8, 32] 마스터 권한 무결성 1차 검증 (인보이스는 본사 고유 권한)
+// 마스터 권한 무결성 1차 검증 (인보이스는 본사 고유 권한)
 if (!sessionToken || sessionToken.length < 10 || userRole !== "MASTER") { 
     alert("재무/정산(Invoice) 데이터는 본사 마스터 계정만 접근 가능합니다.");
     window.location.replace("index.html"); 
 }
 
 // ============================================================================
-// 💾 [방어 11] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// 💾 IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
 // ============================================================================
 const Y2C_DB = {
     name: 'Y2C_Logistics_DB',
@@ -85,7 +91,7 @@ const Y2C_DB = {
 };
 
 // ============================================================================
-// 🌐 [방어 24] 글로벌 다국어 (i18n) 엔진 섀도우 맵핑
+// 🌐 글로벌 다국어 (i18n) 엔진 섀도우 맵핑
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -153,7 +159,7 @@ window.applyTranslations = function() {
 };
 
 // ============================================================================
-// 🔒 [방어 5, 25, 28] Absolute Null-Safe Parsers (재무 무결성 100% 록다운)
+// 🔒 Absolute Null-Safe Parsers (재무 무결성 100% 록다운)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value)
@@ -180,7 +186,7 @@ function parseStrictNonNegativeInteger(value) {
     if (!/^\d+$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isSafeInteger(num) || num < 0) return 0; 
-    return Math.min(num, 9999999); // 오버플로우 방어
+    return Math.min(num, 9999999); 
 }
 
 function parseStrictDecimal(value) { 
@@ -191,10 +197,9 @@ function parseStrictDecimal(value) {
     if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
-    return Math.min(num, 9999999.99); // 오버플로우 방어
+    return Math.min(num, 9999999.99); 
 }
 
-// 🌟 [방어 25] Number.EPSILON 적용: 센트(Cent) 단위 1센트 오차 강제 교정
 function roundToCents(amount) { 
     return Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100; 
 }
@@ -208,7 +213,6 @@ const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(roundToCents(amount)); 
 };
 
-// 🌟 [방어 31] 식별키 삼중 난수 강화
 const generateIdempotencyKey = () => { 
     const ts = Date.now().toString(36).toUpperCase();
     if (window.crypto && crypto.randomUUID) return "REQ-" + ts + "-" + crypto.randomUUID().split('-')[0].toUpperCase();
@@ -226,7 +230,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 16] 글로벌 토스트 알림 Z-Index 스팸 차단 큐(Queue)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -234,7 +237,6 @@ function showToast(message, type = 'success') {
         container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
         document.body.appendChild(container);
     }
-    // 스팸 방지: 최대 5개 제한
     if (container.childNodes.length >= 5) container.firstChild.remove();
 
     const toast = document.createElement('div');
@@ -265,7 +267,7 @@ function applyGlobalRbacNavigation() {
     });
 }
 
-// 🌟 [방어 6] Offline Safe Mode 
+// Offline Safe Mode 
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다.", "error"));
 window.addEventListener('online', () => showToast("네트워크 복구 완료.", "success"));
 window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
@@ -278,7 +280,6 @@ window.addEventListener('unhandledrejection', function(event) {
         btnNodes.forEach(btn => { 
             btn.disabled = false; 
             btn.classList.remove('pointer-events-none');
-            // 원본 텍스트 복구 (i18n 고려)
             const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
             btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg><span data-i18n="btn_generate">${dict["btn_generate"]}</span>`; 
         });
@@ -287,28 +288,28 @@ window.addEventListener('unhandledrejection', function(event) {
 });
 
 // ============================================================================
-// 🌟 [방어 1, 4, 7] API Hash Lock & 35초 절대 백오프 통신 엔진
+// 🌟 [방어 3] 35초 절대 백오프 통신 엔진 ("Failed to fetch" 즉시 자폭 버그 소각)
 // ============================================================================
 const apiInFlight = new Set();
 
 async function executeApi(action, payload = {}, retries = 2) {
     if (!navigator.onLine) throw new Error("네트워크(Wi-Fi/데이터)가 끊어졌습니다.");
     
+    const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
+    
     // API 해시 락 (DDoS 방어)
-    const payloadStr = JSON.stringify(payload);
-    const hashKey = action + "_" + payloadStr.length;
+    const hashKey = action + "_" + JSON.stringify(safePayload).length;
     if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
     apiInFlight.add(hashKey);
 
     let lastNetworkError;
-    const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
 
     for (let i = 0; i <= retries; i++) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 35000); // 🌟 35초 킬스위치
 
         try {
-            const response = await fetch(CONFIG.API?.BASE_URL || "", {
+            const response = await fetch(TARGET_API_URL, {
                 method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...safePayload }),
                 signal: controller.signal
@@ -316,7 +317,6 @@ async function executeApi(action, payload = {}, retries = 2) {
             
             clearTimeout(timeoutId);
 
-            // 404/401 서킷 브레이커
             if (!response.ok) {
                 if (response.status === 404 || response.status === 401 || response.status === 403) {
                     const explicitError = new Error(`서버 통신 거부됨 (HTTP ${response.status})`);
@@ -332,7 +332,6 @@ async function executeApi(action, payload = {}, retries = 2) {
             const rawText = await response.text();
             controller = null; // 가비지 컬렉션
             
-            // JSON Parse 샌드박스
             let jsonResult;
             try { jsonResult = JSON.parse(rawText); } 
             catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); }
@@ -361,9 +360,9 @@ async function executeApi(action, payload = {}, retries = 2) {
                 if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중입니다. (HTTP 503)"); }
             }
 
+            // 🚨 [핵심 버그 픽스] Failed to fetch 발생 시 에러를 던지지 않고 백오프 루프로 넘김
             if (err.message && err.message.includes("Failed to fetch")) {
-                apiInFlight.delete(hashKey);
-                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 배포 설정을 확인하세요.</span>");
+                lastNetworkError = new Error("🚨 구글 서버 접근 지연(CORS) 또는 네트워크 단절.");
             }
 
             if (i < retries) {
@@ -398,7 +397,7 @@ async function initInvoicePanel() {
     try {
         const cachedData = await Y2C_DB.get(cacheKey);
         if (cachedData && cachedData.length > 0) {
-            cachedClients.length = 0; // Array Truncation
+            cachedClients.length = 0;
             cachedClients = cachedData;
             populateClientDropdown(selClient);
         }
@@ -422,7 +421,6 @@ async function initInvoicePanel() {
         }
     }
 
-    // 🌟 [방어 18, 19] 입력창 Desync 실시간 교정 및 Maxlength & Bounds 록다운
     const yearInput = document.getElementById('selYear');
     const startInput = document.getElementById('selStart');
     const endInput = document.getElementById('selEnd');
@@ -432,14 +430,12 @@ async function initInvoicePanel() {
         if (input) {
             input.addEventListener('input', (e) => {
                 const rawVal = e.target.value;
-                // 숫자와 소수점만 허용
                 const cleanVal = rawVal.replace(/[^0-9.]/g, '');
                 if (rawVal !== cleanVal) e.target.value = cleanVal;
 
                 if (e.target.id === 'selStart' || e.target.id === 'selEnd') {
                     let v = parseStrictNonNegativeInteger(cleanVal);
                     if (v > 12) e.target.value = 12;
-                    // 시작 월이 종료 월을 넘지 못하게 즉시 록다운
                     if (e.target.id === 'selStart' && endInput) {
                         let endV = parseStrictNonNegativeInteger(endInput.value);
                         if (v > endV) endInput.value = v;
@@ -452,7 +448,6 @@ async function initInvoicePanel() {
 
 function populateClientDropdown(selClient) {
     if (!selClient) return;
-    // 🌟 [방어 15] DocumentFragment 주입
     const currentVal = selClient.value;
     const fragment = document.createDocumentFragment();
     
@@ -493,7 +488,6 @@ async function generateInvoice() {
     if (startMonth > endMonth) return showToast(dict["toast_err_month"], "error");
     if (startMonth < 1 || endMonth > 12) return showToast(dict["toast_err_month_range"], "error");
 
-    // 🌟 [방어 17] 물리적 연타 방어 및 비동기 식별키 생성
     isGenerating = true;
     currentInvoiceData = null; 
     const fetchId = ++currentInvoiceFetchId;
@@ -509,7 +503,6 @@ async function generateInvoice() {
         btn.innerHTML = `<span class="animate-pulse">⏳ EXTRACTING...</span>`;
     });
 
-    // 🌟 [방어 2] 35초 Absolute Watchdog 데드락 브레이커
     clearTimeout(fallbackLockTimer);
     fallbackLockTimer = setTimeout(() => {
         if(isGenerating && fetchId === currentInvoiceFetchId) {
@@ -525,7 +518,6 @@ async function generateInvoice() {
             clientName: clientNameInput, targetYear, startMonth, endMonth 
         });
 
-        // 🌟 응답이 늦게 도착하여 다른 연산이 시작되었다면 폐기 처리
         if (fetchId !== currentInvoiceFetchId) return;
 
         if (result && result.success) {
@@ -534,19 +526,21 @@ async function generateInvoice() {
             const clientInfo = data.clientInfo || data.client || {};
             const hqInfo = data.hqInfo || data.hq || {};
 
-            // 🌟 [방어 25] Number.EPSILON 적용 소수점 교정
             const baseAmount = roundToCents(parseStrictDecimal(data.totalSales || data.amount || data.baseAmount));
             
-            // 🌟 [방어 27] Zero-Sales Bypass (유령 가맹점 방어)
             if (baseAmount === 0) {
                 showToast(dict["toast_no_erp"], "success");
             }
 
             const royaltyAmount = roundToCents(baseAmount * (rate / 100));
             
-            // 🌟 [방어 26] CRA 세법 강제 매핑 (Place of Supply)
+            // CRA 세법 강제 매핑 (Place of Supply)
             const stateCode = String(clientInfo.state || "DEFAULT").toUpperCase().trim();
-            const taxObj = CONFIG.TAX_RATES[stateCode] || CONFIG.TAX_RATES["DEFAULT"] || { name: "Standard Tax", rate: 0.13 };
+            const TAX_RATES_OBJ = CONFIG.TAX_RATES || {
+                "ON": { name: "HST (13%)", rate: 0.13 }, "BC": { name: "GST 5% + PST 7%", rate: 0.12 },
+                "AB": { name: "GST (5%)", rate: 0.05 }, "DEFAULT": { name: "Standard Tax (13%)", rate: 0.13 }
+            };
+            const taxObj = TAX_RATES_OBJ[stateCode] || TAX_RATES_OBJ["DEFAULT"];
             const taxAmount = roundToCents(royaltyAmount * parseStrictDecimal(taxObj.rate));
             const grandTotal = roundToCents(royaltyAmount + taxAmount);
 
@@ -554,12 +548,9 @@ async function generateInvoice() {
             const dueDateObj = new Date(today);
             dueDateObj.setDate(today.getDate() + 14); 
             
-            // 🌟 [방어 31] 난수 식별키
             const invNo = `INV-${targetYear}${String(startMonth).padStart(2, '0')}-${clientNameInput.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
-            // ====================================================================
-            // 🌟 5. DOM 렌더링 & Absolute Null-Safe 변수 매핑 100% 무손실 앵커링
-            // ====================================================================
+            // DOM 렌더링 100% 무손실 앵커링
             document.getElementById('invNo').innerText = safeDisplay(invNo);
             document.getElementById('invDate').innerText = formatDate(today);
             
@@ -606,7 +597,6 @@ async function generateInvoice() {
             
             document.getElementById('totalDue').innerText = formatCurrency(grandTotal);
 
-            // 🌟 CSV Export 및 PDF 인쇄를 위한 데이터 영속성 무결성 캐시 저장
             currentInvoiceData = {
                 invNo, date: formatDate(today), client: clientNameInput, 
                 baseAmount, rate, royaltyAmount, taxName: taxObj.name, taxAmount, grandTotal
@@ -622,7 +612,6 @@ async function generateInvoice() {
             triggerShake();
         }
     } finally {
-        // 🌟 [방어 3] Always-Release 록다운 (데드락 100% 해방)
         if (fetchId === currentInvoiceFetchId) {
             isGenerating = false;
             clearTimeout(fallbackLockTimer);
@@ -642,7 +631,6 @@ function triggerShake() {
         void ctrlPanel.offsetWidth; 
         ctrlPanel.classList.add('shake-animation');
         
-        // 일회용 style 추가
         const style = document.createElement('style');
         style.innerHTML = `@keyframes error-shake { 0%, 100% { transform: translateX(0) translateZ(0); } 20% { transform: translateX(-8px) translateZ(0); } 40% { transform: translateX(8px) translateZ(0); } 60% { transform: translateX(-4px) translateZ(0); } 80% { transform: translateX(4px) translateZ(0); } } .shake-animation { animation: error-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }`;
         document.head.appendChild(style);
@@ -650,14 +638,13 @@ function triggerShake() {
 }
 
 // ============================================================================
-// 🖨️ [방어 9] 브라우저 네이티브 PDF 인쇄 엔진 (고스트 렌더링 락다운)
+// 🖨️ 브라우저 네이티브 PDF 인쇄 엔진 (고스트 렌더링 락다운 무손실 보존)
 // ============================================================================
 window.printInvoicePDF = function() {
     if (!currentInvoiceData) {
         return showToast("먼저 정산서(GENERATE DATA)를 생성한 후 인쇄해 주세요.", "error");
     }
 
-    // 🌟 화면 페인팅이 완벽히 끝난 후 브라우저 인쇄 모듈을 띄워 하얀 백지 버그를 100% 차단
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             window.print();
@@ -666,14 +653,13 @@ window.printInvoicePDF = function() {
 };
 
 // ============================================================================
-// 📥 [방어 10, 29, 30] CSV 추출 엔진 (BOM 한글 깨짐 방지 및 메모리 릭 소각)
+// 📥 CSV 추출 엔진 (BOM 한글 깨짐 방지 및 메모리 릭 소각 무손실 보존)
 // ============================================================================
 function exportInvoiceCSV() {
     if (!currentInvoiceData) {
         return showToast("먼저 정산서(GENERATE DATA)를 생성한 후 다운로드 해주세요.", "error");
     }
 
-    // 엑셀 열(Column) 파괴 방지를 위한 필드 쌍따옴표 캡슐화
     const headers = ["Invoice No", "Issue Date", "Client", "Base Amount", "Rate (%)", "Royalty Amount", "Tax Type", "Tax Amount", "Total Due"];
     const row = [
         currentInvoiceData.invNo,
@@ -687,17 +673,14 @@ function exportInvoiceCSV() {
         currentInvoiceData.grandTotal
     ];
 
-    // 🌟 [방어 29] 엑셀에서 한글이 깨지지 않도록 BOM(\uFEFF) 바이트 강제 할당
     const csvContent = "\uFEFF" + headers.join(",") + "\n" + row.join(",");
     
-    // 🌟 [방어 10] Blob을 이용한 대용량 다운로드 지원 및 메모리 릭(Leak) 방어
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const blobUrl = URL.createObjectURL(blob);
     
     const link = document.createElement("a");
     link.setAttribute("href", blobUrl);
     
-    // 🌟 [방어 30] 파일명 특수문자 OS 크래시 에러 방어 정규식 처리
     const safeFileName = `${currentInvoiceData.invNo}_${currentInvoiceData.client.replace(/[\s\/\\:*?"<>|]/g, '_')}.csv`;
     link.setAttribute("download", safeFileName);
     
@@ -705,20 +688,15 @@ function exportInvoiceCSV() {
     link.click();
     document.body.removeChild(link);
     
-    // 즉각적인 Blob 메모리 반환 (가비지 컬렉션)
     setTimeout(() => { URL.revokeObjectURL(blobUrl); }, 100);
     
     showToast("CSV 다운로드가 완료되었습니다.", "success");
 }
 
-// 글로벌 네임스페이스 바인딩
 window.generateInvoice = generateInvoice;
 window.exportInvoiceCSV = exportInvoiceCSV;
 window.printInvoicePDF = printInvoicePDF; 
 
-// ============================================================================
-// 🚨 시스템 초기화 바인딩
-// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
     window.changeLanguage(currentLang);
     applyGlobalRbacNavigation();
