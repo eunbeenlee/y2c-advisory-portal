@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.25 Enterprise Dashboard ULTIMATE - Strict RBAC Routing, Zero-Latency SFP & 11 Acceleration Fixes -->
+<!-- 🌟 V40.27 Enterprise Dashboard ULTIMATE - Infinite Refresh Loop Hotfix & Zero-Loss Validation -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [방어 6] 다크모드 강제 반전 차단 (라이트 테마 절대 유지) -->
+    <!-- 🌟 다크모드 강제 반전 차단 (라이트 테마 절대 유지) -->
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -13,7 +13,7 @@
     
     <title>Enterprise Dashboard | Y2C Portal</title>
     
-    <!-- 🚀 [가속 채널 1] API 서버 및 차트 라이브러리 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 API 서버 및 차트 라이브러리 조기 연결 (DNS Prefetch & Preconnect) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -23,7 +23,7 @@
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [가속 채널 2] 폰트 로딩 CSSOM 블로킹 타파 -->
+    <!-- 🚀 폰트 로딩 CSSOM 블로킹 타파 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
@@ -31,7 +31,7 @@
     
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [방어 11] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -45,7 +45,7 @@
             if(mainBody) mainBody.style.opacity = '1';
         }, 800);
         
-        // 🚀 [가속 채널 5] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        // 🚀 Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
@@ -178,10 +178,7 @@
 
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
-    <script>
-        try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
-    </script>
+    <!-- 🚨 NoScript 샌드박스 (Clickjacking 무한 루프 유발 로직 완전 소각) -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -189,7 +186,7 @@
         </div>
     </noscript>
 
-    <!-- 🌟 [방어 1, 2] JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 -->
+    <!-- 🌟 JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 -->
     <script>
         (function() {
             try {
@@ -200,34 +197,37 @@
                 document.getElementById('mainBody').style.opacity = "1";
 
                 var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+                var token = String(localStorage.getItem("y2c_token") || "").trim();
                 window.__INITIAL_ROLE__ = userRole;
 
-                // 🚨 [방어 2] VENDOR 계정의 대시보드 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
+                // 🚨 미인증/토큰 소실 계정 강제 축출
+                if (!userRole || userRole === "NULL" || !token || token.length < 10) {
+                    window.location.replace("index.html");
+                    return;
+                }
+
+                // 🚨 VENDOR 계정의 대시보드 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
                 if (userRole === "VENDOR") {
                     window.location.replace("items.html");
                     return; // 렌더링 즉시 중단
                 }
 
-                // 🚨 [방어 1] PARTNER의 카탈로그(items.html) 권한 무결성 100% 복원
-                // Dashboard & Recipes: MASTER, PARTNER
+                // 🚨 통합 권한 라우터 무결성 복원
                 if (userRole === 'MASTER' || userRole === 'PARTNER') {
                     ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
                         var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
                     });
                 }
-                // Item Catalog: MASTER, VENDOR, PARTNER (모두 접근 가능해야 발주가 가능함)
                 if (userRole === 'MASTER' || userRole === 'VENDOR' || userRole === 'PARTNER') {
                     ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
                         var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
                     });
                 }
-                // Admin: MASTER, VENDOR
                 if (userRole === 'MASTER' || userRole === 'VENDOR') {
                     ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
                         var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
                     });
                 }
-                // Invoice: MASTER
                 if (userRole === 'MASTER') {
                     ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
                         var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
@@ -250,7 +250,7 @@
                 </div>
             </div>
 
-            <!-- 🌟 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
+            <!-- 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -280,7 +280,7 @@
         </div>
     </header>
 
-    <!-- 🌟 모바일 카테고리 뷰 (shrink-0 방어막 추가) -->
+    <!-- 모바일 카테고리 뷰 (shrink-0 방어막 추가) -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -350,7 +350,7 @@
         <!-- 차트 및 시스템 알림 영역 -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- 🌟 왼쪽: 월별 매출 차트 [방어 7] Canvas OOM Isolation (h-[300px] sm:h-[400px] 강제 고정) -->
+            <!-- 왼쪽: 월별 매출 차트 Canvas OOM Isolation -->
             <article class="lg:col-span-2 bg-white premium-shadow rounded-[2rem] p-6 sm:p-8 transition-shadow duration-300 flex flex-col print-shadow-none">
                 <header class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
@@ -361,9 +361,8 @@
                 </div>
             </article>
 
-            <!-- 오른쪽: 빠른 액션 및 안내 (no-print) -->
+            <!-- 오른쪽: 빠른 액션 및 안내 -->
             <aside class="lg:col-span-1 space-y-6 no-print">
-                <!-- 조달 퀵액션 -->
                 <div class="bg-gradient-to-br from-[#E3000F] to-[#9A0007] rounded-[2rem] p-8 shadow-lg text-white relative overflow-hidden group">
                     <div class="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
                     <h3 class="text-2xl font-black font-montserrat tracking-tight mb-2 relative z-10">Need Supplies?</h3>
@@ -374,7 +373,6 @@
                     </a>
                 </div>
 
-                <!-- 시스템 공지 -->
                 <div class="bg-white premium-shadow rounded-[1.5rem] p-6">
                     <h3 class="text-sm font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-5 flex items-center gap-2 font-montserrat">
                         <span class="w-2.5 h-2.5 rounded-full bg-[#E3000F]"></span> System Notice
@@ -394,7 +392,7 @@
         </section>
     </main>
 
-    <!-- 🌟 프리미엄 푸터 (공통 100% 무손실 보존) -->
+    <!-- 🌟 프리미엄 푸터 -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -407,24 +405,22 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.25 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.27 STABLE</span>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- 🌟 글로벌 토스트 알림 컨테이너 -->
+    <!-- 글로벌 토스트 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ JS 로직 연동 (무손실 보장) -->
+    <!-- 🚨 렌더링 무한 리프레시 자폭 방어 (auth.js 소각 및 i18n.js 단일 로드) -->
     <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/auth.js"></script>
     <script src="assets/js/dashboard.js" defer></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                // 🌟 동적 다국어 폴백 로직
                 if (typeof I18N_DICT !== 'undefined') {
                     Object.assign(I18N_DICT.en, {
                         "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization.",
