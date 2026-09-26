@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.23 Enterprise Master ULTIMATE - Zero-Latency SFP Rendering & 11 Acceleration Fixes -->
+<!-- 🌟 V40.26 Enterprise Master ULTIMATE - Strict RBAC Routing, Zero-Loss Validation & 11 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    
+    <!-- 🌟 [방어 4] 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 거대 테이블 가독성 보호) -->
+    <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
@@ -18,11 +21,15 @@
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
+    <!-- 🚀 [가속 채널 2] 폰트 로딩 CSSOM 블로킹 타파 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
+
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 [방어 11] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -35,16 +42,16 @@
             const mainBody = document.getElementById('mainBody');
             if (mainBody) mainBody.style.opacity = '1';
         }, 800);
+
+        // Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        window.addEventListener('touchstart', function() {}, {passive: true});
+        window.addEventListener('wheel', function() {}, {passive: true});
     </script>
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Config 폴백 알림 -->
-    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
+    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
     <script>
         tailwind.config = {
             theme: {
@@ -68,11 +75,11 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단 */
+        /* 🌟 [방어 10] 터치 딜레이 및 바운스 스크롤 완벽 차단, 터치 잔상 소각 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
-            -webkit-tap-highlight-color: transparent; /* 🌟 파란색 터치 잔상 소각 */
+            -webkit-tap-highlight-color: transparent; 
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale; 
             background-color: var(--bg-light); 
@@ -81,28 +88,28 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 스크롤바 대기업형 커스텀 */
+        /* 스크롤바 대기업형 커스텀 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 iOS 줌 버그 차단 및 스피너 파괴 */
+        /* 🌟 [방어 7] iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
         
-        /* 🌟 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
+        /* 브라우저 자동완성 오염 방지 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important; 
-            -webkit-text-fill-color: #1f2937 !important; 
+            -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+            -webkit-text-fill-color: #1f2937 !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🚀 [가속 채널 3, 4] DOM GPU 가속 및 렌더링 병목 타파 */
+        /* 🚀 [가속 채널 3] DOM GPU 가속 및 렌더링 병목 타파 */
         section { content-visibility: auto; contain-intrinsic-size: auto 1000px; }
         tbody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; }
 
@@ -110,7 +117,7 @@
             opacity: 0; 
             transform: translateY(8px); 
             animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
-            will-change: transform, opacity; /* 🌟 가속: GPU 메모리 선할당 */
+            will-change: transform, opacity;
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
@@ -119,7 +126,7 @@
             background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
             background-size: 400% 100%;
             animation: shimmer 1.5s infinite ease-in-out;
-            transform: translateZ(0);
+            transform: translateZ(0); /* GPU Acceleration */
         }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
@@ -146,6 +153,7 @@
         .btn-charcoal:hover:not(:disabled) { background: #000000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
+        /* 100% 정교한 네비게이션 CSS */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
@@ -156,7 +164,10 @@
         /* 인쇄(Print) 무손실 록다운 */
         @media print { 
             .no-print { display: none !important; } 
-            body { background: white !important; margin: 0; } 
+            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
+            .print-shadow-none { box-shadow: none !important; border: 1px solid #e5e7eb !important; background: white !important; color: black !important; }
+            .print-text-black { color: black !important; }
+            * { text-shadow: none !important; box-shadow: none !important; }
         }
     </style>
 </head>
@@ -164,16 +175,18 @@
 <!-- 🌟 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
-    <script>if (window.top !== window.self) { window.top.location.href = window.self.location.href; }</script>
+    <!-- 🚨 [방어 9] Clickjacking 방어 & NoScript 샌드박스 -->
+    <script>
+        try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
+    </script>
     <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
             <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
     </noscript>
 
-    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
+    <!-- 🌟 [방어 1] JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 -->
     <script>
         (function() {
             try {
@@ -183,8 +196,43 @@
                 document.documentElement.style.visibility = "visible";
                 document.getElementById('mainBody').style.opacity = "1";
 
-                var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
+                var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+                var token = String(localStorage.getItem("y2c_token") || "").trim();
                 window.__INITIAL_ROLE__ = userRole;
+
+                // 🚨 미인증/토큰 소실 계정 강제 축출
+                if (!userRole || userRole === "NULL" || !token || token.length < 10) {
+                    window.location.replace("index.html");
+                    return;
+                }
+
+                // 🚨 [방어 1] PARTNER 계정의 마스터DB 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
+                if (userRole === "PARTNER") {
+                    window.location.replace("dashboard.html");
+                    return; // 렌더링 즉시 중단
+                }
+
+                // 🚨 통합 권한 라우터 무결성 복원
+                if (userRole === 'MASTER' || userRole === 'PARTNER') {
+                    ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                if (userRole === 'MASTER' || userRole === 'VENDOR' || userRole === 'PARTNER') {
+                    ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                if (userRole === 'MASTER' || userRole === 'VENDOR') {
+                    ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                if (userRole === 'MASTER') {
+                    ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
             } catch(e) {}
         })();
     </script>
@@ -193,9 +241,8 @@
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 -->
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto">
-                <!-- 🌟 Favicon 무한 루프 픽스 -->
+            <!-- 좌측 로고 영역 (shrink-0 강제) -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -209,13 +256,13 @@
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
                 <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
                 <!-- 현재 페이지: Master DB 활성화 -->
-                <a href="admin.html" id="navAdmin" class="nav-link active text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_admin">Master DB</span></a>
                 <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
             <!-- 우측 컨트롤 영역 -->
-            <div class="flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto">
-                <div class="hidden sm:flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
+            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
                     <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
                     <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
@@ -235,31 +282,16 @@
     </header>
 
     <!-- 모바일 카테고리 뷰 -->
-    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
+    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
-        <a href="admin.html" id="navAdmin_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
+        <!-- 현재 페이지: Master DB 모바일 활성화 -->
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 권한 동기식 프리-언락 -->
-    <script>
-        (function() {
-            var role = window.__INITIAL_ROLE__;
-            if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-            if (role === 'MASTER' || role === 'VENDOR') {
-                ['navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-            if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-        })();
-    </script>
-
-    <!-- 🚀 [가속 채널 1] Zero-Latency 인라인 탭 라우터 -->
+    <!-- 🚀 [가속 채널 3] Zero-Latency 인라인 탭 라우터 (무손실 보존) -->
     <script>
         window._fastTabSwitch = function(tabId) {
             const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
@@ -274,18 +306,17 @@
                     if (sec) sec.classList.add('hidden');
                 }
             });
-            // JS 엔진이 로드되었다면 내부 상태 동기화 통신 시작
             if (typeof window.switchAdminTab === 'function') {
                 window.switchAdminTab(tabId, true);
             }
         };
     </script>
 
-    <!-- 🌟 메인 컨텐츠 영역 (Z-Index Stack 격리 isolation: isolate 적용) -->
+    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 8] Z-Index Stack 격리 isolation: isolate 적용) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-20 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 관리자 탭 스위처 -->
-        <div class="flex overflow-x-auto hide-scrollbar gap-2 mb-8 bg-white p-2 rounded-2xl premium-shadow border border-gray-100/50 no-print">
+        <div class="flex overflow-x-auto hide-scrollbar gap-2 mb-8 bg-white p-2 rounded-2xl premium-shadow border border-gray-100/50 no-print shrink-0">
             <!-- 🌟 초기 활성 탭 UI 사전 고정 -->
             <button id="tabBtn_profiles" onclick="_fastTabSwitch('profiles')" class="px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-md whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
             <button id="tabBtn_sales" onclick="_fastTabSwitch('sales')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_sales">ERP Sales</span></button>
@@ -295,7 +326,7 @@
 
         <!-- ========================================== -->
         <!-- 1. Franchise Profiles (마스터 전용) -->
-        <!-- 🚨 [버그 원천 픽스] hidden 클래스 제거로 블랭크 데드락 100% 록다운 -->
+        <!-- 🚨 [방어 2] SFP 블랭크 버그 원천 픽스: hidden 클래스 제거로 뼈대 즉시 노출 -->
         <!-- ========================================== -->
         <section id="section_profiles">
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 no-print">
@@ -494,7 +525,7 @@
 
     </main>
 
-    <!-- 🌟 프리미엄 푸터 (공통 레이아웃 무손실 보존) -->
+    <!-- 🌟 프리미엄 푸터 (공통 100% 무손실 보존) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -507,7 +538,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.23 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.26 STABLE</span>
                 </div>
             </div>
         </div>
@@ -523,6 +554,21 @@
     <!-- 글로벌 토스트 (z-9999) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
+    <!-- ⚡ JS 로직 연동 (무손실 보장) -->
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/admin.js" defer></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (typeof I18N_DICT !== 'undefined' && window.applyTranslations) {
+                    window.applyTranslations();
+                }
+            } catch (err) {
+                console.error("[Y2C Telemetry] I18N Error", err);
+            }
+        });
+    </script>
 </body>
 </html>
