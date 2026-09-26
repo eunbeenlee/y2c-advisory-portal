@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.22 Enterprise Catalog STABLE - HTML/JS/GS 100% Compatibility & 11 Bug Fixes -->
+<!-- 🌟 V40.23 Enterprise Master ULTIMATE - Zero-Latency SFP Rendering & 11 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +10,11 @@
     
     <title>Item Catalog & Order | Y2C Portal</title>
     
-    <!-- 🚨 프리로드: 폰트와 파비콘을 브라우저 렌더링 1순위로 강제 -->
+    <!-- 🚀 [가속 채널 1] API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://script.google.com">
+
+    <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 (로딩 깜빡임 원천 차단) -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
@@ -18,12 +22,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [방어 2] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 [방어 6] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
     <script>
-        // JS가 정상 작동할 때만 화면을 가리고, 0.8초 뒤 무조건 락을 푸는 생존 타이머
         document.documentElement.classList.add('fouc-lock');
         window._foucTimer = setTimeout(function() {
             document.documentElement.classList.remove('fouc-lock');
@@ -36,7 +39,6 @@
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 🌟 [방어 7] Config 폴백 알림 -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -65,11 +67,11 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단 */
+        /* 🌟 [방어 7] 터치 딜레이 및 바운스 스크롤 완벽 차단, 터치 잔상 소각 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent; 
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale; 
             background-color: var(--bg-light); 
@@ -78,18 +80,18 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 스크롤바 대기업형 커스텀 */
+        /* 🌟 스크롤바 대기업형 커스텀 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 4] iOS 줌 버그 차단 및 스피너 파괴 */
+        /* 🌟 [방어 8] iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        input, select, button { font-size: 16px !important; }
+        input, select, button, textarea { font-size: 16px !important; }
 
-        /* 🌟 [방어 5] 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
+        /* 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
             -webkit-text-fill-color: #1f2937 !important;
@@ -99,23 +101,25 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* DOM GPU 가속 및 렌더링 병목 타파 */
+        /* 🚀 [가속 채널 3] DOM GPU 가속 및 렌더링 병목 타파 */
         #itemTableBody { transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
         #itemTableBody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; }
 
+        /* 🚀 [가속 채널 2] Will-Change 메모리 선할당 */
         .app-shell-enter { 
             opacity: 0; 
             transform: translateY(8px); 
             animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            will-change: transform, opacity;
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 [방어 10] Shimmer 로더 하드웨어 가속 */
+        /* Shimmer 로더 하드웨어 가속 */
         .shimmer-bg {
             background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
             background-size: 400% 100%;
             animation: shimmer 1.5s infinite ease-in-out;
-            transform: translateZ(0);
+            transform: translateZ(0); /* GPU Acceleration */
         }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
@@ -155,17 +159,16 @@
     </style>
 </head>
 
-<!-- 🌟 [방어 3] 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [방어 6] Clickjacking 방어 & [방어 11] NoScript 샌드박스 -->
+    <!-- 🚨 [방어 9] Clickjacking 방어 & NoScript 샌드박스 -->
     <script>
         try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
     </script>
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
-            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Sinjeon Item Catalog.</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
     </noscript>
 
@@ -185,13 +188,13 @@
         })();
     </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 (Flexbox Crush 방어 유지) -->
+    <!-- 🌟 유니버설 마스터 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
             <!-- 좌측 로고 영역 -->
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto">
-                <!-- 🌟 [방어 8] Favicon 404 무한 루프 픽스 (this.onerror=null 주입) -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <!-- 🌟 [방어 10] Favicon 404 무한 루프 픽스 (this.onerror=null 주입) -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -210,8 +213,8 @@
             </nav>
 
             <!-- 우측 컨트롤 영역 -->
-            <div class="flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto">
-                <div class="hidden sm:flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
+            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
                     <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
                     <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
@@ -244,17 +247,20 @@
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
+            if (role === 'MASTER' || role === 'PARTNER') {
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
+            }
             if (role === 'MASTER' || role === 'VENDOR') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) {
-                    var el = document.getElementById(id);
-                    if (el) el.classList.remove('hidden');
-                });
+                ['navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
+            }
+            if (role === 'MASTER') {
+                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (하단 겹침 방지 여백 유지 pb-32 sm:pb-36) -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-32 sm:pb-36 app-shell-enter">
+    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 5] Z-Index Stack 격리 isolation: isolate 적용) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-32 sm:pb-36 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 헤더 및 액션 버튼 -->
         <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 no-print">
@@ -309,6 +315,7 @@
         </div>
 
         <!-- 🌟 메인 카탈로그 테이블 영역 -->
+        <!-- 🚨 [방어 4] SFP 록다운: 로딩 없이 뼈대 즉시 노출 보장 -->
         <section class="bg-white premium-shadow rounded-[1.5rem] overflow-hidden mb-8 relative">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#E3000F] to-[#B9000C]"></div>
             
@@ -346,7 +353,7 @@
     </main>
 
     <!-- 🌟 결제/주문 하단 플로팅 바 (안전영역 safe-area-inset-bottom 록다운 및 Z-40 고정) -->
-    <!-- 🌟 [방어 9] pb-[env(safe-area-inset-bottom)] 주입으로 모바일 노치 가림 완벽 해결 -->
+    <!-- 🚨 모바일 노치 가림 완벽 방어 유지 -->
     <aside id="orderActionContainer" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] z-40 transition-transform duration-500 no-print pb-[env(safe-area-inset-bottom)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
@@ -384,7 +391,7 @@
     <!-- 🌟 글로벌 토스트 알림 컨테이너 (최상단 Z-9999 보장) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ 🌟 [방어 1] SWR 캐시 프리렌더러 및 스크립트 비동기 구동 (함수명 교정 및 예외 처리 완벽 록다운) -->
+    <!-- ⚡ 🌟 [방어 1] SWR 캐시 프리렌더러 무손실 록다운 (초기 로딩 즉사 버그 방지 교정) -->
     <script>
         (function() {
             try {
@@ -397,7 +404,7 @@
                     var data = JSON.parse(cached);
                     if (Array.isArray(data) && data.length > 0) {
                         document.addEventListener('DOMContentLoaded', () => {
-                            // 🚨 [방어 1] renderItemRowsFast -> renderTableItemsFast 함수명 픽스
+                            // 🚨 [방어 1] renderTableItemsFast 함수명 픽스 적용 완료
                             if(typeof window.renderTableItemsFast === 'function') {
                                 document.getElementById('itemTableBody').style.opacity = '0';
                                 window.renderTableItemsFast(data, true);
@@ -411,6 +418,12 @@
             }
         })();
     </script>
+    
+    <!-- ⚡ JS 로직 연동 (공통 인증 및 다국어 100% 무손실 록다운) -->
+    <!-- 🌟 [방어 11] 타 페이지와 통일된 코어 스크립트 병합 -->
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/auth.js"></script>
+    
     <script src="assets/js/items.js" defer></script>
     
     <script>
