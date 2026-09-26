@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.22 Enterprise Master STABLE - HTML/JS/GS 100% Compatibility & 11 Bug Fixes -->
+<!-- 🌟 V40.23 Enterprise Master ULTIMATE - Zero-Latency SFP Rendering & 11 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,10 @@
     
     <title>Master DB & Operations | Y2C Portal</title>
     
+    <!-- 🚀 [가속 채널 2] API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://script.google.com">
+
     <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 (로딩 깜빡임 원천 차단) -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -18,12 +22,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [방어 1] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
     <script>
-        // JS가 정상 작동할 때만 화면을 가리고, 0.8초 뒤 무조건 락을 푸는 생존 타이머
         document.documentElement.classList.add('fouc-lock');
         window._foucTimer = setTimeout(function() {
             document.documentElement.classList.remove('fouc-lock');
@@ -37,7 +40,7 @@
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 🌟 [방어 7] Config 폴백 알림 -->
+    <!-- Config 폴백 알림 -->
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -65,11 +68,11 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 [방어 8] 터치 딜레이 및 바운스 스크롤 완벽 차단 */
+        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent; /* 🌟 파란색 터치 잔상 소각 */
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale; 
             background-color: var(--bg-light); 
@@ -84,28 +87,30 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 3] iOS 사파리 줌 버그 차단 및 16px 강제 록다운 */
+        /* 🌟 iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
         
-        /* 🌟 [방어 5] 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
+        /* 🌟 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important; /* bg-gray-50 */
-            -webkit-text-fill-color: #1f2937 !important; /* text-gray-800 */
+            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important; 
+            -webkit-text-fill-color: #1f2937 !important; 
             transition: background-color 5000s ease-in-out 0s;
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🚀 [방어 9] DOM GPU 가속 및 렌더링 병목 타파 */
+        /* 🚀 [가속 채널 3, 4] DOM GPU 가속 및 렌더링 병목 타파 */
+        section { content-visibility: auto; contain-intrinsic-size: auto 1000px; }
         tbody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; }
 
         .app-shell-enter { 
             opacity: 0; 
             transform: translateY(8px); 
             animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            will-change: transform, opacity; /* 🌟 가속: GPU 메모리 선할당 */
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
@@ -148,7 +153,7 @@
 
         .premium-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9; }
 
-        /* 🌟 [방어 11] 인쇄(Print) 무손실 록다운 */
+        /* 인쇄(Print) 무손실 록다운 */
         @media print { 
             .no-print { display: none !important; } 
             body { background: white !important; margin: 0; } 
@@ -156,10 +161,10 @@
     </style>
 </head>
 
-<!-- 🌟 [방어 2] 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
+<!-- 🌟 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [방어 4] Clickjacking 방어 & [방어 10] NoScript 샌드박스 -->
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
     <script>if (window.top !== window.self) { window.top.location.href = window.self.location.href; }</script>
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
@@ -184,13 +189,13 @@
         })();
     </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 (Flexbox Crush 방어) -->
+    <!-- 🌟 유니버설 마스터 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
             <!-- 좌측 로고 영역 -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto">
-                <!-- 🌟 [방어 6] Favicon 무한 루프 픽스 (this.onerror=null 주입) -->
+                <!-- 🌟 Favicon 무한 루프 픽스 -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -254,21 +259,45 @@
         })();
     </script>
 
-    <!-- 🌟 메인 컨텐츠 영역 (App-Shell) -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-20 app-shell-enter">
+    <!-- 🚀 [가속 채널 1] Zero-Latency 인라인 탭 라우터 -->
+    <script>
+        window._fastTabSwitch = function(tabId) {
+            const tabs = ['profiles', 'sales', 'inbound', 'hqorders'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tabBtn_' + t);
+                const sec = document.getElementById('section_' + t);
+                if (t === tabId) {
+                    if (btn) btn.className = "px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-md whitespace-nowrap focus:outline-none";
+                    if (sec) sec.classList.remove('hidden');
+                } else {
+                    if (btn && !btn.classList.contains('cursor-not-allowed')) btn.className = "px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none";
+                    if (sec) sec.classList.add('hidden');
+                }
+            });
+            // JS 엔진이 로드되었다면 내부 상태 동기화 통신 시작
+            if (typeof window.switchAdminTab === 'function') {
+                window.switchAdminTab(tabId, true);
+            }
+        };
+    </script>
+
+    <!-- 🌟 메인 컨텐츠 영역 (Z-Index Stack 격리 isolation: isolate 적용) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-20 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 관리자 탭 스위처 -->
         <div class="flex overflow-x-auto hide-scrollbar gap-2 mb-8 bg-white p-2 rounded-2xl premium-shadow border border-gray-100/50 no-print">
-            <button id="tabBtn_profiles" onclick="switchAdminTab('profiles')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
-            <button id="tabBtn_sales" onclick="switchAdminTab('sales')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_sales">ERP Sales</span></button>
-            <button id="tabBtn_inbound" onclick="switchAdminTab('inbound')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
-            <button id="tabBtn_hqorders" onclick="switchAdminTab('hqorders')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_hqorders">HQ Procurement</span></button>
+            <!-- 🌟 초기 활성 탭 UI 사전 고정 -->
+            <button id="tabBtn_profiles" onclick="_fastTabSwitch('profiles')" class="px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-md whitespace-nowrap focus:outline-none"><span data-i18n="tab_profiles">Franchise DB</span></button>
+            <button id="tabBtn_sales" onclick="_fastTabSwitch('sales')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_sales">ERP Sales</span></button>
+            <button id="tabBtn_inbound" onclick="_fastTabSwitch('inbound')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_inbound">Inbound (Excel)</span></button>
+            <button id="tabBtn_hqorders" onclick="_fastTabSwitch('hqorders')" class="px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 text-gray-500 hover:text-[var(--premium-charcoal)] hover:bg-gray-100 whitespace-nowrap focus:outline-none"><span data-i18n="tab_hqorders">HQ Procurement</span></button>
         </div>
 
         <!-- ========================================== -->
         <!-- 1. Franchise Profiles (마스터 전용) -->
+        <!-- 🚨 [버그 원천 픽스] hidden 클래스 제거로 블랭크 데드락 100% 록다운 -->
         <!-- ========================================== -->
-        <section id="section_profiles" class="hidden">
+        <section id="section_profiles">
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 no-print">
                 <div>
                     <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
@@ -464,6 +493,25 @@
         </section>
 
     </main>
+
+    <!-- 🌟 프리미엄 푸터 (공통 레이아웃 무손실 보존) -->
+    <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
+                    &copy; 2026 Y2C Holdings. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
+                </p>
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        System Online
+                    </span>
+                    <span class="text-gray-300">|</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.23 STABLE</span>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- 🌟 Z-Index 모달 격리 및 Blur 적용 -->
     <!-- HQ Cart Modal (z-9998) -->
