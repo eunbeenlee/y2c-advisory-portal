@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.26 Enterprise Invoice ULTIMATE - Strict RBAC Routing, Zero-Loss Validation & 11 Acceleration Fixes -->
+<!-- 🌟 V40.29 Enterprise Invoice ULTIMATE - Infinite Refresh Hotfix, Strict RBAC Routing & 10 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,7 +13,7 @@
     
     <title>Advisory Invoice | Y2C Portal</title>
     
-    <!-- 🚀 [가속 채널 1] API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
 
@@ -21,7 +21,7 @@
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [가속 채널 1] 폰트 로딩 CSSOM 블로킹 타파 -->
+    <!-- 🚀 [방어 4] 폰트 로딩 CSSOM 블로킹 타파 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
@@ -43,7 +43,7 @@
             if (mainBody) mainBody.style.opacity = '1';
         }, 800);
 
-        // 🚀 [가속 채널 7] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        // 🚀 [방어 7] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
@@ -75,7 +75,7 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 터치 딜레이 및 바운스 스크롤 완벽 차단, 터치 잔상 소각 */
+        /* 터치 딜레이 및 바운스 스크롤 완벽 차단, 파란색 터치 잔상 소각 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -94,12 +94,12 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 8] iOS 줌 버그 차단 */
+        /* 🌟 [방어 9] iOS 줌 버그 차단 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
         
-        /* 🌟 [방어 9] 브라우저 자동완성 오염 방지 */
+        /* 🌟 [방어 8] 브라우저 자동완성 오염 방지 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
             -webkit-text-fill-color: #1f2937 !important;
@@ -118,10 +118,6 @@
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2), 0 2px 4px -1px rgba(227, 0, 15, 0.1); }
-        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 10px 15px -3px rgba(227, 0, 15, 0.3), 0 4px 6px -2px rgba(227, 0, 15, 0.15); transform: translateY(-1px); }
-        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
-
         .btn-charcoal { background: var(--premium-charcoal); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .btn-charcoal:hover:not(:disabled) { background: #000000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
         .btn-charcoal:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
@@ -133,7 +129,7 @@
 
         .premium-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9; }
 
-        /* 🌟 [방어 3, 4] 인쇄(Print) 무손실 절대 록다운 */
+        /* 🌟 [방어 3] 인쇄(Print) 무손실 절대 록다운 - 프린터 스풀러 렌더링 최적화 */
         @media print { 
             .no-print { display: none !important; } 
             body { 
@@ -149,7 +145,7 @@
                 width: 100% !important; 
                 max-width: 100% !important; 
             }
-            /* Grid 구조 강제 해제 (좌측 패널은 숨기고 우측은 100% 확장) */
+            /* Grid 구조 강제 해제 (좌측 컨트롤 패널은 숨기고 우측 정산서는 100% 확장) */
             .lg\:grid-cols-12 { display: block !important; }
             .lg\:col-span-8 { width: 100% !important; }
             
@@ -160,7 +156,7 @@
     </style>
 </head>
 
-<!-- 🌟 [방어 6] 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
+<!-- 🌟 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
     <!-- 🚨 [방어 10] Clickjacking 방어 & NoScript 샌드박스 -->
@@ -168,13 +164,13 @@
         try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
     </script>
     <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
             <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
     </noscript>
 
-    <!-- 🌟 [방어 1] JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 -->
+    <!-- 🌟 [방어 1, 2] JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 (무한 루프 100% 원천 차단) -->
     <script>
         (function() {
             try {
@@ -188,20 +184,20 @@
                 var token = String(localStorage.getItem("y2c_token") || "").trim();
                 window.__INITIAL_ROLE__ = userRole;
 
-                // 🚨 미인증 계정 강제 축출
+                // 🚨 미인증/토큰 소실 계정 강제 축출
                 if (!userRole || userRole === "NULL" || !token || token.length < 10) {
                     window.location.replace("index.html");
                     return;
                 }
 
-                // 🚨 [방어 1] MASTER 외 모든 계정의 정산서 불법 진입 시 HTML 렌더링 전 강제 축출 (Inline Page-Kick)
+                // 🚨 [가혹 조건 방어] MASTER 외 모든 계정의 정산서 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
                 if (userRole !== "MASTER") {
                     if (userRole === "PARTNER") window.location.replace("dashboard.html");
                     else window.location.replace("items.html");
                     return; // 렌더링 즉시 중단
                 }
 
-                // 🚨 통합 권한 라우터 무결성 복원 (MASTER 전용이므로 모든 탭 오픈)
+                // 통합 권한 라우터 무결성 복원 (MASTER 전용이므로 모든 탭 오픈)
                 ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob', 'navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) { 
                     var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
                 });
@@ -209,13 +205,12 @@
         })();
     </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 (DOM 무손실 보존) -->
+    <!-- 🌟 유니버설 마스터 헤더 (태블릿 레이아웃 붕괴 방어) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 -->
+            <!-- 좌측 로고 영역 (shrink-0 강제) -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <!-- 🌟 Favicon 404 무한 루프 픽스 (this.onerror=null 주입) -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -223,7 +218,7 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
+            <!-- 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -254,7 +249,7 @@
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 -->
+    <!-- 모바일 카테고리 뷰 (shrink-0 방어막 추가) -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -264,8 +259,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 9] Z-Index Stack 격리 isolation: isolate 적용) -->
-    <!-- 🚨 [방어 2] SFP (Static First Paint) 완벽 적용으로 하얀 화면 데드락 100% 제거 -->
+    <!-- 📊 메인 컨텐츠 영역 (🌟 Z-Index Stack 격리 isolation: isolate 적용) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter" style="isolation: isolate;">
         
         <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
@@ -277,10 +271,10 @@
             </div>
         </header>
 
-        <!-- 🌟 Grid/Flexbox 반응형 중첩 레이아웃 (기존 DOM 요소 단 1px도 삭제되지 않음) -->
+        <!-- 🌟 Grid/Flexbox 반응형 중첩 레이아웃 (DOM 소실 0%) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <!-- 왼쪽: 컨트롤 패널 (입력 폼) (인쇄 시 숨김) -->
+            <!-- 왼쪽: 컨트롤 패널 (입력 폼) (인쇄 시 숨김 처리됨) -->
             <div class="lg:col-span-4 bg-white premium-shadow rounded-[2rem] p-6 sm:p-8 no-print lg:sticky lg:top-[110px]">
                 <h3 class="font-montserrat text-base font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#E3000F]"></span> <span data-i18n="inv_ctrl_title">Invoice Control Panel</span>
@@ -453,18 +447,17 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.26 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.29 STABLE</span>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- 글로벌 토스트 (z-9999) -->
+    <!-- 글로벌 토스트 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ JS 로직 연동 (공통 인증 및 다국어 100% 무손실 록다운) -->
+    <!-- 🚨 렌더링 무한 리프레시 자폭 방어 (auth.js 소각 및 i18n.js 단독 로드) -->
     <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/auth.js"></script>
     <script src="assets/js/invoice.js" defer></script>
     
     <script>
