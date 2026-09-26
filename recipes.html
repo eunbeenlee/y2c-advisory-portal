@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.12 Enterprise Master Benchmark - 모든 기존 코드 무손실 보존(Zero-Deletion) 및 33대 방어로직 적용 -->
-<html lang="en" class="opacity-0">
+<!-- 🌟 V40.18 Enterprise Master STABLE - FOUC 하얀화면 영구 픽스 & 33대 방어로직 무손실 보존 -->
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
@@ -17,6 +17,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
+
+    <!-- 🌟 [핵심 버그 픽스] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <style>
+        .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
+    </style>
+    <script>
+        // JS가 정상 작동할 때만 화면을 가리고, 0.8초 뒤 무조건 락을 푸는 생존 타이머
+        document.documentElement.classList.add('fouc-lock');
+        window._foucTimer = setTimeout(function() {
+            document.documentElement.classList.remove('fouc-lock');
+            document.documentElement.style.opacity = '1';
+            document.documentElement.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+        }, 800);
+    </script>
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -118,7 +133,7 @@
         }
     </style>
 </head>
-<body style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
+<body style="background-color: #F8F9FA; margin: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
     <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 (기존 로직 100% 무손실 보존) -->
     <script>if (window.top !== window.self) { window.top.location = window.self.location; }</script>
@@ -128,17 +143,16 @@
         </div>
     </noscript>
 
-    <!-- 🌟 동기식 권한 프리-언락 및 스무스 페이드인 -->
+    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
     <script>
         (function() {
             try {
-                document.documentElement.classList.remove("opacity-0");
+                clearTimeout(window._foucTimer);
+                document.documentElement.classList.remove("fouc-lock");
                 document.documentElement.style.opacity = "1";
-                requestAnimationFrame(function() {
-                    requestAnimationFrame(function() {
-                        document.body.style.opacity = "1";
-                    });
-                });
+                document.documentElement.style.visibility = "visible";
+                document.body.style.opacity = "1";
+
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
             } catch(e) {}
@@ -228,7 +242,7 @@
             </div>
             
             <div class="w-full md:w-80 lg:w-96 relative shrink-0">
-                <!-- 🌟 [방어 26, 29] ID 및 Placeholder 섀도우 속성 완벽 보존 -->
+                <!-- 🌟 ID 및 Placeholder 섀도우 속성 완벽 보존 -->
                 <input type="text" id="recipeSearchInput" placeholder="Search recipes by name or ingredient..." data-i18n-placeholder="search_placeholder" class="w-full bg-white border border-gray-200 text-gray-800 text-[13px] font-bold rounded-xl focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block pl-11 pr-4 py-3.5 outline-none transition-all shadow-sm premium-shadow">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -282,7 +296,7 @@
         </div>
     </main>
 
-    <!-- 🌟 [방어 16, 18, 31] Z-Index 모달 격리 및 Blur 적용 (모든 DOM ID 무손실 앵커링) -->
+    <!-- 🌟 Z-Index 모달 격리 및 Blur 적용 (모든 DOM ID 무손실 앵커링) -->
     <!-- Recipe Modal (z-9998) -->
     <div id="recipeModal" class="fixed inset-0 bg-[#111827]/85 backdrop-blur-md z-[9998] hidden items-center justify-center p-4 sm:p-6 opacity-0 pointer-events-none transition-opacity duration-300">
         <!-- 🌟 Modal Bouncing Transition 적용 (scale-95) -->
