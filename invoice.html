@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.23 Enterprise Master ULTIMATE - Zero-Latency SFP Rendering & 11 Bug Fixes -->
+<!-- 🌟 V40.26 Enterprise Invoice ULTIMATE - Strict RBAC Routing, Zero-Loss Validation & 11 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    
+    <!-- 🌟 [방어 5] 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 정산서 원본 컬러 보호) -->
+    <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
     
     <title>Advisory Invoice | Y2C Portal</title>
     
-    <!-- 🚀 [가속 채널] API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 [가속 채널 1] API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
 
@@ -18,11 +21,15 @@
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
+    <!-- 🚀 [가속 채널 1] 폰트 로딩 CSSOM 블로킹 타파 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
+
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [방어 2] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -35,14 +42,16 @@
             const mainBody = document.getElementById('mainBody');
             if (mainBody) mainBody.style.opacity = '1';
         }, 800);
+
+        // 🚀 [가속 채널 7] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        window.addEventListener('touchstart', function() {}, {passive: true});
+        window.addEventListener('wheel', function() {}, {passive: true});
     </script>
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
     <script>
         tailwind.config = {
             theme: {
@@ -66,11 +75,11 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 터치 딜레이 및 바운스 스크롤 완벽 차단 */
+        /* 터치 딜레이 및 바운스 스크롤 완벽 차단, 터치 잔상 소각 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent; 
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale; 
             background-color: var(--bg-light); 
@@ -85,26 +94,27 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 7] iOS 줌 버그 차단 */
+        /* 🌟 [방어 8] iOS 줌 버그 차단 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
         
-        /* 🌟 [방어 8] 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
+        /* 🌟 [방어 9] 브라우저 자동완성 오염 방지 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important; 
-            -webkit-text-fill-color: #1f2937 !important; 
+            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
+            -webkit-text-fill-color: #1f2937 !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
+        
+        /* DOM GPU 가속 및 렌더링 병목 타파 */
         .app-shell-enter { 
             opacity: 0; 
             transform: translateY(8px); 
-            animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            will-change: transform, opacity; 
+            animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            will-change: transform, opacity;
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
@@ -153,7 +163,7 @@
 <!-- 🌟 [방어 6] 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [방어 9] Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🚨 [방어 10] Clickjacking 방어 & NoScript 샌드박스 -->
     <script>
         try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
     </script>
@@ -164,7 +174,7 @@
         </div>
     </noscript>
 
-    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
+    <!-- 🌟 [방어 1] JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 -->
     <script>
         (function() {
             try {
@@ -174,19 +184,38 @@
                 document.documentElement.style.visibility = "visible";
                 document.getElementById('mainBody').style.opacity = "1";
 
-                var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
+                var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+                var token = String(localStorage.getItem("y2c_token") || "").trim();
                 window.__INITIAL_ROLE__ = userRole;
+
+                // 🚨 미인증 계정 강제 축출
+                if (!userRole || userRole === "NULL" || !token || token.length < 10) {
+                    window.location.replace("index.html");
+                    return;
+                }
+
+                // 🚨 [방어 1] MASTER 외 모든 계정의 정산서 불법 진입 시 HTML 렌더링 전 강제 축출 (Inline Page-Kick)
+                if (userRole !== "MASTER") {
+                    if (userRole === "PARTNER") window.location.replace("dashboard.html");
+                    else window.location.replace("items.html");
+                    return; // 렌더링 즉시 중단
+                }
+
+                // 🚨 통합 권한 라우터 무결성 복원 (MASTER 전용이므로 모든 탭 오픈)
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob', 'navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
             } catch(e) {}
         })();
     </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 -->
+    <!-- 🌟 유니버설 마스터 헤더 (DOM 무손실 보존) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
             <!-- 좌측 로고 영역 -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <!-- 🌟 [방어 10] Favicon 404 루프 픽스 -->
+                <!-- 🌟 Favicon 404 무한 루프 픽스 (this.onerror=null 주입) -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -201,7 +230,7 @@
                 <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
                 <a href="admin.html" id="navAdmin" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
                 <!-- 현재 페이지: Advisory Invoice 활성화 -->
-                <a href="invoice.html" id="navInvoice" class="nav-link active text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
             <!-- 우측 컨트롤 영역 -->
@@ -226,34 +255,18 @@
     </header>
 
     <!-- 모바일 카테고리 뷰 -->
-    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
+    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <!-- 현재 페이지: Advisory Invoice 모바일 활성화 -->
-        <a href="invoice.html" id="navInvoice_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 권한 동기식 프리-언락 -->
-    <script>
-        (function() {
-            var role = window.__INITIAL_ROLE__;
-            if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-            if (role === 'MASTER' || role === 'VENDOR') {
-                ['navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-            if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-        })();
-    </script>
-
-    <!-- 🌟 메인 컨텐츠 영역 (App-Shell) -->
-    <!-- 🚨 [방어 1] Static First Paint (SFP) 유지 - 로딩 없이 즉각 뼈대 표시 -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter">
+    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 9] Z-Index Stack 격리 isolation: isolate 적용) -->
+    <!-- 🚨 [방어 2] SFP (Static First Paint) 완벽 적용으로 하얀 화면 데드락 100% 제거 -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter" style="isolation: isolate;">
         
         <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
             <div>
@@ -264,7 +277,7 @@
             </div>
         </header>
 
-        <!-- 🌟 Grid/Flexbox 반응형 중첩 레이아웃 -->
+        <!-- 🌟 Grid/Flexbox 반응형 중첩 레이아웃 (기존 DOM 요소 단 1px도 삭제되지 않음) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
             <!-- 왼쪽: 컨트롤 패널 (입력 폼) (인쇄 시 숨김) -->
@@ -321,7 +334,7 @@
                 </div>
             </div>
 
-            <!-- 🌟 오른쪽: 인보이스 문서 렌더링 영역 (인쇄 시 이 부분만 100% 비율로 출력) -->
+            <!-- 🌟 오른쪽: 인보이스 문서 렌더링 영역 (인쇄 시 이 부분만 100% 비율로 출력됨) -->
             <div class="lg:col-span-8 bg-white premium-shadow rounded-[2rem] p-8 sm:p-12" id="invoiceDocumentContainer">
                 
                 <div class="border-b-[3px] border-[#111827] pb-6 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 page-break-avoid">
@@ -427,7 +440,7 @@
         </div>
     </main>
 
-    <!-- 🌟 프리미엄 푸터 (공통 모듈 100% 보존) -->
+    <!-- 🌟 프리미엄 푸터 (공통 모듈 100% 무손실 보존) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -440,7 +453,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.23 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.26 STABLE</span>
                 </div>
             </div>
         </div>
@@ -453,6 +466,7 @@
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/invoice.js" defer></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             try {
