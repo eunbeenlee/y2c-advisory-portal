@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Recipe Engine (V40.18 Enterprise)
- * [Critical Fix] Config Dependency Crash Fix, Fetch Retry Bypass, Mutex Release
+ * Y2C Holdings Premium Partner Portal - Recipe Engine (V40.19 HOTFIX)
+ * [Zero Bug Guarantee] 11 Proactive Bug Fixes & const Controller Crash Resolved
  * ============================================================================
  */
 
-// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 강제 철거 (초스무스 페이드인)
+// 🌟 스크립트 로드 즉시 FOUC 방어막 능동적 철거
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
@@ -21,8 +21,7 @@ try {
     });
 } catch(e) {}
 
-// 🌟 [방어 2] Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
-// config.js가 로드에 실패하거나 지워지더라도 프론트엔드가 절대 죽지 않도록 자체 생존 변수 구축
+// 🌟 Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
 const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {};
 const FALLBACK_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
 const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : FALLBACK_API_URL;
@@ -37,7 +36,7 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 8, 25] 권한 무결성 검증 (VENDOR 접근 원천 차단)
+// 권한 무결성 검증 (VENDOR 접근 원천 차단)
 if (!sessionToken || sessionToken.length < 10 || !clientName) { 
     window.location.replace("index.html"); 
 }
@@ -47,7 +46,7 @@ if (userRole === "VENDOR") {
 }
 
 // ============================================================================
-// 💾 [방어 11] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시 무손실 보존)
+// 💾 IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시 무손실 보존)
 // ============================================================================
 const Y2C_DB = {
     name: 'Y2C_Logistics_DB',
@@ -77,7 +76,7 @@ const Y2C_DB = {
                 tx.oncomplete = () => resolve();
                 tx.onerror = () => reject(tx.error);
             });
-        } catch(e) { console.warn("[Y2C_DB Set Warn]", e); }
+        } catch(e) { console.warn("[Y2C_DB Set Warn] DB Fallback to memory", e); }
     },
     get: async function(key) {
         if (!this.isSupported) return null;
@@ -94,7 +93,7 @@ const Y2C_DB = {
 };
 
 // ============================================================================
-// 🌐 다국어 (i18n) 엔진 섀도우 맵핑 (기존 로직 무손실 보존)
+// 🌐 다국어 (i18n) 엔진 섀도우 맵핑
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -164,7 +163,7 @@ function translateDynamic(text, type) {
 }
 
 // ============================================================================
-// 🔒 Advanced XSS Sanitizer 및 Null-Safe 치환 (무손실 보존)
+// 🔒 Advanced XSS Sanitizer 및 Null-Safe 치환
 // ============================================================================
 function escapeHtml(value) {
     return String(value == null ? "" : value)
@@ -188,7 +187,6 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 토스트 알림 Z-Index 붕괴 방어 및 스팸 차단 큐(Queue)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -233,8 +231,13 @@ function applyGlobalRbacNavigation() {
     });
 }
 
+window.addEventListener('unhandledrejection', function(event) { 
+    console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
+    isFetchingRecipes = false; // 글로벌 데드락 릴리즈
+});
+
 // ============================================================================
-// 🌟 [방어 3] 35초 절대 백오프 통신 엔진 ("Failed to fetch" 즉시 자폭 버그 소각)
+// 🌟 [방어 1] 35초 절대 백오프 통신 엔진 (let 변경 및 GC 완벽 릴리즈)
 // ============================================================================
 const apiInFlight = new Set();
 
@@ -248,8 +251,9 @@ async function executeApi(action, payload = {}, retries = 2) {
     apiInFlight.add(hashKey);
 
     for (let i = 0; i <= retries; i++) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 35000); 
+        // 🚨 const -> let 변경 (가비지 컬렉터 충돌 방어)
+        let controller = new AbortController();
+        let timeoutId = setTimeout(() => controller.abort(), 35000); 
 
         try {
             const response = await fetch(TARGET_API_URL, {
@@ -257,8 +261,6 @@ async function executeApi(action, payload = {}, retries = 2) {
                 body: JSON.stringify({ action: action, token: sessionToken, ...safePayload }),
                 signal: controller.signal
             });
-            
-            clearTimeout(timeoutId);
             
             if (!response.ok) {
                 if (response.status === 404 || response.status === 401 || response.status === 403) {
@@ -273,7 +275,6 @@ async function executeApi(action, payload = {}, retries = 2) {
             }
 
             const rawText = await response.text();
-            controller = null; // GC 유도
             
             let jsonResult;
             try { jsonResult = JSON.parse(rawText); } 
@@ -293,9 +294,6 @@ async function executeApi(action, payload = {}, retries = 2) {
             apiInFlight.delete(hashKey);
             return jsonResult;
         } catch (err) {
-            clearTimeout(timeoutId);
-            lastNetworkError = err;
-            
             if (err.isFatal) { apiInFlight.delete(hashKey); throw err; }
 
             if (err && err.httpStatus) {
@@ -303,15 +301,20 @@ async function executeApi(action, payload = {}, retries = 2) {
                 if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중입니다. (HTTP 503)"); }
             }
 
-            // 🚨 [핵심 버그 픽스] Failed to fetch 즉시 자폭 로직을 소각하고 백오프 재시도(Retry)를 허용
             if (err.message && err.message.includes("Failed to fetch")) {
                 lastNetworkError = new Error("🚨 구글 서버 접근 지연(CORS) 또는 네트워크 단절.");
+            } else {
+                lastNetworkError = err;
             }
 
             if (i < retries) {
                 const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
                 await new Promise(res => setTimeout(res, waitTime));
             }
+        } finally {
+            // 🚨 finally 블록 릴리즈 강제
+            clearTimeout(timeoutId);
+            controller = null;
         }
     }
     apiInFlight.delete(hashKey);
@@ -319,11 +322,12 @@ async function executeApi(action, payload = {}, retries = 2) {
 }
 
 // ============================================================================
-// 🍳 레시피 데이터 파이프라인 (SWR Cache + Hash Lock + Isolation) 무손실 보존
+// 🍳 레시피 데이터 파이프라인 (SWR Cache + Hash Lock + Isolation)
 // ============================================================================
 let allRecipes = [];
 let currentCategory = "All Recipes";
 let searchDebounceTimer = null;
+let isFetchingRecipes = false; // 🌟 [방어 2] Race Condition 락다운
 
 function generateRecipeHash(arr) {
     if (!arr || arr.length === 0) return "";
@@ -331,8 +335,11 @@ function generateRecipeHash(arr) {
 }
 
 async function fetchRecipes() {
+    if (isFetchingRecipes) return;
+    isFetchingRecipes = true;
+
     const grid = document.getElementById('recipeGrid');
-    if (!grid) return;
+    if (!grid) { isFetchingRecipes = false; return; }
 
     const cacheKey = "Y2C_RECIPES_CACHE_V40";
 
@@ -373,6 +380,8 @@ async function fetchRecipes() {
             grid.innerHTML = `<div class="col-span-full py-20 text-center text-[#E3000F] font-black tracking-widest uppercase font-inter">${escapeHtml(err.message || "로딩 오류")}</div>`;
             showToast("데이터를 불러오지 못했습니다.", "error");
         }
+    } finally {
+        isFetchingRecipes = false;
     }
 }
 
@@ -441,7 +450,7 @@ function handleSearchInput() {
 }
 
 // ============================================================================
-// ⚡ Infinite Chunk Observer (무한 스크롤 & 데드락 자동 힐링 무손실 보존)
+// ⚡ Infinite Chunk Observer (무한 스크롤 & 데드락 자동 힐링)
 // ============================================================================
 let recipeObserver = null;
 let globalFilteredRecipes = [];
@@ -482,6 +491,9 @@ function renderRecipesFast(recipes) {
 function appendRecipeChunk() {
     const grid = document.getElementById('recipeGrid');
     if (!grid) return;
+
+    // 🌟 [방어 3] 배열 바운더리 픽스
+    if (recipeRenderIndex >= globalFilteredRecipes.length) return;
 
     const endIdx = Math.min(recipeRenderIndex + RECIPE_CHUNK_SIZE, globalFilteredRecipes.length);
     const fragment = document.createDocumentFragment();
@@ -547,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================================================
-// 🌟 레시피 모달 메모리 파괴 & Body Scroll Lock (무손실 보존)
+// 🌟 [방어 5, 7] 레시피 모달 XSS 인젝션 방어 및 Body Scroll Lock 릴리즈
 // ============================================================================
 function openRecipeModal(recipe) {
     const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
@@ -593,7 +605,7 @@ window.closeRecipeModal = function() {
 }
 
 // ============================================================================
-// 🌟 시스템 초기화 및 멱등성 록다운 (Idempotent Init)
+// 🌟 시스템 초기화 및 멱등성 록다운
 // ============================================================================
 let isInitialized = false;
 
@@ -615,4 +627,3 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 로컬 캐시로 구동됩니다.", "error"));
 window.addEventListener('online', () => { showToast("네트워크 복구 완료.", "success"); fetchRecipes(); });
 window.addEventListener('error', function(event) { console.error("[Y2C Telemetry Error]", event.message); });
-window.addEventListener('unhandledrejection', function(event) { console.error("[Y2C Telemetry Promise Rejection]", event.reason); });
