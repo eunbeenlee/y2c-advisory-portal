@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.22 Enterprise Recipe STABLE - HTML/JS/GS 100% Compatibility & 11 Bug Fixes -->
+<!-- 🌟 V40.24 Enterprise Recipe ULTIMATE - Zero-Latency SFP Rendering, RBAC Fix & 11 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,10 @@
     
     <title>Recipe Center | Y2C Portal</title>
     
+    <!-- 🚀 [가속 채널 1] API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://script.google.com">
+
     <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 (로딩 깜빡임 원천 차단) -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -18,27 +22,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [방어 1] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 [방어 9] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
     <script>
-        // JS가 정상 작동할 때만 화면을 가리고, 0.8초 뒤 무조건 락을 푸는 생존 타이머
         document.documentElement.classList.add('fouc-lock');
         window._foucTimer = setTimeout(function() {
             document.documentElement.classList.remove('fouc-lock');
             document.documentElement.style.opacity = '1';
             document.documentElement.style.visibility = 'visible';
             const mainBody = document.getElementById('mainBody');
-            if(mainBody) mainBody.style.opacity = '1';
+            if (mainBody) mainBody.style.opacity = '1';
         }, 800);
     </script>
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 🌟 [방어 7] Config 폴백 알림 -->
-    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
+    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
@@ -65,11 +66,11 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 [방어 8] 터치 딜레이 및 바운스 스크롤 완벽 차단 */
+        /* 🌟 [방어 7] 터치 딜레이 및 바운스 스크롤 완벽 차단, 터치 잔상 소각 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent; 
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale; 
             background-color: var(--bg-light); 
@@ -78,43 +79,45 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 스크롤바 대기업형 커스텀 */
+        /* 스크롤바 대기업형 커스텀 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 3] iOS 줌 버그 차단 및 스피너 파괴 */
+        /* iOS 줌 버그 차단 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
-
-        /* 🌟 [방어 5] 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
+        
+        /* 브라우저 자동완성 오염 방지 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
             -webkit-text-fill-color: #1f2937 !important;
             transition: background-color 5000s ease-in-out 0s;
         }
-        
+
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🚀 DOM GPU 가속 및 렌더링 병목 타파 */
+        /* 🚀 [가속 채널 4] DOM GPU 가속 및 렌더링 병목 타파 */
         .recipe-card { content-visibility: auto; contain-intrinsic-size: 0 250px; }
 
+        /* 🚀 [가속 채널 2] Will-Change 메모리 선할당 */
         .app-shell-enter { 
             opacity: 0; 
             transform: translateY(8px); 
             animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            will-change: transform, opacity;
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 [방어 9] Shimmer 로더 하드웨어 가속 */
+        /* Shimmer 로더 하드웨어 가속 */
         .shimmer-bg {
             background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
             background-size: 400% 100%;
             animation: shimmer 1.5s infinite ease-in-out;
-            transform: translateZ(0);
+            transform: translateZ(0); /* GPU Acceleration */
         }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
@@ -134,7 +137,7 @@
 
         .premium-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9; }
 
-        /* 🌟 [방어 11] 인쇄(Print) 무손실 록다운 */
+        /* 인쇄(Print) 무손실 록다운 */
         @media print { 
             .no-print { display: none !important; } 
             body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
@@ -145,21 +148,20 @@
     </style>
 </head>
 
-<!-- 🌟 [방어 2] 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [방어 6] Clickjacking 방어 & [방어 10] NoScript 샌드박스 -->
+    <!-- 🚨 [방어 10] Clickjacking 방어 & NoScript 샌드박스 -->
     <script>
         try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
     </script>
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
-            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to view the Recipe Center.</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Recipe Center.</span>
         </div>
     </noscript>
 
-    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
+    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 -->
     <script>
         (function() {
             try {
@@ -175,13 +177,13 @@
         })();
     </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 (Flexbox Crush 방어 & 기존 DOM 완벽 유지) -->
+    <!-- 🌟 유니버설 마스터 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
             <!-- 좌측 로고 영역 -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <!-- 🌟 [방어 4] Favicon 무한 루프 픽스 (this.onerror=null 주입) -->
+                <!-- 🌟 [방어 11] Favicon 무한 루프 픽스 (this.onerror=null 주입) -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -189,7 +191,7 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 (lg, xl에서 유동적 숨김으로 Flexbox Crush 방지) -->
+            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -220,7 +222,7 @@
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 (기존 코드 100% 무손실 유지) -->
+    <!-- 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -230,24 +232,39 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 권한 동기식 프리-언락 -->
+    <!-- 🚨 [방어 1] 권한 동기식 프리-언락 및 통합 권한 라우터 완벽 복원 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
+            // Dashboard & Recipes: MASTER, PARTNER
             if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
             }
+            // Item Catalog: MASTER, VENDOR, PARTNER (모두 접근 가능)
+            if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
+                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // Admin: MASTER, VENDOR
             if (role === 'MASTER' || role === 'VENDOR') {
-                ['navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
+                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
             }
+            // Invoice: MASTER
             if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
+                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
             }
         })();
     </script>
 
-    <!-- 🌟 메인 컨텐츠 영역 (App-Shell) 기존 DOM 구조 완벽 앵커링 -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter">
+    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 8] Z-Index Stack 격리 isolation: isolate 적용) -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 헤더 및 검색창 -->
         <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
@@ -266,7 +283,7 @@
             </div>
         </header>
 
-        <!-- 카테고리 필터 영역 (ID 무손실 보존) -->
+        <!-- 카테고리 필터 영역 -->
         <div id="recipeCategoryFilters" class="flex flex-wrap gap-2 mb-8 no-print pb-2">
             <!-- JS 동적 렌더링 영역: Skeleton 버튼 -->
             <button class="bg-gray-100 text-transparent px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs shadow-sm animate-pulse w-24 h-9"></button>
@@ -274,7 +291,7 @@
             <button class="bg-gray-100 text-transparent px-5 py-2.5 rounded-full font-bold text-[11px] sm:text-xs shadow-sm animate-pulse w-28 h-9"></button>
         </div>
 
-        <!-- 🌟 레시피 그리드 (Grid DOM 구조 및 Skeleton 무손실 보존) -->
+        <!-- 🌟 [방어 5] Static First Paint (SFP): 로딩 없이 뼈대 즉시 노출 보장 -->
         <div id="recipeGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <!-- 12개의 프리미엄 Shimmer 스켈레톤 행 삽입 (체감 속도 가속) -->
             <div class="bg-white premium-shadow rounded-[1.5rem] p-6 sm:p-7 flex flex-col h-64 border border-gray-50">
@@ -308,7 +325,7 @@
         </div>
     </main>
 
-    <!-- 🌟 프리미엄 푸터 (다른 페이지와 통일성을 맞추기 위해 누락된 부분 추가 보존) -->
+    <!-- 🌟 프리미엄 푸터 (공통 모듈 100% 보존) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -321,7 +338,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.22 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.24 STABLE</span>
                 </div>
             </div>
         </div>
@@ -330,10 +347,8 @@
     <!-- 🌟 Z-Index 모달 격리 및 Blur 적용 (모든 DOM ID 무손실 앵커링) -->
     <!-- Recipe Modal (z-9998) -->
     <div id="recipeModal" class="fixed inset-0 bg-[#111827]/85 backdrop-blur-md z-[9998] hidden items-center justify-center p-4 sm:p-6 opacity-0 pointer-events-none transition-opacity duration-300">
-        <!-- 🌟 Modal Bouncing Transition 적용 (scale-95) -->
         <div class="bg-white w-full max-w-3xl max-h-[90vh] rounded-[2rem] overflow-hidden premium-shadow flex flex-col transform transition-transform scale-95 duration-300 shadow-[0_30px_60px_rgba(0,0,0,0.4)]" id="recipeModalContent" onclick="event.stopPropagation()">
             
-            <!-- 모달 헤더 -->
             <div class="bg-[var(--premium-charcoal)] p-6 sm:p-8 text-white relative">
                 <button type="button" onclick="closeRecipeModal()" class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors focus:outline-none bg-white/10 hover:bg-white/20 rounded-full p-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -344,9 +359,7 @@
                 <h2 id="recipeModalTitle" class="text-2xl sm:text-3xl font-black tracking-tight font-montserrat pr-10">Recipe Title</h2>
             </div>
             
-            <!-- 모달 바디 (스크롤 영역) -->
             <div class="p-6 sm:p-8 overflow-y-auto flex-grow hide-scrollbar bg-gray-50/30">
-                
                 <div class="mb-8">
                     <h3 class="flex items-center gap-2 text-[13px] font-black text-[#E3000F] uppercase tracking-widest mb-3 font-montserrat border-b border-gray-100 pb-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -370,10 +383,8 @@
                     </h3>
                     <div id="recipeModalTips" class="text-[13px] sm:text-sm text-amber-900 leading-relaxed font-medium whitespace-pre-line bg-amber-50 p-5 rounded-2xl border border-amber-100 font-inter"></div>
                 </div>
-                
             </div>
             
-            <!-- 모달 하단(푸터) -->
             <div class="p-5 sm:p-6 bg-gray-50 border-t border-gray-100 flex justify-end">
                 <button type="button" onclick="closeRecipeModal()" class="btn-charcoal px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest focus:outline-none" data-i18n="modal_close">Close Recipe</button>
             </div>
@@ -383,10 +394,9 @@
     <!-- 글로벌 토스트 (z-9999) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ JS 로직 연동 (다른 페이지와의 통일성을 위해 누락된 공통 코어 모듈 추가 보존) -->
+    <!-- ⚡ JS 로직 연동 (공통 인증 및 다국어 100% 무손실 록다운) -->
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/auth.js"></script>
-    
     <script src="assets/js/recipes.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
