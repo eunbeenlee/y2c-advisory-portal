@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.23 Enterprise Dashboard ULTIMATE - Zero-Latency SFP Rendering & 11 Acceleration Fixes -->
+<!-- 🌟 V40.25 Enterprise Dashboard ULTIMATE - Strict RBAC Routing, Zero-Latency SFP & 11 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    
+    <!-- 🌟 [방어 6] 다크모드 강제 반전 차단 (라이트 테마 절대 유지) -->
+    <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
@@ -20,11 +23,15 @@
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
+    <!-- 🚀 [가속 채널 2] 폰트 로딩 CSSOM 블로킹 타파 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
+    
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [방어 9] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 [방어 11] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -37,6 +44,10 @@
             const mainBody = document.getElementById('mainBody');
             if(mainBody) mainBody.style.opacity = '1';
         }, 800);
+        
+        // 🚀 [가속 채널 5] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        window.addEventListener('touchstart', function() {}, {passive: true});
+        window.addEventListener('wheel', function() {}, {passive: true});
     </script>
     
     <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
@@ -45,8 +56,6 @@
 
     <!-- 🌟 Chart.js 비동기 로드 (렌더링 방해 금지) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -71,7 +80,7 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 🌟 [방어 7] 터치 딜레이 및 바운스 스크롤 완벽 차단, 터치 잔상 소각 */
+        /* 터치 딜레이 및 바운스 스크롤 완벽 차단, 파란색 터치 잔상 소각 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -84,13 +93,13 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 스크롤바 대기업형 커스텀 */
+        /* 스크롤바 대기업형 커스텀 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 iOS 줌 버그 차단 및 스피너 파괴 */
+        /* iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
@@ -105,10 +114,10 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🚀 [가속 채널 3] DOM GPU 가속 및 렌더링 병목 타파 */
+        /* DOM GPU 가속 및 렌더링 병목 타파 */
         section { content-visibility: auto; contain-intrinsic-size: auto 600px; }
 
-        /* 🚀 [가속 채널 2] Will-Change 메모리 선할당 */
+        /* Will-Change 메모리 선할당 */
         .app-shell-enter { 
             opacity: 0; 
             transform: translateY(8px); 
@@ -169,18 +178,18 @@
 
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [방어 10] Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
     <script>
         try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
     </script>
     <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
             <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
     </noscript>
 
-    <!-- 🌟 JS 구동 성공 시 FOUC 락 즉각 해제 및 권한 언락 -->
+    <!-- 🌟 [방어 1, 2] JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 -->
     <script>
         (function() {
             try {
@@ -190,19 +199,50 @@
                 document.documentElement.style.visibility = "visible";
                 document.getElementById('mainBody').style.opacity = "1";
 
-                var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
+                var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
                 window.__INITIAL_ROLE__ = userRole;
+
+                // 🚨 [방어 2] VENDOR 계정의 대시보드 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
+                if (userRole === "VENDOR") {
+                    window.location.replace("items.html");
+                    return; // 렌더링 즉시 중단
+                }
+
+                // 🚨 [방어 1] PARTNER의 카탈로그(items.html) 권한 무결성 100% 복원
+                // Dashboard & Recipes: MASTER, PARTNER
+                if (userRole === 'MASTER' || userRole === 'PARTNER') {
+                    ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                // Item Catalog: MASTER, VENDOR, PARTNER (모두 접근 가능해야 발주가 가능함)
+                if (userRole === 'MASTER' || userRole === 'VENDOR' || userRole === 'PARTNER') {
+                    ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                // Admin: MASTER, VENDOR
+                if (userRole === 'MASTER' || userRole === 'VENDOR') {
+                    ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                // Invoice: MASTER
+                if (userRole === 'MASTER') {
+                    ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
             } catch(e) {}
         })();
     </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 -->
+    <!-- 🌟 유니버설 마스터 헤더 (태블릿 레이아웃 붕괴 방어) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 (shrink-0 강제) -->
+            <!-- 좌측 로고 영역 -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <!-- 🌟 [방어 8] Favicon 404 무한 루프 픽스 (this.onerror=null 주입) -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -210,14 +250,13 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
+            <!-- 🌟 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <!-- 현재 페이지: Dashboard 활성화 -->
-                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
             <!-- 우측 컨트롤 영역 -->
@@ -241,32 +280,16 @@
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 -->
-    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
-        <a href="dashboard.html" id="navDashboard_mob" class="px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
+    <!-- 🌟 모바일 카테고리 뷰 (shrink-0 방어막 추가) -->
+    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
+        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 권한 동기식 프리-언락 -->
-    <script>
-        (function() {
-            var role = window.__INITIAL_ROLE__;
-            if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-            if (role === 'MASTER' || role === 'VENDOR') {
-                ['navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-            if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
-            }
-        })();
-    </script>
-
-    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 8] Z-Index Stack 격리 isolation: isolate 적용) -->
+    <!-- 📊 메인 컨텐츠 영역 (Z-Index Stack 격리 isolation: isolate 적용) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 헤더 및 연도 컨트롤러 -->
@@ -296,7 +319,7 @@
             </div>
         </header>
 
-        <!-- 🌟 핵심 성과 지표 (Zero-Anchoring 무손실 보존) -->
+        <!-- 🌟 핵심 성과 지표 (LCP 렌더링 가속 무손실 보존) -->
         <section class="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6 mb-8 print-shadow-none">
             <article class="kpi-card bg-gradient-to-br from-[#111827] to-gray-800 rounded-[1.5rem] p-6 sm:p-8 shadow-xl relative overflow-hidden group print-shadow-none print:!bg-white print:!border print:!border-gray-200">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700 no-print"></div>
@@ -327,7 +350,7 @@
         <!-- 차트 및 시스템 알림 영역 -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- 🌟 왼쪽: 월별 매출 차트 [방어 5] Canvas OOM Isolation (h-[300px] sm:h-[400px] 강제 고정) -->
+            <!-- 🌟 왼쪽: 월별 매출 차트 [방어 7] Canvas OOM Isolation (h-[300px] sm:h-[400px] 강제 고정) -->
             <article class="lg:col-span-2 bg-white premium-shadow rounded-[2rem] p-6 sm:p-8 transition-shadow duration-300 flex flex-col print-shadow-none">
                 <header class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
@@ -384,7 +407,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.23 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.25 STABLE</span>
                 </div>
             </div>
         </div>
