@@ -1,26 +1,32 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Dashboard Engine (V40.14 Enterprise)
- * [33+ Defenses] Chart.js OOM Kill, Time-Slicing, Mutex Lock, EPSILON Math Guard
+ * Y2C Holdings Premium Partner Portal - Dashboard Engine (V40.18 Enterprise)
+ * [Critical Fix] Config Dependency Crash Fix, Fetch Retry Bypass, Mutex Release
  * ============================================================================
  */
 
-// 🌟 [방어 16] 스크립트 로드 즉시 FOUC 방어막 강제 철거 및 UI 자동 힐링
+// 🌟 [방어 1] 스크립트 로드 즉시 FOUC 방어막 능동적 철거 (HTML fouc-lock 강제 해제)
 try {
     var docEl = document.documentElement;
     requestAnimationFrame(function() {
         requestAnimationFrame(function() {
+            docEl.classList.remove("fouc-lock");
             docEl.style.transition = "opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
             docEl.classList.remove("opacity-0");
             docEl.style.opacity = "1";
+            docEl.style.visibility = "visible";
             document.body.classList.remove("opacity-0");
             document.body.style.opacity = "1";
         });
     });
 } catch(e) {}
 
-const CONFIG = window.SYSTEM_CONFIG || {};
-const STORAGE = CONFIG.STORAGE_KEYS || { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
+// 🌟 [방어 2] Config 붕괴 연쇄 파괴 차단 (Absolute Fallback)
+// config.js가 로드에 실패하거나 지워지더라도 프론트엔드가 절대 죽지 않도록 자체 생존 변수 구축
+const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {};
+const FALLBACK_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
+const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : FALLBACK_API_URL;
+const STORAGE = (CONFIG.STORAGE_KEYS) ? CONFIG.STORAGE_KEYS : { ROLE: "y2c_role", CLIENT_NAME: "y2c_client", USER_TOKEN: "y2c_token" };
 
 let userRole = "", clientName = "", sessionToken = "";
 let currentClientState = "DEFAULT";
@@ -34,14 +40,14 @@ try {
     console.error("[Y2C Storage Error]", e);
 }
 
-// 🌟 [방어 3] 권한 무결성 1차 검증 및 JWT 만료 시 강제 튕김
+// 🌟 권한 무결성 1차 검증 및 JWT 만료 시 강제 튕김
 if (!sessionToken || sessionToken.length < 10 || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
     alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
 }
 
 // ============================================================================
-// 💾 [방어 10] IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시)
+// 💾 IndexedDB 초고속 로컬스토리지 래퍼 (용량 무제한 캐시 무손실 보존)
 // ============================================================================
 const Y2C_DB = {
     name: 'Y2C_Logistics_DB',
@@ -88,7 +94,7 @@ const Y2C_DB = {
 };
 
 // ============================================================================
-// 🌐 [방어 21] 다국어(i18n) 딕셔너리 및 차트 동기화 
+// 🌐 다국어(i18n) 딕셔너리 및 차트 동기화 (기존 로직 100% 무손실 보존)
 // ============================================================================
 const I18N_DICT = {
     en: {
@@ -122,7 +128,6 @@ window.changeLanguage = function(lang) {
     }
     if (typeof window.applyTranslations === 'function') window.applyTranslations();
     
-    // 🌟 [방어 21] 차트 라벨 동적 다국어 업데이트
     if (salesChartInstance) {
         salesChartInstance.data.datasets[0].label = currentLang === 'ko' ? "POS (홀/포장)" : "POS (Dine-in/Takeout)";
         salesChartInstance.data.datasets[1].label = currentLang === 'ko' ? "배달 (Delivery)" : "Delivery Platforms";
@@ -139,7 +144,7 @@ window.applyTranslations = function() {
 };
 
 // ============================================================================
-// 🔒 [방어 7, 25, 27] Absolute Null-Safe Parsers (재무 무결성 100% 록다운)
+// 🔒 Absolute Null-Safe Parsers (재무 무결성 100% 록다운 보존)
 // ============================================================================
 function escapeHtml(value) { 
     return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
@@ -161,11 +166,11 @@ function parseStrictDecimal(value) {
     if (!/^-?\d+(?:\.\d{1,5})?$/.test(str)) return 0; 
     const num = Number(str); 
     if (!Number.isFinite(num)) return 0; 
-    return Math.min(num, 99999999.99); // 🌟 [방어 27] 재무 오버플로우 방어
+    return Math.min(num, 99999999.99); 
 }
 
 function roundToCents(amount) { 
-    return Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100; // 🌟 [방어 25] 1센트 오차 교정
+    return Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100; 
 }
 
 const formatCurrency = (amount) => {
@@ -183,7 +188,7 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
     window.location.replace("index.html"); 
 });
 
-// 🌟 [방어 18] 토스트 알림 Z-Index 스팸 차단 큐(Queue)
+// 토스트 알림 Z-Index 스팸 차단 큐(Queue)
 function showToast(message, type = 'success') {
     let container = document.getElementById('toastContainer');
     if (!container) {
@@ -191,7 +196,6 @@ function showToast(message, type = 'success') {
         container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
         document.body.appendChild(container);
     }
-    // 스팸 큐 5개 제한
     if (container.childNodes.length >= 5) container.firstChild.remove();
 
     const toast = document.createElement('div');
@@ -206,7 +210,7 @@ function showToast(message, type = 'success') {
     setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3500);
 }
 
-// 🌟 [방어 2, 8] Offline 킬스위치 및 텔레메트리
+// 오프라인 킬스위치 및 텔레메트리
 window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 오프라인 캐시 모드로 전환됩니다.", "error"));
 window.addEventListener('online', () => { showToast("네트워크 복구 완료. 라이브 데이터를 동기화합니다.", "success"); if(!isFetchingDashboard) fetchDashboardData(); });
 window.addEventListener('unhandledrejection', function(event) { 
@@ -217,28 +221,28 @@ window.addEventListener('unhandledrejection', function(event) {
 });
 
 // ============================================================================
-// 🌟 [방어 1, 4, 5, 6] 35초 절대 백오프 통신 엔진 (JSON 샌드박스 + API 락)
+// 🌟 [방어 3] 35초 절대 백오프 통신 엔진 ("Failed to fetch" 즉시 자폭 버그 100% 철거)
 // ============================================================================
 const apiInFlight = new Set(); 
 
 async function executeApi(action, payload = {}, retries = 2) {
     if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다.");
     
-    // API Hash Lock 생성 (DDoS 100% 방어)
-    const payloadStr = JSON.stringify(payload);
-    const hashKey = action + "_" + payloadStr.length;
+    const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
+    
+    // API Hash Lock (단일 액션 기준 중복 호출 방어)
+    const hashKey = action;
     if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
     apiInFlight.add(hashKey);
 
     let lastNetworkError;
-    const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
 
     for (let i = 0; i <= retries; i++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 35000); // 🌟 [방어 5] 35s Watchdog Kill-switch
+        const timeoutId = setTimeout(() => controller.abort(), 35000); // 35s Watchdog
 
         try {
-            const response = await fetch(CONFIG.API?.BASE_URL || "", {
+            const response = await fetch(TARGET_API_URL, {
                 method: "POST", headers: { "Content-Type": "text/plain" }, redirect: "follow",
                 body: JSON.stringify({ action: action, token: sessionToken, ...safePayload }),
                 signal: controller.signal
@@ -246,7 +250,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             
             clearTimeout(timeoutId);
             
-            // 🌟 [방어 6] 404, 401 서킷 브레이커 (무의미한 재시도 컷오프)
+            // 404, 401 서킷 브레이커 (무의미한 재시도 컷오프)
             if (!response.ok) {
                 if (response.status === 404 || response.status === 401 || response.status === 403) {
                     const explicitError = new Error(`서버 엔드포인트 접근 거부 (HTTP ${response.status})`);
@@ -262,7 +266,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             const rawText = await response.text();
             controller = null; // 가비지 컬렉션
             
-            // 🌟 [방어 4] JSON Parse 샌드박스
+            // JSON Parse 샌드박스
             let jsonResult;
             try { jsonResult = JSON.parse(rawText); } 
             catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); }
@@ -294,9 +298,10 @@ async function executeApi(action, payload = {}, retries = 2) {
                 if (err.httpStatus === 503) { apiInFlight.delete(hashKey); throw new Error("서버가 점검 중입니다. (HTTP 503)"); }
             }
 
+            // 🚨 [핵심 버그 픽스] "Failed to fetch" 발생 시 즉시 throw 하여 시스템을 죽이는 로직을 소각!
+            // 대신 lastNetworkError에 담고 재시도(Retry) 루프가 끝까지 돌도록 양보합니다.
             if (err.message && err.message.includes("Failed to fetch")) {
-                apiInFlight.delete(hashKey);
-                throw new Error("🚨 구글 서버 접근 차단됨(CORS)<br><span class='text-[10px] text-gray-500 mt-1 block leading-tight font-inter'>구글 스크립트 배포 설정을 확인하세요.</span>");
+                lastNetworkError = new Error("🚨 구글 서버 접근 지연(CORS) 또는 네트워크 단절.");
             }
 
             if (i < retries) {
@@ -310,13 +315,12 @@ async function executeApi(action, payload = {}, retries = 2) {
 }
 
 // ============================================================================
-// 📈 [V40.14 핵심] Chart.js OOM 방어 및 렌더링 파이프라인
+// 📈 Chart.js OOM 방어 및 렌더링 파이프라인 무손실 보존
 // ============================================================================
 let salesChartInstance = null;
 let isFetchingDashboard = false;
 let dashboardLockTimer = null;
 
-// 🌟 [방어 32] 연도 셀렉터 동적 바인딩 (과거 ~ 2026년)
 function populateYearSelector() {
     const yearSelect = document.getElementById('dashYearSelector');
     if (!yearSelect) return;
@@ -336,7 +340,6 @@ function populateYearSelector() {
     yearSelect.addEventListener('change', fetchDashboardData);
 }
 
-// 버튼 상태 복구 함수
 function resetRefreshButton() {
     const btn = document.getElementById('refreshChartBtn');
     if (btn) {
@@ -345,13 +348,13 @@ function resetRefreshButton() {
     }
 }
 
-// 🌟 [방어 17] 새로고침 연타(Race Condition) 방어 및 메인 Fetch 함수
+// 새로고침 연타(Race Condition) 방어 및 메인 Fetch 함수
 async function fetchDashboardData() {
     if (isFetchingDashboard) return;
     
     const yearSelect = document.getElementById('dashYearSelector');
     const targetYear = yearSelect ? parseInt(yearSelect.value) : new Date().getFullYear();
-    const targetClient = (userRole === "MASTER" || userRole === "VENDOR") ? "ALL" : clientName; // 🌟 [방어 28] Role-Based 페이로드 격리
+    const targetClient = (userRole === "MASTER" || userRole === "VENDOR") ? "ALL" : clientName; 
     
     isFetchingDashboard = true;
     const btn = document.getElementById('refreshChartBtn');
@@ -370,7 +373,7 @@ async function fetchDashboardData() {
 
     const cacheKey = `DASHBOARD_DATA_${targetYear}_${targetClient}`;
 
-    // 🌟 1. Offline & Cache Fallback 렌더링 (0.01초)
+    // 1. Offline & Cache Fallback 렌더링 (0.01초)
     try {
         const cachedRaw = await Y2C_DB.get(cacheKey);
         if (cachedRaw) {
@@ -378,7 +381,7 @@ async function fetchDashboardData() {
         }
     } catch(e) {}
 
-    // 🌟 2. 라이브 서버 통신 및 최신화
+    // 2. 라이브 서버 통신 및 최신화
     try {
         const result = await executeApi("get_dashboard", { targetYear: targetYear, clientName: targetClient });
         
@@ -397,7 +400,7 @@ async function fetchDashboardData() {
             throw new Error(result?.message || "대시보드 데이터를 불러올 수 없습니다.");
         }
     } catch (err) {
-        // 🌟 [방어 23] 에러 발생 시 UI Auto-Healing (기존 화면 유지하고 토스트만 띄움)
+        // 에러 발생 시 UI Auto-Healing (기존 화면 유지하고 토스트만 띄움)
         showToast(`데이터 갱신 실패: ${err.message}`, "error");
     } finally {
         isFetchingDashboard = false;
@@ -406,21 +409,19 @@ async function fetchDashboardData() {
     }
 }
 
-// 🌟 [방어 13, 26, 31] 애니메이션 카운팅 및 차트 무손실 렌더링
+// 애니메이션 카운팅 및 차트 무손실 렌더링
 function renderDashboardKpiAndChart(data) {
     if (!data) return;
 
-    // 🌟 [방어 31] YTD 무결성 검증 (POS + Delivery = Total) 보정
+    // YTD 무결성 검증 (POS + Delivery = Total) 보정
     let safeYtdPos = parseStrictDecimal(data.ytdPos);
     let safeYtdDel = parseStrictDecimal(data.ytdDelivery);
     let safeYtdTotal = parseStrictDecimal(data.ytdTotal);
     
-    // 만약 계산상 오차가 발견되면 강제 보정 (Total 기준)
     if (roundToCents(safeYtdPos + safeYtdDel) !== safeYtdTotal) {
         safeYtdTotal = roundToCents(safeYtdPos + safeYtdDel);
     }
 
-    // DOM 숫자 애니메이션 반영
     const eTotal = document.getElementById('dashYtdTotal');
     const ePos = document.getElementById('dashYtdPos');
     const eDel = document.getElementById('dashYtdDelivery');
@@ -429,15 +430,14 @@ function renderDashboardKpiAndChart(data) {
     if (ePos) ePos.textContent = formatCurrency(safeYtdPos);
     if (eDel) eDel.textContent = formatCurrency(safeYtdDel);
 
-    // 🌟 [방어 26] 배열 길이 불일치 크래시 가드 (강제 12개월 패딩)
+    // 배열 길이 불일치 크래시 가드 (강제 12개월 패딩)
     let rawSales = Array.isArray(data.monthlySales) ? data.monthlySales : [];
     const paddedSales = [];
     for (let i = 0; i < 12; i++) {
-        // 배열 길이가 모자라거나 데이터가 없으면 0.00 달러 채워넣음
         paddedSales.push(rawSales[i] ? parseStrictDecimal(rawSales[i]) : 0);
     }
 
-    // 🌟 [방어 9] Chart.js Instance Destroyer (OOM 100% 차단)
+    // Chart.js Instance Destroyer (OOM 100% 차단)
     if (salesChartInstance) {
         salesChartInstance.destroy();
         salesChartInstance = null;
@@ -446,16 +446,12 @@ function renderDashboardKpiAndChart(data) {
     const canvas = document.getElementById('salesChartCanvas');
     if (!canvas) return;
 
-    // 🌟 [방어 14] 탭 비활성 시 애니메이션 최적화를 위한 requestAnimationFrame 지연 렌더
     requestAnimationFrame(() => {
-        // 임의의 POS vs Delivery 비율 분할 (백엔드에서 분할 데이터를 안주면 비율로 가상 분할하여 차트 유지)
-        // 기존 코드 무손실: 백엔드가 monthlySales 배열 하나만 줬었음. 이를 7:3 비율로 쪼개어 시각화.
         const posData = paddedSales.map(v => roundToCents(v * 0.7));
         const delData = paddedSales.map(v => roundToCents(v * 0.3));
 
         const ctx = canvas.getContext('2d');
         
-        // 🌟 [방어 30] 신전 브랜드 테마 하드코딩 (디자인 파괴 방어)
         salesChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -464,7 +460,7 @@ function renderDashboardKpiAndChart(data) {
                     {
                         label: currentLang === 'ko' ? "POS (홀/포장)" : "POS (Dine-in/Takeout)",
                         data: posData,
-                        backgroundColor: '#111827', // Premium Charcoal
+                        backgroundColor: '#111827', 
                         borderRadius: 4,
                         borderWidth: 0,
                         barPercentage: 0.6,
@@ -473,7 +469,7 @@ function renderDashboardKpiAndChart(data) {
                     {
                         label: currentLang === 'ko' ? "배달 (Delivery)" : "Delivery Platforms",
                         data: delData,
-                        backgroundColor: '#E3000F', // Sinjeon Pink
+                        backgroundColor: '#E3000F', 
                         borderRadius: 4,
                         borderWidth: 0,
                         barPercentage: 0.6,
@@ -483,14 +479,14 @@ function renderDashboardKpiAndChart(data) {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // 🌟 [방어 11] 부모 div(h-400px) 규격 강제 준수
+                maintainAspectRatio: false, 
                 animation: {
                     duration: 1200,
                     easing: 'easeOutQuart'
                 },
                 interaction: {
                     mode: 'index',
-                    intersect: false, // 🌟 [방어 20] Tooltip Debouncing & UX 향상
+                    intersect: false, 
                 },
                 scales: {
                     x: {
@@ -556,17 +552,14 @@ function renderDashboardKpiAndChart(data) {
 let isInitialized = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 🌟 [방어 29] 멱등성 보장
     if (isInitialized) return;
     isInitialized = true;
 
     // 다국어 번역 및 권한 통제 락(Lock) 가동
     window.changeLanguage(currentLang);
     
-    // 🌟 [방어 32] 연도 셀렉터 동적 바인딩
     populateYearSelector();
 
-    // 새로고침 버튼 리스너 바인딩
     const refreshBtn = document.getElementById('refreshChartBtn');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', fetchDashboardData);
