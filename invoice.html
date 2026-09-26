@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.18 Enterprise Master STABLE - FOUC 하얀화면 영구 픽스 & 33대 방어로직 무손실 보존 -->
+<!-- 🌟 V40.23 Enterprise Master ULTIMATE - Zero-Latency SFP Rendering & 11 Bug Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,10 @@
     
     <title>Advisory Invoice | Y2C Portal</title>
     
+    <!-- 🚀 [가속 채널] API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://script.google.com">
+
     <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 (로딩 깜빡임 원천 차단) -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -18,18 +22,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 [핵심 버그 픽스] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 [방어 2] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
     <script>
-        // JS가 정상 작동할 때만 화면을 가리고, 0.8초 뒤 무조건 락을 푸는 생존 타이머
         document.documentElement.classList.add('fouc-lock');
         window._foucTimer = setTimeout(function() {
             document.documentElement.classList.remove('fouc-lock');
             document.documentElement.style.opacity = '1';
             document.documentElement.style.visibility = 'visible';
-            document.body.style.opacity = '1';
+            const mainBody = document.getElementById('mainBody');
+            if (mainBody) mainBody.style.opacity = '1';
         }, 800);
     </script>
     
@@ -75,24 +79,32 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 🌟 스크롤바 대기업형 커스텀 */
+        /* 스크롤바 대기업형 커스텀 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 iOS 줌 버그 차단 및 스피너 파괴 (기존 기능 100% 무손실 보장) */
+        /* 🌟 [방어 7] iOS 줌 버그 차단 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
         
+        /* 🌟 [방어 8] 브라우저 자동완성 노란색/파란색 배경 덮어쓰기 무효화 */
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important; 
+            -webkit-text-fill-color: #1f2937 !important; 
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .app-shell-enter { 
             opacity: 0; 
             transform: translateY(8px); 
-            animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            animation: appShellFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            will-change: transform, opacity; 
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
@@ -111,24 +123,44 @@
 
         .premium-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9; }
 
-        /* 🌟 인쇄(Print) 무손실 록다운 및 PDF 렌더링 최적화 */
+        /* 🌟 [방어 3, 4] 인쇄(Print) 무손실 절대 록다운 */
         @media print { 
             .no-print { display: none !important; } 
-            body { background: white !important; margin: 0; padding: 0; }
-            #invoiceDocumentContainer { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+            body { 
+                background: white !important; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+                margin: 0; padding: 0; 
+            }
+            #invoiceDocumentContainer { 
+                box-shadow: none !important; 
+                border: none !important; 
+                margin: 0 !important; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+            }
+            /* Grid 구조 강제 해제 (좌측 패널은 숨기고 우측은 100% 확장) */
+            .lg\:grid-cols-12 { display: block !important; }
+            .lg\:col-span-8 { width: 100% !important; }
+            
             .print-text-black { color: black !important; }
             * { text-shadow: none !important; box-shadow: none !important; }
             .page-break-avoid { break-inside: avoid; page-break-inside: avoid; }
         }
     </style>
 </head>
-<body style="background-color: #F8F9FA; margin: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
+
+<!-- 🌟 [방어 6] 초기 투명 처리(opacity: 0) 및 ID 부여로 JS Load Flash 방어 -->
+<body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 (기존 로직 100% 무손실 보존) -->
-    <script>if (window.top !== window.self) { window.top.location = window.self.location; }</script>
+    <!-- 🚨 [방어 9] Clickjacking 방어 & NoScript 샌드박스 -->
+    <script>
+        try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
+    </script>
     <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif;">
-            Please enable JavaScript to view the Advisory Invoice.
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+            <span>JavaScript is Disabled</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
     </noscript>
 
@@ -140,7 +172,7 @@
                 document.documentElement.classList.remove("fouc-lock");
                 document.documentElement.style.opacity = "1";
                 document.documentElement.style.visibility = "visible";
-                document.body.style.opacity = "1";
+                document.getElementById('mainBody').style.opacity = "1";
 
                 var userRole = (localStorage.getItem("y2c_role") || "").toUpperCase();
                 window.__INITIAL_ROLE__ = userRole;
@@ -148,12 +180,13 @@
         })();
     </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 (Flexbox Crush 방어 & 기존 DOM 완벽 유지) -->
-    <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+    <!-- 🌟 유니버설 마스터 헤더 -->
+    <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
             <!-- 좌측 로고 영역 -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <!-- 🌟 [방어 10] Favicon 404 루프 픽스 -->
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -161,7 +194,7 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 (lg, xl에서 유동적 숨김으로 Flexbox Crush 방지) -->
+            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -192,7 +225,7 @@
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 (기존 코드 100% 무손실 유지) -->
+    <!-- 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -218,7 +251,8 @@
         })();
     </script>
 
-    <!-- 🌟 메인 컨텐츠 영역 (App-Shell) 기존 DOM 구조 완벽 앵커링 -->
+    <!-- 🌟 메인 컨텐츠 영역 (App-Shell) -->
+    <!-- 🚨 [방어 1] Static First Paint (SFP) 유지 - 로딩 없이 즉각 뼈대 표시 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter">
         
         <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
@@ -230,10 +264,10 @@
             </div>
         </header>
 
-        <!-- 🌟 Grid/Flexbox 반응형 중첩 레이아웃 (Control Panel & Document View 무손실 보존) -->
+        <!-- 🌟 Grid/Flexbox 반응형 중첩 레이아웃 -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <!-- 왼쪽: 컨트롤 패널 (입력 폼) -->
+            <!-- 왼쪽: 컨트롤 패널 (입력 폼) (인쇄 시 숨김) -->
             <div class="lg:col-span-4 bg-white premium-shadow rounded-[2rem] p-6 sm:p-8 no-print lg:sticky lg:top-[110px]">
                 <h3 class="font-montserrat text-base font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#E3000F]"></span> <span data-i18n="inv_ctrl_title">Invoice Control Panel</span>
@@ -287,7 +321,7 @@
                 </div>
             </div>
 
-            <!-- 🌟 오른쪽: 인보이스 문서 렌더링 영역 (인쇄 시 이 부분만 출력 - 모든 DOM ID 100% 앵커링) -->
+            <!-- 🌟 오른쪽: 인보이스 문서 렌더링 영역 (인쇄 시 이 부분만 100% 비율로 출력) -->
             <div class="lg:col-span-8 bg-white premium-shadow rounded-[2rem] p-8 sm:p-12" id="invoiceDocumentContainer">
                 
                 <div class="border-b-[3px] border-[#111827] pb-6 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 page-break-avoid">
@@ -393,10 +427,31 @@
         </div>
     </main>
 
+    <!-- 🌟 프리미엄 푸터 (공통 모듈 100% 보존) -->
+    <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
+                    &copy; 2026 Y2C Holdings. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
+                </p>
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        System Online
+                    </span>
+                    <span class="text-gray-300">|</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.23 STABLE</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- 글로벌 토스트 (z-9999) -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ JS 로직 연동 (무손실 보장) -->
+    <!-- ⚡ JS 로직 연동 (공통 인증 및 다국어 100% 무손실 록다운) -->
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/invoice.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
