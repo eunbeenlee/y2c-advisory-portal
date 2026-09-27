@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.27 Enterprise Dashboard ULTIMATE - Infinite Refresh Loop Hotfix & Zero-Loss Validation -->
+<!-- 🌟 V40.30 Enterprise Dashboard ULTIMATE - DOM Lifecycle Null Fix, Strict RBAC Routing & Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 다크모드 강제 반전 차단 (라이트 테마 절대 유지) -->
+    <!-- 🌟 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 대시보드 시인성 보호) -->
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -178,7 +178,23 @@
 
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 NoScript 샌드박스 (Clickjacking 무한 루프 유발 로직 완전 소각) -->
+    <!-- 🚨 1단계: 보안 축출 (DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제) -->
+    <script>
+        var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+        var token = String(localStorage.getItem("y2c_token") || "").trim();
+        window.__INITIAL_ROLE__ = userRole;
+
+        // 미인증 계정 강제 축출
+        if (!userRole || userRole === "NULL" || !token || token.length < 10) {
+            window.location.replace("index.html");
+        }
+        // VENDOR 계정의 대시보드 불법 진입 시 즉시 강제 축출
+        if (userRole === "VENDOR") {
+            window.location.replace("items.html");
+        }
+    </script>
+    
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -186,58 +202,7 @@
         </div>
     </noscript>
 
-    <!-- 🌟 JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 -->
-    <script>
-        (function() {
-            try {
-                clearTimeout(window._foucTimer);
-                document.documentElement.classList.remove("fouc-lock");
-                document.documentElement.style.opacity = "1";
-                document.documentElement.style.visibility = "visible";
-                document.getElementById('mainBody').style.opacity = "1";
-
-                var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-                var token = String(localStorage.getItem("y2c_token") || "").trim();
-                window.__INITIAL_ROLE__ = userRole;
-
-                // 🚨 미인증/토큰 소실 계정 강제 축출
-                if (!userRole || userRole === "NULL" || !token || token.length < 10) {
-                    window.location.replace("index.html");
-                    return;
-                }
-
-                // 🚨 VENDOR 계정의 대시보드 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
-                if (userRole === "VENDOR") {
-                    window.location.replace("items.html");
-                    return; // 렌더링 즉시 중단
-                }
-
-                // 🚨 통합 권한 라우터 무결성 복원
-                if (userRole === 'MASTER' || userRole === 'PARTNER') {
-                    ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
-                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                    });
-                }
-                if (userRole === 'MASTER' || userRole === 'VENDOR' || userRole === 'PARTNER') {
-                    ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
-                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                    });
-                }
-                if (userRole === 'MASTER' || userRole === 'VENDOR') {
-                    ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
-                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                    });
-                }
-                if (userRole === 'MASTER') {
-                    ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
-                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                    });
-                }
-            } catch(e) {}
-        })();
-    </script>
-    
-    <!-- 🌟 유니버설 마스터 헤더 (태블릿 레이아웃 붕괴 방어) -->
+    <!-- 🌟 유니버설 마스터 헤더 (DOM 무손실 유지) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
@@ -250,8 +215,9 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
+            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
+                <!-- 현재 페이지: Dashboard 기본 활성화(active) 클래스 적용 -->
                 <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_catalog">Item Catalog</span></a>
                 <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_recipes">Recipe Center</span></a>
@@ -280,7 +246,7 @@
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 (shrink-0 방어막 추가) -->
+    <!-- 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -288,6 +254,46 @@
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
+
+    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑) -->
+    <script>
+        (function() {
+            var role = window.__INITIAL_ROLE__;
+            
+            // MASTER, PARTNER
+            if (role === 'MASTER' || role === 'PARTNER') {
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER, VENDOR, PARTNER
+            if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
+                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER, VENDOR
+            if (role === 'MASTER' || role === 'VENDOR') {
+                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER
+            if (role === 'MASTER') {
+                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+
+            // 모든 UI 세팅 완료 후 렌더링 락(FOUC) 해제
+            clearTimeout(window._foucTimer);
+            document.documentElement.classList.remove("fouc-lock");
+            document.documentElement.style.opacity = "1";
+            document.documentElement.style.visibility = "visible";
+            var mainBody = document.getElementById('mainBody');
+            if (mainBody) mainBody.style.opacity = "1";
+        })();
+    </script>
 
     <!-- 📊 메인 컨텐츠 영역 (Z-Index Stack 격리 isolation: isolate 적용) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter" style="isolation: isolate;">
@@ -405,7 +411,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.27 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.30 STABLE</span>
                 </div>
             </div>
         </div>
@@ -414,7 +420,7 @@
     <!-- 글로벌 토스트 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🚨 렌더링 무한 리프레시 자폭 방어 (auth.js 소각 및 i18n.js 단일 로드) -->
+    <!-- 🚨 렌더링 무한 리프레시 자폭 방어 (i18n 단독 로드) -->
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/dashboard.js" defer></script>
     
