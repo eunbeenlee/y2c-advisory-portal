@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.31 Enterprise Dashboard ULTIMATE - Global Scope Collision Fix, Deep Acceleration & Zero-Loss Validation -->
+<!-- 🌟 V40.34 Enterprise Dashboard ULTIMATE - Perfect Header Sync, Collision Fix & Deep Acceleration -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 대시보드 시인성 보호) -->
+    <!-- 🌟 [방어 7] 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 대시보드 시인성 보호) -->
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -48,7 +48,7 @@
             if(mainBody) mainBody.style.opacity = '1';
         }, 800);
         
-        // 🚀 Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        // 🚀 [방어 9] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
@@ -57,7 +57,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
 
-    <!-- 🌟 Chart.js 비동기 로드 (렌더링 방해 금지) -->
+    <!-- 🌟 [방어 8] Chart.js 비동기 로드 (렌더링 방해 금지) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer fetchpriority="low"></script>
     
     <script>
@@ -129,15 +129,6 @@
         }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* Shimmer 로더 하드웨어 가속 */
-        .shimmer-bg {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-            background-size: 400% 100%;
-            animation: shimmer 1.5s infinite ease-in-out;
-            transform: translateZ(0);
-        }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
         /* KPI 마그네틱 애니메이션 */
         .kpi-card { 
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
@@ -153,14 +144,7 @@
         .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.08); }
         .kpi-card:hover::after { transform: scaleY(1); }
 
-        .btn-gradient-pink { background: linear-gradient(135deg, var(--sinjeon-pink) 0%, var(--sinjeon-pink-dark) 100%); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2), 0 2px 4px -1px rgba(227, 0, 15, 0.1); }
-        .btn-gradient-pink:hover:not(:disabled) { box-shadow: 0 10px 15px -3px rgba(227, 0, 15, 0.3), 0 4px 6px -2px rgba(227, 0, 15, 0.15); transform: translateY(-1px); }
-        .btn-gradient-pink:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
-
-        .btn-charcoal { background: var(--premium-charcoal); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .btn-charcoal:hover:not(:disabled) { background: #000000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
-        .btn-charcoal:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
-
+        /* 🌟 [UI 통일 1] 활성(Active) 탭 하이라이트 동기화 */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
@@ -182,19 +166,17 @@
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
     <!-- 🚨 1단계: 보안 축출 (DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제) -->
-    <!-- 🌟 [치명적 버그 수정] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
+    <!-- 🌟 [방어 2] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
     <script>
         (function() {
             var _inlineRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
             var _inlineToken = String(localStorage.getItem("y2c_token") || "").trim();
             window.__INITIAL_ROLE__ = _inlineRole;
 
-            // 미인증 계정 강제 축출
             if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
                 window.location.replace("index.html");
                 return;
             }
-            // VENDOR 계정의 대시보드 불법 진입 시 즉시 강제 축출
             if (_inlineRole === "VENDOR") {
                 window.location.replace("items.html");
                 return;
@@ -202,7 +184,7 @@
         })();
     </script>
     
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🚨 [방어 12] Clickjacking 방어 & NoScript 샌드박스 -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -210,12 +192,12 @@
         </div>
     </noscript>
 
-    <!-- 🌟 유니버설 마스터 헤더 (DOM 무손실 유지) -->
+    <!-- 🌟 [UI 완벽 동기화] 레시피 화면 규격을 100% 이식한 와이드 프리미엄 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 -->
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+            <!-- 좌측 로고 영역 (우측 컨트롤 영역과 동일한 넓이 lg:w-[320px]를 할당하여 네비게이션을 정확히 100% 중앙 정렬) -->
+            <div class="flex items-center gap-3 sm:gap-4 w-auto lg:w-[320px] shrink-0">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
@@ -223,8 +205,8 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
+            <!-- 중앙 네비게이션 탭 (Flex-1로 잔여 공간 모두 확보하여 탁 트인 간격 유지) -->
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-6 xl:gap-10 px-4 min-w-0">
                 <!-- 현재 페이지: Dashboard 기본 활성화(active) 클래스 적용 -->
                 <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -233,21 +215,21 @@
                 <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
-            <!-- 우측 컨트롤 영역 -->
-            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+            <!-- 우측 컨트롤 영역 (좌측 로고 영역과 동일한 넓이 lg:w-[320px]를 할당하여 레이아웃 찌그러짐 원천 타파) -->
+            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 w-auto lg:w-[320px] shrink-0">
                 <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
                     <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
                     <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
 
-                <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0">
-                    <span class="flex h-2 w-2 relative hidden sm:flex">
+                <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0 max-w-[200px]">
+                    <span class="flex h-2 w-2 relative hidden sm:flex shrink-0">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                    <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded border border-[#E3000F]/20 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
+                    <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate font-inter overflow-hidden text-ellipsis whitespace-nowrap">Loading...</span>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded border border-[#E3000F]/20 uppercase tracking-widest font-mono"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
 
@@ -263,37 +245,32 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑 IIFE 캡슐화) -->
+    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑 및 IIFE 캡슐화) -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
             
-            // MASTER, PARTNER
             if (role === 'MASTER' || role === 'PARTNER') {
                 ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
                     var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
                 });
             }
-            // MASTER, VENDOR, PARTNER
             if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
                 ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
                     var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
                 });
             }
-            // MASTER, VENDOR
             if (role === 'MASTER' || role === 'VENDOR') {
                 ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
                     var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
                 });
             }
-            // MASTER
             if (role === 'MASTER') {
                 ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
                     var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
                 });
             }
 
-            // 모든 UI 세팅 완료 후 렌더링 락(FOUC) 해제
             clearTimeout(window._foucTimer);
             document.documentElement.classList.remove("fouc-lock");
             document.documentElement.style.opacity = "1";
@@ -333,7 +310,7 @@
             </div>
         </header>
 
-        <!-- 🌟 핵심 성과 지표 (LCP 렌더링 가속 무손실 보존) -->
+        <!-- 🌟 핵심 성과 지표 -->
         <section class="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6 mb-8 print-shadow-none">
             <article class="kpi-card bg-gradient-to-br from-[#111827] to-gray-800 rounded-[1.5rem] p-6 sm:p-8 shadow-xl relative overflow-hidden group print-shadow-none print:!bg-white print:!border print:!border-gray-200">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700 no-print"></div>
@@ -364,7 +341,7 @@
         <!-- 차트 및 시스템 알림 영역 -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- 왼쪽: 월별 매출 차트 Canvas OOM Isolation -->
+            <!-- 왼쪽: 월별 매출 차트 Canvas -->
             <article class="lg:col-span-2 bg-white premium-shadow rounded-[2rem] p-6 sm:p-8 transition-shadow duration-300 flex flex-col print-shadow-none">
                 <header class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
@@ -419,7 +396,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.31 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.34 STABLE</span>
                 </div>
             </div>
         </div>
@@ -433,25 +410,28 @@
     <script src="assets/js/dashboard.js" defer fetchpriority="high"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                if (typeof I18N_DICT !== 'undefined') {
-                    Object.assign(I18N_DICT.en, {
-                        "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization.",
-                        "kpi_annual": "Total Annual Sales", "kpi_pos": "POS (Dine-in/Takeout)", "kpi_del": "Delivery Platforms",
-                        "chart_title": "Monthly Revenue Trend"
-                    });
-                    Object.assign(I18N_DICT.ko, {
-                        "dash_title": "엔터프라이즈 대시보드", "dash_desc": "실시간 핵심 성과 지표 및 매출 데이터 동기화 현황입니다.",
-                        "kpi_annual": "연간 총 매출액", "kpi_pos": "POS (홀 및 포장 매출)", "kpi_del": "배달 플랫폼 매출",
-                        "chart_title": "월별 매출 동향"
-                    });
-                    if (window.applyTranslations) window.applyTranslations();
+        // 🌟 [에러 방어 6] 다국어 딕셔너리 안전 주입 (IIFE 캡슐화)
+        (function() {
+            document.addEventListener('DOMContentLoaded', () => {
+                try {
+                    if (typeof I18N_DICT !== 'undefined') {
+                        Object.assign(I18N_DICT.en, {
+                            "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization.",
+                            "kpi_annual": "Total Annual Sales", "kpi_pos": "POS (Dine-in/Takeout)", "kpi_del": "Delivery Platforms",
+                            "chart_title": "Monthly Revenue Trend"
+                        });
+                        Object.assign(I18N_DICT.ko, {
+                            "dash_title": "엔터프라이즈 대시보드", "dash_desc": "실시간 핵심 성과 지표 및 매출 데이터 동기화 현황입니다.",
+                            "kpi_annual": "연간 총 매출액", "kpi_pos": "POS (홀 및 포장 매출)", "kpi_del": "배달 플랫폼 매출",
+                            "chart_title": "월별 매출 동향"
+                        });
+                        if (window.applyTranslations) window.applyTranslations();
+                    }
+                } catch (err) {
+                    console.error("[Y2C Telemetry] I18N Error", err);
                 }
-            } catch (err) {
-                console.error("[Y2C Telemetry] I18N Error", err);
-            }
-        });
+            });
+        })();
     </script>
 </body>
 </html>
