@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.30 Enterprise Catalog ULTIMATE - DOM Lifecycle Null Fix, Strict RBAC Routing & 10 Acceleration Fixes -->
+<!-- 🌟 V40.31 Enterprise Catalog ULTIMATE - Global Scope Collision Fix, Deep Acceleration & Zero-Loss Validation -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,17 +13,20 @@
     
     <title>Item Catalog & Order | Y2C Portal</title>
     
-    <!-- 🚀 API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 [가속 채널 1 & 2] API 서버 조기 연결 및 Module Preload (스크립트 로딩 지연 원천 타파) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <link rel="preload" href="assets/js/items.js" as="script" fetchpriority="high">
+    <link rel="preload" href="assets/js/i18n.js" as="script">
 
     <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 폰트 로딩 CSSOM 블로킹 타파 (font-display: swap 융합) -->
+    <!-- 🚀 폰트 로딩 CSSOM 블로킹 타파 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
@@ -174,20 +177,25 @@
 
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [1단계: 보안 축출] DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제 -->
+    <!-- 🚨 1단계: 보안 축출 (DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제) -->
+    <!-- 🌟 [치명적 버그 수정] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
     <script>
-        var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-        var token = String(localStorage.getItem("y2c_token") || "").trim();
-        window.__INITIAL_ROLE__ = userRole;
+        (function() {
+            var _inlineRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _inlineToken = String(localStorage.getItem("y2c_token") || "").trim();
+            window.__INITIAL_ROLE__ = _inlineRole;
 
-        // 미인증 계정 강제 축출
-        if (!userRole || userRole === "NULL" || !token || token.length < 10) {
-            window.location.replace("index.html");
-        }
-        // items.html은 MASTER, VENDOR, PARTNER 모두 접근 가능하므로 특정 역할 킥아웃 생략 (미등록 역할만 차단)
-        if (userRole !== 'MASTER' && userRole !== 'VENDOR' && userRole !== 'PARTNER') {
-             window.location.replace("index.html");
-        }
+            // 미인증 계정 강제 축출
+            if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
+                window.location.replace("index.html");
+                return;
+            }
+            // items.html은 MASTER, VENDOR, PARTNER 모두 접근 가능하므로 미등록 역할만 차단
+            if (_inlineRole !== 'MASTER' && _inlineRole !== 'VENDOR' && _inlineRole !== 'PARTNER') {
+                 window.location.replace("index.html");
+                 return;
+            }
+        })();
     </script>
 
     <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
@@ -251,6 +259,53 @@
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
+
+    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑 및 IIFE 캡슐화) -->
+    <script>
+        (function() {
+            var role = window.__INITIAL_ROLE__;
+            
+            // MASTER, PARTNER
+            if (role === 'MASTER' || role === 'PARTNER') {
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER, VENDOR, PARTNER
+            if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
+                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER, VENDOR
+            if (role === 'MASTER' || role === 'VENDOR') {
+                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER
+            if (role === 'MASTER') {
+                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+
+            // Items.html 전용: Master/Vendor에게만 마스터 인벤토리 및 KPI 패널 노출
+            if (role === "MASTER" || role === "VENDOR") {
+                ['masterInventoryControls', 'kpiDashboard'].forEach(function(id) {
+                    var el = document.getElementById(id); if(el) el.classList.remove('hidden');
+                });
+            }
+
+            // 모든 UI 세팅 완료 후 렌더링 락(FOUC) 해제
+            clearTimeout(window._foucTimer);
+            document.documentElement.classList.remove("fouc-lock");
+            document.documentElement.style.opacity = "1";
+            document.documentElement.style.visibility = "visible";
+            var mainBody = document.getElementById('mainBody');
+            if (mainBody) mainBody.style.opacity = "1";
+        })();
+    </script>
 
     <!-- 📊 메인 컨텐츠 영역 (Z-Index Stack 격리 isolation: isolate 적용, 하단 결제바 여백 pb-36 유지) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-32 sm:pb-36 app-shell-enter" style="isolation: isolate;">
@@ -394,7 +449,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.30 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.31 STABLE</span>
                 </div>
             </div>
         </div>
@@ -403,54 +458,7 @@
     <!-- 글로벌 토스트 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑) -->
-    <script>
-        (function() {
-            var role = window.__INITIAL_ROLE__;
-            
-            // MASTER, PARTNER
-            if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
-            // MASTER, VENDOR, PARTNER
-            if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
-                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
-            // MASTER, VENDOR
-            if (role === 'MASTER' || role === 'VENDOR') {
-                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
-            // MASTER
-            if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
-
-            // Items.html 전용: Master/Vendor에게만 마스터 인벤토리 및 KPI 패널 노출
-            if (role === "MASTER" || role === "VENDOR") {
-                ['masterInventoryControls', 'kpiDashboard'].forEach(function(id) {
-                    var el = document.getElementById(id); if(el) el.classList.remove('hidden');
-                });
-            }
-
-            // 모든 UI 세팅 완료 후 렌더링 락(FOUC) 해제
-            clearTimeout(window._foucTimer);
-            document.documentElement.classList.remove("fouc-lock");
-            document.documentElement.style.opacity = "1";
-            document.documentElement.style.visibility = "visible";
-            var mainBody = document.getElementById('mainBody');
-            if (mainBody) mainBody.style.opacity = "1";
-        })();
-    </script>
-
-    <!-- ⚡ 🌟 SWR 캐시 프리렌더러 무손실 록다운 -->
+    <!-- ⚡ 🌟 [치명적 버그 수정] SWR 캐시 프리렌더러 무손실 록다운 및 IIFE 캡슐화 -->
     <script>
         (function() {
             try {
@@ -481,21 +489,23 @@
         })();
     </script>
     
-    <!-- 🚨 무한 새로고침 자폭 유발 스크립트(auth.js) 완전 소각 및 코어 단독 로드 -->
+    <!-- 🚨 외부 스크립트 연결 (auth.js 소각 완료) -->
     <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/items.js" defer></script>
+    <script src="assets/js/items.js" defer fetchpriority="high"></script>
     
     <script>
-        // 다국어 딕셔너리 안전 주입
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                if (typeof I18N_DICT !== 'undefined') {
-                    if (window.applyTranslations) window.applyTranslations();
+        // 🌟 다국어 딕셔너리 안전 주입 (IIFE 캡슐화)
+        (function() {
+            document.addEventListener('DOMContentLoaded', () => {
+                try {
+                    if (typeof I18N_DICT !== 'undefined') {
+                        if (window.applyTranslations) window.applyTranslations();
+                    }
+                } catch (err) {
+                    console.error("[Y2C Telemetry] I18N Error", err);
                 }
-            } catch (err) {
-                console.error("[Y2C Telemetry] I18N Error", err);
-            }
-        });
+            });
+        })();
     </script>
 </body>
 </html>
