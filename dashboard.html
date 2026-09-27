@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.30 Enterprise Dashboard ULTIMATE - DOM Lifecycle Null Fix, Strict RBAC Routing & Acceleration Fixes -->
+<!-- 🌟 V40.31 Enterprise Dashboard ULTIMATE - Global Scope Collision Fix, Deep Acceleration & Zero-Loss Validation -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,13 +13,16 @@
     
     <title>Enterprise Dashboard | Y2C Portal</title>
     
-    <!-- 🚀 API 서버 및 차트 라이브러리 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 [가속 채널 1 & 2] API 서버 조기 연결 및 Module Preload (스크립트 로딩 지연 원천 타파) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <link rel="preload" href="assets/js/dashboard.js" as="script" fetchpriority="high">
+    <link rel="preload" href="assets/js/i18n.js" as="script">
 
-    <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 (로딩 깜빡임 원천 차단) -->
+    <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
@@ -55,7 +58,7 @@
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
 
     <!-- 🌟 Chart.js 비동기 로드 (렌더링 방해 금지) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer fetchpriority="low"></script>
     
     <script>
         tailwind.config = {
@@ -179,19 +182,24 @@
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
     <!-- 🚨 1단계: 보안 축출 (DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제) -->
+    <!-- 🌟 [치명적 버그 수정] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
     <script>
-        var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-        var token = String(localStorage.getItem("y2c_token") || "").trim();
-        window.__INITIAL_ROLE__ = userRole;
+        (function() {
+            var _inlineRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _inlineToken = String(localStorage.getItem("y2c_token") || "").trim();
+            window.__INITIAL_ROLE__ = _inlineRole;
 
-        // 미인증 계정 강제 축출
-        if (!userRole || userRole === "NULL" || !token || token.length < 10) {
-            window.location.replace("index.html");
-        }
-        // VENDOR 계정의 대시보드 불법 진입 시 즉시 강제 축출
-        if (userRole === "VENDOR") {
-            window.location.replace("items.html");
-        }
+            // 미인증 계정 강제 축출
+            if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
+                window.location.replace("index.html");
+                return;
+            }
+            // VENDOR 계정의 대시보드 불법 진입 시 즉시 강제 축출
+            if (_inlineRole === "VENDOR") {
+                window.location.replace("items.html");
+                return;
+            }
+        })();
     </script>
     
     <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
@@ -255,7 +263,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑) -->
+    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑 IIFE 캡슐화) -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -411,7 +419,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.30 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.31 STABLE</span>
                 </div>
             </div>
         </div>
@@ -420,9 +428,9 @@
     <!-- 글로벌 토스트 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🚨 렌더링 무한 리프레시 자폭 방어 (i18n 단독 로드) -->
+    <!-- 🚨 외부 코어 스크립트 연결 -->
     <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/dashboard.js" defer></script>
+    <script src="assets/js/dashboard.js" defer fetchpriority="high"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
