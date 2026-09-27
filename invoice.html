@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.30 Enterprise Invoice ULTIMATE - DOM Lifecycle Null Fix, Strict RBAC Routing & 10 Acceleration Fixes -->
+<!-- 🌟 V40.31 Enterprise Invoice ULTIMATE - Global Scope Collision Fix, Deep Acceleration & Zero-Loss Validation -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [방어 5] 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 정산서 원본 컬러 보호) -->
+    <!-- 🌟 [방어 8] 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 정산서 원본 컬러 보호) -->
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -13,15 +13,18 @@
     
     <title>Advisory Invoice | Y2C Portal</title>
     
-    <!-- 🚀 API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 [가속 채널 1 & 2] API 서버 조기 연결 및 Module Preload (스크립트 로딩 지연 원천 타파) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
+
+    <link rel="preload" href="assets/js/invoice.js" as="script" fetchpriority="high">
+    <link rel="preload" href="assets/js/i18n.js" as="script">
 
     <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 (로딩 깜빡임 원천 차단) -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [방어 4] 폰트 로딩 CSSOM 블로킹 타파 (font-display: swap 융합) -->
+    <!-- 🚀 [방어 6] 폰트 로딩 CSSOM 블로킹 타파 (font-display: swap 융합) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
@@ -43,12 +46,11 @@
             if (mainBody) mainBody.style.opacity = '1';
         }, 800);
 
-        // 🚀 [방어 6] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        // 🚀 [방어 10] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
     
-    <!-- 🚨 Tailwind CSS 동기식 로드 보장 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal fallback.')"></script>
 
@@ -94,12 +96,12 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 9] iOS 줌 버그 차단 */
+        /* iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
         
-        /* 🌟 [방어 8] 브라우저 자동완성 오염 방지 */
+        /* 🌟 [방어 11] 브라우저 자동완성 오염 방지 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
             -webkit-text-fill-color: #1f2937 !important;
@@ -129,7 +131,7 @@
 
         .premium-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); border: 1px solid #f1f5f9; }
 
-        /* 🌟 [방어 3] 인쇄(Print) 무손실 절대 록다운 - 프린터 스풀러 렌더링 최적화 */
+        /* 🌟 [방어 4] 인쇄(Print) 무손실 절대 록다운 - 프린터 스풀러 렌더링 최적화 */
         @media print { 
             .no-print { display: none !important; } 
             body { 
@@ -159,26 +161,31 @@
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
     <!-- 🚨 [1단계: 보안 축출] DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제 -->
+    <!-- 🌟 [치명적 버그 수정] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
     <script>
-        var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-        var token = String(localStorage.getItem("y2c_token") || "").trim();
-        window.__INITIAL_ROLE__ = userRole;
+        (function() {
+            var _inlineRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _inlineToken = String(localStorage.getItem("y2c_token") || "").trim();
+            window.__INITIAL_ROLE__ = _inlineRole;
 
-        // 미인증 계정 강제 축출
-        if (!userRole || userRole === "NULL" || !token || token.length < 10) {
-            window.location.replace("index.html");
-        }
-        
-        // 🚨 [방어 1] MASTER 외 모든 계정의 정산서 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
-        if (userRole !== "MASTER") {
-            if (userRole === "PARTNER") window.location.replace("dashboard.html");
-            else window.location.replace("items.html");
-        }
+            // 미인증 계정 강제 축출
+            if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
+                window.location.replace("index.html");
+                return;
+            }
+            
+            // 🚨 MASTER 외 모든 계정의 정산서 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
+            if (_inlineRole !== "MASTER") {
+                if (_inlineRole === "PARTNER") window.location.replace("dashboard.html");
+                else window.location.replace("items.html");
+                return;
+            }
+        })();
     </script>
 
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 무손실 유지 -->
     <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
             <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
@@ -197,7 +204,7 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
+            <!-- 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -238,15 +245,17 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑) -->
+    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑 및 IIFE 캡슐화) -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
             
-            // MASTER 전용이므로 모든 탭 오픈
-            ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob', 'navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) { 
-                var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-            });
+            // MASTER 전용이므로 MASTER만 모든 탭 오픈
+            if (role === 'MASTER') {
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob', 'navCatalog', 'navCatalog_mob', 'navAdmin', 'navAdmin_mob', 'navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
 
             // 모든 UI 세팅 완료 후 렌더링 락(FOUC) 해제
             clearTimeout(window._foucTimer);
@@ -273,7 +282,7 @@
         <!-- 🌟 Grid/Flexbox 반응형 중첩 레이아웃 (DOM 소실 0%) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <!-- 왼쪽: 컨트롤 패널 (입력 폼) (인쇄 시 숨김) -->
+            <!-- 왼쪽: 컨트롤 패널 (입력 폼) (인쇄 시 숨김 처리됨) -->
             <div class="lg:col-span-4 bg-white premium-shadow rounded-[2rem] p-6 sm:p-8 no-print lg:sticky lg:top-[110px]">
                 <h3 class="font-montserrat text-base font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                     <span class="w-2.5 h-2.5 rounded-full bg-[#E3000F]"></span> <span data-i18n="inv_ctrl_title">Invoice Control Panel</span>
@@ -327,7 +336,7 @@
                 </div>
             </div>
 
-            <!-- 🌟 오른쪽: 인보이스 문서 렌더링 영역 (인쇄 시 이 부분만 100% 비율로 출력) -->
+            <!-- 🌟 오른쪽: 인보이스 문서 렌더링 영역 (인쇄 시 이 부분만 100% 비율로 출력됨) -->
             <div class="lg:col-span-8 bg-white premium-shadow rounded-[2rem] p-8 sm:p-12" id="invoiceDocumentContainer">
                 
                 <div class="border-b-[3px] border-[#111827] pb-6 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 page-break-avoid">
@@ -446,7 +455,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.30 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.31 STABLE</span>
                 </div>
             </div>
         </div>
@@ -455,20 +464,23 @@
     <!-- 글로벌 토스트 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🚨 렌더링 무한 리프레시 자폭 방어 (i18n 단독 로드) -->
+    <!-- 🚨 외부 스크립트 연결 (auth.js 무한 루프 폭탄 소각 완료) -->
     <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/invoice.js" defer></script>
+    <script src="assets/js/invoice.js" defer fetchpriority="high"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                if (typeof I18N_DICT !== 'undefined' && window.applyTranslations) {
-                    window.applyTranslations();
+        // 🌟 다국어 딕셔너리 안전 주입 (IIFE 캡슐화)
+        (function() {
+            document.addEventListener('DOMContentLoaded', () => {
+                try {
+                    if (typeof I18N_DICT !== 'undefined' && window.applyTranslations) {
+                        window.applyTranslations();
+                    }
+                } catch (err) {
+                    console.error("[Y2C Telemetry] I18N Error", err);
                 }
-            } catch (err) {
-                console.error("[Y2C Telemetry] I18N Error", err);
-            }
-        });
+            });
+        })();
     </script>
 </body>
 </html>
