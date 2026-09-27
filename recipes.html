@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.30 Enterprise Recipe ULTIMATE - DOM Lifecycle Null Fix, Strict RBAC Routing & 10 Acceleration Fixes -->
+<!-- 🌟 V40.31 Enterprise Recipe ULTIMATE - Global Scope Collision Fix, Deep Acceleration & Zero-Loss Validation -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [방어 7] 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 레시피 가독성 100% 보호) -->
+    <!-- 🌟 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 레시피 가독성 보호) -->
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -13,15 +13,20 @@
     
     <title>Recipe Center | Y2C Portal</title>
     
-    <!-- 🚀 API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 [가속 채널 1 & 2] API 서버 조기 연결 및 Module Preload (스크립트 로딩 지연 원천 타파) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 (로딩 깜빡임 원천 차단) -->
+    <link rel="preload" href="assets/js/recipes.js" as="script" fetchpriority="high">
+    <link rel="preload" href="assets/js/i18n.js" as="script">
+
+    <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [방어 4] 폰트 로딩 CSSOM 블로킹 타파 (font-display: swap 융합) -->
+    <!-- 🚀 폰트 로딩 CSSOM 블로킹 타파 (font-display: swap 융합) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
@@ -43,7 +48,7 @@
             if (mainBody) mainBody.style.opacity = '1';
         }, 800);
 
-        // 🚀 [방어 5] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        // 🚀 Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
@@ -93,7 +98,7 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* 🌟 [방어 9] iOS 줌 버그 차단 */
+        /* iOS 줌 버그 차단 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
@@ -108,7 +113,7 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🚀 DOM GPU 가속 및 렌더링 병목 타파 (Content-Visibility) */
+        /* DOM GPU 가속 및 렌더링 병목 타파 (Content-Visibility) */
         .recipe-card { content-visibility: auto; contain-intrinsic-size: 0 250px; }
 
         .app-shell-enter { 
@@ -153,24 +158,28 @@
 
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 [1단계: 보안 축출] DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제 -->
+    <!-- 🚨 1단계: 보안 축출 (DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제) -->
+    <!-- 🌟 [치명적 버그 수정] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
     <script>
-        var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-        var token = String(localStorage.getItem("y2c_token") || "").trim();
-        window.__INITIAL_ROLE__ = userRole;
+        (function() {
+            var _inlineRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _inlineToken = String(localStorage.getItem("y2c_token") || "").trim();
+            window.__INITIAL_ROLE__ = _inlineRole;
 
-        // 미인증 계정 강제 축출
-        if (!userRole || userRole === "NULL" || !token || token.length < 10) {
-            window.location.replace("index.html");
-        }
-        
-        // 🚨 VENDOR 계정의 레시피 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
-        if (userRole === "VENDOR") {
-            window.location.replace("items.html");
-        }
+            // 미인증 계정 강제 축출
+            if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
+                window.location.replace("index.html");
+                return;
+            }
+            // 🚨 VENDOR 계정의 레시피 불법 진입 시 HTML 렌더링 전 0.001초 만에 강제 축출
+            if (_inlineRole === "VENDOR") {
+                window.location.replace("items.html");
+                return;
+            }
+        })();
     </script>
 
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 무손실 유지 -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -182,7 +191,7 @@
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 -->
+            <!-- 좌측 로고 영역 (shrink-0 방어) -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
@@ -191,14 +200,14 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
+            <!-- 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_catalog">Item Catalog</span></a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
                 <!-- 현재 페이지: Recipe Center 기본 활성화(active) 클래스 적용 -->
                 <a href="recipes.html" id="navRecipes" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
             <!-- 우측 컨트롤 영역 -->
@@ -232,7 +241,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑) -->
+    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑 및 IIFE 캡슐화) -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -272,7 +281,7 @@
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (🌟 [방어 8] Z-Index Stack 격리 isolation: isolate 적용) -->
+    <!-- 📊 메인 컨텐츠 영역 (Z-Index Stack 격리 isolation: isolate 적용) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 헤더 및 검색창 -->
@@ -345,7 +354,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.30 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.31 STABLE</span>
                 </div>
             </div>
         </div>
@@ -403,21 +412,23 @@
     <!-- 글로벌 토스트 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- 🚨 무한 새로고침 자폭 유발 스크립트(auth.js) 완전 소각 및 i18n 단독 로드 -->
+    <!-- 🚨 외부 코어 스크립트 연결 -->
     <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/recipes.js" defer></script>
+    <script src="assets/js/recipes.js" defer fetchpriority="high"></script>
     
     <script>
-        // 🌟 다국어 딕셔너리 안전 주입
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                if (typeof I18N_DICT !== 'undefined' && window.applyTranslations) {
-                    window.applyTranslations();
+        // 🌟 다국어 딕셔너리 안전 주입 (IIFE 캡슐화)
+        (function() {
+            document.addEventListener('DOMContentLoaded', () => {
+                try {
+                    if (typeof I18N_DICT !== 'undefined' && window.applyTranslations) {
+                        window.applyTranslations();
+                    }
+                } catch (err) {
+                    console.error("[Y2C Telemetry] I18N Error", err);
                 }
-            } catch (err) {
-                console.error("[Y2C Telemetry] I18N Error", err);
-            }
-        });
+            });
+        })();
     </script>
 </body>
 </html>
