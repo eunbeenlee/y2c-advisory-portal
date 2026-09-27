@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.31 Enterprise Master ULTIMATE - Global Scope Collision Fix, Deep Acceleration & Zero-Loss Validation -->
+<!-- 🌟 V40.32 Enterprise Master ULTIMATE - Loading Hang Fix, Dynamic RBAC Tab Routing & Deep Acceleration -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,7 +13,7 @@
     
     <title>Master DB & Operations | Y2C Portal</title>
     
-    <!-- 🚀 [가속 채널 1 & 2] API 서버 조기 연결 및 Module Preload -->
+    <!-- 🚀 [가속 채널 2] API 서버 조기 연결 및 Module Preload -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -34,7 +34,7 @@
 
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- 🌟 FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
+    <!-- 🌟 [무한 로딩 픽스 2] FOUC Absolute Fail-Safe (이중 하얀 화면 먹통 원천 방지) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -44,11 +44,21 @@
             document.documentElement.classList.remove('fouc-lock');
             document.documentElement.style.opacity = '1';
             document.documentElement.style.visibility = 'visible';
-            const mainBody = document.getElementById('mainBody');
+            var mainBody = document.getElementById('mainBody');
             if (mainBody) mainBody.style.opacity = '1';
         }, 800);
 
-        // 🚀 [방어 9] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        // 🚨 타이머가 씹히는 가혹 조건 대비: window onload 시 무조건 언락
+        window.addEventListener('load', function() {
+            clearTimeout(window._foucTimer);
+            document.documentElement.classList.remove('fouc-lock');
+            document.documentElement.style.opacity = '1';
+            document.documentElement.style.visibility = 'visible';
+            var mainBody = document.getElementById('mainBody');
+            if (mainBody) mainBody.style.opacity = '1';
+        });
+
+        // 🚀 [가속 채널 3] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
@@ -98,7 +108,7 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* iOS 줌 버그 차단 및 스피너 파괴 */
+        /* 🌟 [방어 10] iOS 줌 버그 차단 및 스피너 파괴 */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         input, select, button, textarea { font-size: 16px !important; }
@@ -113,7 +123,7 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 🚀 [방어 10] DOM GPU 가속 및 렌더링 병목 타파 (Content-Visibility) */
+        /* 🚀 [가속 채널 1] DOM GPU 가속 및 렌더링 병목 타파 (Content-Visibility) */
         section { content-visibility: auto; contain-intrinsic-size: auto 1000px; }
         tbody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; }
 
@@ -179,7 +189,7 @@
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
     <!-- 🚨 [1단계: 보안 축출] DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제 -->
-    <!-- 🌟 [치명적 버그 수정] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
+    <!-- 🌟 [에러 방어 2] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
     <script>
         (function() {
             var _inlineRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
@@ -221,7 +231,7 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
+            <!-- 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
                 <a href="items.html" id="navCatalog" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_catalog">Item Catalog</span></a>
@@ -262,43 +272,56 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑 및 IIFE 캡슐화) -->
+    <!-- 🚨 [무한 로딩 픽스 1] DOM 렌더링 직후 즉시 권한 언락 및 동적 탭 스위칭 -->
     <script>
         (function() {
-            var role = window.__INITIAL_ROLE__;
-            
-            // MASTER, PARTNER
-            if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
-            // MASTER, VENDOR, PARTNER
-            if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
-                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
-            // MASTER, VENDOR
-            if (role === 'MASTER' || role === 'VENDOR') {
-                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
-            // MASTER
-            if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
+            try {
+                var role = window.__INITIAL_ROLE__;
+                
+                // 1. 공통 네비게이션 탭 언락
+                if (role === 'MASTER' || role === 'PARTNER') {
+                    ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
+                    ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                if (role === 'MASTER' || role === 'VENDOR') {
+                    ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
+                if (role === 'MASTER') {
+                    ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                    });
+                }
 
-            // 모든 UI 세팅 완료 후 렌더링 락(FOUC) 해제
-            clearTimeout(window._foucTimer);
-            document.documentElement.classList.remove("fouc-lock");
-            document.documentElement.style.opacity = "1";
-            document.documentElement.style.visibility = "visible";
-            var mainBody = document.getElementById('mainBody');
-            if (mainBody) mainBody.style.opacity = "1";
+                // 2. [치명적 버그 수정] VENDOR 접속 시 Master 탭 숨기고 Inbound 탭으로 강제 라우팅하여 무한 로딩 차단
+                if (role === 'VENDOR') {
+                    var tp = document.getElementById('tabBtn_profiles'); if(tp) tp.style.display = 'none';
+                    var ts = document.getElementById('tabBtn_sales'); if(ts) ts.style.display = 'none';
+                    
+                    var sp = document.getElementById('section_profiles'); if(sp) sp.classList.add('hidden');
+                    var si = document.getElementById('section_inbound'); if(si) si.classList.remove('hidden');
+                    
+                    var ti = document.getElementById('tabBtn_inbound');
+                    if(ti) ti.className = "px-5 py-2.5 rounded-full font-black text-[11px] sm:text-xs tracking-wider uppercase transition-all duration-300 bg-[var(--premium-charcoal)] text-white shadow-md whitespace-nowrap focus:outline-none";
+                }
+
+                // 모든 UI 세팅 완료 후 렌더링 락(FOUC) 해제
+                clearTimeout(window._foucTimer);
+                document.documentElement.classList.remove("fouc-lock");
+                document.documentElement.style.opacity = "1";
+                document.documentElement.style.visibility = "visible";
+                var mainBody = document.getElementById('mainBody');
+                if (mainBody) mainBody.style.opacity = "1";
+            } catch(err) {
+                console.error("DOM Unlock Error", err);
+            }
         })();
     </script>
 
@@ -534,7 +557,7 @@
 
     </main>
 
-    <!-- 🌟 프리미엄 푸터 (공통 100% 무손실 보존) -->
+    <!-- 🌟 프리미엄 푸터 (공통 모듈 100% 무손실 보존) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -547,7 +570,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.31 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.32 STABLE</span>
                 </div>
             </div>
         </div>
