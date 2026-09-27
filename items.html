@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.28 Enterprise Catalog ULTIMATE - Infinite Refresh Hotfix, Strict Validation & 10 Core Improvements -->
+<!-- 🌟 V40.30 Enterprise Catalog ULTIMATE - DOM Lifecycle Null Fix, Strict RBAC Routing & 10 Acceleration Fixes -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 카탈로그 색상 보호) -->
+    <!-- 🌟 다크모드 강제 반전 차단 (라이트 테마 절대 유지로 카탈로그 색상 보호) -->
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="format-detection" content="telephone=no">
@@ -13,17 +13,17 @@
     
     <title>Item Catalog & Order | Y2C Portal</title>
     
-    <!-- API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
+    <!-- 🚀 API 서버 조기 연결 (DNS Prefetch & Preconnect) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <!-- 프리로드: 브라우저 렌더링 1순위 강제 -->
+    <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 폰트 로딩 CSSOM 블로킹 타파 (font-display: swap 융합) -->
+    <!-- 🚀 폰트 로딩 CSSOM 블로킹 타파 (font-display: swap 융합) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700&display=swap">
@@ -31,7 +31,7 @@
     
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
 
-    <!-- FOUC Absolute Fail-Safe -->
+    <!-- 🌟 FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 타이머) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -45,7 +45,7 @@
             if(mainBody) mainBody.style.opacity = '1';
         }, 800);
 
-        // Passive Event Listener 강제화로 스크롤 버벅임 타파
+        // 🚀 Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
@@ -174,63 +174,31 @@
 
 <body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
     
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🚨 [1단계: 보안 축출] DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제 -->
     <script>
-        try { if (window.top !== window.self) { window.top.location.href = window.self.location.href; } } catch(e) { window.location.replace('about:blank'); }
+        var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+        var token = String(localStorage.getItem("y2c_token") || "").trim();
+        window.__INITIAL_ROLE__ = userRole;
+
+        // 미인증 계정 강제 축출
+        if (!userRole || userRole === "NULL" || !token || token.length < 10) {
+            window.location.replace("index.html");
+        }
+        // items.html은 MASTER, VENDOR, PARTNER 모두 접근 가능하므로 특정 역할 킥아웃 생략 (미등록 역할만 차단)
+        if (userRole !== 'MASTER' && userRole !== 'VENDOR' && userRole !== 'PARTNER') {
+             window.location.replace("index.html");
+        }
     </script>
+
+    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
             <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
         </div>
     </noscript>
-
-    <!-- 🌟 JS 구동 즉시 권한(RBAC) 검증 및 Inline Page-Kick 록다운 (무한 루프 원천 차단) -->
-    <script>
-        (function() {
-            try {
-                clearTimeout(window._foucTimer);
-                document.documentElement.classList.remove("fouc-lock");
-                document.documentElement.style.opacity = "1";
-                document.documentElement.style.visibility = "visible";
-                document.getElementById('mainBody').style.opacity = "1";
-
-                var userRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-                var token = String(localStorage.getItem("y2c_token") || "").trim();
-                window.__INITIAL_ROLE__ = userRole;
-
-                // 미인증 계정 강제 축출
-                if (!userRole || userRole === "NULL" || !token || token.length < 10) {
-                    window.location.replace("index.html");
-                    return;
-                }
-
-                // 통합 권한 라우터 무결성 복원 (items.html은 MASTER, VENDOR, PARTNER 모두 접근 가능)
-                if (userRole === 'MASTER' || userRole === 'PARTNER') {
-                    ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
-                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                    });
-                }
-                if (userRole === 'MASTER' || userRole === 'VENDOR' || userRole === 'PARTNER') {
-                    ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
-                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                    });
-                }
-                if (userRole === 'MASTER' || userRole === 'VENDOR') {
-                    ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
-                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                    });
-                }
-                if (userRole === 'MASTER') {
-                    ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
-                        var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                    });
-                }
-            } catch(e) {}
-        })();
-    </script>
     
-    <!-- 🌟 유니버설 마스터 헤더 (태블릿 레이아웃 붕괴 방어) -->
+    <!-- 🌟 유니버설 마스터 헤더 (DOM 무손실 유지) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
@@ -243,14 +211,14 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 (min-w-0 로 Flex 붕괴 완벽 차단) -->
+            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <a href="dashboard.html" id="navDashboard" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <!-- 현재 페이지: Item Catalog 활성화 -->
+                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_dashboard">Dashboard</span></a>
+                <!-- 현재 페이지: Item Catalog 기본 활성화(active) 클래스 적용 -->
                 <a href="items.html" id="navCatalog" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="nav-link hidden text-[12px] xl:text-[13px] tracking-wide"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_recipes">Recipe Center</span></a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_admin">Master DB</span></a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
             </nav>
 
             <!-- 우측 컨트롤 영역 -->
@@ -274,7 +242,7 @@
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 (shrink-0 방어막 유지) -->
+    <!-- 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
         <!-- 현재 페이지: Item Catalog 모바일 활성화 -->
@@ -284,7 +252,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
     </div>
 
-    <!-- 📊 메인 컨텐츠 영역 (Z-Index Stack 격리 isolation: isolate 적용) -->
+    <!-- 📊 메인 컨텐츠 영역 (Z-Index Stack 격리 isolation: isolate 적용, 하단 결제바 여백 pb-36 유지) -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-32 sm:pb-36 app-shell-enter" style="isolation: isolate;">
         
         <!-- 프리미엄 헤더 및 액션 버튼 -->
@@ -339,12 +307,12 @@
             </div>
         </div>
 
-        <!-- 🌟 메인 카탈로그 테이블 영역 (SFP 록다운: 로딩 없이 뼈대 즉시 노출) -->
+        <!-- 🌟 메인 카탈로그 테이블 영역 -->
+        <!-- 🚨 SFP 록다운: 로딩 없이 뼈대 즉시 노출 보장 -->
         <section class="bg-white premium-shadow rounded-[1.5rem] overflow-hidden mb-8 relative">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#E3000F] to-[#B9000C]"></div>
             
             <div class="overflow-x-auto hide-scrollbar pb-10">
-                <!-- 🌟 [방어 7] 스크린 리더 데드락 방지 (aria-busy) -->
                 <table class="w-full text-left border-collapse table-fixed min-w-[800px]" aria-busy="true" id="mainCatalogTable">
                     <thead>
                         <tr class="bg-gray-50/50 border-b border-gray-100">
@@ -378,8 +346,7 @@
     </main>
 
     <!-- 🌟 결제/주문 하단 플로팅 바 -->
-    <!-- 🚨 모바일 노치 가림 완벽 방어 유지 -->
-    <!-- 🌟 [방어 3] 결제 바 뒷배경 클릭 스루(Ghost Click) 방지를 위해 pointer-events 통제 강화 -->
+    <!-- 🚨 모바일 노치 가림 완벽 방어 유지 & 결제 바 뒷배경 클릭 스루(Ghost Click) 방지 -->
     <aside id="orderActionContainer" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] z-40 transition-transform duration-500 no-print pb-[env(safe-area-inset-bottom)]" style="pointer-events: auto;">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
@@ -414,7 +381,7 @@
         <img id="imagePreview" src="" alt="Preview" class="w-64 h-64 sm:w-80 sm:h-80 object-cover rounded-xl border border-gray-100" loading="lazy" decoding="async">
     </div>
 
-    <!-- 🌟 프리미엄 푸터 (공통 모듈 100% 보존) -->
+    <!-- 🌟 프리미엄 푸터 -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -427,7 +394,7 @@
                         System Online
                     </span>
                     <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.28 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.30 STABLE</span>
                 </div>
             </div>
         </div>
@@ -436,7 +403,54 @@
     <!-- 글로벌 토스트 -->
     <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
 
-    <!-- ⚡ SWR 캐시 프리렌더러 무손실 록다운 -->
+    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 (Null 에러 방지용 완벽 매핑) -->
+    <script>
+        (function() {
+            var role = window.__INITIAL_ROLE__;
+            
+            // MASTER, PARTNER
+            if (role === 'MASTER' || role === 'PARTNER') {
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER, VENDOR, PARTNER
+            if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
+                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER, VENDOR
+            if (role === 'MASTER' || role === 'VENDOR') {
+                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+            // MASTER
+            if (role === 'MASTER') {
+                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
+                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
+                });
+            }
+
+            // Items.html 전용: Master/Vendor에게만 마스터 인벤토리 및 KPI 패널 노출
+            if (role === "MASTER" || role === "VENDOR") {
+                ['masterInventoryControls', 'kpiDashboard'].forEach(function(id) {
+                    var el = document.getElementById(id); if(el) el.classList.remove('hidden');
+                });
+            }
+
+            // 모든 UI 세팅 완료 후 렌더링 락(FOUC) 해제
+            clearTimeout(window._foucTimer);
+            document.documentElement.classList.remove("fouc-lock");
+            document.documentElement.style.opacity = "1";
+            document.documentElement.style.visibility = "visible";
+            var mainBody = document.getElementById('mainBody');
+            if (mainBody) mainBody.style.opacity = "1";
+        })();
+    </script>
+
+    <!-- ⚡ 🌟 SWR 캐시 프리렌더러 무손실 록다운 -->
     <script>
         (function() {
             try {
@@ -455,7 +469,7 @@
                                 setTimeout(() => { 
                                     document.getElementById('itemTableBody').style.opacity = '1'; 
                                     const t = document.getElementById('mainCatalogTable');
-                                    if(t) t.setAttribute('aria-busy', 'false'); // 🌟 로딩 완료 알림
+                                    if(t) t.setAttribute('aria-busy', 'false'); // 🌟 접근성 데드락 해제
                                 }, 50);
                             }
                         });
@@ -467,12 +481,12 @@
         })();
     </script>
     
-    <!-- 🚨 무한 새로고침 자폭 유발 스크립트(auth.js) 완전 소각 및 i18n 단독 로드 -->
+    <!-- 🚨 무한 새로고침 자폭 유발 스크립트(auth.js) 완전 소각 및 코어 단독 로드 -->
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/items.js" defer></script>
     
     <script>
-        // 다국어 딕셔너리 안전 주입 및 마스터 패널 노출 검증
+        // 다국어 딕셔너리 안전 주입
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 if (typeof I18N_DICT !== 'undefined') {
@@ -480,22 +494,6 @@
                 }
             } catch (err) {
                 console.error("[Y2C Telemetry] I18N Error", err);
-            }
-
-            try {
-                const conf = typeof window.SYSTEM_CONFIG !== 'undefined' ? window.SYSTEM_CONFIG : { STORAGE_KEYS: { ROLE: 'y2c_role' } };
-                const role = (localStorage.getItem(conf.STORAGE_KEYS.ROLE) || "").toUpperCase();
-                
-                // VENDOR & MASTER만 마스터 인벤토리/KPI 패널 노출
-                if (role === "MASTER" || role === "VENDOR") {
-                    const unlockIds = ['masterInventoryControls', 'kpiDashboard'];
-                    unlockIds.forEach(id => {
-                        const el = document.getElementById(id);
-                        if(el) el.classList.remove('hidden');
-                    });
-                }
-            } catch(authErr) {
-                console.error("[Y2C Telemetry] RBAC Auth Verification Error", authErr);
             }
         });
     </script>
