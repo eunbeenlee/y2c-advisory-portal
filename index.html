@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.37 Enterprise Login ULTIMATE - Brand Tone Sync, Dual Logo Fix, Telemetry & Zero-Loss Validation -->
+<!-- 🌟 V40.38 Enterprise Login ULTIMATE - Premium Tone Sync, Elegant Logo Fallback, IIFE Isolation & Zero-Loss -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -93,7 +93,7 @@
             --bg-light: #F8F9FA;
         }
         
-        /* 터치 딜레이 및 바운스 스크롤 원천 차단 (대시보드와 동일한 톤앤매너 적용) */
+        /* 터치 딜레이 및 바운스 스크롤 원천 차단 (대시보드 톤앤매너 완벽 동기화) */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -108,11 +108,11 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* 🌟 [고급화 2] 톤앤매너를 맞춘 깔끔한 프리미엄 라이트 카드 */
+        /* 🌟 [고급화 2] 톤앤매너를 맞춘 깔끔한 프리미엄 라이트 카드 (입체감 부여) */
         .solid-panel {
             background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02);
             border-radius: 2.5rem;
             position: relative;
             z-index: 10;
@@ -121,8 +121,8 @@
         /* 🌟 iOS 사파리 줌인 버그 차단 및 라이트 테마 오토필 방어 */
         .premium-input {
             appearance: none; -webkit-appearance: none;
-            background: #F8F9FA;
-            border: 1px solid #e5e7eb;
+            background: #f1f5f9; /* Tailwind slate-100 */
+            border: 1px solid transparent;
             color: var(--premium-charcoal);
             font-size: 16px !important; 
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -132,8 +132,9 @@
         .premium-input:focus {
             background: #ffffff;
             border-color: var(--sinjeon-pink);
-            box-shadow: 0 0 0 4px rgba(227, 0, 15, 0.1);
+            box-shadow: 0 4px 15px rgba(227, 0, 15, 0.08), 0 0 0 4px rgba(227, 0, 15, 0.1);
             outline: none;
+            transform: translateY(-1px);
         }
         .premium-input::placeholder { color: transparent; } /* 플로팅 라벨을 위해 투명 처리 */
 
@@ -143,7 +144,7 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* 🌟 [고급화 1] 라이트 폼 전용 플로팅 레이블 애니메이션 CSS */
+        /* 🌟 [고급화 3] 라이트 폼 전용 플로팅 레이블 애니메이션 CSS */
         .floating-label-group { position: relative; }
         .floating-label {
             position: absolute;
@@ -151,7 +152,7 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 13px;
-            color: #6b7280;
+            color: #64748b; /* Tailwind slate-500 */
             pointer-events: none;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: 'Inter', sans-serif;
@@ -166,16 +167,18 @@
             left: 1rem;
             color: var(--premium-charcoal);
             background: #ffffff; /* 라벨 배경 덮어쓰기 (카드 배경색) */
-            padding: 0 6px;
+            padding: 0 8px;
             border-radius: 4px;
-            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid #e2e8f0;
         }
         .premium-input:focus ~ .floating-label {
             color: var(--sinjeon-pink);
             border-color: rgba(227, 0, 15, 0.2);
+            box-shadow: 0 2px 4px rgba(227,0,15,0.05);
         }
 
-        /* 🌟 대시보드와 통일된 프리미엄 버튼 그라데이션 */
+        /* 🌟 [고급화 4] 대시보드와 통일된 프리미엄 버튼 그라데이션 및 마그네틱 애니메이션 */
         .btn-hip {
             background: linear-gradient(135deg, var(--sinjeon-pink) 0%, #B9000C 100%);
             color: #ffffff;
@@ -187,12 +190,12 @@
         }
         .btn-hip::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
             transition: none;
         }
         .btn-hip:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(227, 0, 15, 0.3);
+            box-shadow: 0 12px 25px rgba(227, 0, 15, 0.35);
             letter-spacing: 0.25em;
         }
         .btn-hip:hover:not(:disabled)::after {
@@ -222,7 +225,7 @@
         }
         .shake-animation { animation: error-shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
-        /* 🌟 [고급화 5] 라이트 테마에 맞춘 프리미엄 토스트 알림망 */
+        /* 🌟 [무손실 보존] 라이트 테마에 맞춘 프리미엄 토스트 알림망 */
         #premiumToastContainer {
             position: fixed;
             top: 20px; right: 20px;
@@ -288,10 +291,10 @@
         </div>
     </noscript>
 
-    <!-- 🌟 [고급화 4] 대시보드 톤앤매너와 일치하는 은은한 블러 악센트 백그라운드 -->
+    <!-- 🌟 [고급화 5] 대시보드 톤앤매너와 일치하는 은은한 블러 악센트 백그라운드 -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#E3000F]/10 rounded-full blur-[100px] animate-pulse"></div>
-        <div class="absolute bottom-[5%] -right-[5%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[5%] -right-[5%] w-[40%] h-[40%] bg-amber-500/5 rounded-full blur-[120px]"></div>
     </div>
 
     <!-- 🌟 프리미엄 토스트 컨테이너 -->
@@ -299,10 +302,9 @@
 
     <main class="w-full max-w-[440px] z-10 block relative mt-4 sm:mt-0 cinematic-enter">
         
-        <header class="text-center mb-8 block w-full">
+        <header class="text-center mb-8 block w-full relative z-20">
             
-            <!-- 🚨 [치명적 버그 수정 완료] 로고 증발 현상 완벽 차단 샌드박스 구조 -->
-            <!-- 부모 컨테이너(innerHTML)를 덮어쓰지 않도록 Y2C 로고용 별도 Wrapper(id="y2cLogoWrapper") 구성 -->
+            <!-- 🚨 [디자인 결함 완벽 소각] 로고 증발 현상 원천 차단 및 대기업형 Fallback 디자인 적용 -->
             <div class="flex items-center justify-center gap-5 mb-8">
                 <!-- Sinjeon Logo -->
                 <div class="w-16 h-16 sm:w-[72px] sm:h-[72px] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-2.5 transform hover:scale-105 transition-transform duration-300">
@@ -311,10 +313,12 @@
                 <!-- Divider -->
                 <div class="h-10 w-[2px] bg-gray-200 rounded-full"></div>
                 <!-- Y2C Logo Wrapper -->
-                <div id="y2cLogoWrapper" class="w-16 h-16 sm:w-[72px] sm:h-[72px] flex items-center justify-center bg-white rounded-full shadow-sm border-[2px] border-[#D4AF37] p-1.5 transform hover:scale-105 transition-transform duration-300">
-                    <img src="assets/images/y2c_logo.png" decoding="async" onerror="this.style.display='none'; document.getElementById('y2cFallback').classList.remove('hidden');" alt="Y2C Logo" class="w-full h-full object-contain rounded-full">
-                    <!-- 404 에러 발생 시 부모를 날리지 않고 이 fallback 엘리먼트만 활성화됨 -->
-                    <div id="y2cFallback" class="hidden w-full h-full rounded-full flex items-center justify-center bg-gray-50"><span class="font-black text-[var(--premium-charcoal)] text-xs sm:text-sm">Y2C</span></div>
+                <div id="y2cLogoWrapper" class="w-16 h-16 sm:w-[72px] sm:h-[72px] flex items-center justify-center bg-white rounded-full shadow-sm border-[2px] border-[#D4AF37] p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden">
+                    <img src="assets/images/y2c_logo.png" decoding="async" onerror="this.style.display='none'; document.getElementById('y2cFallback').classList.remove('hidden');" alt="Y2C Logo" class="w-full h-full object-contain rounded-full relative z-10">
+                    <!-- 🌟 404 에러 발생 시 부모 컨테이너 파괴 없이 고급스러운 타이포그래피 로고 렌더링 -->
+                    <div id="y2cFallback" class="hidden absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                        <span class="font-black text-[#D4AF37] text-sm sm:text-base tracking-tighter" style="text-shadow: 0 1px 2px rgba(0,0,0,0.05);">Y2C</span>
+                    </div>
                 </div>
             </div>
             
@@ -323,7 +327,7 @@
                 <span class="font-montserrat text-3xl sm:text-4xl font-black text-[#E3000F] tracking-tight uppercase text-glow-red">CANADA</span>
             </div>
             
-            <!-- 🌟 [고급화 2] 동적 그리팅 (JS로 시간대별 변경됨) -->
+            <!-- 🌟 [무손실 보존] 동적 그리팅 (JS로 시간대별 변경됨) -->
             <div class="flex items-center justify-center gap-3 mt-4 opacity-80">
                 <span class="w-8 h-[1px] bg-gradient-to-r from-transparent to-gray-300"></span>
                 <span id="dynamicGreeting" class="font-montserrat text-[10px] font-black text-gray-500 tracking-[0.25em] uppercase">Enterprise Portal</span>
@@ -359,8 +363,8 @@
                         <input type="password" id="userPw" name="userPw" autocomplete="current-password" placeholder=" " class="premium-input py-4.5 pl-12 pr-12 font-mono font-black tracking-[0.3em] text-lg relative z-0">
                         <label for="userPw" class="floating-label">Passkey</label>
                         
-                        <!-- 🌟 [무손실 1] 비밀번호 가시성 토글 아이콘 -->
-                        <button type="button" id="togglePwBtn" class="absolute right-4 text-gray-400 hover:text-gray-700 transition-colors focus:outline-none z-10 p-1">
+                        <!-- 🌟 [무손실 보존] 비밀번호 가시성 토글 아이콘 -->
+                        <button type="button" id="togglePwBtn" class="absolute right-4 text-gray-400 hover:text-[var(--sinjeon-pink)] transition-colors focus:outline-none z-10 p-1">
                             <svg id="eyeIconClosed" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
                             <svg id="eyeIconOpen" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                         </button>
@@ -382,6 +386,7 @@
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
 
+                <!-- 🌟 Premium Button -->
                 <button type="submit" id="loginBtn" class="btn-hip w-full font-montserrat font-black text-[13px] tracking-[0.2em] uppercase py-5 rounded-xl mt-2 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
                     <span id="btnText">Secure Login</span>
                     <svg id="btnSpinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -396,7 +401,7 @@
                     Operated by Y2C Holdings Ltd.
                 </p>
                 <p class="font-montserrat text-[8.5px] font-black text-gray-500 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.37 Enterprise
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.38 Enterprise
                 </p>
             </footer>
         </form>
@@ -404,14 +409,14 @@
 
 <script>
 /**
- * 🌟 V40.37 Enterprise Ultimate Auth Gateway
- * [12+ Improvements] Brand Tone Sync, Dual Logo Safety, Telemetry, IIFE Isolation
+ * 🌟 V40.38 Enterprise Ultimate Auth Gateway
+ * [12+ Improvements] Premium Brand Tone Sync, Elegant Logo Fallback, Telemetry, IIFE Isolation
  */
 
 (function() {
     "use strict";
 
-    // 🌟 [보안 8] 클라이언트 원격 텔레메트리 (Telemetry Engine)
+    // 🌟 [보안 8] 클라이언트 원격 텔레메트리 (Telemetry Engine) 보존
     class TelemetryEngine {
         static collect() {
             try {
@@ -428,7 +433,7 @@
         }
     }
 
-    // 🌟 [고급화 5] 라이트 모드용 프리미엄 토스트 알림망
+    // 🌟 [무손실 보존] 라이트 모드용 프리미엄 토스트 알림망
     class ToastSystem {
         static show(message, type = "error") {
             const container = document.getElementById('premiumToastContainer');
@@ -471,7 +476,7 @@
     // 🌟 DOM Ready 프록시 록다운
     document.addEventListener("DOMContentLoaded", () => {
         
-        // 🌟 [고급화 2] 동적 그리팅 (시간대별 메시지)
+        // 🌟 [무손실 보존] 동적 그리팅 (시간대별 메시지)
         const greetingEl = document.getElementById('dynamicGreeting');
         if (greetingEl) {
             const hour = new Date().getHours();
@@ -499,7 +504,7 @@
         const idInput = document.getElementById("userId");
         const pwInput = document.getElementById("userPw");
         const hpInput = document.getElementById("hp_field");
-        const errorMsg = document.getElementById("loginErrorMsg"); // 레거시 100% 호환 보존
+        const errorMsg = document.getElementById("loginErrorMsg"); 
         const capsLockWarning = document.getElementById("capsLockWarning");
 
         // 비밀번호 토글
@@ -674,6 +679,7 @@
                     if(btnText) btnText.classList.add('hidden');
                     if(btnSpinner) btnSpinner.classList.remove('hidden');
                     loginBtn.style.background = "#f3f4f6";
+                    loginBtn.style.boxShadow = "none";
                     loginBtn.classList.add('cursor-not-allowed', 'pointer-events-none');
                 }
 
