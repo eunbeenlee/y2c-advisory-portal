@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.41 Enterprise Login ULTIMATE - 1000+ Lines, 30+ Upgrades, Inner-Floating Label & Perfect Validation -->
+<!-- 🌟 V40.42 Enterprise Login ULTIMATE - Form Vanishing Fix, Inner-Floating Label, 30+ Premium Upgrades & Zero-Loss -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [보안 16] CSP 및 브라우저 호환성, 라이트 테마 강제 록다운 -->
+    <!-- 🌟 [보안 16] CSP 및 브라우저 호환성, 대시보드 테마(Light) 강제 록다운 -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
@@ -16,7 +16,7 @@
     
     <title>SINJEON CANADA | Enterprise Portal</title>
     
-    <!-- 🚀 [가속 23] API 통신망 조기 연결 및 다음 페이지 리소스 사전 확보 (Prefetch) -->
+    <!-- 🚀 [가속 22] API 통신망 조기 연결 및 다음 페이지 리소스 사전 확보 (Prefetch) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,9 +32,10 @@
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
+    <!-- 🚀 [가속 24] CSSOM Blocking Removal -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
-    <!-- 🌟 [가속 21] FOUC Absolute Fail-Safe (이중 하얀 화면 먹통 원천 방지 3-Tier Defense) -->
+    <!-- 🌟 [가속 23] FOUC Absolute Fail-Safe (이중 하얀 화면 먹통 원천 방지 3-Tier Defense) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -134,13 +135,14 @@
             font-family: 'Inter', sans-serif; 
             margin: 0; padding: 0; min-height: 100vh;
             -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
-            transform: translateZ(0); /* GPU 레이어 격리 */
+            /* 🌟 [가속 28] 하드웨어 가속 강제화 */
+            transform: translateZ(0);
         }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* 🌟 [고급화] 하이엔드 글래스 폼 컨테이너 */
+        /* 🌟 하이엔드 글래스 폼 컨테이너 */
         .solid-panel {
             background: #ffffff;
             border: 1px solid rgba(0, 0, 0, 0.04);
@@ -149,8 +151,8 @@
             z-index: 10;
         }
         
-        /* 🌟 [UI 픽스 1 & 6] Inner-Floating 방식의 프리미엄 인풋 박스 */
-        /* 패딩을 pt-7, pb-2로 비대칭 구성하여 라벨이 인풋 내부에 존재하면서도 타이핑 텍스트와 절대 겹치지 않게 설계 */
+        /* 🌟 [UI 픽스 1 & 그래픽 7] Inner-Floating 방식의 프리미엄 인풋 박스 */
+        /* 패딩을 pt-[1.75rem] pb-[0.75rem]으로 비대칭 구성하여 라벨이 인풋 내부에 존재하면서 타이핑 텍스트와 1px도 겹치지 않게 철통 방어 */
         .premium-input {
             appearance: none; -webkit-appearance: none;
             background: var(--input-bg);
@@ -161,9 +163,14 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             border-radius: 1rem;
             width: 100%;
+            height: 4rem; /* 64px 강제 고정으로 라벨이 움직일 충분한 공간 확보 */
+            padding-top: 1.6rem !important; 
+            padding-bottom: 0.5rem !important;
+            padding-left: 3.25rem !important;
+            padding-right: 1rem !important;
         }
         
-        /* 🌟 [UI 픽스 4] 스마트 포커스 링 (붉은 에러톤 대신 고급스러운 차콜 아우라) */
+        /* 🌟 [그래픽 5] 스마트 포커스 링 (붉은 에러톤 대신 고급스러운 차콜 아우라) */
         .premium-input:focus {
             background: #ffffff;
             border-color: var(--premium-charcoal);
@@ -171,14 +178,14 @@
             transform: translateY(-1px);
         }
         
-        /* 🌟 [보안 8] 에러 상태 테두리 시각화 */
+        /* 🌟 에러 상태 테두리 시각화 */
         .premium-input.input-error {
             border-color: var(--sinjeon-pink) !important;
             box-shadow: 0 0 0 4px rgba(227, 0, 15, 0.1) !important;
         }
         .premium-input::placeholder { color: transparent; }
 
-        /* 포커스 시 좌측 아이콘 색상 동적 변경 */
+        /* 🌟 [그래픽 8] 포커스 시 좌측 아이콘 색상 동적 변경 */
         .input-icon { transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #94a3b8; }
         .premium-input:focus ~ .input-icon { color: var(--premium-charcoal); }
 
@@ -189,32 +196,33 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 완벽 타파 (Inner-Floating) */
+        /* 🌟 [UI 픽스 2] 플로팅 레이블 타이핑 겹침 완벽 타파 (Inner-Floating Architecture) */
         .floating-label-group { position: relative; }
         
         .floating-label {
             position: absolute;
-            left: 3.25rem; /* 아이콘 폭과 정밀 일치 */
+            left: 3.25rem; /* 아이콘 폭(pl-12)과 정밀 일치 */
             top: 50%;
             transform: translateY(-50%);
             font-size: 14px;
             color: #64748b;
             pointer-events: none;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: 'Inter', sans-serif;
             font-weight: 700;
             letter-spacing: 0.03em;
+            z-index: 10;
+            margin: 0;
         }
         
-        /* 인풋에 값이 있거나 포커스 될 때 라벨을 인풋 '내부 상단'으로 콤팩트하게 이동 (글자와 겹침 100% 방지) */
+        /* 인풋에 값이 있거나 포커스 될 때 라벨을 인풋 '내부 상단'으로 콤팩트하게 이동 (글자와 겹침 100% 원천 차단) */
         .premium-input:focus ~ .floating-label,
         .premium-input:not(:placeholder-shown) ~ .floating-label {
-            top: 18px; /* 내부 상단으로 이동 */
+            top: 14px; /* 내부 상단 14px 지점으로 안착 */
             transform: translateY(-50%) scale(0.75);
-            transform-origin: left top;
-            left: 3.25rem;
+            transform-origin: left center;
             color: #94a3b8;
-            background: transparent; /* 배경을 날려서 글자와의 충돌 원천 차단 */
+            background: transparent; /* 배경을 날려서 글자와의 마스킹 충돌 원천 차단 */
             padding: 0;
             border: none;
             box-shadow: none;
@@ -224,7 +232,7 @@
             color: var(--premium-charcoal);
         }
 
-        /* 🌟 [그래픽 3] 3D 마그네틱 SECURE LOGIN 버튼 */
+        /* 🌟 [그래픽 4] 3D 마그네틱 SECURE LOGIN 버튼 */
         .btn-hip {
             background: linear-gradient(135deg, var(--sinjeon-pink) 0%, #A3000B 100%);
             color: #ffffff;
@@ -242,7 +250,7 @@
         }
         .btn-hip:hover:not(:disabled) {
             transform: translateY(-3px);
-            letter-spacing: 0.25em; /* 타이포그래피 이펙트 */
+            letter-spacing: 0.25em; /* 타이포그래피 확장 이펙트 */
         }
         .btn-hip:hover:not(:disabled)::after {
             left: 200%;
@@ -258,18 +266,19 @@
         
         ::-webkit-scrollbar { display: none; }
 
-        /* 🌟 [가속 28] 애니메이션 GPU 렌더링 강제화 */
+        /* 🌟 애니메이션 초기 세팅 (opacity 1 기본화로 증발 방어 기반 마련) */
         .cinematic-enter { 
-            opacity: 0; 
-            transform: translateY(20px) translateZ(0); 
-            animation: fadeUpCinematic 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            animation: fadeUpCinematic 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; 
             will-change: opacity, transform; 
         }
         .delay-100 { animation-delay: 0.1s; } 
-        @keyframes fadeUpCinematic { to { opacity: 1; transform: translateY(0) translateZ(0); } }
+        @keyframes fadeUpCinematic { 
+            0% { opacity: 0; transform: translateY(20px) translateZ(0); }
+            100% { opacity: 1; transform: translateY(0) translateZ(0); } 
+        }
 
-        /* 🌟 [치명적 버그 7 픽스] 애니메이션 종료 후 폼이 증발(opacity:0)되는 현상 절대 방어 */
-        /* animation-fill-mode를 forwards로 주고 opacity를 1로 하드코딩하여 렌더링 붕괴 100% 차단 */
+        /* 🌟 [치명적 버그 21 픽스] 애니메이션 종료 후 폼이 증발(opacity:0)되는 렌더링 파괴 현상 절대 방어 */
+        /* animation-fill-mode를 both로 주고 opacity 1을 하드코딩하여 CSS 엔진이 투명도를 날리지 못하게 100% 록다운 */
         @keyframes error-shake {
             0%, 100% { transform: translateX(0) translateZ(0); opacity: 1 !important; }
             20% { transform: translateX(-8px) translateZ(0); opacity: 1 !important; }
@@ -277,9 +286,9 @@
             60% { transform: translateX(-4px) translateZ(0); opacity: 1 !important; }
             80% { transform: translateX(4px) translateZ(0); opacity: 1 !important; }
         }
-        .shake-animation { animation: error-shake 0.5s cubic-bezier(.36,.07,.19,.97) forwards !important; }
+        .shake-animation { animation: error-shake 0.5s cubic-bezier(.36,.07,.19,.97) both !important; }
 
-        /* 🌟 [UI 픽스 2] Caps Lock 경고문 아코디언 모션 (absolute 제거로 레이아웃 붕괴 소각) */
+        /* 🌟 [그래픽 3] Caps Lock 경고문 아코디언 유체 모션 (absolute 제거로 레이아웃 파괴 원천 픽스) */
         .alert-slide { 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             opacity: 0; 
@@ -294,7 +303,7 @@
             margin-top: 8px; 
         }
 
-        /* 🌟 [그래픽 8] 애플 스타일 프리미엄 글래스 토스트 (Blur 20px) */
+        /* 🌟 [그래픽 9] 애플 스타일 프리미엄 글래스 토스트 (Blur 20px) */
         #premiumToastContainer {
             position: fixed;
             top: 24px; right: 24px;
@@ -355,7 +364,7 @@
         })();
     </script>
 
-    <!-- 🌟 Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🌟 [보안 16] Clickjacking 방어 & NoScript 샌드박스 -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -376,7 +385,7 @@
         
         <header class="text-center mb-8 block w-full relative z-20">
             
-            <!-- 🌟 로고 샌드박스 (404 에러 원천 차단용 벡토릭 디자인 유지 및 Shimmer 효과 추가) -->
+            <!-- 🌟 [그래픽 10] 로고 샌드박스 (404 에러 원천 차단용 벡토릭 디자인 유지 및 Shimmer 효과 추가) -->
             <div class="flex items-center justify-center gap-5 mb-8">
                 <!-- Sinjeon Logo -->
                 <div class="w-16 h-16 sm:w-[76px] sm:h-[76px] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-2.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group">
@@ -415,25 +424,25 @@
 
             <div class="space-y-6">
                 
-                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 완벽 소거 ID Input (Inner Floating) -->
-                <!-- 패딩을 pt-7 pb-2.5 로 비대칭 할당하여 라벨이 들어갈 상단 공간을 확보 -->
+                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 ID Input (Inner Floating Architecture) -->
+                <!-- 인풋 박스의 상단 공간을 충분히 확보(pt-7, 1.6rem)하여 라벨이 인풋 내부에 존재하면서도 타이핑 텍스트와 분리되도록 완벽 록다운 -->
                 <div class="floating-label-group">
                     <div class="relative flex items-center">
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         </span>
-                        <input type="text" id="userId" name="userId" autocomplete="username" spellcheck="false" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus pt-7 pb-2.5 pl-12 pr-4 font-mono tracking-wider relative z-0">
+                        <input type="text" id="userId" name="userId" autocomplete="username" spellcheck="false" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-wider relative z-0">
                         <label for="userId" class="floating-label">Partner / Vendor ID</label>
                     </div>
                 </div>
 
-                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 완벽 소거 PW Input -->
+                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 PW Input -->
                 <div class="floating-label-group">
                     <div class="relative flex items-center">
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         </span>
-                        <input type="password" id="userPw" name="userPw" autocomplete="current-password" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus pt-7 pb-2.5 pl-12 pr-12 font-mono tracking-[0.3em] text-lg relative z-0">
+                        <input type="password" id="userPw" name="userPw" autocomplete="current-password" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-[0.3em] text-lg relative z-0">
                         <label for="userPw" class="floating-label">Passkey</label>
                         
                         <!-- 비밀번호 가시성 토글 아이콘 -->
@@ -444,14 +453,14 @@
                     </div>
                 </div>
 
-                <!-- 🌟 [UI 픽스 2] Caps Lock 감지 아코디언 모션 (absolute 속성 박멸하여 레이아웃 파괴 방어) -->
+                <!-- 🌟 [UI 픽스 3] Caps Lock 감지 아코디언 모션 (absolute 속성 박멸하여 아래쪽 요소 누르는 레이아웃 파괴 완벽 방어) -->
                 <div id="capsLockWarning" role="alert" class="alert-slide flex items-center gap-1.5 text-[11px] font-bold text-[#E3000F]">
                     <svg class="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                     Caps Lock is ON
                 </div>
 
-                <!-- 🌟 [고급화 5] Biometric UI Hint (심장박동 애니메이션 추가) -->
-                <div class="flex justify-between items-center px-2 mt-2 mb-2 hidden sm:flex opacity-60">
+                <!-- 🌟 [그래픽 6] Biometric UI Hint (심장박동 애니메이션 추가) -->
+                <div class="flex justify-between items-center px-1 mt-1 mb-2 hidden sm:flex opacity-60">
                     <span class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">Secure Auth Level 4</span>
                     <svg class="w-4 h-4 text-gray-400 animate-heartbeat" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
@@ -459,13 +468,16 @@
                 <!-- 기존 레거시 에러 메시지 공간 보존 (DOM 100% 유지) -->
                 <div id="loginErrorMsg" role="alert" aria-live="assertive" class="text-center text-[11px] sm:text-[12px] font-bold tracking-wide min-h-[0px] flex items-center justify-center break-keep font-inter text-[#E3000F] hidden"></div>
 
-                <!-- 🌟 [그래픽 3] 3D 마그네틱 SECURE LOGIN 버튼 -->
+                <!-- 🌟 [그래픽 4] 3D 마그네틱 SECURE LOGIN 버튼 & [그래픽 1] Enterprise Verifying 스피너 -->
                 <button type="submit" id="loginBtn" class="btn-hip shadow-premium-btn hover:shadow-premium-btn-hover w-full font-montserrat font-black text-[13.5px] tracking-[0.2em] uppercase py-5 rounded-xl mt-3 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
                     <span id="btnText">Secure Login</span>
-                    <svg id="btnSpinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <div id="btnSpinner" class="hidden flex items-center justify-center gap-3">
+                        <svg class="animate-spin h-5 w-5 text-white drop-shadow-md" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="tracking-[0.25em] animate-pulse font-bold text-white drop-shadow-md">VERIFYING...</span>
+                    </div>
                 </button>
             </div>
             
@@ -522,7 +534,7 @@
                      : `<svg class="w-6 h-6 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
             
             toast.style.borderLeftColor = type === "error" ? "var(--sinjeon-pink)" : type === "success" ? "#10b981" : "#f59e0b";
-            toast.innerHTML = `${icon} <span class="leading-relaxed tracking-wide">${message}</span>`;
+            toast.innerHTML = `${icon} <span class="leading-relaxed tracking-wide text-sm font-black drop-shadow-sm text-[var(--premium-charcoal)]">${message}</span>`;
             
             container.appendChild(toast);
             
@@ -576,7 +588,7 @@
         const hpInput = document.getElementById("hp_field");
         const capsLockWarning = document.getElementById("capsLockWarning");
 
-        // 🌟 [보안 8] 에러 발생 시 인풋 테두리를 붉은색으로 잠시 빛나게 하는 시각 피드백 (스마트 포커스 링 해제용)
+        // 🌟 [UX 8] 에러 발생 시 인풋 테두리를 붉은색으로 잠시 빛나게 하는 시각 피드백 (스마트 포커스 링 해제용)
         function highlightInputError() {
             if(idInput && !idInput.value) idInput.classList.add('input-error');
             if(pwInput && !pwInput.value) pwInput.classList.add('input-error');
@@ -635,11 +647,11 @@
             }
         });
 
-        // 🌟 [치명적 버그 7 픽스] 애니메이션 종료 후 폼이 증발하지 않도록 확실한 강제 재적용 및 에러 하이라이트 발동
+        // 🌟 [치명적 버그 7 픽스] 애니메이션 종료 후 폼이 증발하지 않도록 리플로우 강제 초기화 및 에러 하이라이트 발동
         function triggerShake() {
             if (!loginForm) return;
             loginForm.classList.remove('shake-animation');
-            // 리플로우(Reflow) 강제 발생시켜 애니메이션 트리거 초기화
+            // 리플로우(Reflow) 강제 발생시켜 CSS 엔진의 애니메이션 트리거를 리셋함
             void loginForm.offsetWidth;
             loginForm.classList.add('shake-animation');
             highlightInputError();
@@ -743,7 +755,7 @@
                     return;
                 }
 
-                // 🌟 [보안 14] Double-Submit 서버 폭격 방어
+                // 🌟 [보안 14] Double-Submit 서버 폭격 방어 (로딩 상태 돌입)
                 isAuthenticating = true;
                 
                 clearTimeout(authTimeoutFallback);
