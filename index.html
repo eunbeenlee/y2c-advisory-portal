@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.42 Enterprise Login ULTIMATE - Intelligent Error Tracking, Premium Validation & Zero-Loss Architecure -->
+<!-- 🌟 V40.43 Enterprise Login ULTIMATE - Backend Payload Vanishing Fix, Inner-Floating Label & 30+ Premium Upgrades -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -362,6 +362,7 @@
                     else if (_sysRole === "PARTNER") { window.location.replace("dashboard.html"); } 
                     else { window.location.replace("items.html"); }
                 } else {
+                    // 비정상 찌꺼기 데이터 클렌징
                     const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state"];
                     keysToClear.forEach(function(k) { localStorage.removeItem(k); });
                 }
@@ -430,7 +431,6 @@
             <div class="space-y-6">
                 
                 <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 ID Input (Inner Floating Architecture) -->
-                <!-- 인풋 박스의 상단 공간을 충분히 확보(pt-7, 1.6rem)하여 라벨이 인풋 내부에 존재하면서도 타이핑 텍스트와 분리되도록 완벽 록다운 -->
                 <div class="floating-label-group">
                     <div class="relative flex items-center">
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
@@ -470,6 +470,8 @@
                     <svg class="w-4 h-4 text-gray-400 animate-heartbeat" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
 
+                <div id="loginErrorMsg" role="alert" aria-live="assertive" class="text-center text-[11px] sm:text-[12px] font-bold tracking-wide min-h-[0px] flex items-center justify-center break-keep font-inter text-[#E3000F] hidden"></div>
+
                 <!-- 🌟 [그래픽 4] 3D 마그네틱 SECURE LOGIN 버튼 & [그래픽 1] Enterprise Verifying 스피너 -->
                 <button type="submit" id="loginBtn" class="btn-hip shadow-premium-btn hover:shadow-premium-btn-hover w-full font-montserrat font-black text-[13.5px] tracking-[0.2em] uppercase py-5 rounded-xl mt-3 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
                     <span id="btnText">Secure Login</span>
@@ -488,7 +490,7 @@
                     Operated by Y2C Holdings Ltd.
                 </p>
                 <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.42 Enterprise
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.43 Enterprise
                 </p>
             </footer>
         </form>
@@ -496,14 +498,14 @@
 
 <script>
 /**
- * 🌟 V40.42 Enterprise Ultimate Auth Gateway
- * [Intelligent Error Tracking] Vanishing Fix, Double Emoji Purge, Smart Focus Routing
+ * 🌟 V40.43 Enterprise Ultimate Auth Gateway
+ * [CRITICAL HOTFIX] Backend JSON Parsing Failure Resolved (Reverted to x-www-form-urlencoded)
+ * [Intelligent Error Tracking] Smart Focus, Double Emoji Purge, Form Vanishing Defense.
  */
 
 (function() {
     "use strict";
 
-    // 🌟 [보안 12] 클라이언트 원격 텔레메트리 (Telemetry Engine Pro)
     class TelemetryEngine {
         static collect() {
             try {
@@ -521,7 +523,7 @@
         }
     }
 
-    // 🌟 [UX 개조 1] 중복 이모지를 걷어낸 정갈한 대기업형 글래스 토스트망 (Blur 20px)
+    // 🌟 [UX 개조 1] 중복 이모지를 걷어낸 정갈한 대기업형 글래스 토스트망
     class ToastSystem {
         static show(message, type = "error") {
             const container = document.getElementById('premiumToastContainer');
@@ -535,7 +537,6 @@
                      : `<svg class="w-6 h-6 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
             
             toast.style.borderLeftColor = type === "error" ? "var(--sinjeon-pink)" : type === "success" ? "#10b981" : "#f59e0b";
-            // 하드코딩된 이모지를 소거하고 정제된 타이포그래피만 남김
             toast.innerHTML = `${icon} <span class="leading-relaxed tracking-wide text-[13px] font-black drop-shadow-sm text-[var(--premium-charcoal)]">${message}</span>`;
             
             container.appendChild(toast);
@@ -546,8 +547,8 @@
 
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 500); // 0.5초 트랜지션 대기 후 돔 삭제
-            }, 4500); // 토스트 노출 시간 유지
+                setTimeout(() => toast.remove(), 500); 
+            }, 4500); 
         }
     }
 
@@ -561,10 +562,8 @@
         return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    // 🌟 DOM Ready 프록시
     document.addEventListener("DOMContentLoaded", () => {
         
-        // 🌟 [가속 30] 동적 그리팅 매트릭스
         const greetingEl = document.getElementById('dynamicGreeting');
         if (greetingEl) {
             const hour = new Date().getHours();
@@ -573,7 +572,6 @@
             else greetingEl.innerText = "Good Evening, Partner";
         }
 
-        // 🌟 [보안 17] 로컬스토리지 시크릿모드 무결성 검증
         try {
             localStorage.setItem("y2c_test", "1");
             localStorage.removeItem("y2c_test");
@@ -590,19 +588,17 @@
         const hpInput = document.getElementById("hp_field");
         const capsLockWarning = document.getElementById("capsLockWarning");
 
-        // 🌟 [UX 개조 3] 에러 발생 시 어느 칸이 비었는지 즉각 하이라이팅하는 인텔리전트 피드백
-        function highlightInputError() {
-            if(idInput && !idInput.value) idInput.classList.add('input-error');
-            if(pwInput && !pwInput.value) pwInput.classList.add('input-error');
+        // 🌟 [UX 개조 3] 스마트 에러 링 피드백
+        function highlightInputError(isId, isPw) {
+            if(isId && idInput) idInput.classList.add('input-error');
+            if(isPw && pwInput) pwInput.classList.add('input-error');
             
-            // 3초 후 붉은색 에러링 자동 소거
             setTimeout(() => {
                 if(idInput) idInput.classList.remove('input-error');
                 if(pwInput) pwInput.classList.remove('input-error');
             }, 3000);
         }
 
-        // 비밀번호 가시성 토글
         const togglePwBtn = document.getElementById('togglePwBtn');
         const eyeOpen = document.getElementById('eyeIconOpen');
         const eyeClosed = document.getElementById('eyeIconClosed');
@@ -633,7 +629,7 @@
             if (isAuthenticating) {
                 isAuthenticating = false;
                 ToastSystem.show("통신 중 시스템 예외가 발생했습니다.", "error");
-                resetLoginButton(); triggerShake();
+                resetLoginButton(); triggerShake(true, true);
             }
         });
 
@@ -651,14 +647,12 @@
             }
         });
 
-        // 🌟 [치명적 버그 7 픽스] 애니메이션 종료 후 폼이 증발하지 않도록 리플로우 강제 초기화 및 스마트 에러 하이라이트 발동
-        function triggerShake() {
+        function triggerShake(isIdError = false, isPwError = false) {
             if (!loginForm) return;
             loginForm.classList.remove('shake-animation');
-            // 리플로우(Reflow) 강제 발생시켜 CSS 엔진의 애니메이션 트리거 리셋
             void loginForm.offsetWidth;
             loginForm.classList.add('shake-animation');
-            highlightInputError();
+            highlightInputError(isIdError, isPwError);
         }
 
         function resetLoginButton() {
@@ -672,15 +666,20 @@
             }
         }
 
-        // 🌟 [가속 27] 지수 백오프 기반 Fetch 로직 고도화
+        // 🌟 [치명적 버그 1 픽스] URLSearchParams 백엔드 호환 페이로드 복구
         async function executeLogin(payload, retries = 2) {
             if (!navigator.onLine) throw new Error("네트워크 접속이 끊어졌습니다. 연결 상태를 확인해 주십시오.");
-            const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
             let lastNetworkError;
 
-            // Telemetry 융합 전송
+            // Telemetry
             const telemetry = TelemetryEngine.collect();
-            const finalPayload = { action: "login", telemetry: telemetry, ...safePayload };
+            
+            // 🔥 Google Apps Script 백엔드가 인식하지 못했던 JSON 방식 폐기 및 URLSearchParams 복원
+            const urlParams = new URLSearchParams();
+            urlParams.append("action", "login");
+            urlParams.append("username", payload.username || "");
+            urlParams.append("password", payload.password || "");
+            urlParams.append("telemetry", JSON.stringify(telemetry));
 
             for (let i = 0; i <= retries; i++) {
                 let controller = new AbortController();
@@ -688,8 +687,9 @@
 
                 try {
                     const response = await fetch(TARGET_API_URL, {
-                        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-                        redirect: "follow", body: JSON.stringify(finalPayload),
+                        method: "POST", 
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" }, 
+                        body: urlParams,
                         signal: controller.signal
                     });
 
@@ -713,14 +713,12 @@
                     return jsonResult;
                 } catch (err) {
                     lastNetworkError = err;
-                    
                     if (err.isFatal) throw err;
                     
                     if (err && err.httpStatus) {
                         if (err.httpStatus === 429) throw new Error("서버 접속 대기열을 초과했습니다 (HTTP 429).");
                         if (err.httpStatus === 503) throw new Error("서버가 일시적 점검 중입니다 (HTTP 503).");
                     }
-                    
                     if (err.message && err.message.includes("Failed to fetch")) {
                         lastNetworkError = new Error("구글 서버 접근이 차단되었습니다(CORS). 배포 권한을 확인하십시오.");
                     }
@@ -743,35 +741,32 @@
                 e.preventDefault(); 
                 if (isAuthenticating) return;
 
-                // 🌟 [보안 11] 허니팟 방어 작동
                 if (hpInput && hpInput.value.length > 0) {
                     ToastSystem.show("비정상적인 봇(Bot) 접근이 감지되었습니다.", "error");
                     return;
                 }
 
-                // 🌟 [보안 20] 인풋 공백 새니타이징
                 const id = idInput ? String(idInput.value).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '') : "";
                 const pw = pwInput ? String(pwInput.value).trim() : "";
 
                 // 🌟 [UX 개조 2] 에러의 원인을 정밀하게 짚어주는 'Smart Focus & Highlight' 분기
                 if (!id && !pw) {
                     ToastSystem.show("인증 정보가 누락되었습니다. 파트너 ID와 Passkey를 입력해 주십시오.", "error");
+                    triggerShake(true, true);
                     if(idInput) idInput.focus();
-                    triggerShake();
                     return;
                 } else if (!id) {
                     ToastSystem.show("파트너 ID가 누락되었습니다. 아이디를 확인해 주십시오.", "error");
+                    triggerShake(true, false);
                     if(idInput) idInput.focus();
-                    triggerShake();
                     return;
                 } else if (!pw) {
                     ToastSystem.show("Passkey가 누락되었습니다. 비밀번호를 확인해 주십시오.", "error");
+                    triggerShake(false, true);
                     if(pwInput) pwInput.focus();
-                    triggerShake();
                     return;
                 }
 
-                // 🌟 [보안 14] Double-Submit 서버 폭격 방어 (로딩 상태 돌입)
                 isAuthenticating = true;
                 
                 clearTimeout(authTimeoutFallback);
@@ -807,7 +802,6 @@
 
                             const role = String(loginResult.role || "").toUpperCase();
                             
-                            // 🌟 [보안 18] Region 누락 시 MASTER/VENDOR 강제 바이패스
                             let region = String(loginResult.region || "").trim();
                             if (!region || region === "null" || region === "undefined") {
                                 if (role === 'MASTER' || role === 'VENDOR') {
@@ -829,7 +823,6 @@
                             throw new Error("로컬 스토리지 할당에 실패했습니다. 시크릿 모드를 해제해 주십시오."); 
                         }
 
-                        // 시네마틱 페이드아웃 후 강제 라우팅
                         if (loginForm) { 
                             loginForm.style.transition = "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s"; 
                             loginForm.style.opacity = "0"; 
@@ -852,11 +845,11 @@
 
                     } else {
                         ToastSystem.show(escapeHtml(loginResult?.message || "보안 인증이 거부되었습니다."), "error");
-                        triggerShake(); 
+                        triggerShake(true, true); 
                     }
                 } catch (err) {
                     ToastSystem.show(err.message, "error");
-                    triggerShake(); 
+                    triggerShake(true, true); 
                 } finally {
                     clearTimeout(authTimeoutFallback);
                     if (!isSuccessRedirecting) {
