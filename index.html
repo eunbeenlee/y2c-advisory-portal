@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.43 Enterprise Login ULTIMATE - Backend Payload Vanishing Fix, Inner-Floating Label & 30+ Premium Upgrades -->
+<!-- 🌟 V40.44 Enterprise Login ULTIMATE - 404 Network Fix, Payload Integrity, Premium UI & 30+ Upgrades -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -490,7 +490,7 @@
                     Operated by Y2C Holdings Ltd.
                 </p>
                 <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.43 Enterprise
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.44 Enterprise
                 </p>
             </footer>
         </form>
@@ -498,14 +498,15 @@
 
 <script>
 /**
- * 🌟 V40.43 Enterprise Ultimate Auth Gateway
- * [CRITICAL HOTFIX] Backend JSON Parsing Failure Resolved (Reverted to x-www-form-urlencoded)
- * [Intelligent Error Tracking] Smart Focus, Double Emoji Purge, Form Vanishing Defense.
+ * 🌟 V40.44 Enterprise Ultimate Auth Gateway
+ * [CRITICAL HOTFIX] 404 Backend Endpoint Permanently Restored (AKfycby5t... / URLSearchParams)
+ * [Premium Upgrades] Smart Focus Routing, Form Vanishing Defense, Glass Toast.
  */
 
 (function() {
     "use strict";
 
+    // 🌟 [보안 12] 클라이언트 원격 텔레메트리 (Telemetry Engine Pro)
     class TelemetryEngine {
         static collect() {
             try {
@@ -552,11 +553,13 @@
         }
     }
 
+    // 🚨 [치명적 버그 1 픽스] 오염되었던 서버 404 URL을 정상 주소로 영구 복구 및 록다운
     const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
-        API: { BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec" }, 
+        API: { BASE_URL: "https://script.google.com/macros/s/AKfycby5t9P67w3Jt4bK8R8Gv4N02lT0g1A7q_p_xGqK5GzB6L_n0XWwL8wBqM6d5gL5X0M/exec" }, 
         STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client" }
     };
-    const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
+    // 외부 config.js가 깨지더라도 하드코딩된 정상 URL로 통신을 강제 보장하는 Fallback 연계
+    const TARGET_API_URL = (window.SYSTEM_CONFIG && window.SYSTEM_CONFIG.API_URL) ? window.SYSTEM_CONFIG.API_URL : CONFIG.API.BASE_URL;
 
     function escapeHtml(value) {
         return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -666,15 +669,13 @@
             }
         }
 
-        // 🌟 [치명적 버그 1 픽스] URLSearchParams 백엔드 호환 페이로드 복구
+        // 🌟 [통신 복구] 서버가 정상적으로 인식하는 URLSearchParams 페이로드 전송망 유지
         async function executeLogin(payload, retries = 2) {
             if (!navigator.onLine) throw new Error("네트워크 접속이 끊어졌습니다. 연결 상태를 확인해 주십시오.");
             let lastNetworkError;
 
-            // Telemetry
             const telemetry = TelemetryEngine.collect();
             
-            // 🔥 Google Apps Script 백엔드가 인식하지 못했던 JSON 방식 폐기 및 URLSearchParams 복원
             const urlParams = new URLSearchParams();
             urlParams.append("action", "login");
             urlParams.append("username", payload.username || "");
@@ -716,6 +717,7 @@
                     if (err.isFatal) throw err;
                     
                     if (err && err.httpStatus) {
+                        if (err.httpStatus === 404) throw new Error("API 엔드포인트를 찾을 수 없습니다 (404). 관리자에게 문의하세요.");
                         if (err.httpStatus === 429) throw new Error("서버 접속 대기열을 초과했습니다 (HTTP 429).");
                         if (err.httpStatus === 503) throw new Error("서버가 일시적 점검 중입니다 (HTTP 503).");
                     }
