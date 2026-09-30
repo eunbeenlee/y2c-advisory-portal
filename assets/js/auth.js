@@ -1,14 +1,13 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Core Auth & Network Engine
- * Version: V40.63 ULTIMATE (Enterprise Modular Architecture)
+ * Version: V40.65 ULTIMATE (True Compatibility Enterprise Architecture)
  * ============================================================================
- * [CRITICAL FIX 1] ReferenceError: PAGE_LOAD_TIME completely resolved via strict OOP encapsulation.
- * [CRITICAL FIX 2] 100% Free-Pass logic for Vendor(kft) & Master accounts via Deep Schema Sync.
- * [MODULE 1] Telemetry & Real-Time Network Status Monitor
- * [MODULE 2] Premium Glassmorphism Toast System
- * [MODULE 3] The Silver Bullet (Offline In-Memory Bypass DB for 100% Login Guarantee)
- * [MODULE 4] Deep Scan Payload & text/plain Secure Fetch Engine
+ * [CRITICAL FIX 1] ReferenceError (PAGE_LOAD_TIME) fixed via Strict OOP Encapsulation.
+ * [CRITICAL FIX 2] ALL Fake/Bypass DBs REMOVED. 100% Honest Backend Verification.
+ * [CRITICAL FIX 3] Strict Payload Sync (`clientState` added for VENDOR AllowedStates deep scan).
+ * [CRITICAL FIX 4] JSON Contamination fixed via pure `text/plain` + `JSON.stringify`.
+ * [MODULES] Telemetry, Glassmorphism Toast, UI Controller, Session Manager.
  * ============================================================================
  */
 
@@ -16,29 +15,17 @@
     "use strict";
 
     // ============================================================================
-    // ⚙️️ [SYSTEM CONFIGURATION & FALLBACKS]
+    // ⚙️ [SYSTEM CONFIGURATION & FALLBACKS]
     // ============================================================================
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
     
-    // 외부 config.js가 로드되지 않는 최악의 상황에서도 엔진이 죽지 않도록 방어
+    // 외부 config.js가 로드되지 않는 최악의 상황에서도 엔진이 절대 죽지 않도록 방어
     const CONFIG = (typeof global.SYSTEM_CONFIG !== 'undefined') ? global.SYSTEM_CONFIG : {
         API: { BASE_URL: DEFAULT_API_URL }, 
         STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client" }
     };
     const TARGET_API_URL = (CONFIG.API && CONFIG.API.BASE_URL) ? CONFIG.API.BASE_URL : DEFAULT_API_URL;
 
-    // ============================================================================
-    // 🛡️ [THE SILVER BULLET] OFFLINE IN-MEMORY BYPASS DB
-    // 구글 서버가 404, 500 에러를 뿜거나 비즈니스 에러로 튕겨내도 무조건 로그인을 성공시키는 마스터키
-    // ============================================================================
-    const ENTERPRISE_OFFLINE_DB = {
-        "admin": { role: "MASTER", name: "Y2C_HQ", state: "ALL", pw: "f2426cb695c07c" },
-        "finch": { role: "PARTNER", name: "SINJEON FINCH INC.", state: "ON", pw: "32a3fb3878e527" },
-        "church": { role: "PARTNER", name: "1000224977 INC. / Church", state: "ON", pw: "2222" },
-        "christie": { role: "PARTNER", name: "1000800275 INC. / Christie", state: "ON", pw: "3333" },
-        "lougheed": { role: "PARTNER", name: "SINJEON FOOD SYS LOUGHEED", state: "BC", pw: "2222" },
-        "kft": { role: "VENDOR", name: "Korea Food Trading Inc.", state: "ON", pw: "d1330b833b2a0" }
-    };
 
     // ============================================================================
     // 📡 [MODULE 1] TELEMETRY & NETWORK MONITOR
@@ -83,18 +70,19 @@
 
     // 글로벌 네트워크 이벤트 리스너 록다운
     global.addEventListener('offline', () => { 
-        ToastSystem.show("네트워크(Wi-Fi/데이터)가 끊어졌습니다. 오프라인 모드로 전환됩니다.", "warning"); 
+        ToastSystem.show("네트워크(Wi-Fi/데이터)가 끊어졌습니다.", "warning"); 
         updateNetworkPill(false);
     });
     
     global.addEventListener('online', () => { 
-        ToastSystem.show("보안 네트워크가 복구되었습니다. 서버와 재동기화됩니다.", "success");
+        ToastSystem.show("보안 네트워크가 복구되었습니다.", "success");
         updateNetworkPill(true);
     });
 
+
     // ============================================================================
     // 🎨 [MODULE 2] PREMIUM GLASSMORPHISM TOAST SYSTEM
-    // HTML에 컨테이너가 없으면 동적으로 삽입하여 완벽히 독립적으로 동작
+    // HTML에 컨테이너가 없으면 동적으로 100% 자생하여 렌더링되는 독립 시스템
     // ============================================================================
     class ToastSystem {
         static initContainer() {
@@ -165,6 +153,7 @@
         }
     }
 
+
     // ============================================================================
     // 🧠 [MODULE 3] UI & SMART ERROR CONTROLLER
     // DOM 요소를 능동적으로 탐색하여 에러 상태를 하이라이트하고 폼을 흔드는(Shake) 헬퍼
@@ -174,7 +163,7 @@
             const form = document.getElementById(loginFormId);
             if (!form) return;
             form.classList.remove('shake-animation');
-            void form.offsetWidth; // Reflow 트리거 (CSS 애니메이션 리셋)
+            void form.offsetWidth; // Reflow 트리거 (CSS 애니메이션 강제 리셋)
             form.classList.add('shake-animation');
         }
 
@@ -216,13 +205,14 @@
         }
     }
 
+
     // ============================================================================
     // 🚀 [MODULE 4] CORE Y2C AUTHENTICATION ENGINE API
     // 전역(Window)에 노출되어 HTML에서 직접 호출할 수 있는 마스터 객체
     // ============================================================================
     global.Y2C_AuthEngine = {
         
-        // 🚨 [치명적 버그 수정 1] PAGE_LOAD_TIME을 클래스 내부에 귀속시켜 스코프 오염(ReferenceError) 100% 원천 차단
+        // 🚨 [치명적 버그 수정 1] 타임 베이스 봇 방어용 초기화 시간을 클래스 내부에 귀속(Encapsulation)시켜 ReferenceError 원천 차단
         _INIT_TIME: Date.now(),
         
         // 🌟 유틸리티: XSS 방어 문자열 이스케이프
@@ -230,7 +220,7 @@
             return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         },
 
-        // 🌟 통합 세션 클렌징 (다국어/장바구니 등 다른 시스템 스토리지 보호)
+        // 🌟 통합 세션 클렌징 (다국어/장바구니 등 다른 시스템 스토리지 완벽 보호)
         clearSession: function() {
             const keysToClear = [CONFIG.STORAGE_KEYS.USER_TOKEN, CONFIG.STORAGE_KEYS.ROLE, CONFIG.STORAGE_KEYS.CLIENT_NAME, 'y2c_id', 'y2c_premium_state', 'y2c_region'];
             keysToClear.forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
@@ -264,7 +254,7 @@
                 token: token,
                 role: role,
                 clientId: clientId,
-                clientState: clientState,
+                clientState: clientState, // 필수 지역 변수 파라미터 탑재
                 telemetry: TelemetryEngine.collect(),
                 ...payload
             };
@@ -322,19 +312,23 @@
 
         /**
          * 🌟 [CORE API 2] 하이엔드 로그인 처리 전담 엔진 (index.html 에서 호출)
-         * 에러 컨트롤, UI 핸들링, 딥 스캔(Deep Scan), 오프라인 우회 로직을 모두 관장합니다.
+         * 에러 컨트롤, UI 핸들링, 딥 스캔(Deep Scan) 로직을 모두 관장하며 100% 정직한 통신을 보장합니다.
          */
         executeLogin: async function(id, pw) {
             let lastError;
             const telemetry = TelemetryEngine.collect();
             
-            // 🚨 백엔드가 요구할 수 있는 모든 포맷(username vs id)을 융단 폭격 맵핑
+            // 🚨 [치명적 버그 수정 2] 백엔드의 getAuthorizedState 검증을 무사히 통과하기 위해 clientState 페이로드를 반드시 담아 전송
+            // 이게 없으면 백엔드는 null 로 판단하여 "접근 지역이 명시되지 않았습니다" 라며 kft(벤더) 로그인을 튕겨냅니다.
+            const clientState = localStorage.getItem("y2c_premium_state") || "DEFAULT";
+
             const finalPayload = {
                 action: "login",
                 id: id || "",
                 pw: pw || "",
                 username: id || "", 
                 password: pw || "",
+                clientState: clientState, // 🚨 THE FIX: 이 값이 백엔드로 넘어가 "ON", "ALL" 등을 판별하게 해줍니다!
                 telemetry: telemetry
             };
 
@@ -362,7 +356,7 @@
                         throw new Error("서버 응답 규격 무결성이 훼손되었습니다.");
                     }
 
-                    // 백엔드가 비즈니스 에러로 튕겨내면 Catch문으로 넘겨 마스터키(오프라인 DB) 로직 발동 유도
+                    // 🚨 [TRUE SYNC] 눈가림 오프라인 DB 완전 삭제. 백엔드가 비즈니스 에러로 튕겨내면 있는 그대로 에러를 출력.
                     if (jsonResult.success === false) {
                          throw new Error(jsonResult.message || "보안 인증이 거부되었습니다.");
                     }
@@ -372,27 +366,8 @@
                 } catch (err) {
                     lastError = err;
                     
-                    // 🌟 [궁극의 마스터키 록다운] 백엔드가 터지든, 지역 데이터 누락으로 튕기든
-                    // 프론트엔드 내장 마스터 DB에 일치하는 계정이면 무조건 100% 강제 승인(Bypass)
-                    const isBusinessReject = err.message && (err.message.includes("지역") || err.message.includes("거부") || err.message.includes("명시"));
-                    const isNetworkCrash = err.httpStatus === 404 || err.httpStatus === 401 || err.httpStatus === 500 || err.message.includes("fetch");
-                    
-                    if (isBusinessReject || isNetworkCrash) {
-                        const localUser = ENTERPRISE_OFFLINE_DB[String(id).toLowerCase()];
-                        if (localUser && localUser.pw === String(pw)) {
-                            console.warn("⚠️ 백엔드 로직 오류 또는 통신 장애를 감지했습니다. IN-MEMORY DB를 가동하여 무결점 프리패스를 강제 승인합니다.");
-                            return {
-                                success: true,
-                                isOfflineBypass: true, // 오프라인 통과 마커
-                                data: {
-                                    role: localUser.role,
-                                    AllowedStates: localUser.state,
-                                    clientName: localUser.name,
-                                    TokenVersion: "VIP_ULTIMATE_TOKEN_" + Date.now()
-                                }
-                            };
-                        }
-                        // 패스워드가 틀리거나 등록되지 않은 계정이면 루프 중단 후 즉각 에러 표시
+                    // 인증 실패 에러(아이디 불일치, 지역 누락 등)는 재시도 없이 즉각 루프를 종료하고 에러 표시
+                    if (err.message && (err.message.includes("인증") || err.message.includes("지역") || err.message.includes("불일치"))) {
                         break; 
                     }
 
@@ -409,16 +384,20 @@
         },
 
         /**
-         * 🌟 [CORE API 3] 폼 제출 이벤트 바인딩 (index.html에서 초기화 시 호출)
+         * 🌟 [CORE API 3] 폼 제출 이벤트 바인딩 (index.html에서 초기화 시 단 1회 호출)
          */
         bindLoginForm: function(formId = 'loginForm') {
             const form = document.getElementById(formId);
             if (!form) return;
 
             const hpInput = document.getElementById('hp_field');
+            let isAuthenticating = false;
+            let authTimeoutFallback = null;
             
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+
+                if (isAuthenticating) return;
 
                 // 🚨 [방어 1 적용] _INIT_TIME 참조하여 스코프 에러(ReferenceError) 100% 차단
                 if (Date.now() - this._INIT_TIME < 600 || (hpInput && hpInput.value.length > 0)) {
@@ -443,20 +422,33 @@
                     UIController.triggerShake(); UIController.highlightInputError(false, true); if(pwInput) pwInput.focus(); return;
                 }
 
+                isAuthenticating = true;
                 UIController.setButtonLoading(true);
                 updateNetworkPill(true, "Authenticating...");
+
+                // 무한 로딩 대비 20초 안전 락업 해제기
+                clearTimeout(authTimeoutFallback);
+                authTimeoutFallback = setTimeout(() => {
+                    if(isAuthenticating) {
+                        isAuthenticating = false;
+                        UIController.setButtonLoading(false);
+                        updateNetworkPill(navigator.onLine);
+                        ToastSystem.show("시스템 렌더링 시간이 초과되었습니다. 페이지를 새로고침 해보십시오.", "error");
+                        UIController.triggerShake();
+                    }
+                }, 20000);
 
                 let isSuccessRedirecting = false;
 
                 try {
-                    // 🌟 API 호출
+                    // 🌟 순정 API 호출
                     const loginResult = await this.executeLogin(id, pw);
 
                     if (loginResult && loginResult.success) {
                         try {
                             const resData = loginResult.data || loginResult;
                             
-                            // 역할(Role) 강제 폴백
+                            // 역할(Role) 강제 폴백 방어
                             let role = String(resData.role || resData.Role || "").toUpperCase().trim();
                             if (!role || role === "NULL" || role === "UNDEFINED") {
                                 if (id.toLowerCase() === 'admin' || id.toLowerCase() === 'master') role = 'MASTER';
@@ -468,10 +460,9 @@
                             let rawRegion = resData.AllowedStates || resData.allowedStates || resData.region || resData.Region || resData.state;
                             let region = String(rawRegion || "").trim();
 
-                            // 🚨 딥 스캔 후에도 값이 없다면 절대 에러 던지지 않고 강제 할당하여 무조건 로그인 프리패스 보장 (kft 대응)
+                            // 🚨 [TRUE SYNC] 딥 스캔 후에도 값이 없다면, 가짜로 통과시키지 않고 에러를 던져 정직한 DB 동기화를 요구합니다.
                             if (!region || region === "null" || region === "undefined" || region === "") {
-                                if (role === 'MASTER' || role === 'VENDOR') region = 'ALL'; 
-                                else region = 'ON'; 
+                                throw new Error("스프레드시트에 해당 계정의 접근 지역(AllowedStates)이 누락되었습니다. DB를 확인해 주십시오.");
                             }
 
                             this.clearSession(); // 스토리지 안전 클렌징 작동
@@ -484,22 +475,19 @@
                             localStorage.setItem("y2c_premium_state", resData.clientState || "DEFAULT");
                             
                         } catch(stErr) { 
-                            throw new Error("로컬 스토리지 할당에 실패했습니다. 브라우저 시크릿 모드를 해제해 주십시오."); 
+                            throw new Error(stErr.message.includes("스프레드시트") ? stErr.message : "로컬 스토리지 할당에 실패했습니다. 브라우저 시크릿 모드를 해제해 주십시오."); 
                         }
 
                         isSuccessRedirecting = true;
-                        
-                        if (loginResult.isOfflineBypass) {
-                            ToastSystem.show("서버 우회 접속 성공 (OFFLINE DB 가동)", "warning");
-                        } else {
-                            ToastSystem.show("SECURE SESSION ESTABLISHED", "success");
-                        }
+                        ToastSystem.show("SECURE SESSION ESTABLISHED", "success");
 
                         // 시네마틱 페이드아웃 후 강제 라우팅
                         form.style.transition = "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s"; 
                         form.style.opacity = "0"; 
                         form.style.transform = "scale(0.95)";
                         form.style.pointerEvents = "none"; 
+                        
+                        clearTimeout(authTimeoutFallback);
                         
                         setTimeout(() => {
                             const targetRole = String(localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE)).toUpperCase();
@@ -509,6 +497,7 @@
                         }, 600);
 
                     } else {
+                        // 백엔드가 비즈니스 로직(비밀번호 틀림 등)으로 false를 주면 있는 그대로 에러 출력
                         ToastSystem.show(this.escapeHtml(loginResult?.message || "보안 인증이 거부되었습니다. 아이디와 패스워드를 확인하세요."), "error");
                         UIController.triggerShake(); UIController.highlightInputError(true, true);
                     }
@@ -517,8 +506,10 @@
                     UIController.triggerShake(); UIController.highlightInputError(true, true);
                 } finally {
                     if (!isSuccessRedirecting) {
+                        isAuthenticating = false;
                         UIController.setButtonLoading(false);
                         updateNetworkPill(navigator.onLine);
+                        clearTimeout(authTimeoutFallback);
                     }
                 }
             });
@@ -538,7 +529,7 @@
     // 🛡️ 글로벌 초기화 (페이지 로드 시 자동 실행)
     // ============================================================================
     document.addEventListener("DOMContentLoaded", () => {
-        // 모든 페이지의 로그아웃 버튼 탐지 및 바인딩
+        // 모든 페이지의 로그아웃 버튼 탐지 및 자동 바인딩
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => { global.Y2C_AuthEngine.logout(); });
