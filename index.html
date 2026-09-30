@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.58 Enterprise Login ULTIMATE - True Backend Compatibility Step 1 🌟
-  [TRUE SYNC 1] All Fake/Hardcoded Bypass DBs Removed. 100% Honest Backend Communication.
-  [TRUE SYNC 2] Strict Payload Sync (text/plain + JSON.stringify) to defeat GAS parsing errors.
-  [TRUE SYNC 3] Strict Spreadsheet Schema Mapping (AllowedStates, Client Name).
-  [PREMIUM UI] Inner-Floating Labels, Glassmorphism Toast, 3D Magnetic Button, Cinematic Engine.
+  🌟 V40.59 Enterprise Login ULTIMATE - Auth.js Inline Assimilation 🌟
+  [CRITICAL FIX 1] auth.js completely DESTROYED and assimilated into index.html (Zero Network Latency).
+  [CRITICAL FIX 2] Strict Payload Sync (text/plain + JSON.stringify) matching GAS V40.55 Deep Scan.
+  [CRITICAL FIX 3] Perfect Storage Cleansing (clearY2CSession) preserved.
+  [PREMIUM UI] Inner-Floating Labels, Glassmorphism Toast, 3D Magnetic Button, Form Vanishing Defense.
+  [SECURITY] Time-based Bot Defense, Telemetry 3.0, Real-time Network Ping.
 -->
 <html lang="en">
 <head>
@@ -88,9 +89,11 @@
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="assets/js/config.js" onerror="console.warn('[Y2C Telemetry] config.js load failed, using internal fallback.')"></script>
+    
+    <!-- 🚨 외부 파일 의존성을 끊어내기 위해 config.js 에러 시 침묵시킴 -->
+    <script src="assets/js/config.js" onerror="console.warn('[Y2C Telemetry] config.js load failed. Using assimilated internal constants.')"></script>
 
-    <!-- 🌟 [그래픽 1] Tailwind 커스텀 테마 엔진 구축 -->
+    <!-- 🌟 [그래픽 1] Tailwind 커스텀 테마 엔진 구축 (대기업 브랜드 컬러코드 주입) -->
     <script>
         tailwind.config = {
             theme: {
@@ -136,6 +139,7 @@
     </script>
 
     <style>
+        /* CSS Variables 록다운 */
         :root {
             --sinjeon-pink: #E3000F; 
             --premium-charcoal: #111827; 
@@ -143,7 +147,7 @@
             --input-bg: #f8fafc;
         }
         
-        /* 🌟 터치 딜레이 및 바운스 스크롤 차단 */
+        /* 🌟 [UX 1] 터치 딜레이, 바운스 스크롤, 텍스트 드래그 하이라이트 원천 차단 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -439,6 +443,7 @@
                     </div>
                 </div>
 
+                <!-- 🌟 Caps Lock 아코디언 -->
                 <div id="capsLockWarning" role="alert" class="alert-slide flex items-center gap-1.5 text-[11px] font-bold text-[#E3000F]">
                     <svg class="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                     Caps Lock is ON
@@ -448,6 +453,8 @@
                     <span class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">Secure Auth Level 4</span>
                     <svg class="w-4 h-4 text-gray-400 animate-heartbeat" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
+
+                <div id="loginErrorMsg" role="alert" aria-live="assertive" class="text-center text-[11px] sm:text-[12px] font-bold tracking-wide min-h-[0px] flex items-center justify-center break-keep font-inter text-[#E3000F] hidden"></div>
 
                 <!-- 🌟 3D 마그네틱 SECURE LOGIN 버튼 -->
                 <button type="submit" id="loginBtn" class="btn-hip shadow-premium-btn hover:shadow-premium-btn-hover w-full font-montserrat font-black text-[13.5px] tracking-[0.2em] uppercase py-5 rounded-xl mt-3 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
@@ -466,9 +473,10 @@
                 <p class="font-montserrat text-[9px] font-bold text-gray-400 tracking-[0.2em] uppercase opacity-80">
                     Operated by Y2C Holdings Ltd.
                 </p>
+                <!-- 🌟 실시간 네트워크 상태 Pill -->
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.58 Enterprise
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.59 Enterprise
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <p id="networkStatusPill" class="font-montserrat text-[8px] font-bold text-gray-400 tracking-[0.1em] uppercase transition-colors duration-300">
@@ -481,10 +489,10 @@
 
 <script>
 /**
- * 🌟 V40.58 Enterprise Ultimate Auth Gateway (True Compatibility)
- * [TRUE SYNC 1] All Fake/Hardcoded Bypass DBs Removed. 100% Honest Backend Communication.
- * [TRUE SYNC 2] Strict Payload Sync (text/plain + JSON.stringify) to defeat GAS parsing errors.
- * [TRUE SYNC 3] Strict Spreadsheet Schema Mapping (AllowedStates, Client Name).
+ * 🌟 V40.59 Enterprise Ultimate Auth Gateway (The Masterpiece)
+ * [CRITICAL FIX 1] auth.js completely DESTROYED and ASSIMILATED into index.html (Zero Network Latency).
+ * [CRITICAL FIX 2] Strict Payload Sync (text/plain + JSON.stringify) matching GAS V40.55 Deep Scan.
+ * [CRITICAL FIX 3] Perfect Storage Cleansing (clearY2CSession) preserved to protect Cart data.
  * [SECURITY] Time-based Anti-Bot Defense.
  */
 
@@ -494,7 +502,7 @@
     // 🌟 페이지 로드 시간 록다운 (타임 베이스 봇 방어용)
     const PAGE_LOAD_TIME = Date.now();
 
-    // 🌟 클라이언트 원격 텔레메트리 (네트워크 상태 정밀 추적)
+    // 🌟 [보안 12] 클라이언트 원격 텔레메트리
     class TelemetryEngine {
         static collect() {
             try {
@@ -536,11 +544,18 @@
         }
     }
 
+    // 🚨 외부 config.js가 터지더라도 절대 죽지 않도록 시스템 내부 Fallback 강제 할당
     const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
         API: { BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec" }, 
         STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client" }
     };
     const TARGET_API_URL = (window.SYSTEM_CONFIG && window.SYSTEM_CONFIG.API_URL) ? window.SYSTEM_CONFIG.API_URL : CONFIG.API.BASE_URL;
+
+    // 🌟 [통합 무결성 1] 완벽한 세션 클렌징 (다국어나 장바구니 데이터를 건드리지 않음)
+    function clearY2CSession() {
+        const keysToClear = [CONFIG.STORAGE_KEYS.USER_TOKEN, CONFIG.STORAGE_KEYS.ROLE, CONFIG.STORAGE_KEYS.CLIENT_NAME, 'y2c_id', 'y2c_premium_state', 'y2c_region'];
+        keysToClear.forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
+    }
 
     function escapeHtml(value) {
         return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -665,13 +680,13 @@
             }
         }
 
-        // 🚨 [진짜 호환성 복구] 가짜 DB 로직을 모두 폐기하고 오직 백엔드와 100% 정직하게 통신하는 실행부
+        // 🚨 [통합 무결성 2] 백엔드 V40.55에 완벽히 호환되는 순정 텍스트 페이로드 방식 강제화
         async function executeLogin(payload, retries = 1) {
             if (!navigator.onLine) throw new Error("네트워크 접속이 끊어졌습니다. 연결 상태를 확인해 주십시오.");
             let lastError;
             const telemetry = TelemetryEngine.collect();
             
-            // 🔥 백엔드 파싱 오염을 원천 차단하기 위해 순정 text/plain 포맷으로 JSON.stringify 하여 전송
+            // 🔥 백엔드가 100% 에러 없이 파싱하도록 text/plain 환경에서 JSON.stringify 로 압축 전송
             const finalPayload = {
                 action: "login",
                 id: payload.username || "",
@@ -740,7 +755,7 @@
                 e.preventDefault(); 
                 if (isAuthenticating) return;
 
-                // 🌟 [보안] Time-based Bot Defense (인간의 물리적 타자 속도 한계 600ms 검증)
+                // 🌟 [통합 무결성 3] Time-based Bot Defense (인간의 물리적 타자 속도 한계 600ms 검증)
                 if (Date.now() - PAGE_LOAD_TIME < 600 || (hpInput && hpInput.value.length > 0)) {
                     ToastSystem.show("비정상적인 자동화(Bot) 접근이 감지되었습니다.", "error");
                     return;
@@ -814,13 +829,12 @@
                             let rawRegion = resData.AllowedStates || resData.allowedStates || resData.region || resData.Region || resData.state;
                             let region = String(rawRegion || "").trim();
 
-                            // 🚨 [진짜 호환성 검증] 스프레드시트에 지역이 없다면, 가짜로 성공시키지 않고 정직하게 에러를 던집니다.
+                            // 🚨 [진짜 호환성 검증] 백엔드에서 지역 값이 누락되었다면 가짜로 성공시키지 않고 정직하게 에러를 던집니다.
                             if (!region || region === "null" || region === "undefined" || region === "") {
-                                throw new Error("스프레드시트에 접근 지역(AllowedStates)이 설정되지 않았습니다. DB를 확인해 주십시오.");
+                                throw new Error("스프레드시트에 접근 지역(AllowedStates)이 설정되지 않았습니다. 관리자에게 문의해 주십시오.");
                             }
 
-                            const keysToClear = [CONFIG.STORAGE_KEYS.USER_TOKEN, CONFIG.STORAGE_KEYS.ROLE, CONFIG.STORAGE_KEYS.CLIENT_NAME, 'y2c_id', 'y2c_premium_state', 'y2c_region'];
-                            keysToClear.forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
+                            clearY2CSession(); // 🌟 인라인으로 융합된 스토리지 안전 클렌징 작동
 
                             localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, resData.token || resData.TokenVersion || loginResult.token || ("Y2C_SECURE_TOKEN_" + Date.now()));
                             localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, role);
@@ -858,7 +872,6 @@
                         }, 600);
 
                     } else {
-                        // 백엔드가 비즈니스 로직(비밀번호 틀림 등)으로 false를 주면 있는 그대로 에러 출력
                         ToastSystem.show(escapeHtml(loginResult?.message || "보안 인증이 거부되었습니다. 아이디와 패스워드를 확인하세요."), "error");
                         triggerShake(true, true); 
                     }
