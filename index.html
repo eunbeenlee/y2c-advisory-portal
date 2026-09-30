@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.59 Enterprise Login ULTIMATE - Auth.js Inline Assimilation 🌟
-  [CRITICAL FIX 1] auth.js completely DESTROYED and assimilated into index.html (Zero Network Latency).
-  [CRITICAL FIX 2] Strict Payload Sync (text/plain + JSON.stringify) matching GAS V40.55 Deep Scan.
-  [CRITICAL FIX 3] Perfect Storage Cleansing (clearY2CSession) preserved.
-  [PREMIUM UI] Inner-Floating Labels, Glassmorphism Toast, 3D Magnetic Button, Form Vanishing Defense.
-  [SECURITY] Time-based Bot Defense, Telemetry 3.0, Real-time Network Ping.
+  🌟 V40.62 Enterprise Login ULTIMATE - Presentation Layer Masterpiece 🌟
+  [ARCH SHIFT] Fully decoupled from Network Logic. Delegates 100% to external `auth.js`.
+  [PERFORMANCE] Zero-Latency Initial Routing (IIFE), CSSOM Unblocking, GPU Acceleration.
+  [PREMIUM UI] Inner-Floating Labels, Magnetic 3D Buttons, Glassmorphism Toast Target.
+  [DOM SYNC] 100% synced with Y2C_AuthEngine endpoints (#userId, #userPw, #loginBtn).
 -->
 <html lang="en">
 <head>
@@ -89,9 +88,6 @@
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 🚨 외부 파일 의존성을 끊어내기 위해 config.js 에러 시 침묵시킴 -->
-    <script src="assets/js/config.js" onerror="console.warn('[Y2C Telemetry] config.js load failed. Using assimilated internal constants.')"></script>
 
     <!-- 🌟 [그래픽 1] Tailwind 커스텀 테마 엔진 구축 (대기업 브랜드 컬러코드 주입) -->
     <script>
@@ -104,7 +100,8 @@
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
                     },
                     colors: { 
-                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', border: '#e2e8f0', bg: '#F8F9FA' }
+                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', border: '#e2e8f0', bg: '#F8F9FA' },
+                        sinjeon: { primary: '#E3000F', dark: '#B9000C', light: '#FEF2F2' }
                     },
                     animation: {
                         'spin-slow': 'spin 3s linear infinite',
@@ -156,12 +153,13 @@
             font-family: 'Inter', sans-serif; 
             margin: 0; padding: 0; min-height: 100vh;
             -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
-            transform: translateZ(0); 
+            transform: translateZ(0); /* GPU 레이어 격리 */
         }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
+        /* 🌟 [그래픽 2] 하이엔드 글래스 폼 컨테이너 */
         .solid-panel {
             background: #ffffff;
             border: 1px solid rgba(0, 0, 0, 0.04);
@@ -170,24 +168,25 @@
             z-index: 10;
         }
         
-        /* 🌟 [그래픽] Inner-Floating 프리미엄 인풋 박스 */
+        /* 🌟 [그래픽 3] Inner-Floating 방식의 프리미엄 인풋 박스 (텍스트 겹침 100% 원천 차단) */
         .premium-input {
             appearance: none; -webkit-appearance: none;
             background: var(--input-bg);
             border: 1.5px solid #e2e8f0;
             color: var(--premium-charcoal);
-            font-size: 16px !important; 
+            font-size: 16px !important; /* iOS 사파리 강제 줌인 버그 방어 */
             font-weight: 700;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             border-radius: 1rem;
             width: 100%;
-            height: 4.25rem; 
+            height: 4.25rem; /* 68px 넉넉한 공간 확보 */
             padding-top: 1.7rem !important; 
             padding-bottom: 0.5rem !important;
             padding-left: 3.25rem !important;
             padding-right: 1rem !important;
         }
         
+        /* 🌟 스마트 포커스 링 (고급스러운 차콜 아우라로 전환) */
         .premium-input:focus {
             background: #ffffff;
             border-color: var(--premium-charcoal);
@@ -195,6 +194,7 @@
             transform: translateY(-1px);
         }
         
+        /* 🌟 지능형 에러 트래킹 테두리 시각화 (Error Highlight) */
         .premium-input.input-error {
             border-color: var(--sinjeon-pink) !important;
             background-color: #FEF2F2 !important; 
@@ -207,14 +207,16 @@
         .input-icon { transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #94a3b8; }
         .premium-input:focus ~ .input-icon { color: var(--premium-charcoal); }
 
+        /* 🌟 [가속 9] 브라우저 자동완성 오염 방지 하얀색 덮어쓰기 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
             -webkit-text-fill-color: #111827 !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* 🌟 플로팅 레이블 아키텍처 */
+        /* 🌟 [그래픽 4] 플로팅 레이블 Inner-안착 아키텍처 */
         .floating-label-group { position: relative; }
+        
         .floating-label {
             position: absolute;
             left: 3.25rem;
@@ -231,6 +233,7 @@
             margin: 0;
         }
         
+        /* 인풋에 값이 있거나 포커스 될 때 라벨을 인풋 '내부 상단'으로 콤팩트하게 이동 */
         .premium-input:focus ~ .floating-label,
         .premium-input:not(:placeholder-shown) ~ .floating-label {
             top: 15px; 
@@ -242,9 +245,10 @@
             border: none;
             box-shadow: none;
         }
+        
         .premium-input:focus ~ .floating-label { color: var(--premium-charcoal); }
 
-        /* 🌟 3D 마그네틱 SECURE LOGIN 버튼 */
+        /* 🌟 [그래픽 5] 3D 마그네틱 SECURE LOGIN 버튼 */
         .btn-hip {
             background: linear-gradient(135deg, var(--sinjeon-pink) 0%, #A3000B 100%);
             color: #ffffff;
@@ -276,7 +280,7 @@
         .text-glow-red { text-shadow: 0 2px 15px rgba(227, 0, 15, 0.2); }
         ::-webkit-scrollbar { display: none; }
 
-        /* 🌟 시네마틱 등장 애니메이션 */
+        /* 🌟 [가속 10] 애니메이션 GPU 렌더링 강제화 (시네마틱 등장) */
         .cinematic-enter { 
             animation: fadeUpCinematic 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; 
             will-change: opacity, transform; 
@@ -297,7 +301,7 @@
         }
         .shake-animation { animation: error-shake 0.5s cubic-bezier(.36,.07,.19,.97) both !important; }
 
-        /* 🌟 Caps Lock 아코디언 */
+        /* 🌟 Caps Lock 경고문 유체 모션 */
         .alert-slide { 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             opacity: 0; 
@@ -307,46 +311,12 @@
             padding-left: 0.5rem;
         }
         .alert-slide.active { opacity: 1; max-height: 30px; margin-top: 8px; }
-
-        /* 🌟 애플(Apple) 스타일 글래스 토스트망 */
-        #premiumToastContainer {
-            position: fixed;
-            top: 24px; right: 24px;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            pointer-events: none;
-        }
-        .toast-item {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.6);
-            border-left: 4px solid var(--sinjeon-pink);
-            color: var(--premium-charcoal);
-            padding: 16px 24px;
-            border-radius: 1rem; 
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02);
-            font-family: 'Inter', sans-serif;
-            font-size: 13.5px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            transform: translateX(120%) scale(0.9) translateZ(0);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
-            opacity: 0;
-            pointer-events: auto;
-            will-change: transform, opacity;
-        }
-        .toast-item.show { transform: translateX(0) scale(1) translateZ(0); opacity: 1; }
     </style>
 </head>
 
 <body id="mainBody" class="flex items-center justify-center p-4 sm:p-6 overflow-hidden relative selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
-    <!-- 🌟 [보안 2] 기 로그인 사용자 강제 우회 (IIFE 스코프 캡슐화) -->
+    <!-- 🌟 [보안 2] 기 로그인 사용자 강제 우회 (auth.js가 로드되기 전에 즉시 실행되어 제로 레이턴시 보장) -->
     <script>
         (function() {
             try {
@@ -365,6 +335,7 @@
         })();
     </script>
 
+    <!-- 🌟 [보안 3] Clickjacking 방어 & NoScript 샌드박스 -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -372,24 +343,27 @@
         </div>
     </noscript>
 
-    <!-- 🌟 블러 광원 애니메이션 -->
+    <!-- 🌟 대시보드 톤앤매너와 일치하는 은은한 블러 광원 애니메이션 -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#E3000F]/8 rounded-full blur-[100px] animate-pulse"></div>
         <div class="absolute bottom-[5%] -right-[5%] w-[40%] h-[40%] bg-amber-500/5 rounded-full blur-[120px]"></div>
     </div>
 
+    <!-- 🌟 auth.js 가 렌더링할 애플 스타일 토스트 컨테이너의 타겟 지점 -->
     <div id="premiumToastContainer"></div>
 
     <main class="w-full max-w-[440px] z-10 block relative mt-4 sm:mt-0 cinematic-enter">
         
         <header class="text-center mb-8 block w-full relative z-20">
-            <!-- 🌟 로고 샌드박스 -->
+            
+            <!-- 🌟 [그래픽 8] 로고 샌드박스 (404 에러 원천 차단용 벡토릭 디자인 유지 및 Shimmer 효과 추가) -->
             <div class="flex items-center justify-center gap-5 mb-8">
                 <div class="w-16 h-16 sm:w-[76px] sm:h-[76px] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-2.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group">
                     <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                     <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                 </div>
                 <div class="h-10 w-[2px] bg-gray-200 rounded-full"></div>
+                <!-- Y2C Vectoric Logo -->
                 <div class="w-16 h-16 sm:w-[76px] sm:h-[76px] flex items-center justify-center bg-white rounded-full shadow-sm border-[2.5px] border-[#D4AF37] transform hover:scale-105 transition-transform duration-300 overflow-hidden relative group">
                     <div class="absolute inset-0 bg-gradient-to-br from-white to-gray-50 flex items-center justify-center">
                         <span class="font-black text-[#D4AF37] text-[15px] sm:text-[17px] tracking-tighter" style="text-shadow: 0 1px 2px rgba(0,0,0,0.08);">Y2C</span>
@@ -410,13 +384,15 @@
             </div>
         </header>
 
+        <!-- 🌟 엔터 키 이중 서밋 네이티브 방어망 (onsubmit return false 처리하여 auth.js에 100% 위임) -->
         <form id="loginForm" class="solid-panel shadow-premium-card p-8 sm:p-10 w-full relative z-20 cinematic-enter delay-100" autocomplete="off" onsubmit="return false;">
             
-            <!-- 🌟 허니팟 샌드박싱 -->
+            <!-- 🌟 [보안 4] 허니팟 (Bot-trap) 샌드박싱: 봇이 자동완성하면 통신 차단 -->
             <input type="text" name="hp_field" id="hp_field" style="display:none !important;" tabindex="-1" autocomplete="off">
 
             <div class="space-y-6">
-                <!-- 🌟 ID Input -->
+                
+                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 ID Input -->
                 <div class="floating-label-group">
                     <div class="relative flex items-center">
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
@@ -427,7 +403,7 @@
                     </div>
                 </div>
 
-                <!-- 🌟 PW Input -->
+                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 PW Input -->
                 <div class="floating-label-group">
                     <div class="relative flex items-center">
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
@@ -436,6 +412,7 @@
                         <input type="password" id="userPw" name="userPw" autocomplete="current-password" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-[0.3em] text-lg relative z-0">
                         <label for="userPw" class="floating-label">Passkey</label>
                         
+                        <!-- 비밀번호 가시성 토글 아이콘 (자체 UI 컨트롤) -->
                         <button type="button" id="togglePwBtn" class="absolute right-4 text-gray-400 hover:text-[var(--premium-charcoal)] transition-colors focus:outline-none z-10 p-1">
                             <svg id="eyeIconClosed" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
                             <svg id="eyeIconOpen" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -443,12 +420,13 @@
                     </div>
                 </div>
 
-                <!-- 🌟 Caps Lock 아코디언 -->
+                <!-- 🌟 Caps Lock 감지 유체 아코디언 모션 -->
                 <div id="capsLockWarning" role="alert" class="alert-slide flex items-center gap-1.5 text-[11px] font-bold text-[#E3000F]">
                     <svg class="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                     Caps Lock is ON
                 </div>
 
+                <!-- 🌟 Biometric UI Hint -->
                 <div class="flex justify-between items-center px-1 mt-1 mb-2 hidden sm:flex opacity-60">
                     <span class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">Secure Auth Level 4</span>
                     <svg class="w-4 h-4 text-gray-400 animate-heartbeat" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
@@ -456,7 +434,7 @@
 
                 <div id="loginErrorMsg" role="alert" aria-live="assertive" class="text-center text-[11px] sm:text-[12px] font-bold tracking-wide min-h-[0px] flex items-center justify-center break-keep font-inter text-[#E3000F] hidden"></div>
 
-                <!-- 🌟 3D 마그네틱 SECURE LOGIN 버튼 -->
+                <!-- 🌟 3D 마그네틱 SECURE LOGIN 버튼 (auth.js가 로딩 상태를 컨트롤) -->
                 <button type="submit" id="loginBtn" class="btn-hip shadow-premium-btn hover:shadow-premium-btn-hover w-full font-montserrat font-black text-[13.5px] tracking-[0.2em] uppercase py-5 rounded-xl mt-3 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
                     <span id="btnText">Secure Login</span>
                     <div id="btnSpinner" class="hidden flex items-center justify-center gap-3">
@@ -473,10 +451,10 @@
                 <p class="font-montserrat text-[9px] font-bold text-gray-400 tracking-[0.2em] uppercase opacity-80">
                     Operated by Y2C Holdings Ltd.
                 </p>
-                <!-- 🌟 실시간 네트워크 상태 Pill -->
+                <!-- 🌟 실시간 네트워크 상태 Pill (auth.js가 실시간 감지하여 업데이트) -->
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.59 Enterprise
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.62 Enterprise
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <p id="networkStatusPill" class="font-montserrat text-[8px] font-bold text-gray-400 tracking-[0.1em] uppercase transition-colors duration-300">
@@ -487,413 +465,72 @@
         </form>
     </main>
 
+<!-- 🚨 [아키텍처 모듈 연결] config.js와 auth.js를 로드하여 통신 로직을 완벽히 위임 -->
+<script src="assets/js/config.js"></script>
+<script src="assets/js/auth.js"></script>
+
 <script>
 /**
- * 🌟 V40.59 Enterprise Ultimate Auth Gateway (The Masterpiece)
- * [CRITICAL FIX 1] auth.js completely DESTROYED and ASSIMILATED into index.html (Zero Network Latency).
- * [CRITICAL FIX 2] Strict Payload Sync (text/plain + JSON.stringify) matching GAS V40.55 Deep Scan.
- * [CRITICAL FIX 3] Perfect Storage Cleansing (clearY2CSession) preserved to protect Cart data.
- * [SECURITY] Time-based Anti-Bot Defense.
+ * 🌟 V40.62 Enterprise Ultimate Presentation Engine
+ * UI/DOM 제어만 담당하며, 무거운 백엔드 통신 및 인증 록다운은 auth.js (Y2C_AuthEngine)에 100% 위임합니다.
  */
-
-(function() {
-    "use strict";
-
-    // 🌟 페이지 로드 시간 록다운 (타임 베이스 봇 방어용)
-    const PAGE_LOAD_TIME = Date.now();
-
-    // 🌟 [보안 12] 클라이언트 원격 텔레메트리
-    class TelemetryEngine {
-        static collect() {
-            try {
-                return {
-                    tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown",
-                    lang: navigator.language || "en",
-                    scr: `${window.screen.width}x${window.screen.height}`,
-                    cd: window.screen.colorDepth || 24,
-                    hw: navigator.hardwareConcurrency || "Unknown",
-                    agent: navigator.userAgent.substring(0, 150),
-                    plat: navigator.platform || "Unknown",
-                    net: navigator.connection ? navigator.connection.effectiveType : "Unknown",
-                    ts: Date.now()
-                };
-            } catch(e) { return { error: "Telemetry Denied" }; }
-        }
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // 1. 시간에 따른 동적 인사말 마이크로 카피
+    const greetingEl = document.getElementById('dynamicGreeting');
+    if (greetingEl) {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) greetingEl.innerText = "Good Morning, Partner";
+        else if (hour >= 12 && hour < 18) greetingEl.innerText = "Good Afternoon, Partner";
+        else greetingEl.innerText = "Good Evening, Partner";
     }
 
-    // 🌟 정갈한 대기업형 글래스 토스트망
-    class ToastSystem {
-        static show(message, type = "error") {
-            const container = document.getElementById('premiumToastContainer');
-            if(!container) return;
-
-            const toast = document.createElement('div');
-            toast.className = 'toast-item';
-            
-            let icon = type === "error" ? `<svg class="w-6 h-6 text-[#E3000F] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>` 
-                     : type === "success" ? `<svg class="w-6 h-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
-                     : `<svg class="w-6 h-6 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-            
-            toast.style.borderLeftColor = type === "error" ? "var(--sinjeon-pink)" : type === "success" ? "#10b981" : "#f59e0b";
-            toast.innerHTML = `${icon} <span class="leading-relaxed tracking-wide text-[13px] font-black drop-shadow-sm text-[var(--premium-charcoal)]">${message}</span>`;
-            
-            container.appendChild(toast);
-            
-            requestAnimationFrame(() => { setTimeout(() => toast.classList.add('show'), 10); });
-            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); }, 4500); 
-        }
-    }
-
-    // 🚨 외부 config.js가 터지더라도 절대 죽지 않도록 시스템 내부 Fallback 강제 할당
-    const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
-        API: { BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec" }, 
-        STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client" }
-    };
-    const TARGET_API_URL = (window.SYSTEM_CONFIG && window.SYSTEM_CONFIG.API_URL) ? window.SYSTEM_CONFIG.API_URL : CONFIG.API.BASE_URL;
-
-    // 🌟 [통합 무결성 1] 완벽한 세션 클렌징 (다국어나 장바구니 데이터를 건드리지 않음)
-    function clearY2CSession() {
-        const keysToClear = [CONFIG.STORAGE_KEYS.USER_TOKEN, CONFIG.STORAGE_KEYS.ROLE, CONFIG.STORAGE_KEYS.CLIENT_NAME, 'y2c_id', 'y2c_premium_state', 'y2c_region'];
-        keysToClear.forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
-    }
-
-    function escapeHtml(value) {
-        return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        
-        const greetingEl = document.getElementById('dynamicGreeting');
-        if (greetingEl) {
-            const hour = new Date().getHours();
-            if (hour >= 5 && hour < 12) greetingEl.innerText = "Good Morning, Partner";
-            else if (hour >= 12 && hour < 18) greetingEl.innerText = "Good Afternoon, Partner";
-            else greetingEl.innerText = "Good Evening, Partner";
-        }
-
-        try {
-            localStorage.setItem("y2c_test", "1");
-            localStorage.removeItem("y2c_test");
-        } catch(e) {
-            ToastSystem.show("Warning: Storage is disabled. App may not function correctly.", "warning");
-        }
-
-        const loginForm = document.getElementById("loginForm");
-        const loginBtn = document.getElementById("loginBtn");
-        const btnText = document.getElementById("btnText");
-        const btnSpinner = document.getElementById("btnSpinner");
-        const idInput = document.getElementById("userId");
-        const pwInput = document.getElementById("userPw");
-        const hpInput = document.getElementById("hp_field");
-        const capsLockWarning = document.getElementById("capsLockWarning");
-        const networkPill = document.getElementById("networkStatusPill");
-
-        function updateNetworkPill(isOnline) {
-            if(!networkPill) return;
-            if(isOnline) {
-                networkPill.innerText = "Connection: Secure";
-                networkPill.classList.remove('text-[#E3000F]', 'text-amber-500');
-                networkPill.classList.add('text-gray-400');
+    // 2. 패스워드 가시성 토글 (네이티브 DOM 제어)
+    const pwInput = document.getElementById("userPw");
+    const togglePwBtn = document.getElementById('togglePwBtn');
+    const eyeOpen = document.getElementById('eyeIconOpen');
+    const eyeClosed = document.getElementById('eyeIconClosed');
+    
+    if(togglePwBtn && pwInput) {
+        togglePwBtn.addEventListener('click', () => {
+            if(pwInput.type === 'password') {
+                pwInput.type = 'text';
+                eyeClosed.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
             } else {
-                networkPill.innerText = "Connection: Offline";
-                networkPill.classList.remove('text-gray-400', 'text-amber-500');
-                networkPill.classList.add('text-[#E3000F]');
-            }
-        }
-        updateNetworkPill(navigator.onLine);
-
-        function highlightInputError(isId, isPw) {
-            if(isId && idInput) idInput.classList.add('input-error');
-            if(isPw && pwInput) pwInput.classList.add('input-error');
-            setTimeout(() => {
-                if(idInput) idInput.classList.remove('input-error');
-                if(pwInput) pwInput.classList.remove('input-error');
-            }, 3000);
-        }
-
-        const togglePwBtn = document.getElementById('togglePwBtn');
-        const eyeOpen = document.getElementById('eyeIconOpen');
-        const eyeClosed = document.getElementById('eyeIconClosed');
-        if(togglePwBtn && pwInput) {
-            togglePwBtn.addEventListener('click', () => {
-                if(pwInput.type === 'password') {
-                    pwInput.type = 'text';
-                    eyeClosed.classList.add('hidden');
-                    eyeOpen.classList.remove('hidden');
-                } else {
-                    pwInput.type = 'password';
-                    eyeOpen.classList.add('hidden');
-                    eyeClosed.classList.remove('hidden');
-                }
-            });
-        }
-
-        let isAuthenticating = false;
-        let authTimeoutFallback = null;
-
-        window.addEventListener('offline', () => { 
-            ToastSystem.show("네트워크(Wi-Fi/데이터)가 끊어졌습니다.", "warning"); 
-            updateNetworkPill(false);
-        });
-        window.addEventListener('online', () => { 
-            ToastSystem.show("보안 네트워크가 복구되었습니다.", "success");
-            isAuthenticating = false; resetLoginButton();
-            updateNetworkPill(true);
-        });
-
-        window.addEventListener('unhandledrejection', function(event) {
-            if (isAuthenticating) {
-                isAuthenticating = false;
-                ToastSystem.show("통신 중 시스템 예외가 발생했습니다.", "error");
-                resetLoginButton(); triggerShake(true, true);
+                pwInput.type = 'password';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
             }
         });
+    }
 
-        if (pwInput && capsLockWarning) {
-            pwInput.addEventListener('keyup', (e) => {
-                if (e.getModifierState && e.getModifierState('CapsLock')) { capsLockWarning.classList.add('active'); } 
-                else { capsLockWarning.classList.remove('active'); }
-            });
-            pwInput.addEventListener('blur', () => { capsLockWarning.classList.remove('active'); });
-        }
-
-        loginForm.addEventListener('keydown', (e) => {
-            if((e.ctrlKey || e.metaKey) && e.key === 'Enter') { loginBtn.click(); }
+    // 3. Caps Lock 경고 UI 작동
+    const capsLockWarning = document.getElementById("capsLockWarning");
+    if (pwInput && capsLockWarning) {
+        pwInput.addEventListener('keyup', (e) => {
+            if (e.getModifierState && e.getModifierState('CapsLock')) { 
+                capsLockWarning.classList.add('active'); 
+            } else { 
+                capsLockWarning.classList.remove('active'); 
+            }
         });
+        pwInput.addEventListener('blur', () => { capsLockWarning.classList.remove('active'); });
+    }
 
-        function triggerShake(isIdError = false, isPwError = false) {
-            if (!loginForm) return;
-            loginForm.classList.remove('shake-animation');
-            void loginForm.offsetWidth;
-            loginForm.classList.add('shake-animation');
-            highlightInputError(isIdError, isPwError);
+    // 4. 🌟 [핵심] auth.js 코어 모듈 100% 다이렉트 바인딩
+    // index.html 내부에는 복잡한 fetch 통신 로직이 단 한 줄도 존재하지 않으며, 모두 auth.js에 위임됩니다.
+    if (typeof Y2C_AuthEngine !== 'undefined') {
+        Y2C_AuthEngine.bindLoginForm('loginForm');
+    } else {
+        console.error("CRITICAL ERROR: Y2C_AuthEngine is not loaded. Please ensure auth.js is correctly linked.");
+        const errorMsg = document.getElementById('loginErrorMsg');
+        if(errorMsg) {
+            errorMsg.classList.remove('hidden');
+            errorMsg.innerHTML = `<span class="text-[#FF3B5C]">보안 통신 모듈(auth.js)을 불러올 수 없습니다. 관리자에게 문의하세요.</span>`;
         }
-
-        function resetLoginButton() {
-            if (loginBtn) {
-                loginBtn.disabled = false; 
-                if(btnText) btnText.classList.remove('hidden');
-                if(btnSpinner) btnSpinner.classList.add('hidden');
-                loginBtn.style.background = ""; 
-                loginBtn.style.boxShadow = "";
-                loginBtn.classList.remove('cursor-not-allowed', 'pointer-events-none');
-            }
-        }
-
-        // 🚨 [통합 무결성 2] 백엔드 V40.55에 완벽히 호환되는 순정 텍스트 페이로드 방식 강제화
-        async function executeLogin(payload, retries = 1) {
-            if (!navigator.onLine) throw new Error("네트워크 접속이 끊어졌습니다. 연결 상태를 확인해 주십시오.");
-            let lastError;
-            const telemetry = TelemetryEngine.collect();
-            
-            // 🔥 백엔드가 100% 에러 없이 파싱하도록 text/plain 환경에서 JSON.stringify 로 압축 전송
-            const finalPayload = {
-                action: "login",
-                id: payload.username || "",
-                pw: payload.password || "",
-                username: payload.username || "", 
-                password: payload.password || "",
-                telemetry: telemetry
-            };
-
-            for (let i = 0; i <= retries; i++) {
-                let controller = new AbortController();
-                let timeoutId = setTimeout(() => controller.abort(), 12000); 
-
-                try {
-                    const response = await fetch(TARGET_API_URL, {
-                        method: "POST", 
-                        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-                        redirect: "follow", 
-                        body: JSON.stringify(finalPayload), 
-                        signal: controller.signal
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-
-                    const rawText = await response.text();
-                    let jsonResult;
-                    try { jsonResult = JSON.parse(rawText); } 
-                    catch (parseErr) { throw new Error("서버 응답 파싱에 실패했습니다 (백엔드 에러). 관리자에게 문의하십시오."); }
-
-                    if (!jsonResult || typeof jsonResult !== 'object') {
-                        throw new Error("서버 응답 규격 무결성이 훼손되었습니다.");
-                    }
-
-                    // 🚨 백엔드가 실패(success: false)를 응답하면, 가짜로 성공시키지 않고 있는 그대로 에러를 던집니다.
-                    if (jsonResult.success === false) {
-                         throw new Error(jsonResult.message || "보안 인증이 거부되었습니다.");
-                    }
-
-                    return jsonResult;
-
-                } catch (err) {
-                    lastError = err;
-                    
-                    // 인증 실패 에러(아이디 불일치, 지역 누락 등)는 재시도 없이 즉각 화면에 표시
-                    if (err.message && (err.message.includes("인증") || err.message.includes("지역") || err.message.includes("불일치"))) {
-                        break; 
-                    }
-
-                    if (i < retries) {
-                        const waitTime = 1000; 
-                        ToastSystem.show(`보안 통신망 재연결 중... (${i+1}/${retries})`, "warning");
-                        await new Promise(res => setTimeout(res, waitTime));
-                    }
-                } finally {
-                    clearTimeout(timeoutId);
-                    controller = null;
-                }
-            }
-            throw new Error(lastError?.name === 'AbortError' ? "서버 응답 시간 초과. 네트워크를 확인하세요." : (lastError?.message || "서버 통신에 실패했습니다."));
-        }
-
-        if (loginForm) { 
-            loginForm.addEventListener("submit", async (e) => {
-                e.preventDefault(); 
-                if (isAuthenticating) return;
-
-                // 🌟 [통합 무결성 3] Time-based Bot Defense (인간의 물리적 타자 속도 한계 600ms 검증)
-                if (Date.now() - PAGE_LOAD_TIME < 600 || (hpInput && hpInput.value.length > 0)) {
-                    ToastSystem.show("비정상적인 자동화(Bot) 접근이 감지되었습니다.", "error");
-                    return;
-                }
-
-                const id = idInput ? String(idInput.value).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '') : "";
-                const pw = pwInput ? String(pwInput.value).trim() : "";
-
-                if (!id && !pw) {
-                    ToastSystem.show("인증 정보가 누락되었습니다. 파트너 ID와 Passkey를 입력해 주십시오.", "error");
-                    triggerShake(true, true);
-                    if(idInput) idInput.focus();
-                    return;
-                } else if (!id) {
-                    ToastSystem.show("파트너 ID가 누락되었습니다. 아이디를 확인해 주십시오.", "error");
-                    triggerShake(true, false);
-                    if(idInput) idInput.focus();
-                    return;
-                } else if (!pw) {
-                    ToastSystem.show("Passkey가 누락되었습니다. 비밀번호를 확인해 주십시오.", "error");
-                    triggerShake(false, true);
-                    if(pwInput) pwInput.focus();
-                    return;
-                }
-
-                isAuthenticating = true;
-                if(networkPill) {
-                    networkPill.innerText = "Authenticating...";
-                    networkPill.classList.remove('text-gray-400', 'text-[#E3000F]');
-                    networkPill.classList.add('text-amber-500');
-                }
-                
-                clearTimeout(authTimeoutFallback);
-                authTimeoutFallback = setTimeout(() => {
-                    if(isAuthenticating) {
-                        isAuthenticating = false;
-                        resetLoginButton();
-                        updateNetworkPill(navigator.onLine);
-                        ToastSystem.show("시스템 렌더링 시간이 초과되었습니다. 페이지를 새로고침 해보십시오.", "error");
-                    }
-                }, 20000);
-
-                if (loginBtn) {
-                    loginBtn.disabled = true;
-                    if(btnText) btnText.classList.add('hidden');
-                    if(btnSpinner) btnSpinner.classList.remove('hidden');
-                    loginBtn.style.background = "#f3f4f6";
-                    loginBtn.style.boxShadow = "none";
-                    loginBtn.classList.add('cursor-not-allowed', 'pointer-events-none');
-                }
-
-                let isSuccessRedirecting = false;
-
-                try {
-                    // 🚨 오로지 백엔드의 응답만을 정직하게 받아 처리
-                    const loginResult = await executeLogin({ username: id, password: pw });
-
-                    if (loginResult && loginResult.success) {
-                        
-                        try {
-                            const resData = loginResult.data || loginResult;
-                            
-                            let role = String(resData.role || resData.Role || "").toUpperCase().trim();
-                            if (!role || role === "NULL" || role === "UNDEFINED") {
-                                if (id.toLowerCase() === 'admin' || id.toLowerCase() === 'master') role = 'MASTER';
-                                else if (id.toLowerCase() === 'kft' || id.toLowerCase() === 'vendor') role = 'VENDOR';
-                                else role = 'PARTNER'; 
-                            }
-
-                            // 🚨 [딥 스캔] 스프레드시트 컬럼명(AllowedStates) 100% 동기화 추적
-                            let rawRegion = resData.AllowedStates || resData.allowedStates || resData.region || resData.Region || resData.state;
-                            let region = String(rawRegion || "").trim();
-
-                            // 🚨 [진짜 호환성 검증] 백엔드에서 지역 값이 누락되었다면 가짜로 성공시키지 않고 정직하게 에러를 던집니다.
-                            if (!region || region === "null" || region === "undefined" || region === "") {
-                                throw new Error("스프레드시트에 접근 지역(AllowedStates)이 설정되지 않았습니다. 관리자에게 문의해 주십시오.");
-                            }
-
-                            clearY2CSession(); // 🌟 인라인으로 융합된 스토리지 안전 클렌징 작동
-
-                            localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, resData.token || resData.TokenVersion || loginResult.token || ("Y2C_SECURE_TOKEN_" + Date.now()));
-                            localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, role);
-                            localStorage.setItem("y2c_region", region);
-                            
-                            localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, resData.clientName || resData['Client Name'] || resData.ClientName || id);
-                            localStorage.setItem("y2c_id", id);
-                            localStorage.setItem("y2c_premium_state", resData.clientState || "DEFAULT");
-                            
-                        } catch(stErr) { 
-                            throw new Error(stErr.message.includes("스프레드시트") ? stErr.message : "로컬 스토리지 할당에 실패했습니다. 브라우저 시크릿 모드를 해제해 주십시오."); 
-                        }
-
-                        isSuccessRedirecting = true;
-                        ToastSystem.show("SECURE SESSION ESTABLISHED", "success");
-
-                        if (loginForm) { 
-                            loginForm.style.transition = "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s"; 
-                            loginForm.style.opacity = "0"; 
-                            loginForm.style.transform = "scale(0.95)";
-                            loginForm.style.pointerEvents = "none"; 
-                        }
-                        
-                        clearTimeout(authTimeoutFallback);
-                        
-                        setTimeout(() => {
-                            const targetRole = String(localStorage.getItem(CONFIG.STORAGE_KEYS.ROLE)).toUpperCase();
-                            if (targetRole === "MASTER" || targetRole === "VENDOR") {
-                                window.location.replace("admin.html");
-                            } else if (targetRole === "PARTNER") {
-                                window.location.replace("dashboard.html");
-                            } else {
-                                window.location.replace("items.html");
-                            }
-                        }, 600);
-
-                    } else {
-                        ToastSystem.show(escapeHtml(loginResult?.message || "보안 인증이 거부되었습니다. 아이디와 패스워드를 확인하세요."), "error");
-                        triggerShake(true, true); 
-                    }
-                } catch (err) {
-                    ToastSystem.show(err.message, "error");
-                    triggerShake(true, true); 
-                } finally {
-                    clearTimeout(authTimeoutFallback);
-                    if (!isSuccessRedirecting) {
-                        isAuthenticating = false;
-                        resetLoginButton();
-                        updateNetworkPill(navigator.onLine);
-                    }
-                }
-            }); 
-        }
-        
-        setTimeout(() => {
-            if(idInput) idInput.focus();
-        }, 500);
-    });
-})();
+    }
+});
 </script>
 </body>
 </html>
