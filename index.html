@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.62 Enterprise Login ULTIMATE - Presentation Layer Masterpiece 🌟
-  [ARCH SHIFT] Fully decoupled from Network Logic. Delegates 100% to external `auth.js`.
+  🌟 V40.66 Enterprise Login ULTIMATE - Presentation Layer Masterpiece 🌟
+  [ARCH SHIFT] Fully decoupled from Network Logic. Delegates 100% to external `auth.js` (V40.65).
+  [TRUE SYNC] Network Payload and DOM manipulations strictly controlled by Y2C_AuthEngine.
   [PERFORMANCE] Zero-Latency Initial Routing (IIFE), CSSOM Unblocking, GPU Acceleration.
   [PREMIUM UI] Inner-Floating Labels, Magnetic 3D Buttons, Glassmorphism Toast Target.
-  [DOM SYNC] 100% synced with Y2C_AuthEngine endpoints (#userId, #userPw, #loginBtn).
 -->
 <html lang="en">
 <head>
@@ -100,8 +100,7 @@
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
                     },
                     colors: { 
-                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', border: '#e2e8f0', bg: '#F8F9FA' },
-                        sinjeon: { primary: '#E3000F', dark: '#B9000C', light: '#FEF2F2' }
+                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', border: '#e2e8f0', bg: '#F8F9FA' }
                     },
                     animation: {
                         'spin-slow': 'spin 3s linear infinite',
@@ -153,7 +152,7 @@
             font-family: 'Inter', sans-serif; 
             margin: 0; padding: 0; min-height: 100vh;
             -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
-            transform: translateZ(0); /* GPU 레이어 격리 */
+            transform: translateZ(0); /* GPU 레이어 격리 가속 */
         }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
@@ -179,14 +178,13 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             border-radius: 1rem;
             width: 100%;
-            height: 4.25rem; /* 68px 넉넉한 공간 확보 */
+            height: 4.25rem; 
             padding-top: 1.7rem !important; 
             padding-bottom: 0.5rem !important;
             padding-left: 3.25rem !important;
             padding-right: 1rem !important;
         }
         
-        /* 🌟 스마트 포커스 링 (고급스러운 차콜 아우라로 전환) */
         .premium-input:focus {
             background: #ffffff;
             border-color: var(--premium-charcoal);
@@ -194,7 +192,6 @@
             transform: translateY(-1px);
         }
         
-        /* 🌟 지능형 에러 트래킹 테두리 시각화 (Error Highlight) */
         .premium-input.input-error {
             border-color: var(--sinjeon-pink) !important;
             background-color: #FEF2F2 !important; 
@@ -216,7 +213,6 @@
 
         /* 🌟 [그래픽 4] 플로팅 레이블 Inner-안착 아키텍처 */
         .floating-label-group { position: relative; }
-        
         .floating-label {
             position: absolute;
             left: 3.25rem;
@@ -233,7 +229,6 @@
             margin: 0;
         }
         
-        /* 인풋에 값이 있거나 포커스 될 때 라벨을 인풋 '내부 상단'으로 콤팩트하게 이동 */
         .premium-input:focus ~ .floating-label,
         .premium-input:not(:placeholder-shown) ~ .floating-label {
             top: 15px; 
@@ -245,7 +240,6 @@
             border: none;
             box-shadow: none;
         }
-        
         .premium-input:focus ~ .floating-label { color: var(--premium-charcoal); }
 
         /* 🌟 [그래픽 5] 3D 마그네틱 SECURE LOGIN 버튼 */
@@ -267,7 +261,7 @@
             transform: translateY(-3px);
             letter-spacing: 0.25em; 
         }
-        .btn-hip:hover:not(:disabled)::after {
+        .btn-hip:hover:not(:disabled):after {
             left: 200%;
             transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -280,7 +274,7 @@
         .text-glow-red { text-shadow: 0 2px 15px rgba(227, 0, 15, 0.2); }
         ::-webkit-scrollbar { display: none; }
 
-        /* 🌟 [가속 10] 애니메이션 GPU 렌더링 강제화 (시네마틱 등장) */
+        /* 🌟 시네마틱 등장 애니메이션 */
         .cinematic-enter { 
             animation: fadeUpCinematic 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; 
             will-change: opacity, transform; 
@@ -301,7 +295,7 @@
         }
         .shake-animation { animation: error-shake 0.5s cubic-bezier(.36,.07,.19,.97) both !important; }
 
-        /* 🌟 Caps Lock 경고문 유체 모션 */
+        /* 🌟 Caps Lock 아코디언 */
         .alert-slide { 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             opacity: 0; 
@@ -316,7 +310,8 @@
 
 <body id="mainBody" class="flex items-center justify-center p-4 sm:p-6 overflow-hidden relative selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
-    <!-- 🌟 [보안 2] 기 로그인 사용자 강제 우회 (auth.js가 로드되기 전에 즉시 실행되어 제로 레이턴시 보장) -->
+    <!-- 🌟 [보안 2] 제로 레이턴시 라우팅 (Zero-Latency Routing) -->
+    <!-- auth.js가 로딩되기도 전에, 기존 세션이 유효하면 0초 만에 대시보드로 강제 우회시킵니다. -->
     <script>
         (function() {
             try {
@@ -335,7 +330,6 @@
         })();
     </script>
 
-    <!-- 🌟 [보안 3] Clickjacking 방어 & NoScript 샌드박스 -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -384,10 +378,10 @@
             </div>
         </header>
 
-        <!-- 🌟 엔터 키 이중 서밋 네이티브 방어망 (onsubmit return false 처리하여 auth.js에 100% 위임) -->
+        <!-- 🌟 엔터 키 이중 서밋 방어망 (onsubmit return false 처리하여 auth.js에 100% 위임) -->
         <form id="loginForm" class="solid-panel shadow-premium-card p-8 sm:p-10 w-full relative z-20 cinematic-enter delay-100" autocomplete="off" onsubmit="return false;">
             
-            <!-- 🌟 [보안 4] 허니팟 (Bot-trap) 샌드박싱: 봇이 자동완성하면 통신 차단 -->
+            <!-- 🌟 [보안 4] 허니팟 (Bot-trap) 샌드박싱 (auth.js가 스캔함) -->
             <input type="text" name="hp_field" id="hp_field" style="display:none !important;" tabindex="-1" autocomplete="off">
 
             <div class="space-y-6">
@@ -432,9 +426,7 @@
                     <svg class="w-4 h-4 text-gray-400 animate-heartbeat" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
 
-                <div id="loginErrorMsg" role="alert" aria-live="assertive" class="text-center text-[11px] sm:text-[12px] font-bold tracking-wide min-h-[0px] flex items-center justify-center break-keep font-inter text-[#E3000F] hidden"></div>
-
-                <!-- 🌟 3D 마그네틱 SECURE LOGIN 버튼 (auth.js가 로딩 상태를 컨트롤) -->
+                <!-- 🌟 3D 마그네틱 SECURE LOGIN 버튼 (auth.js가 로딩 스피너 및 disabled 상태를 실시간 컨트롤) -->
                 <button type="submit" id="loginBtn" class="btn-hip shadow-premium-btn hover:shadow-premium-btn-hover w-full font-montserrat font-black text-[13.5px] tracking-[0.2em] uppercase py-5 rounded-xl mt-3 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
                     <span id="btnText">Secure Login</span>
                     <div id="btnSpinner" class="hidden flex items-center justify-center gap-3">
@@ -451,10 +443,10 @@
                 <p class="font-montserrat text-[9px] font-bold text-gray-400 tracking-[0.2em] uppercase opacity-80">
                     Operated by Y2C Holdings Ltd.
                 </p>
-                <!-- 🌟 실시간 네트워크 상태 Pill (auth.js가 실시간 감지하여 업데이트) -->
+                <!-- 🌟 실시간 네트워크 상태 Pill (auth.js가 실시간 Ping 상태를 감지하여 업데이트) -->
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.62 Enterprise
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.66 Enterprise
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <p id="networkStatusPill" class="font-montserrat text-[8px] font-bold text-gray-400 tracking-[0.1em] uppercase transition-colors duration-300">
@@ -465,18 +457,19 @@
         </form>
     </main>
 
-<!-- 🚨 [아키텍처 모듈 연결] config.js와 auth.js를 로드하여 통신 로직을 완벽히 위임 -->
+<!-- 🚨 [아키텍처 모듈 융합] config.js와 auth.js를 로드하여 모든 백엔드 통신 로직을 코어 엔진에 100% 위임 -->
 <script src="assets/js/config.js"></script>
 <script src="assets/js/auth.js"></script>
 
 <script>
 /**
- * 🌟 V40.62 Enterprise Ultimate Presentation Engine
+ * 🌟 V40.66 Enterprise Ultimate Presentation Engine
  * UI/DOM 제어만 담당하며, 무거운 백엔드 통신 및 인증 록다운은 auth.js (Y2C_AuthEngine)에 100% 위임합니다.
+ * 이를 통해 렌더링 블로킹(Blocking)을 차단하고 제로 레이턴시(Zero-Latency)를 달성합니다.
  */
 document.addEventListener("DOMContentLoaded", () => {
     
-    // 1. 시간에 따른 동적 인사말 마이크로 카피
+    // 1. 시간에 따른 동적 인사말 마이크로 카피 (UI 전용)
     const greetingEl = document.getElementById('dynamicGreeting');
     if (greetingEl) {
         const hour = new Date().getHours();
@@ -519,15 +512,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 4. 🌟 [핵심] auth.js 코어 모듈 100% 다이렉트 바인딩
-    // index.html 내부에는 복잡한 fetch 통신 로직이 단 한 줄도 존재하지 않으며, 모두 auth.js에 위임됩니다.
+    // index.html 내부에는 복잡한 fetch 통신 코드가 단 한 줄도 존재하지 않습니다.
     if (typeof Y2C_AuthEngine !== 'undefined') {
         Y2C_AuthEngine.bindLoginForm('loginForm');
     } else {
         console.error("CRITICAL ERROR: Y2C_AuthEngine is not loaded. Please ensure auth.js is correctly linked.");
-        const errorMsg = document.getElementById('loginErrorMsg');
-        if(errorMsg) {
-            errorMsg.classList.remove('hidden');
-            errorMsg.innerHTML = `<span class="text-[#FF3B5C]">보안 통신 모듈(auth.js)을 불러올 수 없습니다. 관리자에게 문의하세요.</span>`;
+        const container = document.getElementById('premiumToastContainer');
+        if (container) {
+            container.innerHTML = `<div class="bg-white/95 backdrop-blur-md border border-gray-200 border-l-4 border-l-[#E3000F] text-[#111827] p-4 rounded-xl shadow-lg flex items-center gap-3 font-bold text-[13.5px]"><span class="text-[#E3000F]">⚠️ 보안 통신 모듈(auth.js)을 불러올 수 없습니다. 서버 상태를 확인하십시오.</span></div>`;
         }
     }
 });
