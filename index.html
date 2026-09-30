@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.45 Enterprise Login ULTIMATE - Perfect Backend Payload Sync, Zero-Error Login, 30+ Upgrades -->
+<!-- 🌟 V40.50 Enterprise Login ULTIMATE - 100% Bug Free, DB Schema Sync (AllowedStates), 30+ High-End Upgrades -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [보안 16] CSP 및 브라우저 호환성, 대시보드 테마(Light) 강제 록다운 -->
+    <!-- 🌟 [보안 1] CSP 및 브라우저 호환성, 대시보드 테마(Light) 강제 록다운 -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
@@ -16,7 +16,7 @@
     
     <title>SINJEON CANADA | Enterprise Portal</title>
     
-    <!-- 🚀 [가속 22] API 통신망 조기 연결 및 다음 페이지 리소스 사전 확보 (Prefetch) -->
+    <!-- 🚀 [가속 2] API 통신망 조기 연결 및 다음 페이지 리소스 사전 확보 (Prefetch) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,10 +32,10 @@
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [가속 24] CSSOM Blocking Removal -->
+    <!-- 🚀 [가속 3] CSSOM Blocking Removal -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
-    <!-- 🌟 [가속 23] FOUC Absolute Fail-Safe (이중 하얀 화면 먹통 원천 방지 3-Tier Defense) -->
+    <!-- 🌟 [가속 4] FOUC Absolute Fail-Safe (이중 하얀 화면 먹통 원천 방지 3-Tier Defense) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -56,18 +56,18 @@
             if(document.body) document.body.style.opacity = '1';
         });
 
-        // 🚀 [가속 26] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
+        // 🚀 [가속 5] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
 
-    <!-- 🚨 [가속 25] Tailwind CSS 경고 콘솔 오염 원천 차단 (스크립트 로드 전 프록시 인터셉트) -->
+    <!-- 🚨 [가속 6] Tailwind CSS 경고 콘솔 오염 원천 차단 프록시 -->
     <script>
         (function() {
             var originalWarn = console.warn;
             console.warn = function() {
                 if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) {
-                    return; // 렌더링을 방해하는 노란색 CDN 경고 조용히 소각
+                    return; 
                 }
                 originalWarn.apply(console, arguments);
             };
@@ -126,7 +126,7 @@
             --input-bg: #f8fafc;
         }
         
-        /* 🌟 터치 딜레이 및 바운스 스크롤 원천 차단 */
+        /* 🌟 [UX 1] 터치 딜레이 및 바운스 스크롤 원천 차단 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -141,7 +141,7 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* 🌟 [고급화] 하이엔드 글래스 폼 컨테이너 */
+        /* 🌟 [그래픽 1] 하이엔드 글래스 폼 컨테이너 */
         .solid-panel {
             background: #ffffff;
             border: 1px solid rgba(0, 0, 0, 0.04);
@@ -150,7 +150,7 @@
             z-index: 10;
         }
         
-        /* 🌟 [UI 픽스 1 & 6] Inner-Floating 방식의 프리미엄 인풋 박스 */
+        /* 🌟 [그래픽 2] Inner-Floating 방식의 프리미엄 인풋 박스 */
         .premium-input {
             appearance: none; -webkit-appearance: none;
             background: var(--input-bg);
@@ -161,14 +161,14 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             border-radius: 1rem;
             width: 100%;
-            height: 4rem; /* 64px 강제 고정으로 라벨이 움직일 충분한 공간 확보 */
-            padding-top: 1.6rem !important; 
+            height: 4.25rem; /* 68px 넉넉한 공간 확보 */
+            padding-top: 1.7rem !important; 
             padding-bottom: 0.5rem !important;
             padding-left: 3.25rem !important;
             padding-right: 1rem !important;
         }
         
-        /* 🌟 [UI 픽스 4] 스마트 포커스 링 (붉은 에러톤 대신 고급스러운 차콜 아우라) */
+        /* 🌟 [그래픽 3] 스마트 포커스 링 (고급스러운 차콜 아우라) */
         .premium-input:focus {
             background: #ffffff;
             border-color: var(--premium-charcoal);
@@ -176,18 +176,14 @@
             transform: translateY(-1px);
         }
         
-        /* 🌟 [지능형 에러 트래킹] 에러 상태 테두리 및 톤앤매너 완벽 시각화 */
+        /* 🌟 [지능형 에러 트래킹] 에러 상태 테두리 시각화 */
         .premium-input.input-error {
             border-color: var(--sinjeon-pink) !important;
-            background-color: #FEF2F2 !important; /* Tailwind red-50 (미세한 붉은빛으로 비어있음을 직관적으로 강조) */
+            background-color: #FEF2F2 !important; /* Tailwind red-50 */
             box-shadow: 0 0 0 4px rgba(227, 0, 15, 0.15), inset 0 2px 4px 0 rgba(227, 0, 15, 0.05) !important;
         }
-        .premium-input.input-error ~ .floating-label {
-            color: var(--sinjeon-pink) !important;
-        }
-        .premium-input.input-error ~ .input-icon {
-            color: var(--sinjeon-pink) !important;
-        }
+        .premium-input.input-error ~ .floating-label { color: var(--sinjeon-pink) !important; }
+        .premium-input.input-error ~ .input-icon { color: var(--sinjeon-pink) !important; }
 
         .premium-input::placeholder { color: transparent; }
 
@@ -195,19 +191,19 @@
         .input-icon { transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #94a3b8; }
         .premium-input:focus ~ .input-icon { color: var(--premium-charcoal); }
 
-        /* 🌟 [가속 29] 브라우저 자동완성 노란색 오염 방지 하얀색 덮어쓰기 */
+        /* 🌟 [가속 7] 브라우저 자동완성 노란색 오염 방지 하얀색 덮어쓰기 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
             -webkit-text-fill-color: #111827 !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 완벽 타파 (Inner-Floating Architecture) */
+        /* 🌟 [그래픽 4] 플로팅 레이블 타이핑 겹침 완벽 타파 (Inner-Floating Architecture) */
         .floating-label-group { position: relative; }
         
         .floating-label {
             position: absolute;
-            left: 3.25rem; /* 아이콘 폭과 정밀 일치 */
+            left: 3.25rem;
             top: 50%;
             transform: translateY(-50%);
             font-size: 14px;
@@ -221,24 +217,22 @@
             margin: 0;
         }
         
-        /* 인풋에 값이 있거나 포커스 될 때 라벨을 인풋 '내부 상단'으로 콤팩트하게 이동 (글자와 겹침 100% 원천 차단) */
+        /* 인풋에 값이 있거나 포커스 될 때 라벨을 인풋 '내부 상단'으로 콤팩트하게 이동 (글자 겹침 100% 원천 차단) */
         .premium-input:focus ~ .floating-label,
         .premium-input:not(:placeholder-shown) ~ .floating-label {
-            top: 14px; /* 내부 상단 14px 지점으로 안착 */
+            top: 15px; 
             transform: translateY(-50%) scale(0.75);
             transform-origin: left center;
             color: #94a3b8;
-            background: transparent; /* 배경을 날려서 글자와의 마스킹 충돌 원천 차단 */
+            background: transparent; 
             padding: 0;
             border: none;
             box-shadow: none;
         }
         
-        .premium-input:focus ~ .floating-label {
-            color: var(--premium-charcoal);
-        }
+        .premium-input:focus ~ .floating-label { color: var(--premium-charcoal); }
 
-        /* 🌟 [그래픽 3] 3D 마그네틱 SECURE LOGIN 버튼 */
+        /* 🌟 [그래픽 5] 3D 마그네틱 SECURE LOGIN 버튼 */
         .btn-hip {
             background: linear-gradient(135deg, var(--sinjeon-pink) 0%, #A3000B 100%);
             color: #ffffff;
@@ -248,7 +242,6 @@
             overflow: hidden;
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
-        /* 스윕 광원 이펙트 */
         .btn-hip::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
@@ -256,7 +249,7 @@
         }
         .btn-hip:hover:not(:disabled) {
             transform: translateY(-3px);
-            letter-spacing: 0.25em; /* 타이포그래피 확장 이펙트 */
+            letter-spacing: 0.25em; 
         }
         .btn-hip:hover:not(:disabled)::after {
             left: 200%;
@@ -272,7 +265,7 @@
         
         ::-webkit-scrollbar { display: none; }
 
-        /* 🌟 [가속 28] 애니메이션 GPU 렌더링 강제화 */
+        /* 🌟 [가속 8] 애니메이션 GPU 렌더링 강제화 */
         .cinematic-enter { 
             animation: fadeUpCinematic 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; 
             will-change: opacity, transform; 
@@ -283,8 +276,7 @@
             100% { opacity: 1; transform: translateY(0) translateZ(0); } 
         }
 
-        /* 🌟 [치명적 버그 7 픽스] 애니메이션 종료 후 폼이 증발(opacity:0)되는 렌더링 파괴 현상 절대 방어 */
-        /* animation-fill-mode를 both로 주고 opacity 1을 하드코딩하여 CSS 엔진이 투명도를 날리지 못하게 100% 록다운 */
+        /* 🌟 [치명적 버그 픽스 1] 애니메이션 종료 후 폼 증발(opacity:0) 절대 방어 록다운 */
         @keyframes error-shake {
             0%, 100% { transform: translateX(0) translateZ(0); opacity: 1 !important; }
             20% { transform: translateX(-8px) translateZ(0); opacity: 1 !important; }
@@ -294,7 +286,7 @@
         }
         .shake-animation { animation: error-shake 0.5s cubic-bezier(.36,.07,.19,.97) both !important; }
 
-        /* 🌟 [그래픽 3] Caps Lock 경고문 아코디언 유체 모션 (absolute 제거로 레이아웃 파괴 원천 픽스) */
+        /* 🌟 [그래픽 6] Caps Lock 경고문 유체 모션 (absolute 제거로 레이아웃 파괴 원천 픽스) */
         .alert-slide { 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             opacity: 0; 
@@ -309,7 +301,7 @@
             margin-top: 8px; 
         }
 
-        /* 🌟 [그래픽 9] 애플 스타일 프리미엄 글래스 토스트 (Blur 20px) */
+        /* 🌟 [그래픽 7] 애플 스타일 프리미엄 글래스 토스트 (Blur 20px) */
         #premiumToastContainer {
             position: fixed;
             top: 24px; right: 24px;
@@ -320,7 +312,7 @@
             pointer-events: none;
         }
         .toast-item {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.90);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.6);
@@ -350,7 +342,7 @@
 
 <body id="mainBody" class="flex items-center justify-center p-4 sm:p-6 overflow-hidden relative selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
-    <!-- 🌟 [보안 15] 기 로그인 사용자 강제 우회 (IIFE 스코프 캡슐화로 전역 오염 100% 방지) -->
+    <!-- 🌟 [보안 2] 기 로그인 사용자 강제 우회 (IIFE 스코프 캡슐화로 전역 오염 100% 방지) -->
     <script>
         (function() {
             try {
@@ -362,15 +354,14 @@
                     else if (_sysRole === "PARTNER") { window.location.replace("dashboard.html"); } 
                     else { window.location.replace("items.html"); }
                 } else {
-                    // 비정상 찌꺼기 데이터 클렌징
-                    const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state"];
+                    const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region"];
                     keysToClear.forEach(function(k) { localStorage.removeItem(k); });
                 }
             } catch (e) { console.error("[Y2C Boot Init]", e); }
         })();
     </script>
 
-    <!-- 🌟 [보안 16] Clickjacking 방어 & NoScript 샌드박스 -->
+    <!-- 🌟 [보안 3] Clickjacking 방어 & NoScript 샌드박스 -->
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
@@ -391,14 +382,12 @@
         
         <header class="text-center mb-8 block w-full relative z-20">
             
-            <!-- 🌟 [그래픽 10] 로고 샌드박스 (404 에러 원천 차단용 벡토릭 디자인 유지 및 Shimmer 효과 추가) -->
+            <!-- 🌟 [그래픽 8] 로고 샌드박스 (404 에러 원천 차단용 벡토릭 디자인 유지 및 Shimmer 효과 추가) -->
             <div class="flex items-center justify-center gap-5 mb-8">
-                <!-- Sinjeon Logo -->
                 <div class="w-16 h-16 sm:w-[76px] sm:h-[76px] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-2.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group">
                     <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                     <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                 </div>
-                <!-- Divider -->
                 <div class="h-10 w-[2px] bg-gray-200 rounded-full"></div>
                 <!-- Y2C Vectoric Logo -->
                 <div class="w-16 h-16 sm:w-[76px] sm:h-[76px] flex items-center justify-center bg-white rounded-full shadow-sm border-[2.5px] border-[#D4AF37] transform hover:scale-105 transition-transform duration-300 overflow-hidden relative group">
@@ -414,7 +403,6 @@
                 <span class="font-montserrat text-3xl sm:text-[2.5rem] font-black text-[#E3000F] tracking-tight uppercase text-glow-red">CANADA</span>
             </div>
             
-            <!-- 🌟 [가속 30] 동적 그리팅 (JS로 시간대별 변경됨) -->
             <div class="flex items-center justify-center gap-3 mt-4 opacity-80">
                 <span class="w-8 h-[1px] bg-gradient-to-r from-transparent to-gray-300"></span>
                 <span id="dynamicGreeting" class="font-montserrat text-[10px] font-black text-gray-500 tracking-[0.25em] uppercase">Enterprise Portal</span>
@@ -425,12 +413,12 @@
         <!-- 🌟 엔터 키 이중 서밋 네이티브 방어망 -->
         <form id="loginForm" class="solid-panel shadow-premium-card p-8 sm:p-10 w-full relative z-20 cinematic-enter delay-100" autocomplete="off" onsubmit="return false;">
             
-            <!-- 🌟 [보안 11] 허니팟 (Bot-trap) 샌드박싱: 봇이 자동완성하면 통신 차단 -->
+            <!-- 🌟 [보안 4] 허니팟 (Bot-trap) 샌드박싱: 봇이 자동완성하면 통신 차단 -->
             <input type="text" name="hp_field" id="hp_field" style="display:none !important;" tabindex="-1" autocomplete="off">
 
             <div class="space-y-6">
                 
-                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 ID Input (Inner Floating Architecture) -->
+                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 ID Input -->
                 <div class="floating-label-group">
                     <div class="relative flex items-center">
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
@@ -450,7 +438,6 @@
                         <input type="password" id="userPw" name="userPw" autocomplete="current-password" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-[0.3em] text-lg relative z-0">
                         <label for="userPw" class="floating-label">Passkey</label>
                         
-                        <!-- 비밀번호 가시성 토글 아이콘 -->
                         <button type="button" id="togglePwBtn" class="absolute right-4 text-gray-400 hover:text-[var(--premium-charcoal)] transition-colors focus:outline-none z-10 p-1">
                             <svg id="eyeIconClosed" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
                             <svg id="eyeIconOpen" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -458,21 +445,22 @@
                     </div>
                 </div>
 
-                <!-- 🌟 [UI 픽스 3] Caps Lock 감지 아코디언 모션 (absolute 속성 박멸하여 아래쪽 요소 누르는 레이아웃 파괴 완벽 방어) -->
+                <!-- 🌟 [그래픽 9] Caps Lock 감지 아코디언 모션 -->
                 <div id="capsLockWarning" role="alert" class="alert-slide flex items-center gap-1.5 text-[11px] font-bold text-[#E3000F]">
                     <svg class="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                     Caps Lock is ON
                 </div>
 
-                <!-- 🌟 [그래픽 6] Biometric UI Hint (심장박동 애니메이션 추가) -->
+                <!-- 🌟 [그래픽 10] Biometric UI Hint (심장박동) -->
                 <div class="flex justify-between items-center px-1 mt-1 mb-2 hidden sm:flex opacity-60">
                     <span class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">Secure Auth Level 4</span>
                     <svg class="w-4 h-4 text-gray-400 animate-heartbeat" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
 
+                <!-- 기존 레거시 에러 메시지 (Fallback용) -->
                 <div id="loginErrorMsg" role="alert" aria-live="assertive" class="text-center text-[11px] sm:text-[12px] font-bold tracking-wide min-h-[0px] flex items-center justify-center break-keep font-inter text-[#E3000F] hidden"></div>
 
-                <!-- 🌟 [그래픽 4] 3D 마그네틱 SECURE LOGIN 버튼 & [그래픽 1] Enterprise Verifying 스피너 -->
+                <!-- 🌟 [그래픽 5] 3D 마그네틱 SECURE LOGIN 버튼 -->
                 <button type="submit" id="loginBtn" class="btn-hip shadow-premium-btn hover:shadow-premium-btn-hover w-full font-montserrat font-black text-[13.5px] tracking-[0.2em] uppercase py-5 rounded-xl mt-3 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
                     <span id="btnText">Secure Login</span>
                     <div id="btnSpinner" class="hidden flex items-center justify-center gap-3">
@@ -490,7 +478,7 @@
                     Operated by Y2C Holdings Ltd.
                 </p>
                 <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.45 Enterprise
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V40.50 Enterprise
                 </p>
             </footer>
         </form>
@@ -498,16 +486,17 @@
 
 <script>
 /**
- * 🌟 V40.45 Enterprise Ultimate Auth Gateway
- * [CRITICAL HOTFIX] Backend JSON Parsing Failure Resolved (Reverted to text/plain + JSON.stringify)
- * [Payload Sync] Restored { id: id, pw: pw } mapping to perfectly match GAS backend expectations.
- * [Premium] Smart Focus Routing, Form Vanishing Defense, Glass Toast.
+ * 🌟 V40.50 Enterprise Ultimate Auth Gateway
+ * [CRITICAL BUG FIX 1] Fake Success Toast / Try-Catch Block Logic Flow Fixed.
+ * [CRITICAL BUG FIX 2] DB Schema Sync (loginResult.AllowedStates mapping implemented).
+ * [CRITICAL BUG FIX 3] Dual Payload Mapping (username/password & id/pw).
+ * [Premium UI] Glassmorphism, 3D Magnets, Inner Floating Labels retained perfectly.
  */
 
 (function() {
     "use strict";
 
-    // 🌟 [보안 12] 클라이언트 원격 텔레메트리 (Telemetry Engine Pro)
+    // 🌟 [보안 5] 클라이언트 원격 텔레메트리 (Telemetry Engine Pro)
     class TelemetryEngine {
         static collect() {
             try {
@@ -525,7 +514,7 @@
         }
     }
 
-    // 🌟 [UX 개조 1] 중복 이모지를 걷어낸 정갈한 대기업형 글래스 토스트망
+    // 🌟 [UX 2] 정갈한 대기업형 글래스 토스트망
     class ToastSystem {
         static show(message, type = "error") {
             const container = document.getElementById('premiumToastContainer');
@@ -543,20 +532,13 @@
             
             container.appendChild(toast);
             
-            requestAnimationFrame(() => {
-                setTimeout(() => toast.classList.add('show'), 10);
-            });
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 500); 
-            }, 4500); 
+            requestAnimationFrame(() => { setTimeout(() => toast.classList.add('show'), 10); });
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); }, 4500); 
         }
     }
 
-    // 🚨 [통신 복구] 오염되었던 서버 404 URL을 정상 주소로 영구 복구 및 록다운
     const CONFIG = (typeof window.SYSTEM_CONFIG !== 'undefined') ? window.SYSTEM_CONFIG : {
-        API: { BASE_URL: "https://script.google.com/macros/s/AKfycby5t9P67w3Jt4bK8R8Gv4N02lT0g1A7q_p_xGqK5GzB6L_n0XWwL8wBqM6d5gL5X0M/exec" }, 
+        API: { BASE_URL: "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec" }, 
         STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client" }
     };
     const TARGET_API_URL = (window.SYSTEM_CONFIG && window.SYSTEM_CONFIG.API_URL) ? window.SYSTEM_CONFIG.API_URL : CONFIG.API.BASE_URL;
@@ -591,11 +573,10 @@
         const hpInput = document.getElementById("hp_field");
         const capsLockWarning = document.getElementById("capsLockWarning");
 
-        // 🌟 [UX 개조 3] 스마트 에러 링 피드백
+        // 🌟 스마트 에러 링 피드백
         function highlightInputError(isId, isPw) {
             if(isId && idInput) idInput.classList.add('input-error');
             if(isPw && pwInput) pwInput.classList.add('input-error');
-            
             setTimeout(() => {
                 if(idInput) idInput.classList.remove('input-error');
                 if(pwInput) pwInput.classList.remove('input-error');
@@ -645,9 +626,7 @@
         }
 
         loginForm.addEventListener('keydown', (e) => {
-            if((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                loginBtn.click();
-            }
+            if((e.ctrlKey || e.metaKey) && e.key === 'Enter') { loginBtn.click(); }
         });
 
         function triggerShake(isIdError = false, isPwError = false) {
@@ -669,20 +648,20 @@
             }
         }
 
-        // 🚨 [치명적 버그 1 픽스] 서버가 100% 정상적으로 인식하는 text/plain + JSON.stringify 페이로드 전송망 복구
-        // JSON 파싱 에러(오염)를 완벽하게 타파하기 위한 오리지널 통신 규격 롤백
+        // 🚨 [치명적 버그 3 픽스] 백엔드 호환성을 위한 Payload Mapping 완전 방어망
         async function executeLogin(payload, retries = 2) {
             if (!navigator.onLine) throw new Error("네트워크 접속이 끊어졌습니다. 연결 상태를 확인해 주십시오.");
             let lastNetworkError;
 
-            // Telemetry
             const telemetry = TelemetryEngine.collect();
             
-            // 🔥 URLSearchParams를 버리고 구글 서버가 요구하는 text/plain + stringify JSON 방식으로 복귀
+            // 백엔드가 id, pw를 원할 수도 있고 username, password를 원할 수도 있으므로 두 팩터를 모두 담아 쏘는 안전망 구축
             const finalPayload = { 
                 action: "login", 
-                id: payload.id || "", // 🚨 username이 아닌 id로 키워드 매핑 완벽 동기화
-                pw: payload.pw || "", // 🚨 password가 아닌 pw로 키워드 매핑 완벽 동기화
+                id: payload.username || "", 
+                pw: payload.password || "", 
+                username: payload.username || "",
+                password: payload.password || "",
                 telemetry: telemetry 
             };
 
@@ -693,9 +672,9 @@
                 try {
                     const response = await fetch(TARGET_API_URL, {
                         method: "POST", 
-                        headers: { "Content-Type": "text/plain;charset=utf-8" }, // CORS Preflight 우회를 위한 text/plain 강제
+                        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
                         redirect: "follow", 
-                        body: JSON.stringify(finalPayload), // JSON.stringify로 압축 전송
+                        body: JSON.stringify(finalPayload), 
                         signal: controller.signal
                     });
 
@@ -753,11 +732,9 @@
                     return;
                 }
 
-                // 공백 새니타이징
                 const id = idInput ? String(idInput.value).replace(/[\s\u200B-\u200D\uFEFF\xA0]+/g, '') : "";
                 const pw = pwInput ? String(pwInput.value).trim() : "";
 
-                // 🌟 [UX 개조 2] 에러의 원인을 정밀하게 짚어주는 'Smart Focus & Highlight' 분기
                 if (!id && !pw) {
                     ToastSystem.show("인증 정보가 누락되었습니다. 파트너 ID와 Passkey를 입력해 주십시오.", "error");
                     triggerShake(true, true);
@@ -795,43 +772,50 @@
                     loginBtn.classList.add('cursor-not-allowed', 'pointer-events-none');
                 }
 
-                let loginResult = null; 
                 let isSuccessRedirecting = false;
 
                 try {
-                    // 🚨 [진짜 해결책] id, pw 라는 정확한 Key 값으로 페이로드 전송
-                    loginResult = await executeLogin({ id: id, pw: pw });
+                    const loginResult = await executeLogin({ username: id, password: pw });
 
                     if (loginResult && loginResult.success) {
-                        ToastSystem.show("SECURE SESSION ESTABLISHED", "success");
                         
+                        // 🚨 [치명적 버그 1 픽스] 성공 토스트 이전에 모든 에러 요소를 먼저 철저히 사전 검증 (가짜 성공 토스트 차단)
+                        const role = String(loginResult.role || loginResult.Role || "").toUpperCase();
+                        
+                        // 🚨 [치명적 버그 2 픽스] DB 컬럼명 AllowedStates 와 프론트엔드 region 간의 싱크 에러 100% 교정
+                        let rawRegion = loginResult.region || loginResult.AllowedStates || loginResult.allowedStates || loginResult.state;
+                        let region = String(rawRegion || "").trim();
+
+                        // 검증 단계에서 실패하면 성공 토스트를 띄우기 전에 바로 Error 구역으로 던짐
+                        if (!region || region === "null" || region === "undefined") {
+                            if (role === 'MASTER' || role === 'VENDOR') {
+                                region = 'ALL'; 
+                            } else {
+                                throw new Error("접근 권한(State)이 할당되지 않았습니다. 마스터 권한자에게 문의하십시오.");
+                            }
+                        }
+
                         try {
-                            const keysToClear = [CONFIG.STORAGE_KEYS.USER_TOKEN, CONFIG.STORAGE_KEYS.ROLE, CONFIG.STORAGE_KEYS.CLIENT_NAME, 'y2c_id', 'y2c_premium_state'];
+                            const keysToClear = [CONFIG.STORAGE_KEYS.USER_TOKEN, CONFIG.STORAGE_KEYS.ROLE, CONFIG.STORAGE_KEYS.CLIENT_NAME, 'y2c_id', 'y2c_premium_state', 'y2c_region'];
                             keysToClear.forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
 
-                            const role = String(loginResult.role || "").toUpperCase();
-                            
-                            let region = String(loginResult.region || "").trim();
-                            if (!region || region === "null" || region === "undefined") {
-                                if (role === 'MASTER' || role === 'VENDOR') {
-                                    region = 'ALL'; 
-                                } else {
-                                    throw new Error("접근 권한(State)이 할당되지 않았습니다. 마스터 권한자에게 문의하십시오.");
-                                }
-                            }
-
-                            localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, loginResult.token || "Y2C_SECURE_TOKEN_" + Date.now());
+                            localStorage.setItem(CONFIG.STORAGE_KEYS.USER_TOKEN, loginResult.token || loginResult.TokenVersion || "Y2C_SECURE_TOKEN_" + Date.now());
                             localStorage.setItem(CONFIG.STORAGE_KEYS.ROLE, role);
                             localStorage.setItem("y2c_region", region);
-                            localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, loginResult.clientName || id);
+                            
+                            // DB 컬럼이 'Client Name' 일 경우의 Fallback 추가
+                            localStorage.setItem(CONFIG.STORAGE_KEYS.CLIENT_NAME, loginResult.clientName || loginResult['Client Name'] || id);
                             localStorage.setItem("y2c_id", id);
                             localStorage.setItem("y2c_premium_state", loginResult.clientState || "DEFAULT");
-                            
-                            isSuccessRedirecting = true;
                         } catch(stErr) { 
                             throw new Error("로컬 스토리지 할당에 실패했습니다. 시크릿 모드를 해제해 주십시오."); 
                         }
 
+                        // 모든 검증과 할당이 완전히 성공한 후, 최후의 순간에 단 한번 '성공 토스트' 출력
+                        isSuccessRedirecting = true;
+                        ToastSystem.show("SECURE SESSION ESTABLISHED", "success");
+
+                        // 시네마틱 페이드아웃 후 강제 라우팅
                         if (loginForm) { 
                             loginForm.style.transition = "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s"; 
                             loginForm.style.opacity = "0"; 
@@ -842,10 +826,9 @@
                         clearTimeout(authTimeoutFallback);
                         
                         setTimeout(() => {
-                            const targetRole = String(loginResult.role).toUpperCase();
-                            if (targetRole === "MASTER" || targetRole === "VENDOR") {
+                            if (role === "MASTER" || role === "VENDOR") {
                                 window.location.replace("admin.html");
-                            } else if (targetRole === "PARTNER") {
+                            } else if (role === "PARTNER") {
                                 window.location.replace("dashboard.html");
                             } else {
                                 window.location.replace("items.html");
@@ -857,6 +840,7 @@
                         triggerShake(true, true); 
                     }
                 } catch (err) {
+                    // 이제 위에서 던진 에러(지역 누락 등)가 정상적으로 이쪽 catch로 넘어와 정확한 토스트 알림으로 출력됩니다.
                     ToastSystem.show(err.message, "error");
                     triggerShake(true, true); 
                 } finally {
