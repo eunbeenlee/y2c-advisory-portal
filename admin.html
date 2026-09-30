@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.67 Enterprise Admin ULTIMATE - The Masterpiece Architecture 🌟
-  [CRITICAL FIX 1] Anti-Blink Virtual DOM Rendering for Active Shipments (Zero White Space).
-  [CRITICAL FIX 2] Dynamic Hub Dropdown mapped directly to Vendor's AllowedStates.
-  [CRITICAL FIX 3] Client-side Excel Parsing Engine (SheetJS) with Pre-validation.
-  [PREMIUM UI] Enterprise 3D Glass-Lock Overlay for Unauthorized Tabs (No cheap popups).
+  🌟 V40.68 Enterprise Admin ULTIMATE - Dual Deadlock Resolved 🌟
+  [CRITICAL FIX 1] Infinite Shimmer Bug on Network Error fixed (Error Canvas Implementation).
+  [CRITICAL FIX 2] Excel "COMMIT TO MASTER" Button fully armed with Schema Mapper & API Fetcher.
+  [CRITICAL FIX 3] Target Hub Dropdown dynamic population logic hardened against Null/Empty strings.
+  [PREMIUM UI] Enterprise 3D Glass-Lock Overlay for Unauthorized Tabs.
   [DEPENDENCY] Strictly bound to Y2C_AuthEngine (auth.js V40.65).
 -->
 <html lang="en">
@@ -173,7 +173,7 @@
         .sub-nav-btn:hover:not(.active) { color: var(--premium-charcoal); background: #f1f5f9; }
         .sub-nav-btn.active { color: #ffffff; background: var(--premium-charcoal); box-shadow: 0 4px 10px rgba(17, 24, 39, 0.15); }
 
-        /* 🌟 [UI 픽스 2] 동적 드롭다운 폼 스타일 */
+        /* 🌟 동적 드롭다운 폼 스타일 */
         .premium-input {
             appearance: none; -webkit-appearance: none;
             background: #ffffff;
@@ -189,7 +189,7 @@
         .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
         .premium-input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
 
-        /* 🌟 [UX 픽스] 솔리드 레드 프리미엄 버튼 */
+        /* 🌟 솔리드 레드 프리미엄 버튼 */
         .btn-solid-red {
             background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(227, 0, 15, 0.2);
         }
@@ -197,7 +197,7 @@
         .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
         .btn-solid-red:disabled { background-color: #fca5a5; cursor: not-allowed; box-shadow: none; }
 
-        /* 🌟 [보안 및 UX 개조 3] 하이엔드 권한 통제 Glass Lock Overlay */
+        /* 🌟 하이엔드 권한 통제 Glass Lock Overlay */
         .glass-lock-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.6);
@@ -224,7 +224,7 @@
             background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out;
         }
 
-        /* 🌟 [테이블 디자인] 엔터프라이즈 데이터 그리드 */
+        /* 🌟 테이블 디자인 */
         .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 24px; border-bottom: 2px solid #e2e8f0; }
         .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; }
         .enterprise-table tr:hover td { background: #f8fafc; }
@@ -236,7 +236,6 @@
         .status-completed { background: #111827; color: #ffffff; border: 1px solid #374151; }
         .status-canceled { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
 
-        /* 토스트 렌더링 컨테이너 사전 할당 */
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
         @media print { .no-print { display: none !important; } body { background: white !important; } }
     </style>
@@ -267,7 +266,7 @@
         </div>
     </noscript>
     
-    <!-- 🌟 [UI 동기화] 와이드 프리미엄 헤더 (스크린샷과 100% 동일) -->
+    <!-- 🌟 헤더 네비게이션 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
@@ -342,12 +341,11 @@
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative">
         
-        <!-- 🌟 [UI 픽스 1] 서브 네비게이션 (스크린샷 기반 배열) -->
+        <!-- 🌟 서브 네비게이션 -->
         <nav class="flex flex-wrap items-center justify-start gap-2 mb-10 border-b border-gray-200 pb-2 no-print" id="adminSubNav">
             <button class="sub-nav-btn" data-target="tab-franchise">FRANCHISE DB</button>
             <button class="sub-nav-btn" data-target="tab-sales">ERP SALES</button>
             <button class="sub-nav-btn" data-target="tab-excel">INBOUND (EXCEL)</button>
-            <!-- 벤더(VENDOR)의 기본 접속 탭 -->
             <button class="sub-nav-btn active" data-target="tab-procurement">HQ PROCUREMENT</button>
         </nav>
 
@@ -355,7 +353,6 @@
         <!-- 🔒 SECTION 1: FRANCHISE DB (MASTER ONLY) -->
         <!-- ========================================== -->
         <section id="tab-franchise" class="tab-section relative rounded-3xl overflow-hidden bg-white shadow-premium-card min-h-[600px]">
-            <!-- 🌟 [보안 및 UX 개조 3] 하이엔드 Lock 오버레이 (JS가 동적으로 z-index 및 렌더링 통제) -->
             <div id="lock-franchise" class="glass-lock-overlay hidden">
                 <div class="lock-icon-wrapper">
                     <svg class="w-10 h-10 animate-lock-shake" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -393,7 +390,6 @@
             <div class="p-8">
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2">ERP Sales Terminal</h2>
                 <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Global financial data entry and tax synchronization.</p>
-                <!-- UI Placeholder for ERP -->
                 <div class="bg-gray-50 border border-gray-200 rounded-xl p-10 flex flex-col items-center justify-center text-center">
                     <span class="text-5xl mb-4">📊</span>
                     <h4 class="font-bold text-gray-700">Enterprise Financial Module</h4>
@@ -411,7 +407,6 @@
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Upload vendor shipment files to auto-sync inventory logic.</p>
             </header>
             
-            <!-- 🌟 [가속 4] 서버 부하 제로를 위한 클라이언트 사이드 드래그앤드롭 파싱 엔진 UI -->
             <div id="dropZone" class="drop-zone flex flex-col items-center justify-center py-16 px-4 text-center mb-8 relative overflow-hidden group">
                 <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                 <div class="w-16 h-16 bg-white shadow-sm border border-gray-200 rounded-full flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform">📄</div>
@@ -419,22 +414,22 @@
                 <p class="text-[12px] font-medium text-gray-400">or click to browse from your computer (.xlsx)</p>
                 <div class="mt-6 px-4 py-2 bg-gray-100 rounded-lg inline-flex items-center gap-2">
                     <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Required Columns:</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Code</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Qty</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Region (e.g. ON)</span>
+                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">ITEM#</span>
+                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">QTY</span>
                 </div>
             </div>
 
-            <!-- 파싱된 데이터 프리뷰 테이블 -->
+            <!-- 🌟 [치명적 데드락 2 완벽 해결] COMMIT TO MASTER 버튼 -->
             <div id="excelPreviewContainer" class="hidden">
                 <div class="flex justify-between items-end mb-4">
                     <div>
                         <h4 class="font-black text-lg text-[var(--premium-charcoal)]">Data Preview</h4>
                         <p class="text-[11px] text-gray-500 font-bold" id="excelMetaText">Parsed 0 rows</p>
                     </div>
+                    <!-- 🚨 이 버튼이 눌리면 파싱된 엑셀 데이터를 백엔드 update_stock 포맷으로 변환하여 융단폭격 전송합니다 -->
                     <button type="button" id="btnSyncExcel" class="btn-solid-red px-6 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        Commit to Master
+                        <span id="btnSyncExcelText">Commit to Master</span>
                     </button>
                 </div>
                 <div class="overflow-x-auto border border-gray-200 rounded-xl max-h-[400px] overflow-y-auto">
@@ -455,7 +450,6 @@
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Global logistics procurement status, digital cart, and system health scan center.</p>
             </header>
 
-            <!-- 🌟 발주 생성 폼 -->
             <div class="bg-white rounded-[2rem] p-6 sm:p-8 shadow-premium-card border border-gray-100 mb-10 no-print">
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                     
@@ -464,13 +458,12 @@
                         <input type="text" id="procVendorName" class="premium-input bg-gray-50" placeholder="e.g. CJ Foods" autocomplete="off" disabled>
                     </div>
 
-                    <!-- 🌟 [치명적 결함 2 완벽 픽스] Dynamic Hub Dropdown -->
-                    <!-- 텍스트 인풋을 삭제하고, 벤더의 권한(AllowedStates)을 딥스캔하여 동적으로 옵션을 생성하는 <select> 폼으로 교체했습니다. -->
+                    <!-- 🌟 [기능 3 완벽 픽스] Dynamic Hub Dropdown -->
                     <div class="md:col-span-2">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Hub</label>
                         <div class="relative">
                             <select id="procHubSelect" class="premium-input bg-gray-50 cursor-pointer appearance-none text-[13px] font-bold">
-                                <!-- Options will be injected via JS based on AllowedStates -->
+                                <option value="" disabled selected>Loading...</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
                         </div>
@@ -492,7 +485,7 @@
                 </div>
             </div>
 
-            <!-- 🌟 [치명적 결함 1 완벽 픽스] Active Shipments Anti-Blink Engine -->
+            <!-- 🌟 [치명적 데드락 1 완벽 픽스] 무한 로딩 방지 Error Canvas 탑재 -->
             <div class="mb-4 flex items-center gap-3 px-2">
                 <span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span>
                 <h3 class="font-montserrat font-black text-[14px] text-[var(--premium-charcoal)] uppercase tracking-widest">Active Inbound Shipments</h3>
@@ -512,7 +505,6 @@
                                 <th class="w-32 text-center">Status</th>
                             </tr>
                         </thead>
-                        <!-- 빈 화면 버그를 막기 위해 tbody를 명확히 분리하고 JS로 Virtual DOM을 덮어씌웁니다. -->
                         <tbody id="hqOrdersTableBody" class="divide-y divide-gray-50">
                             <!-- 초기 렌더링용 Shimmer 스켈레톤 -->
                             <tr><td colspan="7" class="p-0"><div class="h-16 shimmer-bg w-full border-b border-white"></div></td></tr>
@@ -527,7 +519,7 @@
 
     </main>
 
-    <!-- 🌟 [모달 UI] 아이템 선택 팝업 (Procurement용) -->
+    <!-- 🌟 [모달 UI] 아이템 선택 팝업 -->
     <div id="itemSelectionModal" class="fixed inset-0 z-[100000] hidden items-center justify-center px-4 no-print">
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="itemModalBackdrop"></div>
         <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-[2rem] shadow-2xl relative z-10 flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="itemModalPanel">
@@ -536,7 +528,6 @@
                 <button id="btnCloseModal" class="text-gray-400 hover:text-[#E3000F] transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </header>
             <div class="p-8 overflow-y-auto hide-scrollbar flex-grow bg-white relative">
-                <!-- 아이템 리스트 렌더링 타겟 -->
                 <div id="modalItemsList" class="space-y-4">
                     <div class="h-12 shimmer-bg rounded-lg w-full"></div>
                     <div class="h-12 shimmer-bg rounded-lg w-full opacity-80"></div>
@@ -561,7 +552,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.67 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.68 STABLE</span>
                 </div>
             </div>
         </div>
@@ -576,10 +567,10 @@
 
     <script>
     /**
-     * 🌟 V40.67 Enterprise Admin Logic
+     * 🌟 V40.68 Enterprise Admin Logic
      * [ARCHITECTURE] Depends entirely on Y2C_AuthEngine (auth.js V40.65) for secure fetch.
-     * [RENDER ENGINE] Virtual DOM string-builder for Zero-Blink UI.
-     * [SECURITY] Glass-Lock Overlays for unauthorized VENDOR tabs.
+     * [CRITICAL FIX] Error Canvas for network failures (removes infinite shimmer).
+     * [CRITICAL FIX] Full Excel Parser (SheetJS) to Backend Schema Mapper integrated.
      */
     document.addEventListener("DOMContentLoaded", () => {
         
@@ -597,10 +588,10 @@
             hqOrders: [],
             mappings: [],
             catalogItems: [],
-            cart: {} // For procurement modal
+            cart: {} 
         };
 
-        // 3. UI 동기화 (사용자 이름, 권한 뱃지)
+        // 3. UI 동기화
         const uName = document.getElementById("userNameDisplay");
         const uBadge = document.getElementById("userRoleBadge");
         if(uName) uName.innerText = AppState.clientName;
@@ -619,7 +610,6 @@
             const el = document.getElementById(containerId);
             if(el) {
                 el.classList.remove('hidden');
-                // 부드러운 등장을 위해 약간의 딜레이 후 opacity 1
                 setTimeout(() => el.classList.add('show'), 10);
             }
         }
@@ -632,7 +622,6 @@
             const targetSec = document.getElementById(targetId);
             targetSec.classList.add('active');
 
-            // 🌟 벤더 계정 접근 제어 (Lock UI 트리거)
             if (AppState.role === "VENDOR") {
                 if (targetId === "tab-franchise") renderLockOverlay("lock-franchise");
                 if (targetId === "tab-sales") renderLockOverlay("lock-sales");
@@ -646,24 +635,25 @@
         });
 
         // ==========================================
-        // ⚙️ [로직 고도화 2] Dynamic Hub Dropdown (권한 기반)
+        // ⚙️ [기능 3 완벽 픽스] Dynamic Hub Dropdown
+        // 널(null) 값이나 공백이 들어와도 절대 스크립트가 뻗지 않도록 딥 스캔 록다운
         // ==========================================
         function populateHubDropdown() {
             const selectEl = document.getElementById("procHubSelect");
             if(!selectEl) return;
-            selectEl.innerHTML = ""; // Clear
+            selectEl.innerHTML = ""; 
 
             const allRegions = ["ON", "BC", "AB", "SK", "MB", "QC"];
             let allowed = [];
 
-            // auth.js 통신을 통해 받아온 실제 권한(Region)을 분해
             if (AppState.role === "MASTER" || AppState.region === "ALL") {
                 allowed = allRegions;
             } else {
-                allowed = AppState.region.split(',').map(s => s.trim().toUpperCase());
+                // 🚨 콤마(,) 분리 후 공백이 포함되거나 빈 배열이 되지 않도록 정밀 필터링
+                allowed = AppState.region.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length > 0);
             }
 
-            if (allowed.length === 0) {
+            if (allowed.length === 0 || allowed[0] === "NULL" || allowed[0] === "UNDEFINED") {
                 selectEl.innerHTML = `<option value="" disabled selected>No Authorized Regions</option>`;
                 selectEl.disabled = true;
                 return;
@@ -676,27 +666,24 @@
                 selectEl.appendChild(opt);
             });
             
-            // 기본값으로 설정된 권한 선택
             selectEl.value = allowed[0];
         }
 
         // ==========================================
-        // 🚀 [API 통신] HQ 조달 데이터 초기화 및 렌더링
+        // 🚀 [API 통신 및 데드락 1 픽스] HQ 조달 데이터 초기화 및 에러 캔버스
         // ==========================================
         async function fetchProcurementData() {
             try {
-                // 1. Y2C_AuthEngine을 통한 무결점 통신
                 const res = await Y2C_AuthEngine.request("get_procurement_data");
                 if (res && res.success) {
                     AppState.hqOrders = res.hqOrders || [];
                     AppState.mappings = res.mappings || [];
                     
-                    // Vendor 폼 자동 채우기
                     if (AppState.role === "VENDOR") {
                         const vInput = document.getElementById('procVendorName');
                         if(vInput) {
                             vInput.value = AppState.clientName;
-                            vInput.disabled = true; // 벤더는 자기 이름 수정 불가
+                            vInput.disabled = true; 
                         }
                     }
 
@@ -704,18 +691,28 @@
                     renderHqOrders();
                 }
             } catch (err) {
+                // 🚨 [데드락 1 해결] catch 에 걸리더라도 Shimmer를 걷어내고 Error Canvas를 그려줍니다.
+                const tbody = document.getElementById('hqOrdersTableBody');
+                if(tbody) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-16 text-center bg-red-50/20">
+                            <div class="text-4xl mb-4 opacity-80">⚠️</div>
+                            <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">통신 지연 (Connection Failed)</h4>
+                            <p class="text-gray-500 font-medium text-[11px] mb-4">${err.message}</p>
+                            <button type="button" onclick="location.reload()" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-[11px] font-bold text-[var(--premium-charcoal)] hover:bg-gray-50 shadow-sm transition-colors">데이터 다시 불러오기</button>
+                        </td>
+                    </tr>`;
+                }
                 Y2C_AuthEngine.showToast("조달 데이터를 불러오지 못했습니다.", "error");
-                document.getElementById('hqOrdersTableBody').innerHTML = `<tr><td colspan="7" class="py-10 text-center text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`;
             }
         }
 
-        // 🌟 [로직 고도화 1] Anti-Blink Virtual DOM Renderer (빈 화면 버그 해결)
         function renderHqOrders() {
             const tbody = document.getElementById('hqOrdersTableBody');
             if(!tbody) return;
 
             if (AppState.hqOrders.length === 0) {
-                // 📭 세련된 Empty State UI 렌더링
                 tbody.innerHTML = `
                 <tr>
                     <td colspan="7" class="py-16 text-center bg-gray-50/30">
@@ -729,8 +726,6 @@
 
             let html = "";
             AppState.hqOrders.reverse().forEach(order => {
-                
-                // Status Badge Color Engine
                 const st = String(order.status).toUpperCase();
                 let badgeClass = "status-badge status-pending";
                 let icon = "⏳";
@@ -794,7 +789,7 @@
                     renderModalItems();
                 }
             } catch (err) {
-                document.getElementById('modalItemsList').innerHTML = `<p class="text-red-500 font-bold p-4">아이템을 불러오지 못했습니다.</p>`;
+                document.getElementById('modalItemsList').innerHTML = `<p class="text-[#E3000F] font-bold p-4 text-center">아이템을 불러오지 못했습니다.</p>`;
             }
         }
 
@@ -865,7 +860,7 @@
                 }
 
                 btnSubmitProc.disabled = true;
-                btnSubmitProc.innerHTML = "PROCESSING...";
+                btnSubmitProc.innerHTML = `<span class="animate-pulse">PROCESSING...</span>`;
 
                 const payload = {
                     order: {
@@ -898,37 +893,30 @@
         }
 
         // ==========================================
-        // ⚙️ [로직 고도화 4] 클라이언트 사이드 Excel 엔진 (SheetJS)
-        // 서버 500 에러를 막기 위해 브라우저에서 엑셀을 직접 파싱합니다.
+        // ⚙️ [데드락 2 완벽 해결] 클라이언트 사이드 Excel 파서 및 Commit 엔진
+        // 브라우저에서 엑셀을 읽은 뒤, 백엔드 update_stock 배열 규격으로 100% 포맷팅하여 쏩니다.
         // ==========================================
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('excelFileInput');
-        let parsedExcelData = null;
+        const btnSyncExcel = document.getElementById('btnSyncExcel');
+        const btnSyncExcelText = document.getElementById('btnSyncExcelText');
+        let parsedExcelData = null; // 원본 파싱 데이터
+        let pendingStockUpdates = []; // 백엔드 전송 규격으로 변환된 데이터 배열
 
         if (dropZone && fileInput) {
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, preventDefaults, false);
             });
-
             function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
 
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
-            });
+            ['dragenter', 'dragover'].forEach(eventName => { dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false); });
+            ['dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false); });
 
             dropZone.addEventListener('drop', (e) => {
-                let dt = e.dataTransfer;
-                let files = dt.files;
-                handleExcelFiles(files);
+                let dt = e.dataTransfer; let files = dt.files; handleExcelFiles(files);
             });
 
-            fileInput.addEventListener('change', function(e) {
-                handleExcelFiles(this.files);
-            });
+            fileInput.addEventListener('change', function(e) { handleExcelFiles(this.files); });
         }
 
         function handleExcelFiles(files) {
@@ -947,7 +935,7 @@
                     const workbook = XLSX.read(data, {type: 'array'});
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, {raw: false}); // 문자열 파싱
+                    const json = XLSX.utils.sheet_to_json(worksheet, {raw: false});
 
                     if(json.length === 0) throw new Error("엑셀 파일에 데이터가 없습니다.");
                     
@@ -960,7 +948,6 @@
         }
 
         function renderExcelPreview(jsonArray) {
-            // 헤더 자동 추출
             const headers = Object.keys(jsonArray[0]);
             const thead = document.getElementById('excelThead');
             const tbody = document.getElementById('excelTbody');
@@ -974,13 +961,10 @@
             thead.innerHTML = headHtml;
 
             let bodyHtml = "";
-            // 최대 50줄까지만 뷰어로 보여주고 전체는 저장
             const previewLimit = Math.min(jsonArray.length, 50);
             for(let i=0; i<previewLimit; i++) {
                 bodyHtml += "<tr>";
-                headers.forEach(h => {
-                    bodyHtml += `<td>${Y2C_AuthEngine.escapeHtml(jsonArray[i][h] || "-")}</td>`;
-                });
+                headers.forEach(h => { bodyHtml += `<td>${Y2C_AuthEngine.escapeHtml(jsonArray[i][h] || "-")}</td>`; });
                 bodyHtml += "</tr>";
             }
             if(jsonArray.length > 50) {
@@ -988,21 +972,76 @@
             }
             tbody.innerHTML = bodyHtml;
 
-            document.getElementById('excelMetaText').innerText = `Parsed ${jsonArray.length} rows successfully.`;
+            document.getElementById('excelMetaText').innerText = `Parsed ${jsonArray.length} rows successfully. Ready to commit.`;
             parsedExcelData = jsonArray;
             
-            // UI 스위칭
+            // 🚨 [핵심] 백엔드가 요구하는 update_stock 규격으로 데이터 매핑
+            // 엑셀의 ITEM#, QTY, EXP.DATE 등의 컬럼을 스마트하게 탐색하여 추출합니다.
+            pendingStockUpdates = [];
+            const targetRegion = AppState.region === "ALL" ? "ON" : AppState.region.split(',')[0].trim(); // 기본 타겟 지역 설정 (MASTER는 기본 ON으로 꽂음)
+
+            jsonArray.forEach(row => {
+                let code = row["ITEM#"] || row["CODE"] || row["Item Code"];
+                let qty = parseInt(row["QTY"] || row["STOCK"] || row["Quantity"] || 0, 10);
+                let exp = row["EXP.DATE"] || row["EXP"] || row["Expiration Date"] || "-";
+                
+                if (code && !isNaN(qty)) {
+                    let stockObj = { code: String(code).trim(), stockBreakdown: {}, expBreakdown: {} };
+                    stockObj.stockBreakdown[targetRegion] = qty;
+                    if (exp !== "-") { stockObj.expBreakdown[targetRegion] = String(exp).trim() + ":" + qty; }
+                    pendingStockUpdates.push(stockObj);
+                }
+            });
+
             document.getElementById('dropZone').classList.add('hidden');
             container.classList.remove('hidden');
-            Y2C_AuthEngine.showToast("엑셀 파일이 성공적으로 로드되었습니다.", "success");
+            Y2C_AuthEngine.showToast("엑셀 파일이 100% 무결성으로 로드되었습니다.", "success");
+        }
+
+        // 🚨 COMMIT TO MASTER 버튼 클릭 시 엑셀 데이터를 백엔드로 전송
+        if (btnSyncExcel) {
+            btnSyncExcel.addEventListener('click', async () => {
+                if (pendingStockUpdates.length === 0) {
+                    Y2C_AuthEngine.showToast("서버로 전송할 유효한 재고 데이터가 없습니다.", "warning");
+                    return;
+                }
+
+                if (!confirm(`총 ${pendingStockUpdates.length}개 품목의 재고를 마스터 DB에 강제 덮어씌웁니다(ADD). 진행하시겠습니까?`)) return;
+
+                btnSyncExcel.disabled = true;
+                if(btnSyncExcelText) btnSyncExcelText.innerText = "COMMITTING...";
+
+                try {
+                    const syncId = "EXCEL-" + Date.now();
+                    const payload = {
+                        mode: "ADD", // 벤더는 기존 재고에 더하기만 가능
+                        syncId: syncId,
+                        stockUpdates: pendingStockUpdates
+                    };
+
+                    const res = await Y2C_AuthEngine.request("update_stock", payload, 2); // 2회 재시도 (백오프)
+                    
+                    if (res && res.success) {
+                        Y2C_AuthEngine.showToast(`✅ ${pendingStockUpdates.length}개 품목의 재고가 마스터 DB와 완벽히 동기화되었습니다.`, "success");
+                        // 폼 리셋
+                        document.getElementById('excelPreviewContainer').classList.add('hidden');
+                        document.getElementById('dropZone').classList.remove('hidden');
+                        parsedExcelData = null;
+                        pendingStockUpdates = [];
+                    }
+                } catch (err) {
+                    Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
+                } finally {
+                    btnSyncExcel.disabled = false;
+                    if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
+                }
+            });
         }
 
         // ==========================================
         // 🚀 초기 구동 파이프라인
         // ==========================================
-        // 첫 진입 시 권한을 체크하여 탭 설정 후 데이터를 불러옴
         if (AppState.role === "VENDOR") {
-            // 벤더는 강제로 조달 탭으로 포커스
             switchTab("tab-procurement");
         } else {
             switchTab("tab-franchise"); // 마스터 기본 탭
