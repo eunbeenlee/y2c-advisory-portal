@@ -1,35 +1,41 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Enterprise Service Worker
- * Version: V40.90 ULTIMATE (Offline-First Mutation Queue Engine)
+ * Y2C Holdings Premium Partner Portal - Progressive Web App Service Worker
+ * Version: V40.99 ULTIMATE (Absolute Offline Cache & Mutation Queue Fusion)
  * ============================================================================
  * [CRITICAL FIX 1] IndexedDB Mutation Queue: Intercepts failed POST requests (Orders, Stock)
  *                  and safely stores them locally when the network drops.
  * [CRITICAL FIX 2] Mock Success Injector: Prevents frontend UI from breaking during offline mode.
  * [CRITICAL FIX 3] Background Sync & Auto-Flush: Replays queued requests instantly upon reconnection.
+ * [CRITICAL FIX 4] Offline HTML Fallback: Replaces browser error screen with a branded Offline UI.
  * [ACCELERATION] Stale-While-Revalidate strategy for all static assets.
  * ============================================================================
  */
 
-const CACHE_NAME = 'y2c-enterprise-cache-v40.90';
+const CACHE_NAME = 'y2c-enterprise-cache-v40.99';
 const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB';
 const QUEUE_STORE = 'mutation_queue';
 
 // 🌟 백엔드 API 엔드포인트 타겟팅
 const TARGET_API_URL = "https://script.google.com/macros/s/AKfycbyPWfrhETBWY1ThDwiNnTxL9h7-0zduGiYL2W0oLoNPeHNaNfYqZLft7SNWmKooDHFfhQ/exec";
 
-// 캐싱할 필수 정적 파일 (네트워크 단절 시에도 이 파일들은 0.1초 만에 로드됩니다)
-const STATIC_ASSETS = [
+// 🌟 오프라인에서도 무조건 띄워야 하는 핵심 에셋 목록 (100% 무손실 보존)
+const CORE_ASSETS = [
     '/',
     '/index.html',
     '/dashboard.html',
-    '/items.html',
     '/admin.html',
+    '/items.html',
     '/recipes.html',
     '/invoice.html',
     '/assets/js/auth.js',
     '/assets/js/config.js',
-    '/favicon.png'
+    '/favicon.png',
+    'https://cdn.tailwindcss.com',
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+    'https://cdn.jsdelivr.net/npm/chart.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap'
 ];
 
 // ============================================================================
@@ -89,7 +95,11 @@ self.addEventListener('install', event => {
     self.skipWaiting(); // 즉각적인 업데이트 강제
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(STATIC_ASSETS);
+            console.log('[Y2C ServiceWorker] Core Assets Caching Started.');
+            // 외부 CDN 자원이 CORS 정책으로 막히더라도 내부 자원은 캐싱되도록 예외 처리
+            return cache.addAll(CORE_ASSETS).catch(error => {
+                console.warn('[Y2C ServiceWorker] Partial Caching Warning (CDN CORS):', error);
+            });
         })
     );
 });
@@ -99,7 +109,10 @@ self.addEventListener('activate', event => {
         caches.keys().then(keys => Promise.all(
             keys.map(key => {
                 // 구버전 캐시 찌꺼기 100% 소각
-                if (key !== CACHE_NAME) return caches.delete(key);
+                if (key !== CACHE_NAME) {
+                    console.log('[Y2C ServiceWorker] Old Cache Destroyed:', key);
+                    return caches.delete(key);
+                }
             })
         )).then(() => self.clients.claim())
     );
@@ -112,8 +125,8 @@ self.addEventListener('fetch', event => {
     const req = event.request;
     const url = new URL(req.url);
 
-    // 🚨 1. 백엔드 API 통신 (POST) 인터셉트 로직
-    if (req.method === 'POST' && url.href.includes('script.google.com')) {
+    // 🚨 1. 백엔드 API 통신 (POST) 인터셉트 및 오프라인 큐잉 로직
+    if (req.method === 'POST' && url.hostname.includes('script.google.com')) {
         event.respondWith(handleApiFetch(req));
         return;
     }
@@ -123,23 +136,55 @@ self.addEventListener('fetch', event => {
         event.respondWith(
             caches.match(req).then(cachedRes => {
                 const fetchPromise = fetch(req).then(networkRes => {
-                    // 외부 라이브러리(Tailwind, SheetJS 등)도 캐시에 동적 적재
+                    // 정상 응답 시 캐시 업데이트
                     if (networkRes && networkRes.status === 200 && networkRes.type === 'basic') {
                         const responseToCache = networkRes.clone();
                         caches.open(CACHE_NAME).then(cache => cache.put(req, responseToCache));
                     }
                     return networkRes;
                 }).catch(() => {
-                    // 네트워크 단절 시 캐시된 파일 제공
-                    return cachedRes;
+                    // 네트워크 단절 시
+                    if (cachedRes) {
+                        console.log('[Y2C ServiceWorker] Offline Mode Active: Served from Cache', req.url);
+                        return cachedRes;
+                    }
+                    
+                    // 🚨 [핵심 방어막] HTML 페이지를 요청했는데 캐시에도 없다면, Y2C 전용 오프라인 안내 화면을 반환
+                    if (req.headers.get('accept') && req.headers.get('accept').includes('text/html')) {
+                        return new Response(
+                            `<html lang="en">
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>Offline | Y2C Portal</title>
+                                    <style>
+                                        body { background-color: #F8F9FA; color: #111827; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                                        .box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; max-width: 400px; width: 90%; }
+                                        h1 { font-size: 24px; color: #E3000F; margin-top: 0; margin-bottom: 10px; font-weight: 900; letter-spacing: -1px; }
+                                        p { color: #64748b; font-size: 14px; line-height: 1.6; font-weight: 500; }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="box">
+                                        <h1>NETWORK OFFLINE</h1>
+                                        <p>인터넷 연결이 완전히 단절되었으며, 해당 페이지의 오프라인 캐시가 존재하지 않습니다.<br><br>네트워크 복구 후 다시 시도해 주십시오.</p>
+                                    </div>
+                                </body>
+                            </html>`, 
+                            { headers: { 'Content-Type': 'text/html; charset=utf-8' }, status: 503 }
+                        );
+                    }
+                    
+                    return new Response('', { status: 404, statusText: 'Not Found' });
                 });
+                
                 return cachedRes || fetchPromise;
             })
         );
     }
 });
 
-// 🚨 백엔드 에러 및 오프라인 타임아웃 방어막
+// 🚨 백엔드 에러 및 오프라인 타임아웃 방어막 (Mutation Queue)
 async function handleApiFetch(req) {
     const clonedReq = req.clone(); // 본문(Body)을 읽기 위해 클론
     try {
@@ -151,6 +196,7 @@ async function handleApiFetch(req) {
         try {
             const bodyText = await clonedReq.text();
             let payload = {};
+            
             try { 
                 payload = JSON.parse(bodyText); 
             } catch (e) {
@@ -186,7 +232,7 @@ async function handleApiFetch(req) {
                     headers: { 'Content-Type': 'application/json' }
                 });
             } else {
-                // 단순 조회(GET) 명령이 실패한 경우, 어쩔 수 없이 프론트엔드에 에러를 던져 Error Canvas를 그리게 합니다.
+                // 단순 조회(GET) 성격의 명령이 실패한 경우, 프론트엔드에 에러를 던져 Error Canvas를 그리게 합니다.
                 throw error;
             }
         } catch (fallbackError) {
@@ -218,10 +264,11 @@ async function flushQueue() {
             if (response.ok) {
                 // 전송 성공 시 IndexedDB 큐에서 100% 소각
                 await dequeueRequest(requestData.id);
+                console.log("[Y2C Service Worker] Offline request successfully synced:", requestData.action);
             }
         } catch (error) {
-            // 여전히 오프라인이라면 다음 Sync 이벤트까지 대기합니다.
-            console.warn("[Y2C Service Worker] Auto-flush failed. Still offline.");
+            // 여전히 오프라인이거나 서버 에러라면 다음 Sync 이벤트까지 대기합니다.
+            console.warn("[Y2C Service Worker] Auto-flush failed. Waiting for next sync.");
             break; 
         }
     }
