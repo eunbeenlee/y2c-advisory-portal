@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.85 Enterprise Admin ULTIMATE - The Quad-Core Integration Masterpiece 🌟
-  [CRITICAL FIX 1] Restored Franchise DB: Master data infinite rendering and save logic fully integrated with `auth.js`.
-  [CRITICAL FIX 2] Restored ERP Sales: Financial ledger inputs, KPIs, and save logic flawlessly restored.
-  [CRITICAL FIX 3] AI Auto-Mapper: Deep NLP fuzzy matching for Excel vendor names intact.
-  [PREMIUM UI] Enterprise 3D Glass-Lock Overlay for Unauthorized Tabs.
-  [DEPENDENCY] Strictly bound to Y2C_AuthEngine (auth.js V40.65+).
+  🌟 V41.10 Enterprise Admin ULTIMATE - Vendor Price Override & Tracking Fusion 🌟
+  [CRITICAL FIX 1] Excel AI Auto-Mapper: Now scans and dynamically extracts "Price/단가" columns.
+  [CRITICAL FIX 2] Price Change Detection UI: Visually warns if the uploaded vendor price differs from Master DB.
+  [CRITICAL FIX 3] Payload Injection: Injects `newPrice` into the `update_stock` payload for backend dynamic routing.
+  [RESTORED] Franchise DB, ERP Sales, and HQ Procurement engines 100% preserved.
 -->
 <html lang="en">
 <head>
@@ -163,7 +162,7 @@
 
 <body id="mainBody" class="flex flex-col min-h-screen selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
-    <!-- 🚨 1단계: 보안 축출 (Pre-routing) -->
+    <!-- 🚨 보안 축출 (Pre-routing) -->
     <script>
         (function() {
             var _inlineRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
@@ -257,7 +256,7 @@
         </nav>
 
         <!-- ========================================== -->
-        <!-- 🔒 SECTION 1: FRANCHISE DB (RESTORED) -->
+        <!-- 🔒 SECTION 1: FRANCHISE DB -->
         <!-- ========================================== -->
         <section id="tab-franchise" class="tab-section active relative rounded-3xl overflow-hidden bg-white shadow-premium-card min-h-[600px]">
             <div id="lock-franchise" class="glass-lock-overlay hidden">
@@ -283,7 +282,7 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- 🔒 SECTION 2: ERP SALES (RESTORED) -->
+        <!-- 🔒 SECTION 2: ERP SALES -->
         <!-- ========================================== -->
         <section id="tab-sales" class="tab-section relative rounded-3xl overflow-hidden bg-white shadow-premium-card min-h-[600px]">
             <div id="lock-sales" class="glass-lock-overlay hidden">
@@ -298,7 +297,6 @@
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2"><span class="opacity-80">📊</span> ERP Sales Terminal</h2>
                 <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Global financial data entry and tax synchronization.</p>
                 
-                <!-- Sales Controller -->
                 <div class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-50 p-6 rounded-[1.5rem] border border-gray-200">
                     <div class="w-full md:w-48">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
@@ -315,7 +313,6 @@
                     </div>
                 </div>
 
-                <!-- KPI Board -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                         <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Sales</span>
@@ -331,7 +328,6 @@
                     </div>
                 </div>
 
-                <!-- Ledger Grid -->
                 <div class="overflow-x-auto border border-gray-200 rounded-xl mb-6">
                     <table class="w-full text-left enterprise-table" id="salesTable">
                         <thead><tr><th>Month</th><th class="text-center w-40">POS Sales</th><th class="text-center w-40">Delivery Sales</th><th class="text-right">Total</th><th class="text-center">Status</th></tr></thead>
@@ -348,12 +344,12 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- 📦 SECTION 3: INBOUND (EXCEL) - ADVANCED AI MAPPING ENGINE -->
+        <!-- 📦 SECTION 3: INBOUND (EXCEL) - PRICE TRACKER -->
         <!-- ========================================== -->
         <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-8 relative">
             <header class="mb-8">
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3"><span class="opacity-80">📥</span> Mass Inbound (Excel)</h2>
-                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Upload vendor shipment files to auto-sync inventory logic.</p>
+                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Upload vendor files. Auto-tracks price overrides & promotions.</p>
             </header>
             
             <div class="mb-6 flex flex-col md:flex-row gap-4 items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm relative z-20">
@@ -367,7 +363,7 @@
                 <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                 <div class="w-16 h-16 bg-white shadow-sm border border-gray-200 rounded-full flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform">📄</div>
                 <h3 class="font-bold text-[15px] text-[var(--premium-charcoal)] mb-1">2. Drag & Drop Excel File</h3>
-                <p class="text-[12px] font-medium text-gray-400">or click to browse from your computer (.xlsx)</p>
+                <p class="text-[12px] font-medium text-gray-400">Auto-detects Item, QTY, EXP, and Price columns (.xlsx)</p>
             </div>
 
             <div id="excelPreviewContainer" class="hidden">
@@ -387,12 +383,12 @@
                     <table class="w-full text-left enterprise-table" id="excelTable">
                         <thead class="sticky top-0 bg-[#f8fafc] z-10" id="excelThead">
                             <tr>
-                                <th class="w-28 text-center border-r border-gray-200">Status</th>
+                                <th class="w-24 text-center border-r border-gray-200">Status</th>
                                 <th class="w-64 border-r border-gray-200">HQ Master Code</th>
-                                <th class="w-32">Vendor Code</th>
                                 <th class="w-64">Product Name</th>
+                                <th class="w-32 text-center">Unit Price (CAD)</th>
                                 <th class="w-32 text-center">Exp. Date</th>
-                                <th class="w-24 text-center">Qty</th>
+                                <th class="w-24 text-center text-[#E3000F]">Inbound Qty</th>
                             </tr>
                         </thead>
                         <tbody id="excelTbody" class="divide-y divide-gray-50"></tbody>
@@ -402,7 +398,7 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- 🌐 SECTION 4: HQ PROCUREMENT (DEFAULT FOR VENDOR) -->
+        <!-- 🌐 SECTION 4: HQ PROCUREMENT -->
         <!-- ========================================== -->
         <section id="tab-procurement" class="tab-section">
             <header class="mb-8">
@@ -508,7 +504,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.85 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V41.10 STABLE</span>
                 </div>
             </div>
         </div>
@@ -522,10 +518,10 @@
 
     <script>
     /**
-     * 🌟 V40.85 Enterprise Admin Quad-Core Integration Logic
-     * [CORE 1] Restored Franchise DB Manager (Master Only)
-     * [CORE 2] Restored ERP Sales Terminal (Master Only)
-     * [CORE 3] AI Auto-Mapper Excel Engine (Inbound Excel)
+     * 🌟 V41.10 Enterprise Admin Quad-Core Integration Logic
+     * [CORE 1] Franchise DB Manager (Master Only)
+     * [CORE 2] ERP Sales Terminal (Master Only)
+     * [CORE 3] AI Auto-Mapper & PRICE TRACKER Excel Engine
      * [CORE 4] Procurement Console (Global Logistics)
      */
     document.addEventListener("DOMContentLoaded", () => {
@@ -541,7 +537,7 @@
             hqOrders: [],
             mappings: [], 
             catalogItems: [], 
-            cachedClients: [], // Franchise DB용 캐시
+            cachedClients: [], 
             cart: {},
             isSubmitting: false
         };
@@ -579,9 +575,7 @@
             }
         }
 
-        btns.forEach(btn => {
-            btn.addEventListener('click', (e) => { switchTab(e.target.getAttribute('data-target')); });
-        });
+        btns.forEach(btn => { btn.addEventListener('click', (e) => { switchTab(e.target.getAttribute('data-target')); }); });
 
         // ==========================================
         // ⚙️ Synchronous Hub Dropdown
@@ -636,7 +630,7 @@
                 if (res && res.success) {
                     AppState.cachedClients = res.clients || [];
                     renderMasterDataFast();
-                    populateSalesClientSelector(); // ERP 콤보박스 채우기
+                    populateSalesClientSelector();
                 }
             } catch (err) {
                 tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`;
@@ -850,7 +844,7 @@
                 const res = await Y2C_AuthEngine.request("save_sales_records", payload);
                 if (res && res.success) {
                     Y2C_AuthEngine.showToast("매출 데이터가 완벽히 동기화되었습니다.", "success");
-                    loadSalesGrid(); // Re-render to show SAVED badges
+                    loadSalesGrid();
                 }
             } catch (err) {
                 Y2C_AuthEngine.showToast(err.message, "error");
@@ -862,7 +856,7 @@
         };
 
         // ==========================================
-        // 🚀 [CORE 3 & 4] 조달, 아이템 데이터 및 엑셀 치환 엔진 초기화
+        // 🚀 [CORE 3 & 4] 조달, 아이템 데이터 및 VENDOR PRICE TRACKER 엔진
         // ==========================================
         async function fetchInitialData() {
             try {
@@ -1037,12 +1031,10 @@
         }
 
         // ==========================================
-        // 🤖 [CORE 3] 지능형 엑셀 파서 및 치환 엔진 (Advanced Auto-Mapper)
+        // 🤖 [CORE 3] 지능형 엑셀 파서 & PRICE TRACKER 엔진
         // ==========================================
         const AdvancedAutoMapper = {
-            normalize: function(str) {
-                return String(str).toLowerCase().replace(/[\s\(\)\[\]\-_]/g, '').replace(/신전떡볶이|신전|냉동/g, '');
-            },
+            normalize: function(str) { return String(str).toLowerCase().replace(/[\s\(\)\[\]\-_]/g, '').replace(/신전떡볶이|신전|냉동/g, ''); },
             extractCoreKeywords: function(name) {
                 const keywords = [];
                 if (name.includes('순한')) keywords.push('순한');
@@ -1179,6 +1171,7 @@
             reader.readAsArrayBuffer(file);
         }
 
+        // 🚨 [CRITICAL FIX 1] 엑셀에서 단가(Price) 자동 추출 
         function processAndMapExcelData(jsonArray) {
             let aggregatedData = {}; 
             
@@ -1187,6 +1180,7 @@
                 const qtyKey = findBestKey(row, ['QTY', 'QUANTITY', '수량', 'STOCK']);
                 const expKey = findBestKey(row, ['EXP', '유통기한', 'DATE']);
                 const nameKey = findBestKey(row, ['PRODUCT', 'NAME', '품명', '제품']);
+                const priceKey = findBestKey(row, ['PRICE', 'UNITPRICE', '단가', '가격', 'COST']); // 가격 파싱 추가
 
                 let rawCode = codeKey ? String(row[codeKey]).trim().toUpperCase() : "";
                 let qtyStr = qtyKey ? String(row[qtyKey]).replace(/[^0-9]/g, '') : "0";
@@ -1194,13 +1188,16 @@
                 let rawExp = expKey ? row[expKey] : "-";
                 let exp = normalizeExcelDate(rawExp);
                 let rawName = nameKey ? String(row[nameKey]).trim() : "";
+                let rawPrice = priceKey ? parseFloat(String(row[priceKey]).replace(/[^0-9.]/g, '')) : null;
 
                 if (rawCode && !isNaN(qty) && qty > 0) {
                     let aggKey = rawCode + '|' + exp;
                     if (!aggregatedData[aggKey]) {
-                        aggregatedData[aggKey] = { rawCode: rawCode, rawName: rawName, exp: exp, qty: 0 };
+                        aggregatedData[aggKey] = { rawCode: rawCode, rawName: rawName, exp: exp, qty: 0, price: rawPrice };
                     }
                     aggregatedData[aggKey].qty += qty;
+                    // 최신 단가 덮어쓰기
+                    if(rawPrice !== null && !isNaN(rawPrice)) aggregatedData[aggKey].price = rawPrice;
                 }
             });
 
@@ -1223,7 +1220,7 @@
                 }
 
                 displayRows.push({
-                    rawCode: item.rawCode, rawName: item.rawName, exp: item.exp, qty: item.qty,
+                    rawCode: item.rawCode, rawName: item.rawName, exp: item.exp, qty: item.qty, price: item.price,
                     hqCode: hqCode, status: hqCode ? (isAiMapped ? "AI_MAPPED" : "OK") : "ERROR", ignored: false
                 });
             });
@@ -1232,6 +1229,7 @@
             renderAdvancedExcelPreview();
         }
 
+        // 🚨 [CRITICAL FIX 2] 단가 변동 감지 UI 렌더링
         window.renderAdvancedExcelPreview = function() {
             const tbody = document.getElementById('excelTbody'); 
             const container = document.getElementById('excelPreviewContainer');
@@ -1244,7 +1242,7 @@
             let tempUpdates = {}; 
 
             window.currentExcelPreviewData.forEach((row, idx) => {
-                let trClass = ""; let statusHtml = ""; let hqCodeHtml = "";
+                let trClass = ""; let statusHtml = ""; let hqCodeHtml = ""; let priceHtml = "-";
 
                 if (row.status === "ERROR" && !row.ignored) {
                     errorCount++; trClass = "bg-red-50";
@@ -1275,9 +1273,36 @@
                         hqCodeHtml = `<span class="font-mono font-bold text-emerald-700 text-[12px] bg-emerald-50 px-2 py-1 border border-emerald-100 rounded">${row.hqCode}</span>`;
                     }
                     
+                    // 🌟 단가(Price) 변동 비교
+                    const masterItem = AppState.catalogItems.find(c => c.code === row.hqCode);
+                    if (masterItem) {
+                        const mPrice = masterItem.price || 0;
+                        if (row.price !== null && !isNaN(row.price) && row.price > 0 && Math.abs(row.price - mPrice) > 0.01) {
+                            // 가격이 변경됨
+                            const isIncrease = row.price > mPrice;
+                            const diffColor = isIncrease ? "text-[#E3000F]" : "text-blue-600";
+                            priceHtml = `
+                                <div class="flex flex-col items-center">
+                                    <span class="text-[10px] text-gray-400 line-through mb-0.5">$${mPrice.toFixed(2)}</span>
+                                    <span class="text-[13px] font-black ${diffColor}">$${row.price.toFixed(2)}</span>
+                                    <span class="text-[8px] font-bold ${diffColor} bg-${isIncrease ? 'red' : 'blue'}-50 px-1 rounded mt-0.5">PRICE CHANGED</span>
+                                </div>`;
+                        } else {
+                            // 가격 동일하거나 엑셀에 없음
+                            priceHtml = `<span class="text-[13px] font-bold text-gray-600">$${mPrice.toFixed(2)}</span>`;
+                        }
+                    }
+                    
+                    // 페이로드 구조체 생성
                     if (!tempUpdates[row.hqCode]) {
                         tempUpdates[row.hqCode] = { code: row.hqCode, stockBreakdown: {}, expBreakdown: {} };
                         tempUpdates[row.hqCode].stockBreakdown[targetRegion] = 0;
+                        // 🚨 [CRITICAL FIX 3] 가격 변경 시 페이로드에 새 단가 인젝션
+                        if (row.price !== null && !isNaN(row.price) && row.price > 0) {
+                             if(masterItem && Math.abs(row.price - masterItem.price) > 0.01) {
+                                 tempUpdates[row.hqCode].newPrice = row.price;
+                             }
+                        }
                     }
                     
                     tempUpdates[row.hqCode].stockBreakdown[targetRegion] += row.qty;
@@ -1290,12 +1315,15 @@
 
                 html += `
                     <tr class="${trClass}">
-                        <td class="w-28 text-center border-r border-gray-200/50">${statusHtml}</td>
+                        <td class="w-24 text-center border-r border-gray-200/50">${statusHtml}</td>
                         <td class="w-64 border-r border-gray-200/50">${hqCodeHtml}</td>
-                        <td class="w-32 font-mono font-bold text-gray-500 text-[11px]">${Y2C_AuthEngine.escapeHtml(row.rawCode)}</td>
-                        <td class="w-64 font-bold text-[13px] text-[var(--premium-charcoal)] truncate max-w-[250px]" title="${Y2C_AuthEngine.escapeHtml(row.rawName)}">${Y2C_AuthEngine.escapeHtml(row.rawName)}</td>
-                        <td class="w-32 text-center font-mono text-[12px] text-gray-600">${Y2C_AuthEngine.escapeHtml(row.exp)}</td>
-                        <td class="w-24 text-center font-black text-[#E3000F] text-[13px]">${row.qty}</td>
+                        <td class="w-64">
+                            <div class="text-[11px] font-mono text-gray-400 mb-0.5">${Y2C_AuthEngine.escapeHtml(row.rawCode)}</div>
+                            <div class="font-bold text-[13px] text-[var(--premium-charcoal)] truncate max-w-[250px]" title="${Y2C_AuthEngine.escapeHtml(row.rawName)}">${Y2C_AuthEngine.escapeHtml(row.rawName)}</div>
+                        </td>
+                        <td class="w-32 text-center font-mono align-middle">${priceHtml}</td>
+                        <td class="w-32 text-center font-mono text-[12px] text-gray-600 align-middle">${Y2C_AuthEngine.escapeHtml(row.exp)}</td>
+                        <td class="w-24 text-center font-black text-[#E3000F] text-[15px] bg-red-50/10 align-middle">${row.qty}</td>
                     </tr>
                 `;
             });
@@ -1337,7 +1365,7 @@
         if (btnSyncExcel) {
             btnSyncExcel.addEventListener('click', async () => {
                 if (pendingStockUpdates.length === 0) { Y2C_AuthEngine.showToast("서버로 전송할 데이터가 없습니다.", "warning"); return; }
-                if (!confirm(`총 ${pendingStockUpdates.length}개 품목의 입고 데이터를 마스터 DB에 강제 병합(ADD)합니다. 진행하시겠습니까?`)) return;
+                if (!confirm(`총 ${pendingStockUpdates.length}개 품목의 입고 데이터를 마스터 DB에 강제 병합(ADD)합니다. 단가가 변동된 항목은 마스터 DB의 가격표를 실시간으로 갱신합니다. 진행하시겠습니까?`)) return;
 
                 btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "COMMITTING...";
 
@@ -1351,9 +1379,12 @@
                     const res = await Y2C_AuthEngine.request("update_stock", payload, 0); 
                     
                     if (res && res.success) {
-                        Y2C_AuthEngine.showToast(`✅ ${pendingStockUpdates.length}개 품목의 재고가 마스터 DB와 완벽히 동기화되었습니다.`, "success");
+                        Y2C_AuthEngine.showToast(`✅ ${pendingStockUpdates.length}개 품목의 재고 및 가격이 마스터 DB와 완벽히 동기화되었습니다.`, "success");
                         document.getElementById('excelPreviewContainer').classList.add('hidden'); document.getElementById('dropZone').classList.remove('hidden');
                         if(fileInput) fileInput.value = ''; parsedExcelData = null; pendingStockUpdates = [];
+                        
+                        // 백그라운드 데이터 갱신
+                        fetchInitialData();
                     }
                 } catch (err) {
                     if (err.message.includes("스레드") || err.message.includes("분산")) Y2C_AuthEngine.showToast("⏳ 백그라운드 처리 중입니다. 중복 제출을 방지합니다.", "warning");
