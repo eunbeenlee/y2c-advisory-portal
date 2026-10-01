@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.78 Enterprise Admin ULTIMATE - AI Auto-Substitution Engine 🌟
-  [CRITICAL FIX 1] AdvancedAutoMapper: Deep NLP fuzzy matching translates vendor names (e.g., "신전떡볶이 김말이튀김") to HQ Codes automatically.
-  [CRITICAL FIX 2] Fuzzy Header Matching: Auto-extracts ONLY necessary info (Code, Name, Exp, Qty) ignoring garbage columns.
-  [CRITICAL FIX 3] Auto-Aggregation: Merges multiple Excel rows with the same Item Code and Exp. Date natively.
-  [CRITICAL FIX 4] Manual Fallback & Row Ignore: Safe escape hatches for completely unidentifiable data.
+  🌟 V40.85 Enterprise Admin ULTIMATE - The Quad-Core Integration Masterpiece 🌟
+  [CRITICAL FIX 1] Restored Franchise DB: Master data infinite rendering and save logic fully integrated with `auth.js`.
+  [CRITICAL FIX 2] Restored ERP Sales: Financial ledger inputs, KPIs, and save logic flawlessly restored.
+  [CRITICAL FIX 3] AI Auto-Mapper: Deep NLP fuzzy matching for Excel vendor names intact.
+  [PREMIUM UI] Enterprise 3D Glass-Lock Overlay for Unauthorized Tabs.
   [DEPENDENCY] Strictly bound to Y2C_AuthEngine (auth.js V40.65+).
 -->
 <html lang="en">
@@ -12,7 +12,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [보안 1] CSP 및 라이트 테마 강제 록다운 -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
@@ -23,27 +22,21 @@
     
     <title>Master DB & Procurement | Y2C Portal</title>
     
-    <!-- 🚀 [가속 2] 네트워크 조기 연결망 -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-    <!-- 🚨 [가속 3] 파비콘 LCP 최우선 로딩 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [가속 4] 비동기 폰트 로드 아키텍처 -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
 
-    <!-- 🌟 [엔진 탑재] 클라이언트 사이드 Excel 파서 (SheetJS) 및 Chart 엔진 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
-    <!-- 🌟 [가속 5] FOUC 하얀 화면 방어막 -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -62,11 +55,8 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         });
-        window.addEventListener('touchstart', function() {}, {passive: true});
-        window.addEventListener('wheel', function() {}, {passive: true});
     </script>
 
-    <!-- 🚨 Tailwind 프록시 -->
     <script>
         (function() {
             var originalWarn = console.warn;
@@ -92,23 +82,11 @@
                     },
                     animation: {
                         'shimmer': 'shimmer 2s linear infinite',
-                        'pulse-red': 'pulseRed 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'lock-shake': 'lockShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both'
                     },
                     keyframes: {
-                        shimmer: {
-                            '0%': { backgroundPosition: '200% 0' },
-                            '100%': { backgroundPosition: '-200% 0' },
-                        },
-                        pulseRed: {
-                            '0%, 100%': { opacity: 1, borderColor: '#e2e8f0' },
-                            '50%': { opacity: .8, borderColor: 'rgba(227,0,15,0.6)' },
-                        },
-                        lockShake: {
-                            '0%, 100%': { transform: 'translateX(0)' },
-                            '20%, 60%': { transform: 'translateX(-4px)' },
-                            '40%, 80%': { transform: 'translateX(4px)' }
-                        }
+                        shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
+                        lockShake: { '0%, 100%': { transform: 'translateX(0)' }, '20%, 60%': { transform: 'translateX(-4px)' }, '40%, 80%': { transform: 'translateX(4px)' } }
                     },
                     boxShadow: {
                         'premium-card': '0 35px 60px -15px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0,0,0,0.02)',
@@ -120,42 +98,22 @@
     </script>
 
     <style>
-        :root {
-            --sinjeon-pink: #E3000F; 
-            --premium-charcoal: #111827; 
-            --bg-light: #F8F9FA;
-            --input-bg: #f8fafc;
-        }
+        :root { --sinjeon-pink: #E3000F; --premium-charcoal: #111827; --bg-light: #F8F9FA; --input-bg: #f8fafc; }
         
-        html, body { 
-            overscroll-behavior-y: none; 
-            background-color: var(--bg-light) !important; 
-            color: var(--premium-charcoal); 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; padding: 0; min-height: 100vh;
-            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
-            transform: translateZ(0); 
-        }
-
+        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transform: translateZ(0); }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
         .tab-section { content-visibility: auto; contain-intrinsic-size: auto 800px; display: none; opacity: 0; transition: opacity 0.4s ease; }
         .tab-section.active { display: block; opacity: 1; }
 
-        .app-shell-enter { 
-            opacity: 0; 
-            transform: translateY(12px); 
-            animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
-            will-change: transform, opacity;
-        }
+        .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -164,61 +122,28 @@
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        .sub-nav-btn { 
-            position: relative; color: #64748b; font-weight: 800; font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 0.1em;
-            padding: 12px 24px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 9999px; text-transform: uppercase;
-        }
+        .sub-nav-btn { position: relative; color: #64748b; font-weight: 800; font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 0.1em; padding: 12px 24px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 9999px; text-transform: uppercase; }
         .sub-nav-btn:hover:not(.active) { color: var(--premium-charcoal); background: #f1f5f9; }
         .sub-nav-btn.active { color: #ffffff; background: var(--premium-charcoal); box-shadow: 0 4px 10px rgba(17, 24, 39, 0.15); }
 
-        .premium-input {
-            appearance: none; -webkit-appearance: none;
-            background: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            color: var(--premium-charcoal);
-            font-size: 14px !important; 
-            font-weight: 700;
-            transition: all 0.3s ease;
-            border-radius: 0.75rem;
-            width: 100%;
-            padding: 12px 16px;
-        }
+        .premium-input { appearance: none; -webkit-appearance: none; background: #ffffff; border: 1.5px solid #e2e8f0; color: var(--premium-charcoal); font-size: 14px !important; font-weight: 700; transition: all 0.3s ease; border-radius: 0.75rem; width: 100%; padding: 12px 16px; }
         .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
         .premium-input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
 
-        .btn-solid-red {
-            background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(227, 0, 15, 0.2);
-        }
+        .btn-solid-red { background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(227, 0, 15, 0.2); }
         .btn-solid-red:hover:not(:disabled) { background-color: #B9000C; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(227, 0, 15, 0.3); }
         .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
         .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
 
-        .glass-lock-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border-radius: 2rem; opacity: 0; transition: opacity 0.5s ease;
-        }
+        .glass-lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2rem; opacity: 0; transition: opacity 0.5s ease; }
         .glass-lock-overlay.show { opacity: 1; }
-        .lock-icon-wrapper {
-            width: 80px; height: 80px; background: linear-gradient(135deg, #111827, #374151);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.2);
-            color: #D4AF37; margin-bottom: 24px;
-        }
+        .lock-icon-wrapper { width: 80px; height: 80px; background: linear-gradient(135deg, #111827, #374151); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.2); color: #D4AF37; margin-bottom: 24px; }
 
-        .drop-zone {
-            border: 2px dashed #cbd5e1; border-radius: 1.5rem; background: #f8fafc; transition: all 0.3s ease; cursor: pointer;
-        }
+        .drop-zone { border: 2px dashed #cbd5e1; border-radius: 1.5rem; background: #f8fafc; transition: all 0.3s ease; cursor: pointer; }
         .drop-zone.dragover { border-color: var(--sinjeon-pink); background: #fef2f2; }
 
-        .shimmer-bg {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-            background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out;
-        }
+        .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
 
-        /* 🌟 테이블 디자인 (고급화 엔진 전용) */
         .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 24px; border-bottom: 2px solid #e2e8f0; }
         .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; }
         .enterprise-table tr:hover td { background: #f8fafc; }
@@ -241,8 +166,8 @@
     <!-- 🚨 1단계: 보안 축출 (Pre-routing) -->
     <script>
         (function() {
-            var _inlineRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-            var _inlineToken = String(localStorage.getItem("y2c_token") || "").trim();
+            var _inlineRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _inlineToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
             window.__INITIAL_ROLE__ = _inlineRole;
 
             if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
@@ -253,13 +178,6 @@
             }
         })();
     </script>
-
-    <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
-            <span>JavaScript is Disabled</span>
-            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
-        </div>
-    </noscript>
     
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
@@ -332,16 +250,16 @@
         
         <!-- 🌟 서브 네비게이션 -->
         <nav class="flex flex-wrap items-center justify-start gap-2 mb-10 border-b border-gray-200 pb-2 no-print" id="adminSubNav">
-            <button class="sub-nav-btn" data-target="tab-franchise">FRANCHISE DB</button>
+            <button class="sub-nav-btn active" data-target="tab-franchise">FRANCHISE DB</button>
             <button class="sub-nav-btn" data-target="tab-sales">ERP SALES</button>
-            <button class="sub-nav-btn active" data-target="tab-excel">INBOUND (EXCEL)</button>
+            <button class="sub-nav-btn" data-target="tab-excel">INBOUND (EXCEL)</button>
             <button class="sub-nav-btn" data-target="tab-procurement">HQ PROCUREMENT</button>
         </nav>
 
         <!-- ========================================== -->
-        <!-- 🔒 SECTION 1: FRANCHISE DB (MASTER ONLY) -->
+        <!-- 🔒 SECTION 1: FRANCHISE DB (RESTORED) -->
         <!-- ========================================== -->
-        <section id="tab-franchise" class="tab-section relative rounded-3xl overflow-hidden bg-white shadow-premium-card min-h-[600px]">
+        <section id="tab-franchise" class="tab-section active relative rounded-3xl overflow-hidden bg-white shadow-premium-card min-h-[600px]">
             <div id="lock-franchise" class="glass-lock-overlay hidden">
                 <div class="lock-icon-wrapper">
                     <svg class="w-10 h-10 animate-lock-shake" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -351,13 +269,13 @@
             </div>
             
             <div class="p-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2">Franchise Master DB</h2>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2"><span class="opacity-80">🏢</span> Franchise Master DB</h2>
                 <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Manage partner details, billing logic, and system access.</p>
                 <div class="overflow-x-auto border border-gray-200 rounded-xl">
                     <table class="w-full text-left enterprise-table" id="franchiseTable">
-                        <thead><tr><th>No.</th><th>Client Name</th><th>Region</th><th>City</th><th>Attention</th><th>Email</th><th>Action</th></tr></thead>
-                        <tbody id="franchiseTbody">
-                            <tr><td colspan="7" class="text-center py-10"><div class="shimmer-bg h-10 w-full rounded"></div></td></tr>
+                        <thead><tr><th>Client Name</th><th class="w-24 text-center">Hub(State)</th><th>City</th><th>Full Address</th><th>Manager</th><th>Email</th><th>Business ID</th><th class="w-28 text-center">Action</th></tr></thead>
+                        <tbody id="masterTableBody">
+                            <tr><td colspan="8" class="text-center py-10"><div class="shimmer-bg h-10 w-full rounded"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -365,7 +283,7 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- 🔒 SECTION 2: ERP SALES (MASTER ONLY) -->
+        <!-- 🔒 SECTION 2: ERP SALES (RESTORED) -->
         <!-- ========================================== -->
         <section id="tab-sales" class="tab-section relative rounded-3xl overflow-hidden bg-white shadow-premium-card min-h-[600px]">
             <div id="lock-sales" class="glass-lock-overlay hidden">
@@ -377,12 +295,54 @@
             </div>
             
             <div class="p-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2">ERP Sales Terminal</h2>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2"><span class="opacity-80">📊</span> ERP Sales Terminal</h2>
                 <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Global financial data entry and tax synchronization.</p>
-                <div class="bg-gray-50 border border-gray-200 rounded-xl p-10 flex flex-col items-center justify-center text-center">
-                    <span class="text-5xl mb-4">📊</span>
-                    <h4 class="font-bold text-gray-700">Enterprise Financial Module</h4>
-                    <p class="text-xs text-gray-400 mt-2">Select a franchise to load historical ledger.</p>
+                
+                <!-- Sales Controller -->
+                <div class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-50 p-6 rounded-[1.5rem] border border-gray-200">
+                    <div class="w-full md:w-48">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
+                        <select id="salesYearSelector" class="premium-input bg-white"></select>
+                    </div>
+                    <div class="w-full md:w-64">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
+                        <select id="salesClientSelector" class="premium-input bg-white">
+                            <option value="">-- Loading --</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="loadSalesGrid()" class="btn-solid-red h-[46px] px-8 rounded-xl font-black text-[12px] uppercase tracking-widest focus:outline-none">Load Ledger</button>
+                    </div>
+                </div>
+
+                <!-- KPI Board -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Sales</span>
+                        <div class="text-2xl font-black text-[#111827] mt-1 font-mono" id="salesKpiTotal">CAD $0.00</div>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                        <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">POS (Takeout)</span>
+                        <div class="text-xl font-bold text-gray-700 mt-1 font-mono" id="salesKpiPos">CAD $0.00</div>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                        <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Delivery</span>
+                        <div class="text-xl font-bold text-gray-700 mt-1 font-mono" id="salesKpiDelivery">CAD $0.00</div>
+                    </div>
+                </div>
+
+                <!-- Ledger Grid -->
+                <div class="overflow-x-auto border border-gray-200 rounded-xl mb-6">
+                    <table class="w-full text-left enterprise-table" id="salesTable">
+                        <thead><tr><th>Month</th><th class="text-center w-40">POS Sales</th><th class="text-center w-40">Delivery Sales</th><th class="text-right">Total</th><th class="text-center">Status</th></tr></thead>
+                        <tbody id="salesGridBody">
+                            <tr><td colspan="5" class="text-center py-16 text-gray-400 font-bold text-sm">연도와 가맹점을 선택하고 'LOAD LEDGER'를 클릭하십시오.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="button" onclick="saveSalesGridData()" id="saveAllSalesBtn" class="btn-solid-red px-10 py-4 rounded-xl font-black text-[13px] uppercase tracking-widest shadow-md">Synchronize Data</button>
                 </div>
             </div>
         </section>
@@ -390,13 +350,12 @@
         <!-- ========================================== -->
         <!-- 📦 SECTION 3: INBOUND (EXCEL) - ADVANCED AI MAPPING ENGINE -->
         <!-- ========================================== -->
-        <section id="tab-excel" class="tab-section active rounded-3xl bg-white shadow-premium-card p-8 relative">
+        <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-8 relative">
             <header class="mb-8">
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3"><span class="opacity-80">📥</span> Mass Inbound (Excel)</h2>
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Upload vendor shipment files to auto-sync inventory logic.</p>
             </header>
             
-            <!-- 🌟 지역(Hub) 선택 강제 UI -->
             <div class="mb-6 flex flex-col md:flex-row gap-4 items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm relative z-20">
                 <label class="font-black text-gray-500 uppercase tracking-widest text-[11px] shrink-0">1. Select Target Hub <span class="text-[#E3000F]">*</span></label>
                 <select id="inboundRegionSelector" class="premium-input bg-white cursor-pointer appearance-none text-[13px] font-bold w-full md:w-64">
@@ -404,22 +363,13 @@
                 </select>
             </div>
 
-            <!-- 🌟 엑셀 드롭 존 -->
             <div id="dropZone" class="drop-zone flex flex-col items-center justify-center py-16 px-4 text-center mb-8 relative overflow-hidden group">
                 <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                 <div class="w-16 h-16 bg-white shadow-sm border border-gray-200 rounded-full flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform">📄</div>
                 <h3 class="font-bold text-[15px] text-[var(--premium-charcoal)] mb-1">2. Drag & Drop Excel File</h3>
                 <p class="text-[12px] font-medium text-gray-400">or click to browse from your computer (.xlsx)</p>
-                <div class="mt-6 px-4 py-2 bg-gray-100 rounded-lg inline-flex items-center gap-2">
-                    <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Required Information:</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Code</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Product Name</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Qty</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Exp.Date</span>
-                </div>
             </div>
 
-            <!-- 🌟 AI 엑셀 치환 엔진 프리뷰 및 COMMIT 버튼 -->
             <div id="excelPreviewContainer" class="hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-4">
                     <div>
@@ -428,7 +378,6 @@
                         </h4>
                         <p class="text-[11px] text-gray-500 font-bold mt-1" id="excelMetaText">Parsed 0 rows</p>
                     </div>
-                    <!-- 에러가 있을 시 잠기는 COMMIT 버튼 -->
                     <button type="button" id="btnSyncExcel" class="btn-solid-red px-6 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-all">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                         <span id="btnSyncExcelText">Commit to Master</span>
@@ -559,7 +508,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.78 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.85 STABLE</span>
                 </div>
             </div>
         </div>
@@ -573,10 +522,11 @@
 
     <script>
     /**
-     * 🌟 V40.78 Enterprise Admin Logic - The Ultimate AI Auto-Substitution Engine
-     * [CRITICAL FIX 1] AdvancedAutoMapper: AI NLP Matcher for completely fragmented vendor product names.
-     * [CRITICAL FIX 2] Fuzzy Header Matcher: Extracts only Core 4 columns natively.
-     * [CRITICAL FIX 3] Auto-Aggregation: Merges multiple vendor rows into single DB transaction.
+     * 🌟 V40.85 Enterprise Admin Quad-Core Integration Logic
+     * [CORE 1] Restored Franchise DB Manager (Master Only)
+     * [CORE 2] Restored ERP Sales Terminal (Master Only)
+     * [CORE 3] AI Auto-Mapper Excel Engine (Inbound Excel)
+     * [CORE 4] Procurement Console (Global Logistics)
      */
     document.addEventListener("DOMContentLoaded", () => {
         
@@ -585,19 +535,23 @@
         }
 
         const AppState = {
-            role: String(localStorage.getItem("y2c_role") || "").toUpperCase(),
-            clientName: localStorage.getItem("y2c_client") || "Unknown",
-            region: localStorage.getItem("y2c_region") || "ON",
+            role: String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase(),
+            clientName: sessionStorage.getItem("y2c_client") || localStorage.getItem("y2c_client") || "Unknown",
+            region: sessionStorage.getItem("y2c_region") || localStorage.getItem("y2c_region") || "ON",
             hqOrders: [],
             mappings: [], 
             catalogItems: [], 
-            cart: {} 
+            cachedClients: [], // Franchise DB용 캐시
+            cart: {},
+            isSubmitting: false
         };
 
         const uName = document.getElementById("userNameDisplay");
         const uBadge = document.getElementById("userRoleBadge");
         if(uName) uName.innerText = AppState.clientName;
         if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
+
+        const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount || 0);
 
         // ==========================================
         // 🔒 탭 네비게이션 및 Lock UI
@@ -670,7 +624,245 @@
         populateHubDropdown();
 
         // ==========================================
-        // 🚀 데이터 초기 패칭 (조달 및 카탈로그 동시 진행)
+        // 🚀 [CORE 1] 복원된 가맹점 DB (Franchise Master) 로직
+        // ==========================================
+        async function fetchMasterData() {
+            if (AppState.role === "VENDOR") return;
+            const tbody = document.getElementById('masterTableBody');
+            if(!tbody) return;
+
+            try {
+                const res = await Y2C_AuthEngine.request("get_master_data");
+                if (res && res.success) {
+                    AppState.cachedClients = res.clients || [];
+                    renderMasterDataFast();
+                    populateSalesClientSelector(); // ERP 콤보박스 채우기
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderMasterDataFast() {
+            const tbody = document.getElementById('masterTableBody');
+            if(!tbody) return;
+
+            if (AppState.cachedClients.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-gray-500 font-bold">등록된 가맹점 정보가 없습니다.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            const inputClass = "w-full bg-gray-50 focus:bg-white border border-gray-200 rounded-lg px-2 py-2 text-[12px] font-bold text-gray-800 outline-none transition-colors focus:border-[#E3000F]";
+
+            AppState.cachedClients.forEach(c => {
+                html += `
+                <tr class="hover:bg-red-50/10 transition-colors border-b border-gray-50">
+                    <td class="px-6 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap">${Y2C_AuthEngine.escapeHtml(c.name)}</td>
+                    <td class="px-2 py-4"><input type="text" id="state_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.state)}" class="${inputClass} text-center uppercase" maxlength="2"></td>
+                    <td class="px-2 py-4"><input type="text" id="city_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.city)}" class="${inputClass}"></td>
+                    <td class="px-2 py-4"><input type="text" id="addr_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.address)}" class="${inputClass}"></td>
+                    <td class="px-2 py-4"><input type="text" id="attn_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.attn)}" class="${inputClass}"></td>
+                    <td class="px-2 py-4"><input type="text" id="email_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.email)}" class="${inputClass}"></td>
+                    <td class="px-2 py-4"><input type="text" id="biz_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.bizId)}" class="${inputClass} font-mono"></td>
+                    <td class="px-4 py-4 text-center">
+                        <button type="button" onclick="saveClientData(${c.rowIdx})" id="saveBtn_${c.rowIdx}" class="bg-[var(--premium-charcoal)] hover:bg-[#E3000F] text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors w-full focus:outline-none">SAVE</button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        window.saveClientData = async function(rowIdx) {
+            if (AppState.isSubmitting) return;
+
+            const stateEl = document.getElementById(`state_${rowIdx}`);
+            const cityEl = document.getElementById(`city_${rowIdx}`);
+            const addrEl = document.getElementById(`addr_${rowIdx}`);
+            const attnEl = document.getElementById(`attn_${rowIdx}`);
+            const emailEl = document.getElementById(`email_${rowIdx}`);
+            const bizEl = document.getElementById(`biz_${rowIdx}`);
+
+            if (!stateEl || !cityEl) return;
+
+            const btn = document.getElementById(`saveBtn_${rowIdx}`);
+            const originalHtml = btn.innerHTML;
+            
+            AppState.isSubmitting = true;
+            btn.disabled = true;
+            btn.innerHTML = "⏳";
+            btn.classList.add('opacity-50');
+
+            try {
+                const payload = {
+                    client: {
+                        rowIdx: rowIdx,
+                        state: stateEl.value.trim().toUpperCase(),
+                        city: cityEl.value.trim(),
+                        address: addrEl.value.trim(),
+                        attn: attnEl.value.trim(),
+                        email: emailEl.value.trim(),
+                        bizId: bizEl.value.trim()
+                    }
+                };
+
+                const res = await Y2C_AuthEngine.request("update_master_data", payload);
+                if (res && res.success) {
+                    Y2C_AuthEngine.showToast("마스터 데이터 동기화 완료", "success");
+                    btn.innerHTML = "✅ SAVED";
+                    btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600');
+                    setTimeout(() => { btn.innerHTML = originalHtml; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); }, 2000);
+                }
+            } catch (err) {
+                Y2C_AuthEngine.showToast(err.message, "error");
+                btn.innerHTML = originalHtml;
+            } finally {
+                AppState.isSubmitting = false;
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+            }
+        };
+
+        // ==========================================
+        // 🚀 [CORE 2] 복원된 ERP Sales 로직
+        // ==========================================
+        function populateSalesYearSelector() {
+            const sel = document.getElementById('salesYearSelector');
+            if(!sel) return;
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear + 1; y >= 2022; y--) {
+                const opt = document.createElement('option');
+                opt.value = y; opt.innerText = `${y} Fiscal Year`;
+                if(y === currentYear) opt.selected = true;
+                sel.appendChild(opt);
+            }
+        }
+
+        function populateSalesClientSelector() {
+            const sel = document.getElementById('salesClientSelector');
+            if(!sel || AppState.cachedClients.length === 0) return;
+            sel.innerHTML = `<option value="">-- Select Franchise --</option>`;
+            AppState.cachedClients.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name; opt.innerText = c.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        window.loadSalesGrid = async function() {
+            if (AppState.isSubmitting) return;
+            const year = document.getElementById('salesYearSelector')?.value;
+            const client = document.getElementById('salesClientSelector')?.value;
+            const tbody = document.getElementById('salesGridBody');
+
+            if (!year || !client) {
+                Y2C_AuthEngine.showToast("연도와 가맹점을 모두 선택해 주십시오.", "warning");
+                return;
+            }
+
+            AppState.isSubmitting = true;
+            tbody.innerHTML = `<tr><td colspan="5" class="py-16 text-center text-gray-500 font-bold"><span class="animate-pulse">🔄 로딩 중...</span></td></tr>`;
+
+            try {
+                const res = await Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client });
+                if (res && res.success) {
+                    renderSalesGrid(res.records || []);
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`;
+            } finally {
+                AppState.isSubmitting = false;
+            }
+        };
+
+        function renderSalesGrid(records) {
+            const tbody = document.getElementById('salesGridBody');
+            if (!tbody) return;
+            
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            let html = "";
+            const inputClass = "w-full max-w-[150px] mx-auto bg-gray-50 focus:bg-white border border-gray-200 rounded-lg px-3 py-2 text-center text-[13px] font-mono font-bold text-gray-800 outline-none transition-colors focus:border-[#E3000F]";
+
+            records.forEach(r => {
+                const mIdx = r.month;
+                const badgeHTML = r.exists 
+                    ? `<span class="px-2 py-1 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase">SAVED</span>` 
+                    : `<span class="px-2 py-1 text-[9px] font-black rounded bg-gray-100 text-gray-400 border border-gray-200 uppercase">EMPTY</span>`;
+
+                html += `
+                <tr class="hover:bg-red-50/10 border-b border-gray-50">
+                    <td class="px-6 py-4 font-black text-gray-700 font-inter">${monthNames[mIdx - 1]}</td>
+                    <td class="px-2 py-4 text-center"><input type="number" id="pos_${mIdx}" value="${r.pos > 0 ? r.pos : ''}" class="${inputClass}" oninput="recalcSalesRow(${mIdx})"></td>
+                    <td class="px-2 py-4 text-center"><input type="number" id="del_${mIdx}" value="${r.delivery > 0 ? r.delivery : ''}" class="${inputClass}" oninput="recalcSalesRow(${mIdx})"></td>
+                    <td class="px-6 py-4 text-right font-black font-mono text-[var(--premium-charcoal)]" id="tot_${mIdx}">${formatCurrency(r.total)}</td>
+                    <td class="px-4 py-4 text-center">${badgeHTML}</td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = html;
+            recalculateSalesKPIs();
+        }
+
+        window.recalcSalesRow = function(mIdx) {
+            const pos = parseFloat(document.getElementById(`pos_${mIdx}`)?.value || 0);
+            const del = parseFloat(document.getElementById(`del_${mIdx}`)?.value || 0);
+            const total = pos + del;
+            document.getElementById(`tot_${mIdx}`).innerText = formatCurrency(total);
+            recalculateSalesKPIs();
+        };
+
+        function recalculateSalesKPIs() {
+            let tPos = 0, tDel = 0;
+            for(let i=1; i<=12; i++) {
+                tPos += parseFloat(document.getElementById(`pos_${i}`)?.value || 0);
+                tDel += parseFloat(document.getElementById(`del_${i}`)?.value || 0);
+            }
+            document.getElementById('salesKpiPos').innerText = formatCurrency(tPos);
+            document.getElementById('salesKpiDelivery').innerText = formatCurrency(tDel);
+            document.getElementById('salesKpiTotal').innerText = formatCurrency(tPos + tDel);
+        }
+
+        window.saveSalesGridData = async function() {
+            if (AppState.isSubmitting) return;
+
+            const year = document.getElementById('salesYearSelector')?.value;
+            const client = document.getElementById('salesClientSelector')?.value;
+
+            if (!year || !client) {
+                Y2C_AuthEngine.showToast("연도와 가맹점을 선택하십시오.", "warning"); return;
+            }
+
+            const recordsToSave = [];
+            for (let m = 1; m <= 12; m++) {
+                const pos = parseFloat(document.getElementById(`pos_${m}`)?.value || 0);
+                const del = parseFloat(document.getElementById(`del_${m}`)?.value || 0);
+                recordsToSave.push({ month: m, pos: pos, delivery: del });
+            }
+
+            const btn = document.getElementById('saveAllSalesBtn');
+            const originalHtml = btn.innerHTML;
+            AppState.isSubmitting = true;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="animate-pulse">SYNCING...</span>`;
+
+            try {
+                const payload = { year: year, clientName: client, records: recordsToSave };
+                const res = await Y2C_AuthEngine.request("save_sales_records", payload);
+                if (res && res.success) {
+                    Y2C_AuthEngine.showToast("매출 데이터가 완벽히 동기화되었습니다.", "success");
+                    loadSalesGrid(); // Re-render to show SAVED badges
+                }
+            } catch (err) {
+                Y2C_AuthEngine.showToast(err.message, "error");
+            } finally {
+                AppState.isSubmitting = false;
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        };
+
+        // ==========================================
+        // 🚀 [CORE 3 & 4] 조달, 아이템 데이터 및 엑셀 치환 엔진 초기화
         // ==========================================
         async function fetchInitialData() {
             try {
@@ -715,14 +907,7 @@
             if(!tbody) return;
 
             if (AppState.hqOrders.length === 0) {
-                tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="py-16 text-center bg-gray-50/30">
-                        <div class="text-4xl mb-4 opacity-40">📭</div>
-                        <h4 class="text-gray-500 font-bold font-inter text-[13px] tracking-wide mb-1">No Active Shipments</h4>
-                        <p class="text-gray-400 font-medium text-[11px]">진행 중인 조달 발주 내역이 없습니다.</p>
-                    </td>
-                </tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="py-16 text-center text-gray-400 font-bold">진행 중인 조달 발주 내역이 없습니다.</td></tr>`;
                 return;
             }
 
@@ -736,21 +921,21 @@
                 if(st === "CANCELED") { badgeClass = "status-badge status-canceled"; icon = "❌"; }
 
                 html += `
-                <tr class="hover:bg-gray-50/50 transition-colors">
-                    <td class="font-mono font-bold text-[11px] text-gray-500">${Y2C_AuthEngine.escapeHtml(order.id)}</td>
-                    <td class="text-xs text-gray-600">${Y2C_AuthEngine.escapeHtml(order.date)}</td>
-                    <td class="font-bold text-[13px] text-[var(--premium-charcoal)]">${Y2C_AuthEngine.escapeHtml(order.vendor)}</td>
-                    <td class="font-black text-[11px] text-[#E3000F]">${Y2C_AuthEngine.escapeHtml(order.region)}</td>
-                    <td class="text-xs text-gray-600 max-w-[200px] truncate" title="${Y2C_AuthEngine.escapeHtml(order.items)}">${Y2C_AuthEngine.escapeHtml(order.items)}</td>
-                    <td class="text-center font-mono text-xs">${Y2C_AuthEngine.escapeHtml(order.eta)}</td>
-                    <td class="text-center"><span class="${badgeClass}">${icon} ${Y2C_AuthEngine.escapeHtml(st)}</span></td>
+                <tr class="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
+                    <td class="px-6 py-4 font-mono font-bold text-[11px] text-gray-500">${Y2C_AuthEngine.escapeHtml(order.id)}</td>
+                    <td class="px-6 py-4 text-xs text-[var(--premium-charcoal)] font-bold">${Y2C_AuthEngine.escapeHtml(order.date)}</td>
+                    <td class="px-6 py-4 font-bold text-[13px] text-[var(--premium-charcoal)]">${Y2C_AuthEngine.escapeHtml(order.vendor)}</td>
+                    <td class="px-6 py-4 font-black text-[11px] text-[#E3000F]">${Y2C_AuthEngine.escapeHtml(order.region)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600 max-w-[200px] truncate" title="${Y2C_AuthEngine.escapeHtml(order.items)}">${Y2C_AuthEngine.escapeHtml(order.items)}</td>
+                    <td class="px-6 py-4 text-center font-mono text-xs">${Y2C_AuthEngine.escapeHtml(order.eta)}</td>
+                    <td class="px-6 py-4 text-center"><span class="${badgeClass}">${icon} ${Y2C_AuthEngine.escapeHtml(st)}</span></td>
                 </tr>`;
             });
             tbody.innerHTML = html;
         }
 
         // ==========================================
-        // 🛒 모달 및 아이템 선택기
+        // 🛒 조달 발주 (HQ PROCUREMENT) 모달 및 카트
         // ==========================================
         const modal = document.getElementById('itemSelectionModal');
         const modalPanel = document.getElementById('itemModalPanel');
@@ -792,9 +977,9 @@
                         <span class="text-xs font-bold text-[var(--premium-charcoal)] leading-tight">${Y2C_AuthEngine.escapeHtml(item.name)}</span>
                     </div>
                     <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-8 w-24">
-                        <button type="button" onclick="updateModalCart('${item.code}', -1)" class="w-8 h-full flex justify-center items-center text-gray-500 hover:text-[var(--sinjeon-pink)] focus:outline-none">-</button>
+                        <button type="button" onclick="updateModalCart('${item.code}', -1)" class="w-8 h-full flex justify-center items-center text-gray-500 hover:text-[#E3000F] focus:outline-none">-</button>
                         <input type="number" id="modQty_${item.code}" value="${qty}" class="w-8 h-full text-center text-[12px] font-bold bg-transparent border-none p-0 outline-none" readonly>
-                        <button type="button" onclick="updateModalCart('${item.code}', 1)" class="w-8 h-full flex justify-center items-center text-gray-500 hover:text-[var(--sinjeon-pink)] focus:outline-none">+</button>
+                        <button type="button" onclick="updateModalCart('${item.code}', 1)" class="w-8 h-full flex justify-center items-center text-gray-500 hover:text-[#E3000F] focus:outline-none">+</button>
                     </div>
                 </div>`;
             });
@@ -819,9 +1004,6 @@
             });
         }
 
-        // ==========================================
-        // 🚀 HQ 발주 제출
-        // ==========================================
         const btnSubmitProc = document.getElementById('btnSubmitProcurement');
         if(btnSubmitProc) {
             btnSubmitProc.addEventListener('click', async () => {
@@ -843,8 +1025,6 @@
                     if(res && res.success) {
                         Y2C_AuthEngine.showToast("조달 발주가 성공적으로 서버에 전송되었습니다.", "success");
                         AppState.cart = {}; document.getElementById('procItemsSummary').value = ""; document.getElementById('modalSelectedCount').innerText = "0";
-                        
-                        // 발주 완료 시 즉시 테이블 재패칭
                         const refreshRes = await Y2C_AuthEngine.request("get_procurement_data");
                         if(refreshRes && refreshRes.success) { AppState.hqOrders = refreshRes.hqOrders || []; renderHqOrders(); }
                     }
@@ -857,13 +1037,10 @@
         }
 
         // ==========================================
-        // 🤖 [가장 강력한 진화] AI Auto-Mapper & Excel Substitution Engine
-        // NLP 자연어 처리로 파편화된 벤더 상품명을 HQ 마스터 코드로 100% 자동 추론하여 치환합니다.
+        // 🤖 [CORE 3] 지능형 엑셀 파서 및 치환 엔진 (Advanced Auto-Mapper)
         // ==========================================
-        
         const AdvancedAutoMapper = {
             normalize: function(str) {
-                // 특수문자, 띄어쓰기, 불필요한 접두사 제거
                 return String(str).toLowerCase().replace(/[\s\(\)\[\]\-_]/g, '').replace(/신전떡볶이|신전|냉동/g, '');
             },
             extractCoreKeywords: function(name) {
@@ -878,7 +1055,7 @@
                 if (name.includes('납작')) keywords.push('납작');
                 if (name.includes('만두') && !name.includes('납작')) keywords.push('만두');
                 if (name.includes('통살')) keywords.push('통살');
-                if (name.includes('오징어') && !name.includes('통살')) keywords.push('오징어'); // 다리튀김 vs 통살튀김 구분
+                if (name.includes('오징어') && !name.includes('통살')) keywords.push('오징어'); 
                 if (name.includes('치즈핫도그') && !name.includes('감자')) keywords.push('치즈핫도그');
                 if (name.includes('올모짜') && !name.includes('감자')) keywords.push('올모짜');
                 if (name.includes('감자') && name.includes('치즈')) keywords.push('감자치즈');
@@ -899,20 +1076,13 @@
                     const hqNameNorm = this.normalize(hqItem.name);
                     let score = 0;
 
-                    // 1. 핵심 키워드 매칭 (가장 높은 가중치)
                     const hqKeywords = this.extractCoreKeywords(hqNameNorm);
                     for (let kw of vKeywords) {
-                        if (hqKeywords.includes(kw) || hqNameNorm.includes(kw)) {
-                            score += 50; 
-                        }
+                        if (hqKeywords.includes(kw) || hqNameNorm.includes(kw)) score += 50; 
                     }
 
-                    // 2. 직접적인 문자열 포함 여부
-                    if (hqNameNorm.includes(vNameNorm) || vNameNorm.includes(hqNameNorm)) {
-                        score += 30;
-                    }
+                    if (hqNameNorm.includes(vNameNorm) || vNameNorm.includes(hqNameNorm)) score += 30;
 
-                    // 3. 치명적인 오매핑 방지 (False-positive 차단)
                     if (vKeywords.includes('통살') && !hqNameNorm.includes('통살')) score -= 100;
                     if (!vKeywords.includes('통살') && hqNameNorm.includes('통살')) score -= 100;
                     if (vKeywords.includes('납작') && !hqNameNorm.includes('납작')) score -= 100;
@@ -920,7 +1090,6 @@
                     if (vKeywords.includes('순한') && hqNameNorm.includes('매운')) score -= 100;
                     if (vKeywords.includes('매운') && hqNameNorm.includes('순한')) score -= 100;
 
-                    // 스코어가 최소 50점을 넘어야 유의미한 자동 매핑으로 인정
                     if (score > highestScore && score >= 50) {
                         highestScore = score;
                         bestMatchCode = hqItem.code;
@@ -1010,12 +1179,10 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // 🚨 [진짜 치환 엔진 구동부]
         function processAndMapExcelData(jsonArray) {
             let aggregatedData = {}; 
             
             jsonArray.forEach(row => {
-                // 1. 필요한 4대 컬럼(Code, Qty, Exp, Name)만 스마트 추출
                 const codeKey = findBestKey(row, ['ITEM', 'CODE', '품번', 'SKU', 'BARCODE']);
                 const qtyKey = findBestKey(row, ['QTY', 'QUANTITY', '수량', 'STOCK']);
                 const expKey = findBestKey(row, ['EXP', '유통기한', 'DATE']);
@@ -1028,51 +1195,36 @@
                 let exp = normalizeExcelDate(rawExp);
                 let rawName = nameKey ? String(row[nameKey]).trim() : "";
 
-                // 2. 오토 어그리게이션 (중복 행 합산)
                 if (rawCode && !isNaN(qty) && qty > 0) {
                     let aggKey = rawCode + '|' + exp;
                     if (!aggregatedData[aggKey]) {
-                        aggregatedData[aggKey] = {
-                            rawCode: rawCode,
-                            rawName: rawName,
-                            exp: exp,
-                            qty: 0
-                        };
+                        aggregatedData[aggKey] = { rawCode: rawCode, rawName: rawName, exp: exp, qty: 0 };
                     }
                     aggregatedData[aggKey].qty += qty;
                 }
             });
 
-            // 3. 글로벌 윈도우 스페이스에 프리뷰 데이터 저장 및 3단계 맵핑 실행
             let displayRows = [];
             Object.values(aggregatedData).forEach(item => {
                 let hqCode = null;
                 let isAiMapped = false;
                 
-                // 매핑 1단계: Vendor Mapping DB 스캔
                 let mapObj = AppState.mappings.find(m => String(m.vendorCode).toUpperCase() === item.rawCode);
                 if (mapObj) hqCode = mapObj.hqCode;
                 
-                // 매핑 2단계: 다이렉트 카탈로그 스캔
                 if (!hqCode) {
                     let directMatch = AppState.catalogItems.find(c => String(c.code).toUpperCase() === item.rawCode);
                     if (directMatch) hqCode = directMatch.code;
                 }
 
-                // 매핑 3단계: AI NLP 치환 엔진 (자동 완성)
                 if (!hqCode && item.rawName) {
                     hqCode = AdvancedAutoMapper.findBestMatch(item.rawName, AppState.catalogItems);
                     if (hqCode) isAiMapped = true;
                 }
 
                 displayRows.push({
-                    rawCode: item.rawCode,
-                    rawName: item.rawName,
-                    exp: item.exp,
-                    qty: item.qty,
-                    hqCode: hqCode,
-                    status: hqCode ? (isAiMapped ? "AI_MAPPED" : "OK") : "ERROR",
-                    ignored: false
+                    rawCode: item.rawCode, rawName: item.rawName, exp: item.exp, qty: item.qty,
+                    hqCode: hqCode, status: hqCode ? (isAiMapped ? "AI_MAPPED" : "OK") : "ERROR", ignored: false
                 });
             });
 
@@ -1080,7 +1232,6 @@
             renderAdvancedExcelPreview();
         }
 
-        // 🚨 [진짜 치환 렌더링 부]
         window.renderAdvancedExcelPreview = function() {
             const tbody = document.getElementById('excelTbody'); 
             const container = document.getElementById('excelPreviewContainer');
@@ -1093,24 +1244,18 @@
             let tempUpdates = {}; 
 
             window.currentExcelPreviewData.forEach((row, idx) => {
-                let trClass = "";
-                let statusHtml = "";
-                let hqCodeHtml = "";
+                let trClass = ""; let statusHtml = ""; let hqCodeHtml = "";
 
                 if (row.status === "ERROR" && !row.ignored) {
-                    errorCount++;
-                    trClass = "bg-red-50";
+                    errorCount++; trClass = "bg-red-50";
                     statusHtml = `
                         <div class="flex flex-col gap-1 items-start">
                             <span class="px-2 py-0.5 bg-[#E3000F] text-white text-[9px] font-black rounded uppercase tracking-widest border border-[#E3000F]">미등록 품번</span>
                             <button type="button" onclick="ignoreExcelRow(${idx})" class="text-[9px] text-gray-500 hover:text-[#E3000F] font-bold underline font-inter transition-colors">Ignore Row</button>
                         </div>`;
                     
-                    // 🌟 마스터 품목으로 강제 치환시키는 <select> 드롭다운 UI 생성
                     let selectOptions = `<option value="" disabled selected>치환할 마스터 품목 선택</option>`;
-                    AppState.catalogItems.forEach(cat => {
-                        selectOptions += `<option value="${cat.code}">[${cat.code}] ${Y2C_AuthEngine.escapeHtml(cat.name)}</option>`;
-                    });
+                    AppState.catalogItems.forEach(cat => { selectOptions += `<option value="${cat.code}">[${cat.code}] ${Y2C_AuthEngine.escapeHtml(cat.name)}</option>`; });
                     hqCodeHtml = `<select onchange="resolveExcelMapping(${idx}, this.value)" class="w-full text-[11px] font-bold border border-red-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-[#E3000F]/20 bg-white text-[#E3000F] cursor-pointer shadow-sm font-inter">${selectOptions}</select>`;
                     
                 } else if (row.ignored) {
@@ -1130,7 +1275,6 @@
                         hqCodeHtml = `<span class="font-mono font-bold text-emerald-700 text-[12px] bg-emerald-50 px-2 py-1 border border-emerald-100 rounded">${row.hqCode}</span>`;
                     }
                     
-                    // 정상 데이터 백엔드 전송용 페이로드(pendingStockUpdates) 조립
                     if (!tempUpdates[row.hqCode]) {
                         tempUpdates[row.hqCode] = { code: row.hqCode, stockBreakdown: {}, expBreakdown: {} };
                         tempUpdates[row.hqCode].stockBreakdown[targetRegion] = 0;
@@ -1139,11 +1283,8 @@
                     tempUpdates[row.hqCode].stockBreakdown[targetRegion] += row.qty;
                     if (row.exp !== "-") {
                         let existingExp = tempUpdates[row.hqCode].expBreakdown[targetRegion];
-                        if (existingExp) {
-                            tempUpdates[row.hqCode].expBreakdown[targetRegion] += ` | ${row.exp}:${row.qty}`;
-                        } else {
-                            tempUpdates[row.hqCode].expBreakdown[targetRegion] = `${row.exp}:${row.qty}`;
-                        }
+                        if (existingExp) tempUpdates[row.hqCode].expBreakdown[targetRegion] += ` | ${row.exp}:${row.qty}`;
+                        else tempUpdates[row.hqCode].expBreakdown[targetRegion] = `${row.exp}:${row.qty}`;
                     }
                 }
 
@@ -1160,37 +1301,27 @@
             });
 
             tbody.innerHTML = html;
-            pendingStockUpdates = Object.values(tempUpdates); // 최종 배열 승인
+            pendingStockUpdates = Object.values(tempUpdates); 
 
-            // 🚨 UI 록다운 통제
             if (errorBadge) {
                 if (errorCount > 0) {
-                    errorBadge.classList.remove('hidden');
-                    errorBadge.innerText = `${errorCount} ERRORS DETECTED`;
-                    btnSyncExcel.disabled = true;
-                    if(btnSyncExcelText) btnSyncExcelText.innerText = "Fix Errors to Commit";
-                    Y2C_AuthEngine.showToast(`🚨 마스터 DB에 등록되지 않은 품목이 ${errorCount}건 발견되었습니다. 수동으로 치환하거나 제외하십시오.`, "error");
+                    errorBadge.classList.remove('hidden'); errorBadge.innerText = `${errorCount} ERRORS DETECTED`;
+                    btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "Fix Errors to Commit";
                 } else {
-                    errorBadge.classList.add('hidden');
-                    btnSyncExcel.disabled = pendingStockUpdates.length === 0;
+                    errorBadge.classList.add('hidden'); btnSyncExcel.disabled = pendingStockUpdates.length === 0;
                     if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
-                    Y2C_AuthEngine.showToast("모든 엑셀 데이터가 마스터 코드로 성공적으로 매핑되었습니다.", "success");
                 }
             }
 
             document.getElementById('excelMetaText').innerText = `Processed ${window.currentExcelPreviewData.length} unique aggregated rows. Ready to commit.`;
-            document.getElementById('dropZone').classList.add('hidden'); 
-            container.classList.remove('hidden');
+            document.getElementById('dropZone').classList.add('hidden'); container.classList.remove('hidden');
         }
 
-        // ==========================================
-        // 🔄 Interactive Functions (치환 및 제외)
-        // ==========================================
         window.resolveExcelMapping = function(idx, newHqCode) {
             if (!newHqCode) return;
             window.currentExcelPreviewData[idx].hqCode = newHqCode;
             window.currentExcelPreviewData[idx].status = "OK";
-            renderAdvancedExcelPreview(); // 리렌더링 및 에러 뱃지 실시간 체크
+            renderAdvancedExcelPreview(); 
         };
 
         window.ignoreExcelRow = function(idx) {
@@ -1203,34 +1334,19 @@
             renderAdvancedExcelPreview();
         };
 
-
-        // ==========================================
-        // 🚨 COMMIT TO MASTER (백오프 방지 및 멱등성 록다운)
-        // ==========================================
         if (btnSyncExcel) {
             btnSyncExcel.addEventListener('click', async () => {
-                if (pendingStockUpdates.length === 0) {
-                    Y2C_AuthEngine.showToast("서버로 전송할 유효한 재고 데이터가 없습니다.", "warning"); return;
-                }
+                if (pendingStockUpdates.length === 0) { Y2C_AuthEngine.showToast("서버로 전송할 데이터가 없습니다.", "warning"); return; }
                 if (!confirm(`총 ${pendingStockUpdates.length}개 품목의 입고 데이터를 마스터 DB에 강제 병합(ADD)합니다. 진행하시겠습니까?`)) return;
 
-                btnSyncExcel.disabled = true;
-                if(btnSyncExcelText) btnSyncExcelText.innerText = "COMMITTING...";
+                btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "COMMITTING...";
 
                 try {
-                    let hash = 0;
-                    const dataStr = JSON.stringify(pendingStockUpdates);
-                    for (let i = 0; i < dataStr.length; i++) {
-                        hash = ((hash << 5) - hash) + dataStr.charCodeAt(i); hash |= 0; 
-                    }
-                    const datePrefix = new Date().toISOString().split('T')[0];
-                    const syncId = `EXCEL-${datePrefix}-${Math.abs(hash).toString(16).toUpperCase()}`;
+                    let hash = 0; const dataStr = JSON.stringify(pendingStockUpdates);
+                    for (let i = 0; i < dataStr.length; i++) { hash = ((hash << 5) - hash) + dataStr.charCodeAt(i); hash |= 0; }
+                    const syncId = `EXCEL-${new Date().toISOString().split('T')[0]}-${Math.abs(hash).toString(16).toUpperCase()}`;
 
-                    const payload = {
-                        mode: "ADD",
-                        syncId: syncId,
-                        stockUpdates: pendingStockUpdates
-                    };
+                    const payload = { mode: "ADD", syncId: syncId, stockUpdates: pendingStockUpdates };
 
                     const res = await Y2C_AuthEngine.request("update_stock", payload, 0); 
                     
@@ -1240,16 +1356,11 @@
                         if(fileInput) fileInput.value = ''; parsedExcelData = null; pendingStockUpdates = [];
                     }
                 } catch (err) {
-                    if (err.message.includes("다른 스레드") || err.message.includes("분산 처리")) {
-                        Y2C_AuthEngine.showToast("⏳ 서버가 백그라운드에서 데이터를 안전하게 처리 중입니다. 중복 제출을 방지합니다.", "warning");
-                    } else if (err.message.includes("시간 초과") || err.message.includes("네트워크")) {
-                        Y2C_AuthEngine.showToast("⏳ 대량의 데이터 처리로 인해 응답이 지연되었습니다. 잠시 후 새로고침하여 결과를 확인하십시오.", "warning");
-                    } else {
-                        Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
-                    }
+                    if (err.message.includes("스레드") || err.message.includes("분산")) Y2C_AuthEngine.showToast("⏳ 백그라운드 처리 중입니다. 중복 제출을 방지합니다.", "warning");
+                    else if (err.message.includes("시간 초과") || err.message.includes("네트워크")) Y2C_AuthEngine.showToast("⏳ 대량 데이터 처리로 응답이 지연되었습니다. 새로고침 후 확인하십시오.", "warning");
+                    else Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
                 } finally {
-                    btnSyncExcel.disabled = false;
-                    if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
+                    btnSyncExcel.disabled = false; if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
                 }
             });
         }
@@ -1257,10 +1368,12 @@
         // ==========================================
         // 🚀 초기 구동 파이프라인
         // ==========================================
+        populateSalesYearSelector();
+        
         if (AppState.role === "VENDOR") switchTab("tab-procurement");
         else switchTab("tab-franchise"); 
         
-        fetchInitialData();
+        fetchMasterData().then(() => fetchInitialData());
     });
 
     </script>
