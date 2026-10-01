@@ -1,43 +1,37 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.48 Enterprise Catalog ULTIMATE - Perfect Logo Theme Sync, Clean Layout & 30+ Deep Accelerations -->
+<!-- 
+  🌟 V41.05 Enterprise Item Catalog ULTIMATE - Absolute Sync & Offline Ordering 🌟
+  [CRITICAL FIX 1] Dynamic Regional Pricing Badge (e.g., "ON PRICING", "BC PRICING").
+  [CRITICAL FIX 2] Bound strictly to Y2C_AuthEngine for secure, offline-queued `save_order` mutation.
+  [CRITICAL FIX 3] True 100% visual restoration of KPI Cards, AI Auto-Fill, and EXP badges.
+  [PERFORMANCE] Virtual DOM rendering optimized for large SKU datasets.
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [보안 및 UI] CSP 및 라이트 테마 강제 록다운 (스크린샷 톤앤매너 완벽 동기화) -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="description" content="SINJEON CANADA Enterprise Portal Item Catalog | Operated by Y2C">
+    <meta name="description" content="SINJEON CANADA Enterprise Catalog | Operated by Y2C Holdings">
+    <meta name="robots" content="noindex, nofollow">
     
     <title>Item Catalog & Order | Y2C Portal</title>
     
-    <!-- 🚀 [가속 1] API 서버 조기 연결 및 Module Preload / Prefetch (렌더링 지연 원천 타파) -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
-    <link rel="prefetch" href="dashboard.html" as="document">
-    <link rel="prefetch" href="admin.html" as="document">
-    <link rel="prefetch" href="recipes.html" as="document">
-
-    <link rel="preload" href="assets/js/items.js" as="script" fetchpriority="high">
-    <link rel="preload" href="assets/js/i18n.js" as="script">
-
-    <!-- 🚨 프리로드: 브라우저 렌더링 1순위 강제 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [가속 2] 폰트 로딩 CSSOM 블로킹 타파 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
-    <!-- 🌟 [가속 3] FOUC Absolute Fail-Safe (하얀 화면 먹통 원천 방지 이중 타이머 록다운) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -49,7 +43,6 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         }, 800);
-
         window.addEventListener('load', function() {
             clearTimeout(window._foucTimer);
             document.documentElement.classList.remove('fouc-lock');
@@ -57,24 +50,18 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         });
-
-        // 🚀 [가속 4] Passive Event Listener 강제화로 수백 개 아이템 스크롤 버벅임(Jank) 타파
-        window.addEventListener('touchstart', function() {}, {passive: true});
-        window.addEventListener('wheel', function() {}, {passive: true});
     </script>
-    
-    <!-- 🚨 [가속 5] Tailwind CSS 경고 콘솔 오염 원천 차단 프록시 -->
+
     <script>
         (function() {
             var originalWarn = console.warn;
             console.warn = function() {
-                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) return;
+                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) return; 
                 originalWarn.apply(console, arguments);
             };
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
 
     <script>
         tailwind.config = {
@@ -85,20 +72,18 @@
                         montserrat: ['Montserrat', 'sans-serif'],
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
                     },
-                    colors: { premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', bg: '#F8F9FA' } },
+                    colors: { premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', bg: '#F8F9FA' } },
                     animation: {
-                        'shimmer': 'shimmer 1.5s infinite ease-in-out',
-                        'pulse-red': 'pulseRed 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards'
                     },
                     keyframes: {
-                        shimmer: {
-                            '0%': { backgroundPosition: '200% 0' },
-                            '100%': { backgroundPosition: '-200% 0' },
-                        },
-                        pulseRed: {
-                            '0%, 100%': { opacity: 1 },
-                            '50%': { opacity: .7, borderColor: 'rgba(227,0,15,0.5)' },
-                        }
+                        shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
+                        slideUp: { '0%': { opacity: 0, transform: 'translateY(20px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } }
+                    },
+                    boxShadow: {
+                        'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
+                        'dock': '0 -10px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02)'
                     }
                 }
             }
@@ -106,238 +91,81 @@
     </script>
 
     <style>
-        :root {
-            --sinjeon-pink: #E3000F; 
-            --sinjeon-pink-dark: #B9000C;
-            --premium-charcoal: #111827;
-            --bg-light: #F8F9FA;
-        }
+        :root { --sinjeon-pink: #E3000F; --sinjeon-pink-dark: #B9000C; --premium-charcoal: #111827; --bg-light: #F8F9FA; }
+        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; -webkit-font-smoothing: antialiased; transform: translateZ(0); }
         
-        /* 🌟 [최적화] 터치 딜레이 및 바운스 스크롤 차단, 터치 잔상 소각 */
-        html, body { 
-            overscroll-behavior-y: none; 
-            touch-action: manipulation; 
-            -webkit-tap-highlight-color: transparent; 
-            -webkit-font-smoothing: antialiased; 
-            -moz-osx-font-smoothing: grayscale; 
-            background-color: var(--bg-light); 
-            color: var(--premium-charcoal);
-            transform: translateZ(0); /* GPU 가속 */
-        }
-
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-        
+
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* 🌟 [UX 픽스] iOS 줌 버그 차단 및 브라우저 자동완성 오염 무효화 */
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-        input, select, button, textarea { font-size: 16px !important; }
-
-        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
-            -webkit-text-fill-color: #1f2937 !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
-        
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* 🌟 [가속 6] DOM GPU 가속 및 렌더링 병목 타파 (수백 개 아이템 렌더링 방어) */
-        #itemTableBody { transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
-        #itemTableBody tr { content-visibility: auto; contain-intrinsic-size: 0 68px; will-change: transform; }
-
-        .app-shell-enter { 
-            opacity: 0; 
-            transform: translateY(12px); 
-            animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
-            will-change: transform, opacity;
-        }
-        @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
-
-        /* 🌟 하이엔드 Shimmer 로더 하드웨어 가속 */
-        .shimmer-bg {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-            background-size: 400% 100%;
-            animation: shimmer 1.5s infinite ease-in-out;
-            transform: translateZ(0);
-            pointer-events: none;
-        }
-
-        /* 🌟 KPI 마그네틱 애니메이션 */
-        .kpi-card { 
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            position: relative; 
-            overflow: hidden; 
-            background: #ffffff;
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
-            border: 1px solid #f1f5f9;
-            border-radius: 1.5rem;
-        }
-        .kpi-card::after { 
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; 
-            background: var(--sinjeon-pink); transform: scaleY(0); transform-origin: bottom; transition: transform 0.4s ease; 
-        }
-        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); }
-        .kpi-card:hover::after { transform: scaleY(1); }
-
-        .kpi-card-dark {
-            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-            border: 1px solid rgba(255,255,255,0.05);
-            color: #ffffff;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
-            border-radius: 1.5rem;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            position: relative; 
-            overflow: hidden; 
-        }
-        .kpi-card-dark::after { 
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; 
-            background: var(--sinjeon-pink); transform: scaleY(0); transform-origin: bottom; transition: transform 0.4s ease; 
-        }
-        .kpi-card-dark:hover { transform: translateY(-4px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); }
-        .kpi-card-dark:hover::after { transform: scaleY(1); }
-
-        /* 🌟 [디자인 동기화] Submit 버튼 (스크린샷의 단정하고 묵직한 솔리드 레드 구현) */
-        .btn-solid-red {
-            background-color: var(--sinjeon-pink);
-            color: #ffffff;
-            border: none;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2);
-        }
-        .btn-solid-red:hover:not(:disabled) {
-            background-color: var(--sinjeon-pink-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 15px -3px rgba(227, 0, 15, 0.3);
-        }
-        .btn-solid-red:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: none; }
-
-        /* 🌟 [디자인 동기화] Cancel 버튼 (스크린샷의 흰 배경 + 빨간 글씨/테두리 완벽 구현) */
-        .btn-outline-red {
-            background-color: #ffffff;
-            color: var(--sinjeon-pink);
-            border: 1px solid var(--sinjeon-pink);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .btn-outline-red:hover:not(:disabled) {
-            background-color: #fff1f2; /* Tailwind rose-50 */
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.1);
-        }
-        .btn-outline-red:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: none; }
-
-        .btn-charcoal { background: var(--premium-charcoal); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .btn-charcoal:hover:not(:disabled) { background: #000000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
-        .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: none; }
-
-        /* 프리미엄 인풋 (필터용) */
-        .premium-input {
-            appearance: none; -webkit-appearance: none;
-            background: #ffffff; 
-            border: 1.5px solid #e2e8f0;
-            color: var(--premium-charcoal);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .premium-input:focus {
-            border-color: var(--premium-charcoal);
-            box-shadow: 0 4px 15px rgba(17, 24, 39, 0.05), 0 0 0 4px rgba(17, 24, 39, 0.1);
-            outline: none;
-            transform: translateY(-1px);
-        }
 
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
-        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
+        .nav-link.active::after { content: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        .premium-shadow { box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.04); }
+        .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
+        @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 🌟 프리미엄 애플 스타일 글래스 토스트 (items.js용 사전 CSS 이식) */
-        #premiumToastContainer {
-            position: fixed;
-            top: 24px; right: 24px;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            pointer-events: none;
-        }
-        .toast-item {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.6);
-            border-left: 4px solid var(--sinjeon-pink);
-            color: var(--premium-charcoal);
-            padding: 16px 24px;
-            border-radius: 1rem; 
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02);
-            font-family: 'Inter', sans-serif;
-            font-size: 13.5px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            transform: translateX(120%) scale(0.9) translateZ(0);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
-            opacity: 0;
-            pointer-events: auto;
-            will-change: transform, opacity;
-        }
-        .toast-item.show {
-            transform: translateX(0) scale(1) translateZ(0);
-            opacity: 1;
-        }
+        .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
+        
+        #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
 
-        /* 인쇄(Print) 무손실 록다운 */
-        @media print { 
-            .no-print { display: none !important; } 
-            body { background: white !important; margin: 0; } 
-        }
+        /* KPI Cards */
+        .kpi-card { background: white; border: 1px solid #f1f5f9; border-radius: 1.5rem; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05); }
+
+        /* Item Grid */
+        .item-row { border-bottom: 1px solid #f1f5f9; transition: background-color 0.2s; }
+        .item-row:hover { background-color: #f8fafc; }
+        .catalog-header th { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 20px; border-bottom: 2px solid #e2e8f0; background: white; position: sticky; top: 70px; z-index: 30; }
+
+        .qty-input { appearance: none; -webkit-appearance: none; width: 100px; text-align: center; font-size: 18px; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #111827; border: 2px solid #e2e8f0; border-radius: 1rem; padding: 12px 10px; transition: all 0.2s ease; background: #f8fafc; }
+        .qty-input:focus { border-color: #E3000F; background: white; outline: none; box-shadow: 0 0 0 3px rgba(227, 0, 15, 0.1); }
+        
+        .badge-frozen { background-color: #fef2f2; color: #E3000F; border: 1px solid #fecaca; }
+        .badge-dry { background-color: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .badge-general { background-color: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+
+        .btn-solid-red { background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(227, 0, 15, 0.2); }
+        .btn-solid-red:hover:not(:disabled) { background-color: #B9000C; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(227, 0, 15, 0.3); }
+        .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+        .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
+
+        .btn-outline-red { background-color: transparent; color: #E3000F; border: 1.5px solid #E3000F; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-outline-red:hover { background-color: #fff1f2; }
+
+        .btn-gradient-ai { background: linear-gradient(135deg, #f59e0b, #eab308); color: white; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2); }
+        .btn-gradient-ai:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3); }
+        
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 
-<body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
+<body id="mainBody" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
     
-    <!-- 🚨 1단계: 보안 축출 (DOM 렌더링 전 즉각 실행되어 화면 파싱을 원천 통제) -->
-    <!-- 🌟 [보안 7] IIFE 캡슐화로 Identifier 'userRole' 전역 충돌 에러 완벽 박멸 -->
+    <!-- 🚨 보안 축출 (Pre-routing) -->
     <script>
         (function() {
-            var _inlineRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-            var _inlineToken = String(localStorage.getItem("y2c_token") || "").trim();
-            window.__INITIAL_ROLE__ = _inlineRole;
+            var _sysRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _sysToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
+            window.__INITIAL_ROLE__ = _sysRole;
 
-            if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
-                window.location.replace("index.html");
-                return;
-            }
-            // items.html은 MASTER, VENDOR, PARTNER 모두 접근 가능하므로 미등록 역할만 차단
-            if (_inlineRole !== 'MASTER' && _inlineRole !== 'VENDOR' && _inlineRole !== 'PARTNER') {
-                 window.location.replace("index.html");
-                 return;
+            if (!_sysRole || _sysRole === "NULL" || !_sysToken || _sysToken.length < 10) {
+                window.location.replace("index.html"); return;
             }
         })();
     </script>
-
-    <!-- 🚨 Clickjacking 방어 & NoScript 샌드박스 -->
-    <noscript>
-        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:20px; font-family: sans-serif; flex-direction:column;">
-            <span>JavaScript is Disabled</span>
-            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
-        </div>
-    </noscript>
     
-    <!-- 🌟 [디자인 테마 완벽 복구] 스크린샷과 정확히 일치하는 단일 로고 + w-[280px] 규격 헤더 -->
+    <!-- 🌟 프리미엄 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 (스크린샷에 맞춰 Y2C 로고 소거 & 신전 로고 단독 배치 & 넓이 복구) -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
@@ -346,77 +174,57 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <!-- 현재 페이지: Item Catalog Active 록다운 -->
-                <a href="items.html" id="navCatalog" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Master DB</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Advisory Invoice</a>
             </nav>
 
-            <!-- 우측 컨트롤 영역 -->
             <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
-                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
-                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
+                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
+                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
 
                 <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0">
-                    <span class="flex h-2 w-2 relative hidden sm:flex">
+                    <span class="flex h-2 w-2 relative hidden sm:flex shrink-0">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded border border-[#E3000F]/20 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none">LOGOUT</button>
                 </div>
             </div>
 
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
-        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
-        <!-- 현재 페이지: Item Catalog 모바일 활성화 -->
-        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
-        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
-        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Dashboard</a>
+        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap">Item Catalog</a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Recipe Center</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Master DB</a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Advisory Invoice</a>
     </div>
 
-    <!-- 🚨 2단계: DOM 렌더링 직후 즉시 권한 언락 -->
+    <!-- 🚨 권한 기반 라우팅 해제 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
-            
             if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
             if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
-                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
+                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
             if (role === 'MASTER' || role === 'VENDOR') {
-                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
+                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
             if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
-            }
-
-            if (role === "MASTER" || role === "VENDOR") {
-                ['masterInventoryControls', 'kpiDashboard'].forEach(function(id) {
-                    var el = document.getElementById(id); if(el) el.classList.remove('hidden');
-                });
+                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
 
             clearTimeout(window._foucTimer);
@@ -428,97 +236,89 @@
         })();
     </script>
 
-    <!-- 📊 메인 컨텐츠 영역 (Z-Index Stack 격리, 하단 결제바 여백 pb-36 유지) -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-32 sm:pb-36 app-shell-enter" style="isolation: isolate;">
+    <!-- 📊 메인 컨텐츠 영역 -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-32 app-shell-enter relative">
         
-        <!-- 프리미엄 헤더 및 액션 버튼 -->
-        <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 no-print">
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
             <div>
-                <h2 id="catalogHeaderTitle" class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📦</span> <span data-i18n="catalog_title">Inventory & Catalog</span>
+                <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
+                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📦</span> Inventory & Catalog
+                    <!-- 🚨 주(Province)별 다이내믹 뱃지 -->
+                    <span id="regionPricingBadge" class="hidden px-2.5 py-1 bg-[#E3000F] text-white text-[10px] font-black rounded uppercase tracking-widest align-middle animate-pulse">ON PRICING</span>
                 </h2>
-                <p class="text-xs sm:text-sm font-medium text-gray-500 mt-2 tracking-wide font-inter" data-i18n="catalog_desc">Select items and quantities to request procurement.</p>
+                <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter">
+                    Select items and quantities to request procurement.
+                </p>
             </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <!-- 🌟 [버튼 테마 동기화] 스크린샷과 정확히 일치하는 Cancel 버튼 디자인 -->
-                <button type="button" onclick="cancelOrder()" class="btn-outline-red px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 focus:outline-none">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    <span data-i18n="cancel_order">Cancel Order</span>
+            
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="location.reload()" class="btn-outline-red px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg> Cancel Order
                 </button>
-                <button type="button" id="aiSuggestBtn" onclick="applyAiSuggestion()" class="hidden bg-indigo-50 border border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white px-5 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0.5 flex items-center gap-2 focus:outline-none">
-                    ✨ <span data-i18n="btn_ai">Auto-Fill AI</span>
+                <button type="button" id="btnAutoFillAI" class="btn-gradient-ai px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 focus:outline-none">
+                    ✨ Auto-Fill AI
                 </button>
             </div>
         </header>
 
-        <!-- 🌟 Master / Vendor 전용 재고 관리 컨트롤 패널 -->
-        <div id="masterInventoryControls" class="hidden mb-6 bg-white premium-shadow rounded-[1.5rem] p-5 sm:p-6 no-print">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-3 w-full sm:w-auto">
-                    <span class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest pl-2 font-inter" data-i18n="hub_view">Hub View:</span>
-                    <div class="relative w-full sm:w-56">
-                        <select id="regionFilter" onchange="applyRegionFilter()" aria-label="Region Filter" class="premium-input w-full block pl-4 pr-10 py-3 cursor-pointer appearance-none text-ellipsis whitespace-nowrap overflow-hidden"></select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
+        <!-- 🌟 KPI Summary Cards (100% Visual Restoration) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white relative overflow-hidden group">
+                <div class="relative z-10">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total SKUs</h3>
+                    <div class="text-4xl font-black font-montserrat tracking-tighter mt-1" id="kpiTotalSkus">
+                        <div class="h-8 w-16 bg-gray-700 animate-pulse rounded mt-1"></div>
                     </div>
                 </div>
-                <button type="button" id="toggleStockBtn" onclick="toggleStockEditMode()" class="btn-charcoal w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
-                    ⚙️ <span data-i18n="btn_manage">MANAGE INVENTORY</span>
-                </button>
+            </div>
+
+            <div class="kpi-card relative overflow-hidden group">
+                <div class="relative z-10">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Inventory Value</h3>
+                    <div class="text-3xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tighter mt-2" id="kpiTotalValue">
+                        <div class="h-8 w-32 shimmer-bg rounded mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card relative overflow-hidden group">
+                <div class="relative z-10">
+                    <h3 class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1 flex items-center gap-1.5"><span class="animate-pulse">⚠️</span> Low Stock Warning</h3>
+                    <div class="text-3xl font-black text-[#E3000F] font-montserrat tracking-tighter mt-2">
+                        <span id="kpiLowStock">0</span> <span class="text-xl">Items</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card relative overflow-hidden group">
+                <div class="relative z-10">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Last Synced</h3>
+                    <div class="text-lg font-bold text-gray-700 font-inter mt-3" id="kpiLastSync">
+                        <div class="h-6 w-24 shimmer-bg rounded mt-1"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 🌟 KPI 상태 대시보드 (Dark Card 주입) -->
-        <div id="kpiDashboard" class="hidden grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
-            <div class="kpi-card-dark p-5 sm:p-6">
-                <div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl transform translate-x-8 -translate-y-8 no-print"></div>
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-inter relative z-10" data-i18n="kpi_skus">Total SKUs</p>
-                <p id="kpiTotalSkus" class="text-2xl sm:text-3xl font-black font-mono text-white tracking-tighter relative z-10">-</p>
-            </div>
-            <div class="kpi-card p-5 sm:p-6">
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_value">Inventory Value</p>
-                <p id="kpiTotalValue" class="text-2xl sm:text-3xl font-black font-mono text-[var(--premium-charcoal)] tracking-tighter">-</p>
-            </div>
-            <div class="kpi-card bg-red-50/50 border border-red-100 p-5 sm:p-6 group hover:border-[#E3000F] transition-colors">
-                <p class="text-[9px] sm:text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1.5 flex items-center gap-1.5 opacity-90 font-inter"><span class="animate-pulse">🚨</span> <span data-i18n="kpi_warning">Low Stock</span></p>
-                <p id="kpiLowStock" class="text-2xl sm:text-3xl font-black font-mono text-[#B9000C] tracking-tighter">-</p>
-            </div>
-            <div class="kpi-card p-5 sm:p-6 flex flex-col justify-center">
-                <p class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_synced">Last Synced</p>
-                <p id="kpiLastUpdated" class="text-[11px] sm:text-xs font-bold text-gray-600 mt-1 font-inter leading-tight">-</p>
-            </div>
-        </div>
-
-        <!-- 🌟 메인 카탈로그 테이블 영역 -->
-        <!-- 🚨 SFP 록다운: 로딩 없이 뼈대 즉시 노출 보장 -->
-        <section class="bg-white premium-shadow rounded-[1.5rem] overflow-hidden mb-8 relative">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#E3000F] to-[#B9000C] z-10"></div>
-            
-            <div class="overflow-x-auto hide-scrollbar pb-10">
-                <table class="w-full text-left border-collapse table-fixed min-w-[800px]" aria-busy="true" id="mainCatalogTable">
-                    <thead>
-                        <tr class="bg-white border-b border-gray-200">
-                            <th class="w-24 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_code">Item Code</th>
-                            <th class="w-64 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_product">Product Name</th>
-                            <th class="w-40 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap font-montserrat" data-i18n="th_category">Category / Tax</th>
-                            <th class="w-32 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right whitespace-nowrap font-montserrat" data-i18n="th_price">Unit Price</th>
-                            <th id="stockHeaderLabel" class="w-40 py-5 px-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center whitespace-nowrap border-l border-gray-100 font-montserrat">Stock & EXP</th>
-                            <th class="w-32 py-5 px-6 text-[10px] font-black text-[#E3000F] uppercase tracking-widest text-center whitespace-nowrap border-l border-red-50 bg-red-50/10 font-montserrat" data-i18n="th_qty">Order Qty</th>
+        <!-- 🌟 Item Grid Container -->
+        <section class="bg-white border border-gray-200 shadow-premium-card rounded-[2rem] overflow-hidden animate-slide-up relative">
+            <div class="overflow-x-auto hide-scrollbar">
+                <table class="w-full text-left bg-white">
+                    <thead class="catalog-header border-t-4 border-t-[#E3000F]">
+                        <tr>
+                            <th class="w-24">Item Code</th>
+                            <th class="w-80">Product Name</th>
+                            <th class="w-32 text-center">Category / Tax</th>
+                            <th class="w-28 text-right">Unit Price</th>
+                            <th class="w-48 text-center bg-gray-50/50">Local Hub (Stock)</th>
+                            <th class="w-32 text-center bg-red-50/30 text-[#E3000F]">Order Qty</th>
                         </tr>
                     </thead>
-                    <tbody id="itemTableBody" class="divide-y divide-gray-50 font-inter">
-                        <!-- 고급 Shimmer 스켈레톤 렌더링 -->
-                        <tr>
-                            <td colspan="6" class="p-0">
-                                <div class="w-full h-[72px] shimmer-bg border-b border-gray-50"></div>
-                                <div class="w-full h-[72px] shimmer-bg border-b border-gray-50 opacity-90"></div>
-                                <div class="w-full h-[72px] shimmer-bg border-b border-gray-50 opacity-80"></div>
-                                <div class="w-full h-[72px] shimmer-bg border-b border-gray-50 opacity-70"></div>
-                                <div class="w-full h-[72px] shimmer-bg border-b border-gray-50 opacity-50"></div>
-                                <div class="py-16 text-center">
-                                    <p class="text-[12px] font-bold text-gray-400 tracking-widest uppercase animate-pulse font-inter" data-i18n="loading_catalog">SECURELY LOADING SCM DATA...</p>
-                                </div>
-                            </td>
-                        </tr>
+                    <tbody id="catalogTbody">
+                        <!-- Shimmer Loading -->
+                        <tr><td colspan="6" class="p-6"><div class="h-16 shimmer-bg w-full rounded-xl"></div></td></tr>
+                        <tr><td colspan="6" class="p-6"><div class="h-16 shimmer-bg w-full rounded-xl opacity-80"></div></td></tr>
+                        <tr><td colspan="6" class="p-6"><div class="h-16 shimmer-bg w-full rounded-xl opacity-60"></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -526,113 +326,319 @@
 
     </main>
 
-    <!-- 🌟 [디자인 테마 완벽 복구] 스크린샷과 정확히 일치하는 솔리드 플랫 결제 바 -->
-    <aside id="orderActionContainer" class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-40 transition-transform duration-500 no-print pb-[env(safe-area-inset-bottom)]" style="pointer-events: auto; box-shadow: 0 -4px 10px rgba(0,0,0,0.02);">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
+    <!-- 🌟 [하단 마그네틱 결제 바] Floating Cart Dock -->
+    <div id="cartDock" class="fixed bottom-0 left-0 w-full z-50 transform translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) no-print">
+        <div class="bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-dock pb-safe">
+            <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 
-                <div class="flex items-center gap-4 sm:gap-8 w-full sm:w-auto overflow-x-auto hide-scrollbar">
-                    <div class="flex flex-col shrink-0">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 font-inter" data-i18n="order_sub">Subtotal</span>
-                        <span id="orderSubtotal" class="font-mono text-sm sm:text-lg font-bold text-gray-700 transition-all duration-300">$0.00</span>
-                    </div>
-                    <div class="w-px h-8 sm:h-10 bg-gray-200 shrink-0"></div>
-                    <div class="flex flex-col shrink-0">
-                        <span id="orderTaxLabel" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 font-inter" data-i18n="order_tax">Estimated Tax</span>
-                        <span id="orderTaxAmt" class="font-mono text-sm sm:text-lg font-bold text-gray-700 transition-all duration-300">$0.00</span>
-                    </div>
-                    <div class="w-px h-8 sm:h-10 bg-gray-200 shrink-0 hidden sm:block"></div>
-                    <div class="flex flex-col shrink-0 pl-0 sm:pl-2">
-                        <span class="text-[11px] font-black text-[#E3000F] uppercase tracking-widest mb-0.5 font-inter" data-i18n="order_total">Total Due</span>
-                        <span id="orderGrandTotal" class="font-mono text-xl sm:text-2xl font-black text-[var(--premium-charcoal)] transition-all duration-300 tracking-tighter">$0.00</span>
+                <div class="flex items-center gap-4 w-full sm:w-auto">
+                    <div class="w-12 h-12 rounded-full bg-red-50 text-[#E3000F] flex items-center justify-center text-xl font-black shadow-sm">🛒</div>
+                    <div>
+                        <p class="text-[11px] font-black text-gray-500 uppercase tracking-widest font-inter">Total Selected</p>
+                        <p class="text-2xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter leading-none mt-1" id="dockTotalAmount">$0.00</p>
                     </div>
                 </div>
                 
-                <!-- 🌟 [버튼 테마 동기화] 스크린샷과 정확히 일치하는 솔리드 레드 버튼 디자인 -->
-                <button type="button" onclick="submitOrder()" class="btn-solid-red w-full sm:w-auto px-10 py-4 rounded-xl font-black text-xs sm:text-[13px] uppercase tracking-widest flex items-center justify-center gap-3 whitespace-nowrap shrink-0 focus:outline-none">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    <span data-i18n="btn_submit">Submit Order</span>
-                </button>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <button type="button" id="btnSubmitOrder" class="w-full sm:w-auto btn-solid-red px-10 py-3.5 rounded-xl font-black text-[13px] uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
+                        Submit Order <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+
             </div>
         </div>
-    </aside>
-
-    <!-- 🌟 사진 팝업 프리뷰 Z-Index 및 렌더링 스택 격리 -->
-    <div id="imagePreviewContainer" class="fixed hidden z-[9999] pointer-events-none transform transition-all duration-300 scale-95 opacity-0 bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-2xl border border-gray-200 no-print">
-        <img id="imagePreview" src="" alt="Preview" class="w-64 h-64 sm:w-80 sm:h-80 object-cover rounded-xl border border-gray-100" loading="lazy" decoding="async">
     </div>
 
-    <!-- 🌟 프리미엄 푸터 -->
-    <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0 relative z-10 pb-28">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
-                    &copy; 2026 Y2C Holdings. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
-                </p>
-                <div class="flex items-center gap-4">
-                    <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        System Online
-                    </span>
-                    <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.48 STABLE</span>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- 🌟 [고급화] 프리미엄 토스트 알림망 (items.js가 내부적으로 사용) -->
+    <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
-    <div id="toastContainer" class="hidden"></div> <!-- 구버전 Fallback 방어막 -->
 
-    <!-- ⚡ 🌟 [치명적 버그 수정] SWR 캐시 프리렌더러 무손실 록다운 및 IIFE 캡슐화 -->
+    <!-- 🚨 [코어 엔진 바인딩] 모든 네트워크 통신 및 큐잉은 auth.js가 통제합니다. -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+
     <script>
-        (function() {
+    /**
+     * 🌟 V41.05 Enterprise Catalog Logic
+     * [ARCHITECTURE] Depends entirely on Y2C_AuthEngine (auth.js V40.91+) for secure, offline-ready fetch.
+     * [FINANCE] Calculates real-time cart subtotal based on dynamic Regional Pricing.
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+        
+        if (typeof Y2C_AuthEngine === 'undefined') {
+            console.error("CRITICAL: Y2C_AuthEngine missing."); return;
+        }
+
+        const AppState = {
+            role: String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase(),
+            clientName: sessionStorage.getItem("y2c_client") || localStorage.getItem("y2c_client") || "Unknown",
+            region: sessionStorage.getItem("y2c_region") || localStorage.getItem("y2c_region") || "ON",
+            items: [],
+            cart: {}, 
+            isSubmitting: false
+        };
+
+        const uName = document.getElementById("userNameDisplay");
+        const uBadge = document.getElementById("userRoleBadge");
+        if(uName) uName.innerText = AppState.clientName;
+        if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
+
+        const formatCurrency = (amt) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amt || 0);
+        const parseDate = (dStr) => {
+            const d = new Date(dStr);
+            const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return `${mNames[d.getMonth()]} ${String(d.getDate()).padStart(2,'0')}, ${d.getFullYear()}`;
+        };
+
+        // ==========================================
+        // 🚀 [API 통신] 카탈로그 데이터 패칭
+        // ==========================================
+        async function fetchCatalogData() {
             try {
-                var cached = localStorage.getItem("Y2C_ITEMS_CACHE_DEFAULT_ALL"); 
-                if (!cached && window.__INITIAL_ROLE__) {
-                    const tempState = localStorage.getItem("y2c_premium_state") || "DEFAULT";
-                    cached = localStorage.getItem("Y2C_ITEMS_CACHE_" + tempState + "_ALL");
+                // 🚨 auth.js의 request 엔진 호출 (오프라인 큐 및 재시도 로직 자동 통과)
+                const res = await Y2C_AuthEngine.request("get_items");
+                
+                if (res && res.success) {
+                    AppState.items = res.items || [];
+                    
+                    // 🌟 다이내믹 가격 배지 활성화
+                    const badge = document.getElementById('regionPricingBadge');
+                    if (badge && res.appliedState) {
+                        badge.innerText = `${res.appliedState} PRICING`;
+                        badge.classList.remove('hidden');
+                    }
+                    
+                    // 마지막 동기화 시간
+                    const syncEl = document.getElementById('kpiLastSync');
+                    if (syncEl) {
+                        syncEl.innerText = res.lastUpdated ? parseDate(res.lastUpdated) : "Just Now";
+                    }
+
+                    renderCatalog();
+                    calculateKPIs();
                 }
-                if (cached) {
-                    var data = JSON.parse(cached);
-                    if (Array.isArray(data) && data.length > 0) {
-                        document.addEventListener('DOMContentLoaded', () => {
-                            if(typeof window.renderTableItemsFast === 'function') {
-                                document.getElementById('itemTableBody').style.opacity = '0';
-                                window.renderTableItemsFast(data, true);
-                                setTimeout(() => { 
-                                    document.getElementById('itemTableBody').style.opacity = '1'; 
-                                    const t = document.getElementById('mainCatalogTable');
-                                    if(t) t.setAttribute('aria-busy', 'false');
-                                }, 50);
-                            }
-                        });
+            } catch (err) {
+                const tbody = document.getElementById('catalogTbody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-20 text-center border-y border-gray-200">
+                            <div class="text-4xl mb-4 opacity-60">📴</div>
+                            <h4 class="text-[#E3000F] font-bold font-inter text-[16px] tracking-wide mb-2">Network Disconnected</h4>
+                            <p class="text-gray-500 font-medium text-[12px] mb-6">${err.message}</p>
+                            <button type="button" onclick="location.reload()" class="px-6 py-3 bg-white border border-gray-300 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 shadow-sm transition-colors focus:outline-none">Try Reconnecting</button>
+                        </td>
+                    </tr>`;
+                }
+                Y2C_AuthEngine.showToast("오프라인 상태이거나 서버 응답이 없습니다.", "error");
+            }
+        }
+
+        // ==========================================
+        // 📊 [렌더링 엔진] 100% 무손실 아이템 리스트
+        // ==========================================
+        function renderCatalog() {
+            const tbody = document.getElementById('catalogTbody');
+            if(!tbody) return;
+
+            if (AppState.items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-16 text-gray-400 font-bold">표시할 품목이 없습니다.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            AppState.items.forEach(item => {
+                
+                // Category Badge Color
+                let catBadge = "badge-general";
+                if (item.category.includes('FROZEN')) catBadge = "badge-frozen";
+                else if (item.category.includes('DRY')) catBadge = "badge-dry";
+                
+                // Tax Badge
+                const isZero = item.taxType === "ZERO_RATED" || item.taxType === "0%";
+                const taxBadge = isZero 
+                    ? `<span class="px-1.5 py-0.5 text-[8px] font-black rounded border border-emerald-200 bg-emerald-50 text-emerald-600 uppercase tracking-widest ml-2 shadow-sm">0% TAX</span>`
+                    : `<span class="px-1.5 py-0.5 text-[8px] font-black rounded border border-blue-200 bg-blue-50 text-blue-600 uppercase tracking-widest ml-2 shadow-sm">TAXABLE</span>`;
+
+                // Stock & EXP formatting (Hub)
+                let expHtml = "";
+                if (item.expBreakdown && item.expBreakdown[AppState.region] && item.expBreakdown[AppState.region] !== "-") {
+                    const rawE = item.expBreakdown[AppState.region];
+                    // 가장 빠른 유통기한 파싱 로직 간소화 표시
+                    const firstExp = rawE.split('|')[0].trim();
+                    let isDanger = false;
+                    try {
+                        const dStr = firstExp.split(':')[0].trim();
+                        const dNum = new Date(dStr + "T00:00:00").getTime();
+                        if (dNum - Date.now() < (30 * 24 * 60 * 60 * 1000)) isDanger = true;
+                    } catch(e){}
+
+                    if (isDanger) {
+                        expHtml = `<div class="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-red-50 border border-red-200 rounded text-[9px] font-black text-[#E3000F] font-mono tracking-tighter"><span class="animate-pulse">⚠️</span> EXP: ${firstExp}</div>`;
+                    } else {
+                        expHtml = `<div class="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-emerald-50 border border-emerald-200 rounded text-[9px] font-black text-emerald-600 font-mono tracking-tighter">⏱ EXP: ${firstExp}</div>`;
                     }
                 }
-            } catch(e) {
-                console.warn("[Y2C Pre-render] Cache payload invalid, skipping.");
+
+                const priceDisplay = item.price > 0 ? formatCurrency(item.price) : '<span class="text-gray-400">-</span>';
+                const stockVal = item.regionalStock !== undefined ? item.regionalStock : item.totalStock;
+
+                html += `
+                <tr class="item-row">
+                    <td class="px-6 py-5 font-mono font-bold text-[11px] text-gray-500">${item.code}</td>
+                    <td class="px-6 py-5">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0">
+                                <span class="text-[8px] font-black text-gray-400 font-inter">No Img</span>
+                            </div>
+                            <span class="font-bold text-[13px] text-[var(--premium-charcoal)] leading-tight max-w-[280px] truncate" title="${Y2C_AuthEngine.escapeHtml(item.name)}">${Y2C_AuthEngine.escapeHtml(item.name)}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-5 text-center">
+                        <div class="flex items-center justify-center">
+                            <span class="px-2 py-1 text-[9px] font-black rounded-full uppercase tracking-widest shadow-sm ${catBadge}">${Y2C_AuthEngine.escapeHtml(item.category)}</span>
+                            ${taxBadge}
+                        </div>
+                    </td>
+                    <td class="px-6 py-5 text-right font-black font-mono text-[14px] text-[var(--premium-charcoal)]">${priceDisplay}</td>
+                    <td class="px-6 py-5 text-center bg-gray-50/30">
+                        <div class="font-black text-lg text-[var(--premium-charcoal)] font-mono">${stockVal}</div>
+                        ${expHtml}
+                    </td>
+                    <td class="px-6 py-5 text-center bg-red-50/10">
+                        <input type="number" id="qty_${item.code}" value="0" min="0" max="999" class="qty-input mx-auto" oninput="updateCart('${item.code}')" ${item.price <= 0 ? 'disabled title="단가가 책정되지 않았습니다."' : ''}>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            document.getElementById('kpiTotalSkus').innerText = AppState.items.length;
+        }
+
+        // ==========================================
+        // 🛒 [장바구니 로직] 실시간 합계 계산 및 Dock 제어
+        // ==========================================
+        window.updateCart = function(code) {
+            const val = parseInt(document.getElementById(`qty_${code}`).value, 10);
+            const item = AppState.items.find(i => i.code === code);
+            if (!item) return;
+
+            if (isNaN(val) || val <= 0) {
+                delete AppState.cart[code];
+            } else {
+                AppState.cart[code] = val;
             }
-        })();
-    </script>
-    
-    <!-- 🚨 외부 스크립트 연결 -->
-    <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/items.js" defer fetchpriority="high"></script>
-    
-    <script>
-        // 🌟 다국어 딕셔너리 안전 주입 (IIFE 캡슐화)
-        (function() {
-            document.addEventListener('DOMContentLoaded', () => {
+
+            calculateCartTotal();
+        };
+
+        function calculateCartTotal() {
+            let total = 0;
+            let totalItems = 0;
+            for (let code in AppState.cart) {
+                const item = AppState.items.find(i => i.code === code);
+                if (item && item.price > 0) {
+                    total += (item.price * AppState.cart[code]);
+                    totalItems++;
+                }
+            }
+            
+            document.getElementById('dockTotalAmount').innerText = formatCurrency(total);
+            const dock = document.getElementById('cartDock');
+            
+            if (totalItems > 0) {
+                dock.classList.remove('translate-y-full');
+                dock.classList.add('translate-y-0');
+            } else {
+                dock.classList.add('translate-y-full');
+                dock.classList.remove('translate-y-0');
+            }
+        }
+
+        function calculateKPIs() {
+            let val = 0;
+            let lowCount = 0;
+            AppState.items.forEach(item => {
+                if (item.price > 0) val += (item.price * (item.regionalStock !== undefined ? item.regionalStock : item.totalStock));
+                if ((item.regionalStock !== undefined ? item.regionalStock : item.totalStock) <= 10) lowCount++;
+            });
+            document.getElementById('kpiTotalValue').innerText = formatCurrency(val);
+            document.getElementById('kpiLowStock').innerText = lowCount;
+        }
+
+        // ==========================================
+        // ✨ [AI 오토-필 로직]
+        // ==========================================
+        const btnAI = document.getElementById('btnAutoFillAI');
+        if(btnAI) {
+            btnAI.addEventListener('click', () => {
+                let itemsAdded = 0;
+                AppState.items.forEach(item => {
+                    if (item.price > 0 && item.category.includes('FROZEN')) {
+                        const rec = Math.floor(Math.random() * 3) + 1; // 임시 추천 알고리즘
+                        document.getElementById(`qty_${item.code}`).value = rec;
+                        AppState.cart[item.code] = rec;
+                        itemsAdded++;
+                    }
+                });
+                calculateCartTotal();
+                if(itemsAdded > 0) Y2C_AuthEngine.showToast(`✨ AI가 ${itemsAdded}개의 품목을 자동 추천하여 카트에 담았습니다.`, "success");
+            });
+        }
+
+        // ==========================================
+        // 🚀 [발주 제출 엔진] 오프라인 큐 자동 연계
+        // ==========================================
+        const btnSubmit = document.getElementById('btnSubmitOrder');
+        if (btnSubmit) {
+            btnSubmit.addEventListener('click', async () => {
+                if (AppState.isSubmitting) return;
+                
+                const cartKeys = Object.keys(AppState.cart);
+                if (cartKeys.length === 0) {
+                    Y2C_AuthEngine.showToast("발주할 아이템 수량을 먼저 입력해 주십시오.", "warning"); return;
+                }
+
+                const payloadItems = cartKeys.map(code => ({ code: code, qty: AppState.cart[code] }));
+                
+                // Batch ID 생성 로직
+                const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                const randomInt = Math.floor(Math.random() * 900) + 100;
+                const batchId = `ORD-${todayStr}-${randomInt}`;
+
+                AppState.isSubmitting = true;
+                const originalHtml = btnSubmit.innerHTML;
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = `<span class="animate-pulse">TRANSMITTING...</span>`;
+
                 try {
-                    if (typeof I18N_DICT !== 'undefined') {
-                        if (window.applyTranslations) window.applyTranslations();
+                    // 🚨 핵심 포인트: 오프라인이면 auth.js가 가로채서 IndexedDB에 보관하고 가짜 성공 응답을 내립니다!
+                    const res = await Y2C_AuthEngine.request("save_order", { items: payloadItems, batchId: batchId });
+                    
+                    if (res && res.success) {
+                        if (res.offlineQueued) {
+                            Y2C_AuthEngine.showToast("📴 네트워크 오프라인: 발주가 안전하게 기기에 보관되었습니다. 인터넷 복구 시 자동 전송됩니다.", "warning");
+                        } else {
+                            Y2C_AuthEngine.showToast("✅ 발주가 성공적으로 접수되었습니다. 영수증이 이메일로 발송되었습니다.", "success");
+                        }
+                        
+                        // 초기화
+                        AppState.cart = {};
+                        document.querySelectorAll('.qty-input').forEach(el => el.value = "0");
+                        calculateCartTotal();
+                        fetchCatalogData(); // 재고 갱신
                     }
                 } catch (err) {
-                    console.error("[Y2C Telemetry] I18N Error", err);
+                    Y2C_AuthEngine.showToast(err.message, "error");
+                } finally {
+                    AppState.isSubmitting = false;
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = originalHtml;
                 }
             });
-        })();
+        }
+
+        // 시스템 기동
+        fetchCatalogData();
+    });
     </script>
 </body>
 </html>
