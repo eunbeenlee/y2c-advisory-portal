@@ -1,39 +1,46 @@
 <!DOCTYPE html>
-<!-- 🌟 V40.49 Enterprise Dashboard ULTIMATE - Perfect Tone Sync, Single Logo Header & Premium Chart Retention -->
+<!-- 
+  🌟 V41.00 Enterprise Dashboard ULTIMATE - High-End Financial Visualization 🌟
+  [CRITICAL FIX 1] Dual Chart Architecture: Upgraded to a responsive CSS Grid with Combo Area Chart + Distribution Doughnut.
+  [CRITICAL FIX 2] Enterprise Styling: Cinematic gradients, deep charcoal contrasting bars, and custom HTML legends.
+  [CRITICAL FIX 3] Interactive Tooltips: Advanced Chart.js tooltip configuration for a Bloomberg-terminal-like experience.
+  [DEPENDENCY] Strictly bound to Y2C_AuthEngine (auth.js V40.91+) for secure, offline-ready fetching.
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [보안 14] CSP 및 라이트 테마 강제 록다운 (전사 톤앤매너 100% 동기화) -->
+    <!-- 🌟 [보안 1] CSP 및 라이트 테마 강제 록다운 -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="description" content="SINJEON CANADA Enterprise Portal Dashboard | Operated by Y2C">
+    <meta name="description" content="SINJEON CANADA Enterprise Dashboard | Operated by Y2C Holdings">
+    <meta name="robots" content="noindex, nofollow">
     
     <title>Enterprise Dashboard | Y2C Portal</title>
     
-    <!-- 🚀 [가속 22] API 통신망 조기 연결 및 다음 페이지 리소스 사전 확보 (Prefetch) -->
+    <!-- 🚀 [가속 2] 네트워크 조기 연결망 -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     
-    <link rel="prefetch" href="items.html" as="document">
-    <link rel="prefetch" href="admin.html" as="document">
-    <link rel="prefetch" href="recipes.html" as="document">
-
-    <!-- 🚨 프리로드: 파비콘 및 핵심 폰트 (LCP 가속) -->
+    <!-- 🚨 [가속 3] 파비콘 LCP 최우선 로딩 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <!-- 🚀 [가속 23] CSSOM Blocking Removal -->
+    <!-- 🚀 [가속 4] 비동기 폰트 로드 아키텍처 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
-    <!-- 🌟 [가속 16] FOUC Absolute Fail-Safe (이중 하얀 화면 먹통 원천 방지 3-Tier Defense) -->
+    <!-- 🌟 [차트 엔진 탑재] Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+    <!-- 🌟 [가속 5] FOUC 하얀 화면 방어막 -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -53,30 +60,23 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         });
-
-        // 🚀 [가속 25] Passive Event Listener 강제화로 스크롤 버벅임(Jank) 타파
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
 
-    <!-- 🚨 [가속 24] Tailwind CSS 경고 콘솔 오염 원천 차단 프록시 -->
+    <!-- 🚨 Tailwind 프록시 -->
     <script>
         (function() {
             var originalWarn = console.warn;
             console.warn = function() {
-                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) {
-                    return; 
-                }
+                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) return; 
                 originalWarn.apply(console, arguments);
             };
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="assets/js/config.js" onerror="console.warn('config.js load failed, using internal absolute fallback.')"></script>
 
-    <!-- 🌟 [가속 21] Chart.js 비동기 로드 (렌더링 블로킹 원천 차단) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-
+    <!-- 🌟 [그래픽 1] Tailwind 커스텀 테마 엔진 구축 -->
     <script>
         tailwind.config = {
             theme: {
@@ -89,20 +89,14 @@
                     colors: { premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', bg: '#F8F9FA' } },
                     animation: {
                         'shimmer': 'shimmer 2s linear infinite',
-                        'pulse-red': 'pulseRed 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards'
                     },
                     keyframes: {
-                        shimmer: {
-                            '0%': { backgroundPosition: '200% 0' },
-                            '100%': { backgroundPosition: '-200% 0' },
-                        },
-                        pulseRed: {
-                            '0%, 100%': { opacity: 1 },
-                            '50%': { opacity: .7, borderColor: 'rgba(227,0,15,0.5)' },
-                        }
+                        shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
+                        slideUp: { '0%': { opacity: 0, transform: 'translateY(20px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } }
                     },
                     boxShadow: {
-                        'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
+                        'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)'
                     }
                 }
             }
@@ -110,139 +104,55 @@
     </script>
 
     <style>
-        :root {
-            --sinjeon-pink: #E3000F; 
-            --sinjeon-pink-dark: #B9000C;
-            --premium-charcoal: #111827; 
-            --bg-light: #F8F9FA;
-        }
+        :root { --sinjeon-pink: #E3000F; --sinjeon-pink-dark: #B9000C; --premium-charcoal: #111827; --bg-light: #F8F9FA; }
+        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transform: translateZ(0); }
         
-        /* 🌟 터치 딜레이 및 바운스 스크롤 원천 차단 (전사 테마 동기화) */
-        html, body { 
-            overscroll-behavior-y: none; 
-            touch-action: manipulation; 
-            background-color: var(--bg-light) !important; 
-            color: var(--premium-charcoal); 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; padding: 0; min-height: 100vh;
-            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
-            transform: translateZ(0); /* GPU 가속 */
-        }
-
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* 🌟 [가속 26] DOM GPU 가속 및 렌더링 병목 타파 */
-        section { content-visibility: auto; contain-intrinsic-size: auto 600px; }
-        
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* iOS 줌 버그 차단 및 브라우저 자동완성 덮어쓰기 무효화 */
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-        select, button { font-size: 16px !important; }
-
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 🌟 [테마 동기화] items.html과 동일한 솔리드(Solid) & 마그네틱 애니메이션 */
-        .kpi-card { 
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            position: relative; 
-            overflow: hidden; 
-            background: #ffffff;
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
-            border: 1px solid #f1f5f9;
-            border-radius: 1.5rem;
-        }
-        .kpi-card::after { 
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; 
-            background: var(--sinjeon-pink); transform: scaleY(0); transform-origin: bottom; transition: transform 0.4s ease; 
-        }
-        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); }
-        .kpi-card:hover::after { transform: scaleY(1); }
-
-        .kpi-card-dark {
-            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-            border: 1px solid rgba(255,255,255,0.05);
-            color: #ffffff;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
-            border-radius: 1.5rem;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            position: relative; 
-            overflow: hidden; 
-        }
-        .kpi-card-dark::after { 
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; 
-            background: var(--sinjeon-pink); transform: scaleY(0); transform-origin: bottom; transition: transform 0.4s ease; 
-        }
-        .kpi-card-dark:hover { transform: translateY(-4px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); }
-        .kpi-card-dark:hover::after { transform: scaleY(1); }
-
-        /* 🌟 [테마 동기화] 솔리드 레드 (Solid Red) 버튼 */
-        .btn-solid-red {
-            background-color: var(--sinjeon-pink);
-            color: #ffffff;
-            border: none;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2);
-        }
-        .btn-solid-red:hover:not(:disabled) {
-            background-color: var(--sinjeon-pink-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 15px -3px rgba(227, 0, 15, 0.3);
-        }
-        .btn-solid-red:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: none; }
-
-        .btn-charcoal { background: var(--premium-charcoal); color: white; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .btn-charcoal:hover:not(:disabled) { background: #000000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
-        .btn-charcoal:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: none; }
-
-        /* 🌟 [UI 통일] 전 페이지 완벽 호환 프리미엄 네비게이션 */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        .app-shell-enter { 
-            opacity: 0; 
-            transform: translateY(12px); 
-            animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
-            will-change: transform, opacity;
-        }
+        .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* 인쇄(Print) 무손실 록다운 */
-        @media print { 
-            .no-print { display: none !important; } 
-            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; }
-            .print-shadow-none { box-shadow: none !important; border: 1px solid #e5e7eb !important; background: white !important; color: black !important; }
-            .print-text-black { color: black !important; }
-            * { text-shadow: none !important; box-shadow: none !important; }
-        }
+        .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
+        
+        #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+
+        .kpi-card { background: white; border: 1px solid #f1f5f9; border-radius: 1.5rem; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05); }
+
+        .chart-container { position: relative; width: 100%; }
+
+        @media print { .no-print { display: none !important; } body { background: white !important; } }
     </style>
 </head>
 
-<body id="mainBody" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden">
+<body id="mainBody" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
     
-    <!-- 🚨 [보안 13] 기 로그인 사용자 검증 (IIFE 캡슐화로 전역 오염 방지 및 VENDOR 튕겨내기) -->
+    <!-- 🚨 1단계: 보안 축출 (Pre-routing) -->
     <script>
         (function() {
-            var _sysRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-            var _sysToken = String(localStorage.getItem("y2c_token") || "").trim();
+            var _sysRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _sysToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
             window.__INITIAL_ROLE__ = _sysRole;
 
             if (!_sysRole || _sysRole === "NULL" || !_sysToken || _sysToken.length < 10) {
-                window.location.replace("index.html");
-                return;
+                window.location.replace("index.html"); return;
             }
-            // 대시보드는 PARTNER와 MASTER만 접근 가능, VENDOR는 카탈로그로 강제 포워딩
+            // VENDOR는 재무 대시보드 접근 불가
             if (_sysRole === "VENDOR") {
-                window.location.replace("items.html");
-                return;
+                window.location.replace("admin.html"); return;
             }
         })();
     </script>
@@ -254,11 +164,10 @@
         </div>
     </noscript>
 
-    <!-- 🌟 [디자인 테마 완벽 동기화] items.html과 정확히 일치하는 단일 로고 + w-[280px] 와이드 헤더 -->
+    <!-- 🌟 프리미엄 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <!-- 좌측 로고 영역 (우측과 동일한 넓이 w-[280px] 할당으로 완벽 중앙 정렬 및 단일 로고 통일) -->
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
@@ -267,21 +176,18 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <!-- 현재 페이지: Dashboard Active 록다운 -->
-                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_dashboard">Dashboard</span></a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_catalog">Item Catalog</span></a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_recipes">Recipe Center</span></a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_admin">Master DB</span></a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Master DB</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Advisory Invoice</a>
             </nav>
 
-            <!-- 우측 컨트롤 영역 -->
             <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
-                    <button type="button" onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
-                    <button type="button" onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
+                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
+                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
 
                 <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0">
@@ -290,47 +196,37 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-[#E3000F]/10 text-[#E3000F] rounded border border-[#E3000F]/20 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none">LOGOUT</button>
                 </div>
             </div>
 
         </div>
     </header>
 
-    <!-- 모바일 카테고리 뷰 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
-        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap"><span data-i18n="nav_dashboard">Dashboard</span></a>
-        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_catalog">Item Catalog</span></a>
-        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_recipes">Recipe Center</span></a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_admin">Master DB</span></a>
-        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap"><span data-i18n="nav_invoice">Advisory Invoice</span></a>
+        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap">Dashboard</a>
+        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Item Catalog</a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Recipe Center</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Master DB</a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Advisory Invoice</a>
     </div>
 
-    <!-- 🚨 렌더링 직후 즉시 권한 언락 -->
+    <!-- 🚨 권한 기반 라우팅 해제 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
-            
             if (role === 'MASTER' || role === 'PARTNER') {
-                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
+                ['navDashboard', 'navDashboard_mob', 'navRecipes', 'navRecipes_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
             if (role === 'MASTER' || role === 'VENDOR' || role === 'PARTNER') {
-                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
+                ['navCatalog', 'navCatalog_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
             if (role === 'MASTER' || role === 'VENDOR') {
-                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
+                ['navAdmin', 'navAdmin_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
             if (role === 'MASTER') {
-                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { 
-                    var el = document.getElementById(id); if (el) el.classList.remove('hidden'); 
-                });
+                ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
 
             clearTimeout(window._foucTimer);
@@ -343,115 +239,126 @@
     </script>
 
     <!-- 📊 메인 컨텐츠 영역 -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter" style="isolation: isolate;">
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter">
         
-        <!-- 프리미엄 헤더 및 연도 컨트롤러 -->
         <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 no-print">
             <div>
                 <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📈</span> <span data-i18n="dash_title">Enterprise Dashboard</span>
+                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📈</span> Performance Dashboard
                 </h2>
-                <!-- 🌟 [UI 동기화] 동적 그리팅 이식 -->
                 <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter flex items-center gap-2">
-                    <span id="dynamicGreetingDashboard">Welcome</span>
+                    <span id="dynamicGreetingDash">Welcome</span>
                     <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                    <span data-i18n="dash_desc" class="font-medium">Real-time performance metrics and sales synchronization.</span>
+                    <span class="font-medium">Financial metrics and supply chain overview.</span>
                 </p>
             </div>
             
-            <div class="flex flex-wrap items-center gap-3">
-                <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1.5 shadow-sm hover:shadow-md transition-shadow">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-3 mr-2 font-inter shrink-0">Fiscal Year</label>
-                    <div class="relative w-full">
-                        <!-- 🌟 [치명적 결함 1 완벽 픽스] 글자 잘림(Truncation) 100% 방지 -->
-                        <select id="dashYearSelector" aria-label="Year Selector" class="w-full sm:w-48 lg:w-56 bg-gray-50 text-[var(--premium-charcoal)] text-[13px] font-bold rounded-lg focus:ring-2 focus:ring-[#E3000F]/20 focus:border-[#E3000F] block pl-4 pr-10 py-2.5 outline-none cursor-pointer transition-all appearance-none text-ellipsis whitespace-nowrap overflow-hidden">
-                            <option value="2026">2026 Fiscal Year</option>
-                            <option value="2025">2025 Fiscal Year</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
-                    </div>
-                </div>
-                
-                <button type="button" id="refreshChartBtn" class="bg-white shadow-sm border border-gray-200 text-[var(--premium-charcoal)] hover:text-[#E3000F] px-4 py-3.5 rounded-xl font-black transition-all hover:shadow-md active:scale-95 focus:outline-none flex items-center justify-center shrink-0 group" title="Refresh Data">
-                    <svg class="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                </button>
+            <div class="flex items-center gap-4 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Fiscal Year</span>
+                <select id="dashYearSelect" class="bg-transparent font-black text-[13px] text-[#E3000F] outline-none cursor-pointer">
+                    <!-- JS 연도 주입 -->
+                </select>
             </div>
         </header>
 
-        <!-- 🌟 거대 숫자 Scaling 방어막이 쳐진 핵심 성과 지표 (Elevation Hover 유지) -->
-        <section class="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6 mb-8 print-shadow-none">
-            <article class="kpi-card-dark p-6 sm:p-8 print-shadow-none print:!bg-white print:!border print:!border-gray-200">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-700 no-print"></div>
-                <div class="relative z-10 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-4 border border-white/5 shadow-inner text-xl print:!bg-gray-100 print:!text-black print:!border-gray-200">💰</div>
-                <div class="relative z-10 w-full overflow-hidden">
-                    <p class="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-inter print:!text-gray-500" data-i18n="kpi_annual">Total Annual Sales</p>
-                    <p id="dashYtdTotal" class="text-3xl sm:text-4xl font-black font-mono text-white tracking-tighter truncate print-text-black w-full" title="Total Annual Sales">$0.00</p>
-                </div>
-            </article>
-
-            <article class="kpi-card p-6 sm:p-8 print-shadow-none">
-                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4 border border-blue-100 shadow-inner text-xl text-blue-500">🍽️</div>
-                <div class="w-full overflow-hidden">
-                    <p class="text-[11px] font-black text-blue-500 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_pos">POS (Dine-in/Takeout)</p>
-                    <p id="dashYtdPos" class="text-2xl sm:text-3xl font-black font-mono text-[var(--premium-charcoal)] tracking-tight truncate print-text-black w-full" title="POS Sales">$0.00</p>
-                </div>
-            </article>
-
-            <article class="kpi-card p-6 sm:p-8 print-shadow-none">
-                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-4 border border-emerald-100 shadow-inner text-xl text-emerald-500">🛵</div>
-                <div class="w-full overflow-hidden">
-                    <p class="text-[11px] font-black text-emerald-600 uppercase tracking-widest mb-1.5 font-inter" data-i18n="kpi_del">Delivery Platforms</p>
-                    <p id="dashYtdDelivery" class="text-2xl sm:text-3xl font-black font-mono text-[var(--premium-charcoal)] tracking-tight truncate print-text-black w-full" title="Delivery Sales">$0.00</p>
-                </div>
-            </article>
-        </section>
-
-        <!-- 차트 및 시스템 알림 영역 -->
-        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 🌟 KPI Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             
-            <!-- 왼쪽: 월별 매출 차트 Canvas (대기업형 하이엔드 차트로 렌더링될 캔버스) -->
-            <article class="lg:col-span-2 bg-white shadow-premium-card border border-gray-100/50 rounded-[2.5rem] p-6 sm:p-10 transition-all duration-300 flex flex-col print-shadow-none">
-                <header class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
-                </header>
+            <div class="kpi-card relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-gray-50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">YTD Total Sales</h3>
+                    <div class="text-3xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tighter" id="kpiYtdTotal">
+                        <div class="h-8 w-32 shimmer-bg rounded mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <h3 class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">POS (Takeout) Sales</h3>
+                    <div class="text-2xl font-bold text-gray-700 font-mono tracking-tight mt-2" id="kpiYtdPos">
+                        <div class="h-6 w-24 shimmer-bg rounded mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-red-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <h3 class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1">Delivery Sales</h3>
+                    <div class="text-2xl font-bold text-gray-700 font-mono tracking-tight mt-2" id="kpiYtdDel">
+                        <div class="h-6 w-24 shimmer-bg rounded mt-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card relative overflow-hidden group border-l-4 border-l-[#E3000F]">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-amber-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <h3 class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Active HQ Orders</h3>
+                    <div class="text-3xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tighter mt-1" id="kpiActiveOrders">
+                        <div class="h-8 w-16 shimmer-bg rounded mt-1"></div>
+                    </div>
+                    <a href="items.html" class="inline-block mt-3 text-[10px] font-bold text-gray-500 hover:text-amber-600 underline transition-colors">Go to Catalog →</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 🌟 [고도화 핵심] 엔터프라이즈 듀얼 차트 아키텍처 (CSS Grid 적용) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+            
+            <!-- 📈 Main Revenue Trend (Combo Chart) -->
+            <section class="lg:col-span-2 bg-white border border-gray-200 shadow-premium-card rounded-[2rem] p-6 sm:p-8 animate-slide-up relative min-h-[420px]">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                    <div>
+                        <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)]">Revenue Trend</h3>
+                        <p class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Monthly Financial Overview</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded border border-gray-200 font-mono">CAD ($)</span>
+                </div>
                 
-                <!-- 높이를 충분히 확보하여 차트 찌그러짐 원천 차단 -->
-                <div class="relative w-full h-[320px] sm:h-[450px] flex-grow flex items-center justify-center">
-                    <canvas id="salesChartCanvas" aria-label="Monthly Sales Chart" role="img" class="absolute inset-0 w-full h-full"></canvas>
+                <div class="chart-container h-[300px] w-full" id="chartWrapperTrend">
+                    <canvas id="salesTrendChart"></canvas>
                 </div>
-            </article>
+            </section>
 
-            <!-- 오른쪽: 빠른 액션 및 안내 -->
-            <aside class="lg:col-span-1 space-y-6 no-print">
-                <!-- 🌟 [UI 테마 동기화] 솔리드 레드 계열의 프리미엄 박스 -->
-                <div class="bg-white border border-gray-100 shadow-premium-card rounded-[2rem] p-8 relative overflow-hidden group">
-                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--sinjeon-pink)] to-[var(--sinjeon-pink-dark)]"></div>
-                    <h3 class="text-xl font-black font-montserrat text-[var(--premium-charcoal)] tracking-tight mb-3 mt-2 relative z-10">Need Supplies?</h3>
-                    <p class="text-[13px] font-bold text-gray-500 mb-8 relative z-10 font-inter leading-relaxed">Order ingredients and items easily through our catalog system.</p>
-                    <!-- 🌟 솔리드(Solid) 레드 버튼 이식 -->
-                    <a href="items.html" class="inline-flex items-center gap-2 btn-solid-red px-8 py-3.5 rounded-xl font-black text-[11px] uppercase tracking-widest relative z-10">
-                        <span data-i18n="nav_catalog">Go to Catalog</span> 
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
+            <!-- 🍩 Revenue Distribution (Doughnut Chart) -->
+            <section class="lg:col-span-1 bg-white border border-gray-200 shadow-premium-card rounded-[2rem] p-6 sm:p-8 animate-slide-up relative min-h-[420px]" style="animation-delay: 0.1s;">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                    <div>
+                        <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)]">Sales Distribution</h3>
+                        <p class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">POS vs Delivery</p>
+                    </div>
+                </div>
+                
+                <div class="chart-container h-[200px] w-full flex items-center justify-center relative" id="chartWrapperDist">
+                    <canvas id="salesDistChart"></canvas>
                 </div>
 
-                <div class="bg-white shadow-sm border border-gray-100 rounded-[1.5rem] p-6 sm:p-8">
-                    <h3 class="text-[13px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-5 flex items-center gap-2 font-montserrat border-b border-gray-100 pb-3">
-                        <span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span> System Notice
-                    </h3>
-                    <ul class="space-y-4">
-                        <li class="flex gap-3 items-start">
-                            <span class="mt-1 text-[#E3000F] text-[10px]">■</span>
-                            <p class="text-[12px] font-bold text-gray-500 leading-relaxed font-inter">매출 데이터(Sales Sync)는 마스터 계정에서 매월 말일 기준으로 승인 및 연동됩니다.</p>
-                        </li>
-                        <li class="flex gap-3 items-start">
-                            <span class="mt-1 text-[#E3000F] text-[10px]">■</span>
-                            <p class="text-[12px] font-bold text-gray-500 leading-relaxed font-inter">Advisory Invoice(정산서)는 매출 연동 후 지정된 계좌로 송금 부탁드립니다.</p>
-                        </li>
-                    </ul>
+                <!-- Custom HTML Legend (Glassmorphism Styled) -->
+                <div class="mt-8 flex flex-col gap-3">
+                    <div class="flex items-center justify-between p-3.5 bg-gray-50 rounded-xl border border-gray-200 transition-colors hover:bg-gray-100">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3 h-3 rounded-full bg-[var(--premium-charcoal)] shadow-sm"></span>
+                            <span class="text-xs font-black text-gray-600 tracking-wide">POS (Takeout)</span>
+                        </div>
+                        <span class="font-mono font-black text-sm text-[var(--premium-charcoal)]" id="legendPosPercent">0.0%</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3.5 bg-red-50/50 rounded-xl border border-red-100 transition-colors hover:bg-red-50">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3 h-3 rounded-full bg-[var(--sinjeon-pink)] shadow-sm"></span>
+                            <span class="text-xs font-black text-[#E3000F] tracking-wide">Delivery</span>
+                        </div>
+                        <span class="font-mono font-black text-sm text-[#E3000F]" id="legendDelPercent">0.0%</span>
+                    </div>
                 </div>
-            </aside>
-        </section>
+            </section>
+
+        </div>
+
     </main>
 
     <!-- 🌟 프리미엄 푸터 -->
@@ -463,191 +370,333 @@
                 </p>
                 <div class="flex items-center gap-4">
                     <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        System Online
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
-                    <span class="text-gray-300">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">v40.49 STABLE</span>
+                    <span class="text-gray-300 text-[8px]">|</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V41.00 ENTERPRISE</span>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- 글로벌 토스트 -->
-    <div id="toastContainer" role="alert" aria-live="polite" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print"></div>
+    <!-- 글로벌 토스트 앵커 -->
+    <div id="premiumToastContainer"></div>
 
-    <!-- 🚨 외부 코어 스크립트 연결 -->
-    <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/dashboard.js" defer></script>
-    
-    <!-- 🌟 [기능 무손실 보존] Enterprise High-End Chart 렌더링 덮어쓰기 엔진 (인라인 하드코딩) -->
+    <!-- 🚨 [코어 엔진 바인딩] 모든 네트워크 통신은 auth.js로 전면 오프로딩됩니다. -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+
     <script>
-        (function() {
-            // 🌟 다국어 딕셔너리 안전 주입 및 동적 그리팅 (i18n Fail-Safe Proxy)
-            document.addEventListener('DOMContentLoaded', () => {
-                try {
-                    const greetingEl = document.getElementById('dynamicGreetingDashboard');
-                    if (greetingEl) {
-                        const hour = new Date().getHours();
-                        if (hour >= 5 && hour < 12) greetingEl.innerText = "Good Morning,";
-                        else if (hour >= 12 && hour < 18) greetingEl.innerText = "Good Afternoon,";
-                        else greetingEl.innerText = "Good Evening,";
-                    }
+    /**
+     * 🌟 V41.00 Enterprise Dashboard Logic
+     * [ARCHITECTURE] Depends entirely on Y2C_AuthEngine (auth.js V40.91+) for secure, offline-ready fetch.
+     * [PERFORMANCE] Chart.js Dual Engine (Combo Area + Doughnut) with hardware acceleration.
+     * [UX] Custom tooltips, cinematic gradients, and zero-state fallbacks.
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+        
+        // 1. 코어 엔진 무결성 체크
+        if (typeof Y2C_AuthEngine === 'undefined') {
+            console.error("CRITICAL: Y2C_AuthEngine missing."); return;
+        }
 
-                    if (typeof I18N_DICT !== 'undefined') {
-                        Object.assign(I18N_DICT.en, {
-                            "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization.",
-                            "kpi_annual": "Total Annual Sales", "kpi_pos": "POS (Dine-in/Takeout)", "kpi_del": "Delivery Platforms",
-                            "chart_title": "Monthly Revenue Trend"
-                        });
-                        Object.assign(I18N_DICT.ko, {
-                            "dash_title": "엔터프라이즈 대시보드", "dash_desc": "실시간 핵심 성과 지표 및 매출 데이터 동기화 현황입니다.",
-                            "kpi_annual": "연간 총 매출액", "kpi_pos": "POS (홀 및 포장 매출)", "kpi_del": "배달 플랫폼 매출",
-                            "chart_title": "월별 매출 동향"
-                        });
-                        if (window.applyTranslations) window.applyTranslations();
-                    }
-                } catch (err) { console.error("[Y2C Telemetry] I18N Error", err); }
+        // 2. 글로벌 State
+        const AppState = {
+            role: String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase(),
+            clientName: sessionStorage.getItem("y2c_client") || localStorage.getItem("y2c_client") || "Unknown",
+            year: new Date().getFullYear(),
+            chartTrendInstance: null,
+            chartDistInstance: null
+        };
+
+        // Chart.js 폰트 스탠다드 적용
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        // 3. UI 동기화
+        const uName = document.getElementById("userNameDisplay");
+        const uBadge = document.getElementById("userRoleBadge");
+        if(uName) uName.innerText = AppState.clientName;
+        if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
+
+        const greetingEl = document.getElementById('dynamicGreetingDash');
+        if (greetingEl) {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) greetingEl.innerText = "Good Morning,";
+            else if (hour >= 12 && hour < 18) greetingEl.innerText = "Good Afternoon,";
+            else greetingEl.innerText = "Good Evening,";
+        }
+
+        const formatCurrency = (amt) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amt || 0);
+
+        // 연도 셀렉터 팝업
+        const yearSelect = document.getElementById('dashYearSelect');
+        if (yearSelect) {
+            for (let y = AppState.year + 1; y >= 2022; y--) {
+                const opt = document.createElement('option');
+                opt.value = y; opt.innerText = y;
+                if (y === AppState.year) opt.selected = true;
+                yearSelect.appendChild(opt);
+            }
+            yearSelect.addEventListener('change', (e) => {
+                AppState.year = parseInt(e.target.value, 10);
+                fetchDashboardData();
             });
+        }
 
-            // 🌟 대기업 수준(Premium Enterprise) Chart.js 환경 구축
-            const waitForChartJs = setInterval(() => {
-                if (typeof Chart !== 'undefined') {
-                    clearInterval(waitForChartJs);
+        // ==========================================
+        // 🚀 [API 통신] 대시보드 데이터 패칭 (Y2C_AuthEngine 위임)
+        // ==========================================
+        async function fetchDashboardData() {
+            try {
+                // 🚨 fetch 대신 auth.js 코어 모듈의 request 엔진을 호출하여 오프라인/재시도 방어망 적용
+                const [dashRes, procRes] = await Promise.all([
+                    Y2C_AuthEngine.request("get_dashboard", { year: AppState.year }),
+                    Y2C_AuthEngine.request("get_procurement_data").catch(() => ({ success: true, hqOrders: [] }))
+                ]);
+
+                if (dashRes && dashRes.success) {
+                    // KPI 렌더링
+                    document.getElementById('kpiYtdTotal').innerText = formatCurrency(dashRes.ytdTotal);
+                    document.getElementById('kpiYtdPos').innerText = formatCurrency(dashRes.ytdPos);
+                    document.getElementById('kpiYtdDel').innerText = formatCurrency(dashRes.ytdDelivery);
                     
-                    Chart.defaults.font.family = "'Inter', sans-serif";
-                    Chart.defaults.color = '#64748b';
-                    Chart.defaults.scale.grid.color = 'rgba(0, 0, 0, 0.04)';
+                    // 듀얼 차트 렌더링 엔진 가동
+                    renderTrendChart(dashRes.monthlySales || [0,0,0,0,0,0,0,0,0,0,0,0]);
+                    renderDistChart(dashRes.ytdPos || 0, dashRes.ytdDelivery || 0);
+                }
 
-                    window.updateDashboardChart = function(posData, delData, labels) {
-                        const canvas = document.getElementById('salesChartCanvas');
-                        if (!canvas) return;
-                        
-                        const ctx = canvas.getContext('2d');
-                        
-                        // 🌟 메모리 누수 방어를 위한 기존 캔버스 100% 소각 (Destroy)
-                        if (window.myDashboardChart) {
-                            window.myDashboardChart.destroy();
-                        }
+                // 주문 건수 렌더링
+                if (procRes && procRes.success) {
+                    let activeCount = 0;
+                    const orders = procRes.hqOrders || [];
+                    orders.forEach(o => {
+                        const st = String(o.status).toUpperCase();
+                        if (st !== "COMPLETED" && st !== "CANCELED") activeCount++;
+                    });
+                    document.getElementById('kpiActiveOrders').innerText = activeCount;
+                }
 
-                        const safePos = (posData || []).map(v => Number(v) || 0);
-                        const safeDel = (delData || []).map(v => Number(v) || 0);
-                        const safeLabels = labels || ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            } catch (err) {
+                // 🚨 [데드락 방지] 통신 실패 시 에러 캔버스 주입
+                renderErrorCanvas('chartWrapperTrend', err.message);
+                renderErrorCanvas('chartWrapperDist', err.message);
+                
+                ['kpiYtdTotal', 'kpiYtdPos', 'kpiYtdDel', 'kpiActiveOrders'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.innerHTML = `<span class="text-gray-300">N/A</span>`;
+                });
 
-                        // 🌟 입체적인 그라데이션(Gradient) 색상 알고리즘 생성
-                        const gradientPos = ctx.createLinearGradient(0, 0, 0, 400);
-                        gradientPos.addColorStop(0, '#111827'); 
-                        gradientPos.addColorStop(1, '#374151'); 
-                        
-                        const gradientDel = ctx.createLinearGradient(0, 0, 0, 400);
-                        gradientDel.addColorStop(0, '#E3000F'); 
-                        gradientDel.addColorStop(1, '#ef4444'); 
+                Y2C_AuthEngine.showToast("대시보드 데이터를 불러오지 못했습니다.", "error");
+            }
+        }
 
-                        // 🌟 하이엔드 차트 인스턴스 렌더링
-                        window.myDashboardChart = new Chart(ctx, {
+        function renderErrorCanvas(containerId, message) {
+            const wrapper = document.getElementById(containerId);
+            if (wrapper) {
+                wrapper.innerHTML = `
+                <div class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 m-2">
+                    <div class="text-3xl mb-3 opacity-60">⚠️</div>
+                    <h4 class="text-[#E3000F] font-bold font-inter text-[12px] tracking-wide mb-1">Data Unavailable</h4>
+                    <p class="text-gray-500 font-medium text-[10px] mb-3 text-center max-w-[200px] truncate">${message}</p>
+                    <button type="button" onclick="location.reload()" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-[10px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">Retry</button>
+                </div>`;
+            }
+        }
+
+        // ==========================================
+        // 📊 [렌더링 엔진 1] Area & Bar Combo Trend Chart
+        // ==========================================
+        function renderTrendChart(monthlyData) {
+            const wrapper = document.getElementById('chartWrapperTrend');
+            if(!wrapper) return;
+            
+            wrapper.innerHTML = `<canvas id="salesTrendChart"></canvas>`;
+            const ctx = document.getElementById('salesTrendChart').getContext('2d');
+            
+            if (AppState.chartTrendInstance) AppState.chartTrendInstance.destroy();
+
+            // 시네마틱 레드 그라디언트 (에어리어 채우기 용)
+            const gradientRed = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientRed.addColorStop(0, 'rgba(227, 0, 15, 0.25)');
+            gradientRed.addColorStop(1, 'rgba(227, 0, 15, 0.0)');
+
+            AppState.chartTrendInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Monthly Growth Curve',
+                            data: monthlyData,
+                            borderColor: '#E3000F',
+                            backgroundColor: gradientRed,
+                            borderWidth: 3,
+                            tension: 0.4, // 부드러운 곡선
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#E3000F',
+                            pointBorderWidth: 2,
+                            pointRadius: 0, // 평소엔 숨김
+                            pointHoverRadius: 6, // 마우스 오버시 크게 팝업
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
                             type: 'bar',
-                            data: {
-                                labels: safeLabels,
-                                datasets: [
-                                    {
-                                        label: 'POS (Dine-in/Takeout)',
-                                        data: safePos,
-                                        backgroundColor: gradientPos,
-                                        hoverBackgroundColor: '#000000',
-                                        borderRadius: 6,
-                                        borderSkipped: false,
-                                        barPercentage: 0.6,
-                                        categoryPercentage: 0.8
-                                    },
-                                    {
-                                        label: 'Delivery Platforms',
-                                        data: safeDel,
-                                        backgroundColor: gradientDel,
-                                        hoverBackgroundColor: '#B9000C',
-                                        borderRadius: 6,
-                                        borderSkipped: false,
-                                        barPercentage: 0.6,
-                                        categoryPercentage: 0.8
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                interaction: {
-                                    mode: 'index', 
-                                    intersect: false,
-                                },
-                                plugins: {
-                                    legend: {
-                                        position: 'bottom',
-                                        labels: {
-                                            usePointStyle: true, 
-                                            boxWidth: 8,
-                                            boxHeight: 8,
-                                            padding: 25,
-                                            font: { size: 12, weight: '700' }
-                                        }
-                                    },
-                                    // 🌟 애플 스타일 글래스모피즘 프리미엄 툴팁
-                                    tooltip: {
-                                        backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                                        titleColor: '#ffffff',
-                                        bodyColor: '#e2e8f0',
-                                        titleFont: { size: 14, weight: '800', family: 'Montserrat' },
-                                        bodyFont: { size: 13, weight: '600' },
-                                        padding: 16,
-                                        cornerRadius: 12,
-                                        displayColors: true,
-                                        boxPadding: 6,
-                                        usePointStyle: true,
-                                        callbacks: {
-                                            label: function(context) {
-                                                let label = context.dataset.label || '';
-                                                if (label) label += ': ';
-                                                if (context.parsed.y !== null) {
-                                                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
-                                                }
-                                                return label;
-                                            }
-                                        }
-                                    }
-                                },
-                                scales: {
-                                    x: {
-                                        stacked: true, 
-                                        grid: { display: false, drawBorder: false }, 
-                                        ticks: {
-                                            font: { weight: '700', size: 11 },
-                                            color: '#94a3b8',
-                                            padding: 10
-                                        }
-                                    },
-                                    y: {
-                                        stacked: true, 
-                                        grid: {
-                                            color: 'rgba(0, 0, 0, 0.06)',
-                                            drawBorder: false,
-                                            borderDash: [5, 5]
-                                        },
-                                        beginAtZero: true,
-                                        ticks: {
-                                            font: { weight: '600', size: 11 },
-                                            color: '#94a3b8',
-                                            padding: 10,
-                                            callback: function(value) {
-                                                if (value >= 1000) return '$' + (value / 1000) + 'k';
-                                                return '$' + value;
-                                            }
-                                        }
-                                    }
+                            label: 'Revenue Volume',
+                            data: monthlyData,
+                            backgroundColor: '#111827', // 딥 차콜 바
+                            borderRadius: 4,
+                            borderSkipped: false,
+                            barPercentage: 0.4,
+                            maxBarThickness: 30,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            display: true, position: 'top', align: 'end',
+                            labels: { usePointStyle: true, boxWidth: 8, padding: 20, font: { size: 11, weight: 'bold' } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                            titleFont: { family: 'Montserrat', size: 13, weight: 'bold' },
+                            bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            padding: 14, cornerRadius: 8,
+                            boxPadding: 6, usePointStyle: true,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) label += formatCurrency(context.parsed.y);
+                                    return label;
                                 }
                             }
-                        });
-                    };
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { font: { family: 'Montserrat', size: 10, weight: 'bold' }, color: '#94a3b8' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9', drawBorder: false, borderDash: [5, 5] }, // 점선 그리드
+                            ticks: {
+                                font: { family: 'JetBrains Mono', size: 10 },
+                                color: '#94a3b8',
+                                padding: 10,
+                                callback: function(value) {
+                                    if (value >= 1000) return '$' + (value / 1000) + 'k';
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
                 }
-            }, 100);
-        })();
+            });
+        }
+
+        // ==========================================
+        // 🍩 [렌더링 엔진 2] Revenue Distribution Doughnut
+        // ==========================================
+        function renderDistChart(posTotal, delTotal) {
+            const wrapper = document.getElementById('chartWrapperDist');
+            if(!wrapper) return;
+
+            wrapper.innerHTML = `<canvas id="salesDistChart"></canvas>`;
+            const ctx = document.getElementById('salesDistChart').getContext('2d');
+            
+            if (AppState.chartDistInstance) AppState.chartDistInstance.destroy();
+
+            // 백분율 계산 및 HTML 커스텀 레전드 업데이트
+            const total = posTotal + delTotal;
+            let posPct = "0.0", delPct = "0.0";
+            let chartData = [1, 1]; // 기본 빈 상태용 회색 데이터
+            let chartColors = ['#e2e8f0', '#f1f5f9'];
+
+            if (total > 0) {
+                posPct = ((posTotal / total) * 100).toFixed(1);
+                delPct = ((delTotal / total) * 100).toFixed(1);
+                chartData = [posTotal, delTotal];
+                chartColors = ['#111827', '#E3000F']; // 차콜 vs 레드
+            }
+
+            document.getElementById('legendPosPercent').innerText = posPct + "%";
+            document.getElementById('legendDelPercent').innerText = delPct + "%";
+
+            // 도넛 차트 가운데에 총액을 적어주는 커스텀 플러그인
+            const centerTextPlugin = {
+                id: 'centerText',
+                beforeDraw: function(chart) {
+                    if (total === 0) return;
+                    let width = chart.width, height = chart.height, ctx = chart.ctx;
+                    ctx.restore();
+                    ctx.font = "900 16px Montserrat";
+                    ctx.fillStyle = "#111827";
+                    ctx.textBaseline = "middle";
+                    let text = formatCurrency(total),
+                        textX = Math.round((width - ctx.measureText(text).width) / 2),
+                        textY = height / 2;
+                    ctx.fillText(text, textX, textY);
+                    
+                    ctx.font = "700 10px Inter";
+                    ctx.fillStyle = "#94a3b8";
+                    let subText = "TOTAL YTD",
+                        subX = Math.round((width - ctx.measureText(subText).width) / 2),
+                        subY = height / 2 - 16;
+                    ctx.fillText(subText, subX, subY);
+                    ctx.save();
+                }
+            };
+
+            AppState.chartDistInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['POS (Takeout)', 'Delivery'],
+                    datasets: [{
+                        data: chartData,
+                        backgroundColor: chartColors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%', // 하이엔드 얇은 링
+                    plugins: {
+                        legend: { display: false }, // 범례는 아래에 직접 HTML로 그렸으므로 차트 내부는 끕니다
+                        tooltip: {
+                            enabled: total > 0,
+                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                            titleFont: { family: 'Montserrat', size: 12, weight: 'bold' },
+                            bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            padding: 12, cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed !== null) label += formatCurrency(context.parsed);
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [centerTextPlugin]
+            });
+        }
+
+        // 시스템 기동
+        fetchDashboardData();
+    });
     </script>
 </body>
 </html>
