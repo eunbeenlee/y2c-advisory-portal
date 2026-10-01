@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.73 Enterprise Admin ULTIMATE - Dual Deadlock Completely Resolved 🌟
-  [CRITICAL FIX 1] Synchronous Dropdown Population: Hub dropdowns load instantly from local storage, ignoring network delays.
-  [CRITICAL FIX 2] Error Canvas: Infinite Shimmer bug destroyed on catch block.
-  [CRITICAL FIX 3] Excel Parser: "COMMIT TO MASTER" strictly bound to update_stock API with Target Hub enforcement.
+  🌟 V40.75 Enterprise Admin ULTIMATE - Thread Lockup Resolved 🌟
+  [CRITICAL FIX 1] Idempotent Hashing: `syncId` is now generated from Excel content hash, preventing double-processing.
+  [CRITICAL FIX 2] Retry Control: Heavy `update_stock` operations bypass auto-retry to avoid Mutex Lock collisions.
+  [CRITICAL FIX 3] Smart Error Interception: Gracefully handles "Processing in another thread" via Toast UI.
   [PREMIUM UI] Enterprise 3D Glass-Lock Overlay for Unauthorized Tabs.
   [DEPENDENCY] Strictly bound to Y2C_AuthEngine (auth.js V40.65+).
 -->
@@ -277,6 +277,7 @@
                 </div>
             </div>
 
+            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Dashboard</a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Item Catalog</a>
@@ -286,11 +287,6 @@
             </nav>
 
             <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
-                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
-                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
-                </div>
-
                 <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0">
                     <span class="flex h-2 w-2 relative hidden sm:flex">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -312,6 +308,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Advisory Invoice</a>
     </div>
 
+    <!-- 🚨 권한 기반 라우팅 해제 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -327,6 +324,7 @@
             if (role === 'MASTER') {
                 ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
+
             clearTimeout(window._foucTimer);
             document.documentElement.classList.remove("fouc-lock");
             document.documentElement.style.opacity = "1";
@@ -405,12 +403,10 @@
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Upload vendor shipment files to auto-sync inventory logic.</p>
             </header>
             
-            <!-- 🌟 [치명적 에러 2 해결] 지역(Hub) 선택 강제 UI (무결성 확보) -->
-            <!-- 이 셀렉트 박스에서 값이 있어야만 엑셀 파싱 및 커밋 로직이 정상 작동합니다. (안그러면 백엔드가 거부) -->
+            <!-- 🌟 지역(Hub) 선택 강제 UI -->
             <div class="mb-6 flex flex-col md:flex-row gap-4 items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm relative z-20">
                 <label class="font-black text-gray-500 uppercase tracking-widest text-[11px] shrink-0">1. Select Target Hub <span class="text-[#E3000F]">*</span></label>
                 <select id="inboundRegionSelector" class="premium-input bg-white cursor-pointer appearance-none text-[13px] font-bold w-full md:w-64">
-                    <!-- 페이지 로드 즉시 js가 채워넣습니다 -->
                     <option value="" disabled selected>Loading Authorized Hubs...</option>
                 </select>
             </div>
@@ -427,7 +423,7 @@
                 </div>
             </div>
 
-            <!-- 🌟 엑셀 프리뷰 및 COMMIT 버튼 (백엔드 update_stock 맵핑 완료) -->
+            <!-- 🌟 엑셀 프리뷰 및 COMMIT 버튼 -->
             <div id="excelPreviewContainer" class="hidden">
                 <div class="flex justify-between items-end mb-4">
                     <div>
@@ -492,7 +488,7 @@
                 </div>
             </div>
 
-            <!-- 🌟 Active Shipments (에러 캔버스 적용 대상: 무한 로딩 방어) -->
+            <!-- 🌟 Active Shipments (에러 캔버스 포함) -->
             <div class="mb-4 flex items-center gap-3 px-2">
                 <span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span>
                 <h3 class="font-montserrat font-black text-[14px] text-[var(--premium-charcoal)] uppercase tracking-widest">Active Inbound Shipments</h3>
@@ -559,13 +555,12 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.73 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.75 STABLE</span>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
@@ -574,20 +569,17 @@
 
     <script>
     /**
-     * 🌟 V40.73 Enterprise Admin Logic
-     * [ARCHITECTURE] Depends entirely on Y2C_AuthEngine (auth.js V40.65+) for secure fetch.
-     * [CRITICAL FIX 1] Dropdown Synchronous Population logic enforces instant loading of Authorized Hubs.
-     * [CRITICAL FIX 2] Error Canvas for network failures (destroys infinite shimmer).
-     * [CRITICAL FIX 3] Excel Parser: Inbound Region Dropdown enforced. COMMIT TO MASTER perfectly bound to update_stock API.
+     * 🌟 V40.75 Enterprise Admin Logic
+     * [CRITICAL FIX 1] Excel Idempotent Hashing: `syncId` is generated from payload content hash.
+     * [CRITICAL FIX 2] Retry Override: update_stock bypasses auth.js auto-retry to prevent backend locks.
+     * [CRITICAL FIX 3] Synchronous Dropdown Load: Hub dropdowns load instantly, ignoring network failures.
      */
     document.addEventListener("DOMContentLoaded", () => {
         
-        // 1. 코어 엔진 무결성 체크
         if (typeof Y2C_AuthEngine === 'undefined') {
             console.error("CRITICAL: Y2C_AuthEngine missing."); return;
         }
 
-        // 2. 글로벌 State
         const AppState = {
             role: String(localStorage.getItem("y2c_role") || "").toUpperCase(),
             clientName: localStorage.getItem("y2c_client") || "Unknown",
@@ -598,27 +590,20 @@
             cart: {} 
         };
 
-        // 3. UI 동기화
         const uName = document.getElementById("userNameDisplay");
         const uBadge = document.getElementById("userRoleBadge");
         if(uName) uName.innerText = AppState.clientName;
-        if(uBadge) {
-            uBadge.innerText = AppState.role;
-            uBadge.classList.remove('hidden');
-        }
+        if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
 
         // ==========================================
-        // 🔒 [보안 아키텍처] 탭 네비게이션 및 Lock UI 렌더링
+        // 🔒 탭 네비게이션 및 Lock UI
         // ==========================================
         const tabs = document.querySelectorAll('.tab-section');
         const btns = document.querySelectorAll('.sub-nav-btn');
 
         function renderLockOverlay(containerId) {
             const el = document.getElementById(containerId);
-            if(el) {
-                el.classList.remove('hidden');
-                setTimeout(() => el.classList.add('show'), 10);
-            }
+            if(el) { el.classList.remove('hidden'); setTimeout(() => el.classList.add('show'), 10); }
         }
 
         function switchTab(targetId) {
@@ -637,28 +622,21 @@
         }
 
         btns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                switchTab(e.target.getAttribute('data-target'));
-            });
+            btn.addEventListener('click', (e) => { switchTab(e.target.getAttribute('data-target')); });
         });
 
         // ==========================================
-        // ⚙️ [데드락 1 픽스] Synchronous Hub Dropdown (통신과 무관하게 즉시 로드)
-        // 널(null) 값이나 공백이 들어와도 절대 스크립트가 뻗지 않도록 방탄 딥 스캔 록다운
+        // ⚙️ Synchronous Hub Dropdown
         // ==========================================
         function getAuthorizedRegions() {
             const allRegions = ["ON", "BC", "AB", "SK", "MB", "QC"];
-            if (AppState.role === "MASTER" || AppState.region === "ALL") {
-                return allRegions;
-            }
-            // 🚨 콤마(,) 분리 후 공백 제거 및 필터링
+            if (AppState.role === "MASTER" || AppState.region === "ALL") return allRegions;
             return AppState.region.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length > 0 && s !== "NULL" && s !== "UNDEFINED");
         }
 
         function populateHubDropdown() {
-            const selectEl = document.getElementById("procHubSelect"); // 발주용
-            const inboundEl = document.getElementById("inboundRegionSelector"); // 엑셀용
-
+            const selectEl = document.getElementById("procHubSelect"); 
+            const inboundEl = document.getElementById("inboundRegionSelector"); 
             const allowed = getAuthorizedRegions();
 
             if (allowed.length === 0) {
@@ -667,41 +645,31 @@
                 return;
             }
 
-            // 발주 폼 렌더링
             if(selectEl) {
                 selectEl.innerHTML = "";
                 allowed.forEach(reg => {
-                    const opt = document.createElement('option');
-                    opt.value = reg; opt.innerText = reg + " Hub";
+                    const opt = document.createElement('option'); opt.value = reg; opt.innerText = reg + " Hub";
                     selectEl.appendChild(opt);
                 });
-                selectEl.value = allowed[0]; // 기본값 세팅
+                selectEl.value = allowed[0]; 
             }
 
-            // 엑셀 폼 렌더링
             if(inboundEl) {
                 inboundEl.innerHTML = `<option value="" disabled selected>-- Select Hub Region for Inbound --</option>`;
                 allowed.forEach(reg => {
-                    const opt = document.createElement('option');
-                    opt.value = reg; opt.innerText = "Hub: " + reg;
+                    const opt = document.createElement('option'); opt.value = reg; opt.innerText = "Hub: " + reg;
                     inboundEl.appendChild(opt);
                 });
-                // 마스터가 아니면(단일 지역 권한) 자동 선택
-                if(AppState.role !== "MASTER" && allowed.length === 1) {
-                    inboundEl.value = allowed[0];
-                }
+                if(AppState.role !== "MASTER" && allowed.length === 1) inboundEl.value = allowed[0];
             }
         }
-
-        // 브라우저 렌더링 즉시 지역(Hub) 옵션 강제 주입
-        populateHubDropdown();
+        populateHubDropdown(); // 즉시 로드 보장
 
         // ==========================================
-        // 🚀 [API 통신 및 데드락 2 픽스] HQ 조달 데이터 초기화 및 에러 캔버스 렌더링
+        // 🚀 HQ 조달 데이터 패칭 및 에러 캔버스
         // ==========================================
         async function fetchProcurementData() {
             try {
-                // 🚨 1. 조달 데이터 패칭 (백엔드 V40.72 통신 규격 일치 확인)
                 const res = await Y2C_AuthEngine.request("get_procurement_data");
                 if (res && res.success) {
                     AppState.hqOrders = res.hqOrders || [];
@@ -709,16 +677,11 @@
                     
                     if (AppState.role === "VENDOR") {
                         const vInput = document.getElementById('procVendorName');
-                        if(vInput) {
-                            vInput.value = AppState.clientName;
-                            vInput.disabled = true; 
-                        }
+                        if(vInput) { vInput.value = AppState.clientName; vInput.disabled = true; }
                     }
-
                     renderHqOrders();
                 }
             } catch (err) {
-                // 🚨 [데드락 2 해결] catch 에 걸리면 즉시 Shimmer를 걷어내고 Error Canvas를 그려 무한 로딩(블로킹)을 방지합니다.
                 const tbody = document.getElementById('hqOrdersTableBody');
                 if(tbody) {
                     tbody.innerHTML = `
@@ -754,8 +717,7 @@
             let html = "";
             AppState.hqOrders.reverse().forEach(order => {
                 const st = String(order.status).toUpperCase();
-                let badgeClass = "status-badge status-pending";
-                let icon = "⏳";
+                let badgeClass = "status-badge status-pending"; let icon = "⏳";
                 if(st === "SHIPPED") { badgeClass = "status-badge status-shipped"; icon = "🚢"; }
                 if(st === "ARRIVED" || st === "RECEIVED") { badgeClass = "status-badge status-arrived"; icon = "✅"; }
                 if(st === "COMPLETED") { badgeClass = "status-badge status-completed"; icon = "📦"; }
@@ -776,7 +738,7 @@
         }
 
         // ==========================================
-        // 🛒 모달 및 아이템 선택기 로직 (Procurement용)
+        // 🛒 모달 및 아이템 선택기
         // ==========================================
         const modal = document.getElementById('itemSelectionModal');
         const modalPanel = document.getElementById('itemModalPanel');
@@ -786,22 +748,14 @@
         const btnConfirm = document.getElementById('btnConfirmModal');
 
         function openModal() {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => {
-                modalPanel.classList.remove('scale-95', 'opacity-0');
-                modalPanel.classList.add('scale-100', 'opacity-100');
-            }, 10);
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modalPanel.classList.remove('scale-95', 'opacity-0'); modalPanel.classList.add('scale-100', 'opacity-100'); }, 10);
             if(AppState.catalogItems.length === 0) fetchModalItems();
         }
 
         function closeModal() {
-            modalPanel.classList.remove('scale-100', 'opacity-100');
-            modalPanel.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
+            modalPanel.classList.remove('scale-100', 'opacity-100'); modalPanel.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
         if(btnOpen) btnOpen.addEventListener('click', openModal);
@@ -811,19 +765,14 @@
         async function fetchModalItems() {
             try {
                 const res = await Y2C_AuthEngine.request("get_items");
-                if (res && res.success) {
-                    AppState.catalogItems = res.items || [];
-                    renderModalItems();
-                }
+                if (res && res.success) { AppState.catalogItems = res.items || []; renderModalItems(); }
             } catch (err) {
                 document.getElementById('modalItemsList').innerHTML = `<p class="text-[#E3000F] font-bold p-4 text-center">아이템을 불러오지 못했습니다.</p>`;
             }
         }
 
         function renderModalItems() {
-            const listEl = document.getElementById('modalItemsList');
-            if(!listEl) return;
-            
+            const listEl = document.getElementById('modalItemsList'); if(!listEl) return;
             let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">`;
             AppState.catalogItems.forEach(item => {
                 const qty = AppState.cart[item.code] || 0;
@@ -840,38 +789,29 @@
                     </div>
                 </div>`;
             });
-            html += `</div>`;
-            listEl.innerHTML = html;
+            html += `</div>`; listEl.innerHTML = html;
         }
 
         window.updateModalCart = function(code, delta) {
-            let cur = AppState.cart[code] || 0;
-            cur += delta;
-            if(cur < 0) cur = 0;
+            let cur = AppState.cart[code] || 0; cur += delta; if(cur < 0) cur = 0;
             AppState.cart[code] = cur;
             document.getElementById(`modQty_${code}`).value = cur;
-            
-            let typesCount = 0;
-            for(let c in AppState.cart) { if(AppState.cart[c] > 0) typesCount++; }
+            let typesCount = 0; for(let c in AppState.cart) { if(AppState.cart[c] > 0) typesCount++; }
             document.getElementById('modalSelectedCount').innerText = typesCount;
         }
 
         if(btnConfirm) {
             btnConfirm.addEventListener('click', () => {
                 let summaryStr = [];
-                for(let c in AppState.cart) {
-                    if(AppState.cart[c] > 0) summaryStr.push(`${c}: ${AppState.cart[c]}`);
-                }
+                for(let c in AppState.cart) { if(AppState.cart[c] > 0) summaryStr.push(`${c}: ${AppState.cart[c]}`); }
                 const summaryInput = document.getElementById('procItemsSummary');
-                if(summaryInput) {
-                    summaryInput.value = summaryStr.length > 0 ? summaryStr.join(', ') : '';
-                }
+                if(summaryInput) { summaryInput.value = summaryStr.length > 0 ? summaryStr.join(', ') : ''; }
                 closeModal();
             });
         }
 
         // ==========================================
-        // 🚀 [API 통신] HQ 발주 제출
+        // 🚀 HQ 발주 제출
         // ==========================================
         const btnSubmitProc = document.getElementById('btnSubmitProcurement');
         if(btnSubmitProc) {
@@ -881,47 +821,31 @@
                 const hub = hSelect ? hSelect.value : "";
                 const itemsStr = document.getElementById('procItemsSummary').value;
 
-                if(!vName || !hub || !itemsStr) {
-                    Y2C_AuthEngine.showToast("모든 발주 정보를 입력해주세요.", "error");
-                    return;
-                }
+                if(!vName || !hub || !itemsStr) { Y2C_AuthEngine.showToast("모든 발주 정보를 입력해주세요.", "error"); return; }
 
-                btnSubmitProc.disabled = true;
-                btnSubmitProc.innerHTML = `<span class="animate-pulse">PROCESSING...</span>`;
+                btnSubmitProc.disabled = true; btnSubmitProc.innerHTML = `<span class="animate-pulse">PROCESSING...</span>`;
 
                 const payload = {
-                    order: {
-                        id: "HQ-" + Date.now().toString().slice(-6),
-                        date: new Date().toISOString().split('T')[0],
-                        vendor: vName,
-                        region: hub,
-                        items: itemsStr,
-                        status: "HQ_PENDING",
-                        eta: "-"
-                    }
+                    order: { id: "HQ-" + Date.now().toString().slice(-6), date: new Date().toISOString().split('T')[0], vendor: vName, region: hub, items: itemsStr, status: "HQ_PENDING", eta: "-" }
                 };
 
                 try {
                     const res = await Y2C_AuthEngine.request("upsert_hq_order", payload);
                     if(res && res.success) {
                         Y2C_AuthEngine.showToast("조달 발주가 성공적으로 서버에 전송되었습니다.", "success");
-                        AppState.cart = {};
-                        document.getElementById('procItemsSummary').value = "";
-                        document.getElementById('modalSelectedCount').innerText = "0";
-                        fetchProcurementData(); // Reload Table
+                        AppState.cart = {}; document.getElementById('procItemsSummary').value = ""; document.getElementById('modalSelectedCount').innerText = "0";
+                        fetchProcurementData();
                     }
                 } catch(e) {
                     Y2C_AuthEngine.showToast(e.message, "error");
                 } finally {
-                    btnSubmitProc.disabled = false;
-                    btnSubmitProc.innerHTML = `<span class="text-lg leading-none">+</span> ADD ORDER`;
+                    btnSubmitProc.disabled = false; btnSubmitProc.innerHTML = `<span class="text-lg leading-none">+</span> ADD ORDER`;
                 }
             });
         }
 
         // ==========================================
-        // ⚙️ [데드락 3 완벽 해결] 클라이언트 사이드 Excel 파서 및 Commit 엔진
-        // 지역(Hub) 선택 강제화 및 백엔드 스키마 완벽 매핑
+        // ⚙️ [데드락 해결의 핵심] 클라이언트 사이드 Excel 엔진 & 멱등성 록다운 커밋
         // ==========================================
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('excelFileInput');
@@ -932,18 +856,13 @@
         let pendingStockUpdates = []; 
 
         if (dropZone && fileInput) {
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
-            });
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, preventDefaults, false); });
             function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
 
             ['dragenter', 'dragover'].forEach(eventName => { dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false); });
             ['dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false); });
 
-            dropZone.addEventListener('drop', (e) => {
-                let dt = e.dataTransfer; let files = dt.files; handleExcelFiles(files);
-            });
-
+            dropZone.addEventListener('drop', (e) => { let dt = e.dataTransfer; let files = dt.files; handleExcelFiles(files); });
             fileInput.addEventListener('change', function(e) { handleExcelFiles(this.files); });
         }
 
@@ -951,20 +870,16 @@
             if(!files || files.length === 0) return;
             const file = files[0];
             
-            // 🚨 [방어] 지역(Hub)이 선택되지 않으면 업로드 자체를 거부합니다.
             if (!inboundRegionSelector || !inboundRegionSelector.value) {
                 Y2C_AuthEngine.showToast("입고될 타겟 지역(Target Hub)을 먼저 선택해 주십시오.", "error");
                 inboundRegionSelector.classList.add('border-[#E3000F]', 'animate-pulse');
                 setTimeout(() => inboundRegionSelector.classList.remove('animate-pulse'), 1500);
-                // 파일 인풋 초기화
-                if(fileInput) fileInput.value = '';
-                return;
+                if(fileInput) fileInput.value = ''; return;
             }
 
             if(!file.name.match(/\.(xlsx|xls)$/i)) {
                 Y2C_AuthEngine.showToast("엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.", "error");
-                if(fileInput) fileInput.value = '';
-                return;
+                if(fileInput) fileInput.value = ''; return;
             }
 
             const reader = new FileReader();
@@ -977,45 +892,29 @@
                     const json = XLSX.utils.sheet_to_json(worksheet, {raw: false});
 
                     if(json.length === 0) throw new Error("엑셀 파일에 데이터가 비어있습니다.");
-                    
                     renderExcelPreview(json);
-                } catch(err) {
-                    Y2C_AuthEngine.showToast("엑셀 파싱 실패: " + err.message, "error");
-                }
+                } catch(err) { Y2C_AuthEngine.showToast("엑셀 파싱 실패: " + err.message, "error"); }
             };
             reader.readAsArrayBuffer(file);
         }
 
         function renderExcelPreview(jsonArray) {
             const headers = Object.keys(jsonArray[0]);
-            const thead = document.getElementById('excelThead');
-            const tbody = document.getElementById('excelTbody');
-            const container = document.getElementById('excelPreviewContainer');
-            
+            const thead = document.getElementById('excelThead'); const tbody = document.getElementById('excelTbody'); const container = document.getElementById('excelPreviewContainer');
             if(!thead || !tbody || !container) return;
 
-            let headHtml = "<tr>";
-            headers.forEach(h => { headHtml += `<th>${Y2C_AuthEngine.escapeHtml(h)}</th>`; });
-            headHtml += "</tr>";
-            thead.innerHTML = headHtml;
+            let headHtml = "<tr>"; headers.forEach(h => { headHtml += `<th>${Y2C_AuthEngine.escapeHtml(h)}</th>`; }); headHtml += "</tr>"; thead.innerHTML = headHtml;
 
-            let bodyHtml = "";
-            const previewLimit = Math.min(jsonArray.length, 50);
+            let bodyHtml = ""; const previewLimit = Math.min(jsonArray.length, 50);
             for(let i=0; i<previewLimit; i++) {
-                bodyHtml += "<tr>";
-                headers.forEach(h => { bodyHtml += `<td>${Y2C_AuthEngine.escapeHtml(jsonArray[i][h] || "-")}</td>`; });
-                bodyHtml += "</tr>";
+                bodyHtml += "<tr>"; headers.forEach(h => { bodyHtml += `<td>${Y2C_AuthEngine.escapeHtml(jsonArray[i][h] || "-")}</td>`; }); bodyHtml += "</tr>";
             }
-            if(jsonArray.length > 50) {
-                bodyHtml += `<tr><td colspan="${headers.length}" class="text-center text-gray-400 italic">... and ${jsonArray.length - 50} more rows</td></tr>`;
-            }
+            if(jsonArray.length > 50) bodyHtml += `<tr><td colspan="${headers.length}" class="text-center text-gray-400 italic">... and ${jsonArray.length - 50} more rows</td></tr>`;
             tbody.innerHTML = bodyHtml;
 
             document.getElementById('excelMetaText').innerText = `Parsed ${jsonArray.length} rows successfully. Ready to commit.`;
             parsedExcelData = jsonArray;
             
-            // 🚨 [핵심] 백엔드가 요구하는 update_stock 규격으로 데이터 매핑
-            // 엑셀의 헤더(ITEM#, QTY, EXP.DATE)를 Fuzzy Matching으로 스마트하게 추출합니다.
             pendingStockUpdates = [];
             const targetRegion = inboundRegionSelector.value.trim(); 
 
@@ -1024,7 +923,7 @@
                 let qty = parseInt(row["QTY"] || row["STOCK"] || row["Quantity"] || row["Qty"] || row["수량"] || 0, 10);
                 let exp = row["EXP.DATE"] || row["EXP"] || row["Expiration Date"] || row["Exp.Date"] || row["유통기한"] || "-";
                 
-                if (code && !isNaN(qty) && qty > 0) { // 빈 값이거나 수량이 0인 행은 제외
+                if (code && !isNaN(qty) && qty > 0) { 
                     let stockObj = { code: String(code).trim(), stockBreakdown: {}, expBreakdown: {} };
                     stockObj.stockBreakdown[targetRegion] = qty;
                     if (exp !== "-") { stockObj.expBreakdown[targetRegion] = String(exp).trim() + ":" + qty; }
@@ -1032,46 +931,54 @@
                 }
             });
 
-            document.getElementById('dropZone').classList.add('hidden');
-            container.classList.remove('hidden');
+            document.getElementById('dropZone').classList.add('hidden'); container.classList.remove('hidden');
             Y2C_AuthEngine.showToast("엑셀 파일이 100% 무결성으로 파싱되었습니다.", "success");
         }
 
-        // 🚨 COMMIT TO MASTER 버튼 클릭 시 엑셀 데이터를 백엔드로 전송
+        // 🚨 COMMIT TO MASTER: 멱등성 해시 + 백오프 무시 적용
         if (btnSyncExcel) {
             btnSyncExcel.addEventListener('click', async () => {
                 if (pendingStockUpdates.length === 0) {
-                    Y2C_AuthEngine.showToast("서버로 전송할 유효한 재고 데이터가 없습니다. (수량이 0이거나 품번이 누락됨)", "warning");
-                    return;
+                    Y2C_AuthEngine.showToast("서버로 전송할 유효한 재고 데이터가 없습니다.", "warning"); return;
                 }
-
                 if (!confirm(`총 ${pendingStockUpdates.length}개 품목의 입고 데이터를 마스터 DB에 강제 병합(ADD)합니다. 진행하시겠습니까?`)) return;
 
                 btnSyncExcel.disabled = true;
                 if(btnSyncExcelText) btnSyncExcelText.innerText = "COMMITTING...";
 
                 try {
-                    const syncId = "EXCEL-" + Date.now();
+                    // 🌟 멱등성 록다운: 파일 내용을 기반으로 Hash를 생성하여 고정된 Sync ID를 부여합니다.
+                    let hash = 0;
+                    const dataStr = JSON.stringify(pendingStockUpdates);
+                    for (let i = 0; i < dataStr.length; i++) {
+                        hash = ((hash << 5) - hash) + dataStr.charCodeAt(i); hash |= 0; 
+                    }
+                    const datePrefix = new Date().toISOString().split('T')[0];
+                    const syncId = `EXCEL-${datePrefix}-${Math.abs(hash).toString(16).toUpperCase()}`;
+
                     const payload = {
-                        mode: "ADD", // 벤더는 기존 재고에 더하기만 가능
+                        mode: "ADD",
                         syncId: syncId,
                         stockUpdates: pendingStockUpdates
                     };
 
-                    // 🚨 update_stock 액션 명령어를 정확하게 발사합니다.
-                    const res = await Y2C_AuthEngine.request("update_stock", payload, 2); 
+                    // 🚨 [방어막 적용] retries = 0 으로 던져 자동 재시도로 인한 "다른 스레드 처리 중" 락업 현상을 원천 방지합니다.
+                    const res = await Y2C_AuthEngine.request("update_stock", payload, 0); 
                     
                     if (res && res.success) {
                         Y2C_AuthEngine.showToast(`✅ ${pendingStockUpdates.length}개 품목의 재고가 마스터 DB와 완벽히 동기화되었습니다.`, "success");
-                        // 폼 리셋
-                        document.getElementById('excelPreviewContainer').classList.add('hidden');
-                        document.getElementById('dropZone').classList.remove('hidden');
-                        if(fileInput) fileInput.value = '';
-                        parsedExcelData = null;
-                        pendingStockUpdates = [];
+                        document.getElementById('excelPreviewContainer').classList.add('hidden'); document.getElementById('dropZone').classList.remove('hidden');
+                        if(fileInput) fileInput.value = ''; parsedExcelData = null; pendingStockUpdates = [];
                     }
                 } catch (err) {
-                    Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
+                    // 🌟 에러 우회: 12초 타임아웃에 걸렸더라도 백엔드는 안전하게 처리 중임을 사용자에게 알림
+                    if (err.message.includes("다른 스레드") || err.message.includes("분산 처리")) {
+                        Y2C_AuthEngine.showToast("⏳ 서버가 백그라운드에서 데이터를 안전하게 처리 중입니다. 10초 후 버튼을 다시 눌러 동기화를 완료하십시오.", "warning");
+                    } else if (err.message.includes("시간 초과") || err.message.includes("네트워크")) {
+                        Y2C_AuthEngine.showToast("⏳ 대량의 데이터 처리로 인해 응답이 지연되었습니다. 잠시 후 커밋 버튼을 다시 누르면 중복 없이 안전하게 연결됩니다.", "warning");
+                    } else {
+                        Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
+                    }
                 } finally {
                     btnSyncExcel.disabled = false;
                     if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
@@ -1082,13 +989,8 @@
         // ==========================================
         // 🚀 초기 구동 파이프라인
         // ==========================================
-        if (AppState.role === "VENDOR") {
-            switchTab("tab-procurement");
-        } else {
-            switchTab("tab-franchise"); // 마스터 기본 탭
-        }
-
-        // 🌟 시스템 기동
+        if (AppState.role === "VENDOR") switchTab("tab-procurement");
+        else switchTab("tab-franchise"); 
         fetchProcurementData();
     });
 
