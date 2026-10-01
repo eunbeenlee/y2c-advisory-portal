@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.76 Enterprise Admin ULTIMATE - Excel Mapping Engine Resolved 🌟
-  [CRITICAL FIX 1] Excel Pre-flight Validator: Maps Vendor Code (e.g., 70808SJ) to HQ Code automatically before commit.
-  [CRITICAL FIX 2] Visual Error Lockdown: Unmapped codes block the COMMIT button and highlight red in preview.
-  [CRITICAL FIX 3] Synchronous Dropdown Population: Hub dropdowns load instantly, ignoring network failures.
-  [PREMIUM UI] Enterprise 3D Glass-Lock Overlay for Unauthorized Tabs.
+  🌟 V40.77 Enterprise Admin ULTIMATE - Advanced Excel Substitution Engine 🌟
+  [CRITICAL FIX 1] Fuzzy Header Matching: Auto-extracts ONLY necessary info (Code, Name, Exp, Qty) ignoring garbage columns.
+  [CRITICAL FIX 2] Auto-Aggregation: Merges multiple Excel rows with the same Item Code and Exp. Date natively.
+  [CRITICAL FIX 3] Interactive Substitution: Renders a dropdown to manually map unknown Vendor Codes to HQ Codes.
+  [CRITICAL FIX 4] Row Ignore: Allows skipping irrelevant data to unlock the COMMIT button.
   [DEPENDENCY] Strictly bound to Y2C_AuthEngine (auth.js V40.65+).
 -->
 <html lang="en">
@@ -140,7 +140,6 @@
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* 🌟 [가속] Content Visibility 오프로딩 */
         .tab-section { content-visibility: auto; contain-intrinsic-size: auto 800px; display: none; opacity: 0; transition: opacity 0.4s ease; }
         .tab-section.active { display: block; opacity: 1; }
 
@@ -160,7 +159,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 🌟 프리미엄 헤더/네비게이션 스타일 */
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
@@ -173,7 +171,6 @@
         .sub-nav-btn:hover:not(.active) { color: var(--premium-charcoal); background: #f1f5f9; }
         .sub-nav-btn.active { color: #ffffff; background: var(--premium-charcoal); box-shadow: 0 4px 10px rgba(17, 24, 39, 0.15); }
 
-        /* 🌟 동적 드롭다운 폼 스타일 */
         .premium-input {
             appearance: none; -webkit-appearance: none;
             background: #ffffff;
@@ -189,15 +186,13 @@
         .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
         .premium-input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
 
-        /* 🌟 솔리드 레드 프리미엄 버튼 */
         .btn-solid-red {
             background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(227, 0, 15, 0.2);
         }
         .btn-solid-red:hover:not(:disabled) { background-color: #B9000C; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(227, 0, 15, 0.3); }
         .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
-        .btn-solid-red:disabled { background-color: #fca5a5; cursor: not-allowed; box-shadow: none; }
+        .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
 
-        /* 🌟 하이엔드 권한 통제 Glass Lock Overlay */
         .glass-lock-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.6);
@@ -213,7 +208,6 @@
             color: #D4AF37; margin-bottom: 24px;
         }
 
-        /* 🌟 엑셀 드래그 앤 드롭 존 */
         .drop-zone {
             border: 2px dashed #cbd5e1; border-radius: 1.5rem; background: #f8fafc; transition: all 0.3s ease; cursor: pointer;
         }
@@ -224,10 +218,11 @@
             background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out;
         }
 
-        /* 🌟 테이블 디자인 */
+        /* 🌟 테이블 디자인 (고급화 엔진 전용) */
         .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 24px; border-bottom: 2px solid #e2e8f0; }
-        .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; }
+        .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; }
         .enterprise-table tr:hover td { background: #f8fafc; }
+        .enterprise-table tr.bg-red-50:hover td { background: #fee2e2; }
 
         .status-badge { padding: 4px 10px; border-radius: 9999px; font-size: 10px; font-weight: 900; font-family: 'Montserrat', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; }
         .status-pending { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
@@ -266,7 +261,6 @@
         </div>
     </noscript>
     
-    <!-- 🌟 헤더 네비게이션 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
@@ -277,17 +271,20 @@
                 </div>
             </div>
 
-            <!-- 중앙 네비게이션 탭 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Dashboard</a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Item Catalog</a>
                 <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Recipe Center</a>
-                <!-- 현재 페이지: Master DB 활성화 -->
                 <a href="admin.html" id="navAdmin" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden">Master DB</a>
                 <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Advisory Invoice</a>
             </nav>
 
             <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
+                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
+                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
+                </div>
+
                 <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0">
                     <span class="flex h-2 w-2 relative hidden sm:flex">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -342,8 +339,8 @@
         <nav class="flex flex-wrap items-center justify-start gap-2 mb-10 border-b border-gray-200 pb-2 no-print" id="adminSubNav">
             <button class="sub-nav-btn" data-target="tab-franchise">FRANCHISE DB</button>
             <button class="sub-nav-btn" data-target="tab-sales">ERP SALES</button>
-            <button class="sub-nav-btn" data-target="tab-excel">INBOUND (EXCEL)</button>
-            <button class="sub-nav-btn active" data-target="tab-procurement">HQ PROCUREMENT</button>
+            <button class="sub-nav-btn active" data-target="tab-excel">INBOUND (EXCEL)</button>
+            <button class="sub-nav-btn" data-target="tab-procurement">HQ PROCUREMENT</button>
         </nav>
 
         <!-- ========================================== -->
@@ -396,45 +393,46 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- 📦 SECTION 3: INBOUND (EXCEL) - CLIENT PARSER -->
+        <!-- 📦 SECTION 3: INBOUND (EXCEL) - ADVANCED MAPPING ENGINE -->
         <!-- ========================================== -->
-        <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-8 relative">
+        <section id="tab-excel" class="tab-section active rounded-3xl bg-white shadow-premium-card p-8 relative">
             <header class="mb-8">
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3"><span class="opacity-80">📥</span> Mass Inbound (Excel)</h2>
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Upload vendor shipment files to auto-sync inventory logic.</p>
             </header>
             
-            <!-- 🌟 [치명적 에러 해결] 지역(Hub) 선택 강제 UI (무결성 확보) -->
+            <!-- 🌟 지역(Hub) 선택 강제 UI -->
             <div class="mb-6 flex flex-col md:flex-row gap-4 items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm relative z-20">
                 <label class="font-black text-gray-500 uppercase tracking-widest text-[11px] shrink-0">1. Select Target Hub <span class="text-[#E3000F]">*</span></label>
                 <select id="inboundRegionSelector" class="premium-input bg-white cursor-pointer appearance-none text-[13px] font-bold w-full md:w-64">
-                    <!-- 페이지 로드 즉시 js가 강제로 채워넣습니다 -->
                     <option value="" disabled selected>Loading Authorized Hubs...</option>
                 </select>
             </div>
 
+            <!-- 🌟 엑셀 드롭 존 -->
             <div id="dropZone" class="drop-zone flex flex-col items-center justify-center py-16 px-4 text-center mb-8 relative overflow-hidden group">
                 <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                 <div class="w-16 h-16 bg-white shadow-sm border border-gray-200 rounded-full flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform">📄</div>
                 <h3 class="font-bold text-[15px] text-[var(--premium-charcoal)] mb-1">2. Drag & Drop Excel File</h3>
                 <p class="text-[12px] font-medium text-gray-400">or click to browse from your computer (.xlsx)</p>
                 <div class="mt-6 px-4 py-2 bg-gray-100 rounded-lg inline-flex items-center gap-2">
-                    <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Required Columns:</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">ITEM# or BARCODE</span>
-                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">QTY</span>
+                    <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Required Information:</span>
+                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Code</span>
+                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Qty</span>
+                    <span class="text-[10px] font-bold text-gray-600 font-mono bg-white px-1.5 border border-gray-200 rounded">Exp.Date</span>
                 </div>
             </div>
 
-            <!-- 🌟 엑셀 프리뷰 및 COMMIT 버튼 (퍼지 맵퍼 엔진 연동) -->
+            <!-- 🌟 엑셀 치환 엔진 프리뷰 및 COMMIT 버튼 -->
             <div id="excelPreviewContainer" class="hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-4">
                     <div>
                         <h4 class="font-black text-lg text-[var(--premium-charcoal)] flex items-center gap-2">
                             Data Preview <span id="excelErrorBadge" class="hidden px-2 py-0.5 bg-red-100 text-[#E3000F] text-[10px] rounded font-black tracking-widest border border-red-200">ERROR DETECTED</span>
                         </h4>
-                        <p class="text-[11px] text-gray-500 font-bold" id="excelMetaText">Parsed 0 rows</p>
+                        <p class="text-[11px] text-gray-500 font-bold mt-1" id="excelMetaText">Parsed 0 rows</p>
                     </div>
-                    <!-- 🚨 유효하지 않은 벤더 코드가 있으면 이 버튼은 비활성화됩니다 -->
+                    <!-- 에러가 있을 시 잠기는 COMMIT 버튼 -->
                     <button type="button" id="btnSyncExcel" class="btn-solid-red px-6 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                         <span id="btnSyncExcelText">Commit to Master</span>
@@ -442,8 +440,17 @@
                 </div>
                 <div class="overflow-x-auto border border-gray-200 rounded-xl max-h-[500px] overflow-y-auto">
                     <table class="w-full text-left enterprise-table" id="excelTable">
-                        <thead class="sticky top-0 bg-[#f8fafc] z-10" id="excelThead"><tr><th>Preview</th></tr></thead>
-                        <tbody id="excelTbody"></tbody>
+                        <thead class="sticky top-0 bg-[#f8fafc] z-10" id="excelThead">
+                            <tr>
+                                <th class="w-32">Status</th>
+                                <th class="w-64">Mapped HQ Code</th>
+                                <th class="w-32">Vendor Code</th>
+                                <th class="w-64">Product Name</th>
+                                <th class="w-32 text-center">Exp. Date</th>
+                                <th class="w-24 text-center">Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="excelTbody" class="divide-y divide-gray-50"></tbody>
                     </table>
                 </div>
             </div>
@@ -452,7 +459,7 @@
         <!-- ========================================== -->
         <!-- 🌐 SECTION 4: HQ PROCUREMENT (DEFAULT FOR VENDOR) -->
         <!-- ========================================== -->
-        <section id="tab-procurement" class="tab-section active">
+        <section id="tab-procurement" class="tab-section">
             <header class="mb-8">
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3"><span class="opacity-80">🌐</span> HQ Procurement Console</h2>
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Global logistics procurement status, digital cart, and system health scan center.</p>
@@ -466,7 +473,6 @@
                         <input type="text" id="procVendorName" class="premium-input bg-gray-50" placeholder="e.g. CJ Foods" autocomplete="off" disabled>
                     </div>
 
-                    <!-- 🌟 발주용 Dynamic Hub Dropdown -->
                     <div class="md:col-span-2">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Hub</label>
                         <div class="relative">
@@ -493,7 +499,6 @@
                 </div>
             </div>
 
-            <!-- 🌟 Active Shipments (에러 캔버스 포함) -->
             <div class="mb-4 flex items-center gap-3 px-2">
                 <span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span>
                 <h3 class="font-montserrat font-black text-[14px] text-[var(--premium-charcoal)] uppercase tracking-widest">Active Inbound Shipments</h3>
@@ -521,7 +526,6 @@
                     </table>
                 </div>
             </div>
-
         </section>
 
     </main>
@@ -559,7 +563,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.76 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V40.77 STABLE</span>
                 </div>
             </div>
         </div>
@@ -573,10 +577,11 @@
 
     <script>
     /**
-     * 🌟 V40.76 Enterprise Admin Logic
-     * [CRITICAL FIX 1] Excel Pre-flight Validator: Maps Vendor Code (e.g., 70808SJ) to HQ Code automatically before commit.
-     * [CRITICAL FIX 2] Visual Error Lockdown: Unmapped codes block the COMMIT button and highlight red in preview.
-     * [CRITICAL FIX 3] Synchronous Dropdown Population: Hub dropdowns load instantly, ignoring network failures.
+     * 🌟 V40.77 Enterprise Admin Logic - The Ultimate Excel Substitution Engine
+     * [CRITICAL FIX 1] Fuzzy Header Matching (findBestKey) strips all garbage columns natively.
+     * [CRITICAL FIX 2] Auto-Aggregation merges duplicate items with the same expiration date seamlessly.
+     * [CRITICAL FIX 3] Interactive Validation: Unmapped vendor codes trigger a dropdown to substitute HQ Codes.
+     * [CRITICAL FIX 4] Row Ignoring: Excludes irrelevant data without blocking the entire commit payload.
      */
     document.addEventListener("DOMContentLoaded", () => {
         
@@ -589,8 +594,8 @@
             clientName: localStorage.getItem("y2c_client") || "Unknown",
             region: localStorage.getItem("y2c_region") || "ON",
             hqOrders: [],
-            mappings: [], // Vendor -> HQ Code mappings
-            catalogItems: [], // Master Item DB
+            mappings: [], 
+            catalogItems: [], 
             cart: {} 
         };
 
@@ -670,11 +675,10 @@
         populateHubDropdown(); // 즉시 로드 보장
 
         // ==========================================
-        // 🚀 HQ 조달 데이터 & 아이템 마스터 패칭 (병렬 처리)
+        // 🚀 데이터 초기 패칭 (조달 및 카탈로그 동시 진행)
         // ==========================================
         async function fetchInitialData() {
             try {
-                // 병렬로 조달 데이터와 카탈로그 데이터(매핑용)를 동시에 패칭합니다.
                 const [procRes, itemRes] = await Promise.all([
                     Y2C_AuthEngine.request("get_procurement_data"),
                     Y2C_AuthEngine.request("get_items")
@@ -683,7 +687,6 @@
                 if (procRes && procRes.success) {
                     AppState.hqOrders = procRes.hqOrders || [];
                     AppState.mappings = procRes.mappings || [];
-                    
                     if (AppState.role === "VENDOR") {
                         const vInput = document.getElementById('procVendorName');
                         if(vInput) { vInput.value = AppState.clientName; vInput.disabled = true; }
@@ -845,7 +848,10 @@
                     if(res && res.success) {
                         Y2C_AuthEngine.showToast("조달 발주가 성공적으로 서버에 전송되었습니다.", "success");
                         AppState.cart = {}; document.getElementById('procItemsSummary').value = ""; document.getElementById('modalSelectedCount').innerText = "0";
-                        fetchProcurementData(); // Re-fetch to update table
+                        
+                        // 발주 완료 시 0.01초 만에 바로 테이블을 재패칭하여 하단에 렌더링
+                        const refreshRes = await Y2C_AuthEngine.request("get_procurement_data");
+                        if(refreshRes && refreshRes.success) { AppState.hqOrders = refreshRes.hqOrders || []; renderHqOrders(); }
                     }
                 } catch(e) {
                     Y2C_AuthEngine.showToast(e.message, "error");
@@ -856,8 +862,8 @@
         }
 
         // ==========================================
-        // ⚙️ [데드락 3 완벽 해결] 클라이언트 사이드 Excel 퍼지 매퍼 (Fuzzy Mapper)
-        // 벤더가 올린 코드를 본사 코드로 100% 자동 치환(Translation)하여 백엔드 에러 원천 차단
+        // ⚙️ [가장 강력한 진화] 엑셀 치환 고급화 엔진 (Advanced Excel Substitution Engine)
+        // 벤더 엑셀 포맷 파괴 -> 정규식 퍼지 매핑 -> 미등록품번 치환(Substitution) -> 최종 압축(Aggregation)
         // ==========================================
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('excelFileInput');
@@ -865,8 +871,40 @@
         const btnSyncExcelText = document.getElementById('btnSyncExcelText');
         const inboundRegionSelector = document.getElementById('inboundRegionSelector');
         const errorBadge = document.getElementById('excelErrorBadge');
-        let parsedExcelData = null; 
-        let pendingStockUpdates = []; 
+        
+        let pendingStockUpdates = []; // 최종 백엔드 전송용 페이로드 Array
+
+        // 🌟 [핵심 알고리즘] 퍼지 매칭(Fuzzy Matching) 유틸
+        // 엑셀 헤더의 모든 불필요한 공백과 특수문자를 날려버리고 완벽히 타겟 열만 뽑아냅니다.
+        function findBestKey(row, keywords) {
+            const keys = Object.keys(row);
+            for (let k of keys) {
+                let cleanK = k.replace(/[^a-zA-Z0-9가-힣]/g, '').toUpperCase();
+                for (let kw of keywords) {
+                    if (cleanK.includes(kw)) return k;
+                }
+            }
+            return null;
+        }
+
+        // 🌟 [핵심 알고리즘] 엑셀 날짜 포맷팅 유틸 (Serial Number 및 String 완벽 호환)
+        function normalizeExcelDate(value) {
+            if (value === undefined || value === null || value === "" || value === "-") return "-";
+            // Excel Numeric Date (e.g. 44567)
+            if (typeof value === 'number' && value > 20000) {
+                const date = new Date((value - 25569) * 86400 * 1000);
+                date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            // String YYYY-MM-DD
+            const strVal = String(value).trim();
+            const match = strVal.match(/\d{4}-\d{2}-\d{2}/);
+            if (match) return match[0];
+            return strVal;
+        }
 
         if (dropZone && fileInput) {
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, preventDefaults, false); });
@@ -912,124 +950,194 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // 🚨 [가장 중요한 코어 로직] 벤더 코드를 HQ 코드로 매핑 (미등록 코드는 에러 처리)
+        // 🚨 [진짜 치환 엔진 구동부]
         function processAndMapExcelData(jsonArray) {
             const targetRegion = inboundRegionSelector.value.trim(); 
-            pendingStockUpdates = [];
-            let validationErrors = 0;
+            let aggregatedData = {}; // 동일 품목 자동 합산용 맵핑 오브젝트
             
-            // 엑셀 원본 데이터에 상태 뱃지를 달기 위한 가공
-            const enrichedData = jsonArray.map((row, idx) => {
-                let rawCode = String(row["ITEM#"] || row["CODE"] || row["Item Code"] || row["Item#"] || row["Code"] || row["품번"] || row["BARCODE"] || "").trim().toUpperCase();
-                let qty = parseInt(row["QTY"] || row["STOCK"] || row["Quantity"] || row["Qty"] || row["수량"] || 0, 10);
-                let exp = String(row["EXP.DATE"] || row["EXP"] || row["Expiration Date"] || row["Exp.Date"] || row["유통기한"] || "-").trim();
-                
-                let hqCode = null;
+            jsonArray.forEach(row => {
+                // 1. 필요한 4대 컬럼(Code, Qty, Exp, Name)만 추출 (쓰레기 컬럼 배제)
+                const codeKey = findBestKey(row, ['ITEM', 'CODE', '품번', 'SKU', 'BARCODE']);
+                const qtyKey = findBestKey(row, ['QTY', 'QUANTITY', '수량', 'STOCK']);
+                const expKey = findBestKey(row, ['EXP', '유통기한', 'DATE']);
+                const nameKey = findBestKey(row, ['PRODUCT', 'NAME', '품명', '제품']);
 
+                let rawCode = codeKey ? String(row[codeKey]).trim().toUpperCase() : "";
+                let qtyStr = qtyKey ? String(row[qtyKey]).replace(/[^0-9]/g, '') : "0";
+                let qty = parseInt(qtyStr, 10);
+                let rawExp = expKey ? row[expKey] : "-";
+                let exp = normalizeExcelDate(rawExp);
+                let rawName = nameKey ? String(row[nameKey]).trim() : "Unknown Product";
+
+                // 2. 오토 어그리게이션 (Auto-Aggregation)
+                // 만약 F60134SJ 가 2027-01-21 날짜로 여러 줄 나뉘어 있다면, 이를 하나의 트랜잭션으로 압축합니다.
                 if (rawCode && !isNaN(qty) && qty > 0) {
-                    
-                    // 1. Vendor Mapping DB 스캔
-                    let mapObj = AppState.mappings.find(m => String(m.vendorCode).trim().toUpperCase() === rawCode);
-                    if (mapObj) {
-                        hqCode = mapObj.hqCode;
-                    } else {
-                        // 2. Direct Match (카탈로그 품번과 정확히 일치하는 경우)
-                        let directMatch = AppState.catalogItems.find(c => String(c.code).trim().toUpperCase() === rawCode);
-                        if (directMatch) hqCode = directMatch.code;
+                    let aggKey = rawCode + '|' + exp;
+                    if (!aggregatedData[aggKey]) {
+                        aggregatedData[aggKey] = {
+                            rawCode: rawCode,
+                            rawName: rawName,
+                            exp: exp,
+                            qty: 0
+                        };
                     }
-
-                    if (!hqCode) {
-                        row.__STATUS__ = "ERROR";
-                        row.__MSG__ = "미등록 품번";
-                        validationErrors++;
-                    } else {
-                        row.__STATUS__ = "OK";
-                        row.__HQ_CODE__ = hqCode;
-                        
-                        // 중복 품번일 경우 데이터 병합(Merge)
-                        let existingObj = pendingStockUpdates.find(p => p.code === hqCode);
-                        if (existingObj) {
-                            existingObj.stockBreakdown[targetRegion] += qty;
-                            if (exp !== "-") {
-                                existingObj.expBreakdown[targetRegion] += ` | ${exp}:${qty}`;
-                            }
-                        } else {
-                            let stockObj = { code: hqCode, stockBreakdown: {}, expBreakdown: {} };
-                            stockObj.stockBreakdown[targetRegion] = qty;
-                            if (exp !== "-") { stockObj.expBreakdown[targetRegion] = `${exp}:${qty}`; }
-                            pendingStockUpdates.push(stockObj);
-                        }
-                    }
-                } else {
-                    row.__STATUS__ = "IGNORED";
-                    row.__MSG__ = "수량 0 또는 품번 누락";
+                    aggregatedData[aggKey].qty += qty;
                 }
-                
-                return row;
             });
 
-            renderExcelPreview(enrichedData, validationErrors);
+            // 3. 글로벌 윈도우 스페이스에 프리뷰 데이터 저장 (치환 UI 연동 위함)
+            let displayRows = [];
+            Object.values(aggregatedData).forEach(item => {
+                let hqCode = null;
+                
+                // 매핑 1단계: Vendor Mapping DB 스캔
+                let mapObj = AppState.mappings.find(m => String(m.vendorCode).toUpperCase() === item.rawCode);
+                if (mapObj) hqCode = mapObj.hqCode;
+                
+                // 매핑 2단계: 다이렉트 카탈로그 스캔
+                if (!hqCode) {
+                    let directMatch = AppState.catalogItems.find(c => String(c.code).toUpperCase() === item.rawCode);
+                    if (directMatch) hqCode = directMatch.code;
+                }
+
+                displayRows.push({
+                    rawCode: item.rawCode,
+                    rawName: item.rawName,
+                    exp: item.exp,
+                    qty: item.qty,
+                    hqCode: hqCode,
+                    status: hqCode ? "OK" : "ERROR",
+                    ignored: false
+                });
+            });
+
+            window.currentExcelPreviewData = displayRows;
+            renderAdvancedExcelPreview();
         }
 
-        function renderExcelPreview(enrichedData, errorsCount) {
-            const headers = Object.keys(enrichedData[0]).filter(h => !h.startsWith('__'));
-            const thead = document.getElementById('excelThead'); 
+        // 🚨 [진짜 치환 렌더링 부]
+        window.renderAdvancedExcelPreview = function() {
             const tbody = document.getElementById('excelTbody'); 
+            const thead = document.getElementById('excelThead');
             const container = document.getElementById('excelPreviewContainer');
             
             if(!thead || !tbody || !container) return;
 
-            let headHtml = "<tr><th>Status</th><th>Mapped HQ Code</th>"; 
-            headers.forEach(h => { headHtml += `<th>${Y2C_AuthEngine.escapeHtml(h)}</th>`; }); 
-            headHtml += "</tr>"; 
-            thead.innerHTML = headHtml;
+            let html = "";
+            let errorCount = 0;
+            pendingStockUpdates = []; // 리렌더링 될 때마다 백엔드로 쏠 페이로드를 새로 구축합니다.
+            const targetRegion = inboundRegionSelector.value.trim(); 
+            let tempUpdates = {}; // 품번별 병합용 오브젝트
 
-            let bodyHtml = ""; 
-            const previewLimit = Math.min(enrichedData.length, 50);
-            for(let i=0; i<previewLimit; i++) {
-                const row = enrichedData[i];
+            window.currentExcelPreviewData.forEach((row, idx) => {
                 let trClass = "";
                 let statusHtml = "";
-                let hqCodeHtml = row.__HQ_CODE__ ? `<span class="font-mono font-bold text-[var(--premium-charcoal)]">${Y2C_AuthEngine.escapeHtml(row.__HQ_CODE__)}</span>` : "-";
+                let hqCodeHtml = "";
 
-                if (row.__STATUS__ === "ERROR") {
+                if (row.status === "ERROR" && !row.ignored) {
+                    errorCount++;
                     trClass = "bg-red-50";
-                    statusHtml = `<span class="px-2 py-0.5 bg-[#E3000F] text-white text-[9px] font-black rounded uppercase tracking-widest">${Y2C_AuthEngine.escapeHtml(row.__MSG__)}</span>`;
-                } else if (row.__STATUS__ === "OK") {
-                    statusHtml = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-black rounded uppercase tracking-widest">Valid</span>`;
+                    statusHtml = `
+                        <div class="flex flex-col gap-1 items-start">
+                            <span class="px-2 py-0.5 bg-[#E3000F] text-white text-[9px] font-black rounded uppercase tracking-widest">미등록 (Unmapped)</span>
+                            <button type="button" onclick="ignoreExcelRow(${idx})" class="text-[9px] text-gray-500 hover:text-[#E3000F] font-bold underline font-inter">Ignore Row</button>
+                        </div>`;
+                    
+                    // 🌟 마스터 품목으로 강제 치환시키는 <select> 드롭다운 UI 생성
+                    let selectOptions = `<option value="" disabled selected>치환할 마스터 품목 선택</option>`;
+                    AppState.catalogItems.forEach(cat => {
+                        selectOptions += `<option value="${cat.code}">[${cat.code}] ${Y2C_AuthEngine.escapeHtml(cat.name)}</option>`;
+                    });
+                    hqCodeHtml = `<select onchange="resolveExcelMapping(${idx}, this.value)" class="w-full text-xs font-bold border border-red-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-[#E3000F]/20 bg-white text-[#E3000F] cursor-pointer shadow-sm font-inter">${selectOptions}</select>`;
+                    
+                } else if (row.ignored) {
+                    trClass = "opacity-40 bg-gray-50";
+                    statusHtml = `
+                        <div class="flex flex-col gap-1 items-start">
+                            <span class="px-2 py-0.5 bg-gray-200 text-gray-500 text-[9px] font-black rounded uppercase tracking-widest">제외됨 (Ignored)</span>
+                            <button type="button" onclick="restoreExcelRow(${idx})" class="text-[9px] text-gray-500 hover:text-emerald-600 font-bold underline mt-1 font-inter">Restore Row</button>
+                        </div>`;
+                    hqCodeHtml = `<span class="text-gray-400 font-mono text-xs font-bold">-</span>`;
                 } else {
-                    statusHtml = `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-[9px] font-black rounded uppercase tracking-widest">Ignored</span>`;
-                    trClass = "opacity-50";
+                    statusHtml = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-black rounded uppercase tracking-widest">매핑완료 (OK)</span>`;
+                    hqCodeHtml = `<span class="font-mono font-bold text-emerald-700 text-[13px] bg-emerald-50 px-2 py-1 border border-emerald-100 rounded">${row.hqCode}</span>`;
+                    
+                    // 정상 데이터는 백엔드 전송 페이로드(pendingStockUpdates)에 조립합니다.
+                    if (!tempUpdates[row.hqCode]) {
+                        tempUpdates[row.hqCode] = { code: row.hqCode, stockBreakdown: {}, expBreakdown: {} };
+                        tempUpdates[row.hqCode].stockBreakdown[targetRegion] = 0;
+                    }
+                    
+                    tempUpdates[row.hqCode].stockBreakdown[targetRegion] += row.qty;
+                    if (row.exp !== "-") {
+                        let existingExp = tempUpdates[row.hqCode].expBreakdown[targetRegion];
+                        if (existingExp) {
+                            tempUpdates[row.hqCode].expBreakdown[targetRegion] += ` | ${row.exp}:${row.qty}`;
+                        } else {
+                            tempUpdates[row.hqCode].expBreakdown[targetRegion] = `${row.exp}:${row.qty}`;
+                        }
+                    }
                 }
 
-                bodyHtml += `<tr class="${trClass}"><td class="w-24">${statusHtml}</td><td class="w-32">${hqCodeHtml}</td>`; 
-                headers.forEach(h => { bodyHtml += `<td>${Y2C_AuthEngine.escapeHtml(row[h] || "-")}</td>`; }); 
-                bodyHtml += "</tr>";
-            }
-            if(enrichedData.length > 50) bodyHtml += `<tr><td colspan="${headers.length + 2}" class="text-center text-gray-400 italic">... and ${enrichedData.length - 50} more rows</td></tr>`;
-            tbody.innerHTML = bodyHtml;
+                html += `
+                    <tr class="${trClass}">
+                        <td class="w-24">${statusHtml}</td>
+                        <td class="w-64">${hqCodeHtml}</td>
+                        <td class="w-32 font-mono font-bold text-gray-500 text-[11px]">${Y2C_AuthEngine.escapeHtml(row.rawCode)}</td>
+                        <td class="w-64 font-bold text-[13px] text-[var(--premium-charcoal)] truncate max-w-[250px]" title="${Y2C_AuthEngine.escapeHtml(row.rawName)}">${Y2C_AuthEngine.escapeHtml(row.rawName)}</td>
+                        <td class="w-32 text-center font-mono text-[12px] text-gray-600">${Y2C_AuthEngine.escapeHtml(row.exp)}</td>
+                        <td class="w-24 text-center font-black text-[#E3000F] text-[13px]">${row.qty}</td>
+                    </tr>
+                `;
+            });
 
-            document.getElementById('excelMetaText').innerText = `Parsed ${enrichedData.length} rows successfully.`;
-            
-            // 🚨 에러가 1건이라도 있으면 COMMIT 버튼을 잠그고 붉은 뱃지를 띄웁니다.
-            if (errorsCount > 0) {
-                errorBadge.classList.remove('hidden');
-                btnSyncExcel.disabled = true;
-                btnSyncExcel.classList.replace('btn-solid-red', 'bg-gray-400');
-                if(btnSyncExcelText) btnSyncExcelText.innerText = "Fix Errors to Commit";
-                Y2C_AuthEngine.showToast(`🚨 마스터 DB에 등록되지 않은 품목이 ${errorsCount}건 발견되었습니다. 엑셀을 수정해 주십시오.`, "error");
-            } else {
-                errorBadge.classList.add('hidden');
-                btnSyncExcel.disabled = false;
-                btnSyncExcel.classList.replace('bg-gray-400', 'btn-solid-red');
-                if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
-                Y2C_AuthEngine.showToast("모든 엑셀 데이터가 마스터 코드로 성공적으로 매핑되었습니다.", "success");
+            tbody.innerHTML = html;
+            pendingStockUpdates = Object.values(tempUpdates); // 최종 배열 승인
+
+            // 🚨 UI 록다운 통제
+            if (errorBadge) {
+                if (errorCount > 0) {
+                    errorBadge.classList.remove('hidden');
+                    errorBadge.innerText = `${errorCount} ERRORS`;
+                    btnSyncExcel.disabled = true;
+                    if(btnSyncExcelText) btnSyncExcelText.innerText = "Fix Errors to Commit";
+                } else {
+                    errorBadge.classList.add('hidden');
+                    btnSyncExcel.disabled = pendingStockUpdates.length === 0;
+                    if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
+                }
             }
 
-            document.getElementById('dropZone').classList.add('hidden'); container.classList.remove('hidden');
+            document.getElementById('excelMetaText').innerText = `Processed ${window.currentExcelPreviewData.length} unique aggregated rows. Ready to commit.`;
+            document.getElementById('dropZone').classList.add('hidden'); 
+            container.classList.remove('hidden');
         }
 
-        // 🚨 COMMIT TO MASTER: 멱등성 해시 적용 + 백오프 차단
+        // ==========================================
+        // 🔄 Interactive Functions (치환 및 제외)
+        // ==========================================
+        window.resolveExcelMapping = function(idx, newHqCode) {
+            if (!newHqCode) return;
+            window.currentExcelPreviewData[idx].hqCode = newHqCode;
+            window.currentExcelPreviewData[idx].status = "OK";
+            renderAdvancedExcelPreview(); // 리렌더링 및 에러 뱃지 실시간 체크
+            Y2C_AuthEngine.showToast("✅ 품목 코드가 성공적으로 치환(Mapping)되었습니다.", "success");
+        };
+
+        window.ignoreExcelRow = function(idx) {
+            window.currentExcelPreviewData[idx].ignored = true;
+            renderAdvancedExcelPreview();
+        };
+
+        window.restoreExcelRow = function(idx) {
+            window.currentExcelPreviewData[idx].ignored = false;
+            renderAdvancedExcelPreview();
+        };
+
+
+        // ==========================================
+        // 🚨 COMMIT TO MASTER (백오프 방지 및 멱등성 록다운)
+        // ==========================================
         if (btnSyncExcel) {
             btnSyncExcel.addEventListener('click', async () => {
                 if (pendingStockUpdates.length === 0) {
@@ -1055,7 +1163,7 @@
                         stockUpdates: pendingStockUpdates
                     };
 
-                    // 🚨 retries = 0 적용으로 "다른 스레드 처리 중" 무한 락업 사태를 원천 차단합니다.
+                    // 🚨 retries = 0 적용으로 백오프 무한 루핑 방지
                     const res = await Y2C_AuthEngine.request("update_stock", payload, 0); 
                     
                     if (res && res.success) {
@@ -1064,7 +1172,6 @@
                         if(fileInput) fileInput.value = ''; parsedExcelData = null; pendingStockUpdates = [];
                     }
                 } catch (err) {
-                    // 에러가 났더라도 타임아웃에 걸린 것이면 사용자에게 백그라운드 처리 중임을 명시합니다.
                     if (err.message.includes("다른 스레드") || err.message.includes("분산 처리")) {
                         Y2C_AuthEngine.showToast("⏳ 서버가 백그라운드에서 데이터를 안전하게 처리 중입니다. 중복 제출을 방지합니다.", "warning");
                     } else if (err.message.includes("시간 초과") || err.message.includes("네트워크")) {
