@@ -1,10 +1,10 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
- * Version: V43.00 ULTIMATE (Absolute Zero-Loss & Redirect Fix Edition)
+ * Version: V43.50 ULTIMATE (Absolute Zero-Loss & Error Transparency Edition)
  * ============================================================================
- * [CRITICAL FIX 1] GAS 302 Redirect Bypass: Injected `redirect: 'follow'` into fetch options to prevent CORS/Redirect crashes.
- * [CRITICAL FIX 2] False Offline Bug Eradicated: Accurately differentiates actual offline status from server-side/URL failures.
+ * [CRITICAL FIX 1] Error Hijacking Prevented: `isBackendLogicError` flag bypasses offline handler to show real server messages.
+ * [CRITICAL FIX 2] GAS 302 Redirect Bypass: Injected `redirect: 'follow'` into fetch options to prevent CORS/Redirect crashes.
  * [CRITICAL FIX 3] Pre-flight URL Validation: Instantly detects missing or malformed BASE_URL to prevent silent drops.
  * [PRESERVED] IndexedDB Mutation Queue, Exponential Backoff, Global UI Controller, Session Guard 100% Intact.
  * [ARCHITECTURE] Meticulously structured object-oriented core without any code abbreviation.
@@ -304,13 +304,13 @@
     };
 
     // ============================================================================
-    // 🌐 [MODULE 4] NETWORK ENGINE (Fetch Proxy with Explicit Redirect Bypass)
+    // 🌐 [MODULE 4] NETWORK ENGINE (Fetch Proxy with Error Transparency)
     // ============================================================================
     const NetworkEngine = {
         
         dispatch: async function(action, payload = {}, retryCount = 0) {
             
-            // 🚨 [CRITICAL FIX 3] Pre-flight URL Validation
+            // 🚨 Pre-flight URL Validation
             if (!CFG.API.BASE_URL || CFG.API.BASE_URL.trim() === "") {
                 console.error("[Y2C Network Engine] FATAL: API.BASE_URL is empty in config.js.");
                 throw new Error("서버 통신 주소가 설정되지 않았습니다. config.js 파일 내의 BASE_URL을 확인하여 주십시오.");
@@ -336,12 +336,11 @@
             const timeoutId = setTimeout(() => controller.abort(), CFG.API.TIMEOUT_MS);
 
             try {
-                // 🚨 [CRITICAL FIX 1] Google Apps Script 302 Redirect Bypass 록다운
-                // redirect: 'follow' 옵션이 누락되면 GAS 특성상 통신이 Failed to fetch 오류로 증발합니다.
+                // 🚨 Google Apps Script 302 Redirect Bypass
                 const fetchOptions = {
                     method: 'POST',
                     mode: 'cors',
-                    redirect: 'follow', // 🌟 핵심 방어 코드 (CORS 리다이렉트 추적)
+                    redirect: 'follow', 
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload),
                     signal: controller.signal
@@ -362,12 +361,16 @@
                     throw new Error("서버로부터 규격 외의 응답이 반환되었습니다. (JSON Parse Error)");
                 }
 
+                // 🚨 [CRITICAL FIX 1] 백엔드 논리 에러의 덮어쓰기 방지 (Error Hijacking Prevention)
                 if (jsonResponse.success === false) {
                     if (jsonResponse.message && jsonResponse.message.includes("세션")) {
                         SessionManager.clearSession();
                         window.location.replace('index.html');
                     }
-                    throw new Error(jsonResponse.message || "알 수 없는 서버 논리 에러가 발생했습니다.");
+                    // 에러 객체에 특수 식별자(Flag)를 부착하여 OfflineEngine으로 빨려들어가는 것을 막습니다.
+                    const logicErr = new Error(jsonResponse.message || "알 수 없는 서버 논리 에러가 발생했습니다.");
+                    logicErr.isBackendLogicError = true; 
+                    throw logicErr;
                 }
 
                 return jsonResponse;
@@ -375,7 +378,12 @@
             } catch (error) {
                 clearTimeout(timeoutId);
 
-                // 🚨 URL 에러 자체는 재시도하지 않고 바로 던짐
+                // 🚨 [CRITICAL FIX 1-B] 백엔드 논리 에러는 오프라인 핸들러를 강제 우회(Bypass)하여 
+                // 서버의 진짜 에러 메시지(예: 접근 지역 미설정, 비밀번호 틀림)를 UI로 직행시킵니다.
+                if (error.isBackendLogicError) {
+                    throw error; 
+                }
+
                 if (error.message.includes("서버 통신 주소")) {
                     throw error; 
                 }
@@ -394,7 +402,6 @@
             }
         },
 
-        // 🚨 [CRITICAL FIX 2] 통신 에러와 실제 인터넷 끊김을 정확히 분리하는 지능형 식별 엔진
         handleOfflineScenario: async function(action, payload, isMutation, originalError = null) {
             if (isMutation) {
                 const queued = await OfflineEngine.enqueueRequest(action, payload);
@@ -410,17 +417,13 @@
                     throw new Error("통신이 단절되었으며, 오프라인 스토리지 저장에도 실패했습니다. 디바이스 용량을 확인하십시오.");
                 }
             } else {
-                // Read 요청(ex: 로그인, get_items)인데 통신이 실패했을 경우의 정밀 진단
                 if (navigator.onLine) {
-                    // 인터넷은 연결되어 있으나 서버나 URL 문제로 통신이 튕긴 경우
                     console.error("[Y2C Network Engine] Server/CORS/URL config error detected.", originalError);
-                    
                     if (originalError && originalError.message && originalError.message.includes("서버 통신 주소")) {
-                        throw originalError; // URL이 비어있는 에러는 그대로 통과
+                        throw originalError; 
                     }
-                    throw new Error("서버와의 통신이 거부되었습니다. 배포된 웹 앱 URL(config.js) 설정이나 접근 권한을 확인해 주십시오.");
+                    throw new Error("API 서버 연결에 실패했습니다. 배포된 웹 앱 URL(config.js) 설정이나 네트워크 방화벽을 확인해 주십시오.");
                 } else {
-                    // 실제 인터넷 선이 물리적으로 끊긴 경우
                     console.error("[Y2C Network Engine] Read request failed due to actual offline status.");
                     throw new Error("현재 네트워크에 연결되어 있지 않습니다. 와이파이 또는 데이터를 확인해 주십시오.");
                 }
@@ -460,7 +463,7 @@
                         const fetchOptions = {
                             method: 'POST',
                             mode: 'cors',
-                            redirect: 'follow', // 🌟 데몬 통신에도 리다이렉트 록다운 주입
+                            redirect: 'follow', 
                             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                             body: JSON.stringify(record.payload)
                         };
@@ -597,6 +600,7 @@
                         }, 800);
                     }
                 } catch (err) {
+                    // 🚨 백엔드 에러 원본이 여기서 완벽하게 렌더링됩니다.
                     UIController.showToast(err.message, "error");
                     userIdInput.classList.add('input-error');
                     userPwInput.classList.add('input-error');
@@ -618,7 +622,7 @@
     };
 
     global.Y2C_AuthEngine = Object.freeze(AuthEngine);
-    console.log("[Y2C Security] Auth Engine V43.00 Injected and Frozen.");
+    console.log("[Y2C Security] Auth Engine V43.50 Injected and Frozen.");
 
     global.addEventListener('DOMContentLoaded', () => {
         const logoutBtn = document.getElementById('logoutBtn');
