@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V42.10 Enterprise Dashboard ULTIMATE - Global SCM & Financial Fusion 🌟
-  [NEW CORE] Global Logistics Tracker: Real-time EMS & Ocean Freight Inbound Tracking Timeline.
-  [NEW UI] 5-Stage Visual Stepper: Displays international shipment progression from Korea to Canada.
-  [NEW TOOL] 1-Click Smart Tracking: Direct resolution to Korea Post/Canada Post EMS and Ocean Container trackers.
-  [PRESERVED] Dual Financial Charts (Monthly Trends & POS/Delivery Donut) 100% loss-less intact.
+  🌟 V42.15 Enterprise Dashboard ULTIMATE - Role-Based SCM & Financial Fusion 🌟
+  [CRITICAL FIX 1] Partner Lockout: Strictly blocks PARTNER accounts from fetching or viewing Global Logistics Data.
+  [CRITICAL FIX 2] Dynamic Grid Engine: Automatically transforms 4-col KPI grid to 3-col for Partners to maintain UI harmony.
+  [CRITICAL FIX 3] Eliminated False Offline Bug: Bypasses auth-restricted API calls based on runtime session roles.
+  [PRESERVED] Dual Financial Charts (Monthly Trends & POS/Delivery Donut), EMS/Ocean Timeline (For Masters) 100% intact.
   [ARCHITECTURE] Bound strictly to Y2C_AuthEngine (auth.js V41.99+) with full offline resilience.
 -->
 <html lang="en">
@@ -267,7 +267,7 @@
         </header>
 
         <!-- 🌟 4대 핵심 KPI 카드 (재무 3종 + 신규 글로벌 화물 트래킹 1종) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 transition-all duration-300" id="kpiGrid">
             
             <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white relative overflow-hidden group">
                 <div class="relative z-10">
@@ -299,8 +299,8 @@
                 </div>
             </div>
 
-            <!-- 🚨 [NEW SCM KPI] 한국발 운송 중 화물 현황 -->
-            <div class="kpi-card relative overflow-hidden group border-red-100 bg-gradient-to-br from-white to-red-50/30">
+            <!-- 🚨 [NEW SCM KPI] 한국발 운송 중 화물 현황 (MASTER ONLY) -->
+            <div class="kpi-card relative overflow-hidden group border-red-100 bg-gradient-to-br from-white to-red-50/30 transition-all duration-300" id="kpiScmCard">
                 <div class="relative z-10">
                     <h3 class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span> Inbound Cargo (Korea)
@@ -315,9 +315,9 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- 🚢 [NEW ENGINE] 글로벌 물류 실시간 트래킹 & 타임라인 콘솔 -->
+        <!-- 🚢 [NEW ENGINE] 글로벌 물류 실시간 트래킹 & 타임라인 콘솔 (MASTER ONLY) -->
         <!-- ========================================== -->
-        <section class="bg-white border border-gray-200 rounded-[2rem] shadow-premium-card p-6 sm:p-8 mb-10 relative overflow-hidden">
+        <section class="bg-white border border-gray-200 rounded-[2rem] shadow-premium-card p-6 sm:p-8 mb-10 relative overflow-hidden transition-all duration-300" id="scmTrackerSection">
             
             <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-gray-100 pb-4">
                 <div>
@@ -400,7 +400,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V42.10 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V42.15 STABLE</span>
                 </div>
             </div>
         </div>
@@ -415,8 +415,8 @@
 
     <script>
     /**
-     * 🌟 V42.10 Enterprise Dashboard Controller
-     * [SCM CORE] Inbound Logistics Tracker + 5-Stage Visual Stepper
+     * 🌟 V42.15 Enterprise Dashboard Controller
+     * [SCM CORE] Inbound Logistics Tracker + 5-Stage Visual Stepper (MASTER ONLY)
      * [FINANCE] Dual Chart.js Visualizer (Monthly Trend & Channel Donut)
      * [SECURITY] Bound strictly to Y2C_AuthEngine
      */
@@ -444,6 +444,21 @@
             if (isNaN(amt) || amt == null) amt = 0;
             return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amt);
         };
+
+        // 🚨 [CRITICAL FIX 1 & 2] 파트너 권한 록다운 및 UI 자동 트랜스폼 엔진
+        if (AppState.role === "PARTNER") {
+            const scmCard = document.getElementById('kpiScmCard');
+            const scmSec = document.getElementById('scmTrackerSection');
+            const kpiGrid = document.getElementById('kpiGrid');
+            
+            if (scmCard) scmCard.classList.add('hidden');
+            if (scmSec) scmSec.classList.add('hidden');
+            if (kpiGrid) {
+                // 파트너 접속 시 빈 공간이 남지 않도록 KPI 카드를 3분할로 확장
+                kpiGrid.classList.remove('lg:grid-cols-4');
+                kpiGrid.classList.add('lg:grid-cols-3');
+            }
+        }
 
         // ==========================================
         // 🗓️ 연도 선택 드롭다운 초기화
@@ -579,6 +594,9 @@
         // 🚢 [LOGISTICS SCM ENGINE] 한국발 화물 트래킹 & 타임라인
         // ==========================================
         async function fetchLogisticsTracker() {
+            // 🚨 [CRITICAL FIX 3] 가맹점(PARTNER)은 보안상 물류 조회 금지
+            if (AppState.role === "PARTNER") return;
+
             try {
                 const res = await Y2C_AuthEngine.request("get_procurement_data");
                 if (res && res.success) {
@@ -757,7 +775,11 @@
         // 🚀 초기 구동 파이프라인
         // ==========================================
         fetchDashboardFinancials();
-        fetchLogisticsTracker();
+        
+        // 🚨 Fetch logistics ONLY if not a Partner
+        if (AppState.role !== "PARTNER") {
+            fetchLogisticsTracker();
+        }
     });
     </script>
 </body>
