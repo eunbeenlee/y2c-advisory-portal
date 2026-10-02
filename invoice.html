@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V40.80 Enterprise Advisory Invoice ULTIMATE - Perfect Core Assimilation 🌟
-  [ARCH SHIFT] Fully decoupled from Network Logic. Delegates 100% to external `auth.js` (V40.65+).
-  [ACCELERATION] Client-side PDF Generation Engine (html2pdf.js) deployed to reduce backend timeout risks.
-  [BUSINESS LOGIC] Dynamic Tax Calculation based on Franchise State (ON, BC, AB, etc.).
-  [PREMIUM UI] Enterprise A4 Paper Simulation, Floating PDF Action Bar, SWR Caching.
+  🌟 V41.50 Enterprise Advisory Invoice ULTIMATE - Absolute Print & PDF Sync 🌟
+  [CRITICAL FIX 1] PDF Rendering Crash Resolved: `pdf-export-mode` totally isolates CSS for pristine A4 html2canvas capture.
+  [CRITICAL FIX 2] Bound strictly to Y2C_AuthEngine (auth.js V41+) for secure data fetching.
+  [CRITICAL FIX 3] Master-Only Hard Lock: Kicks out VENDORS and PARTNERS instantly.
+  [PERFORMANCE] Dynamic royalty and tax calculation engine injected on the client-side with NaN protection.
 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [보안 1] CSP 및 라이트 테마 강제 록다운 -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#F8F9FA">
@@ -22,7 +21,6 @@
     
     <title>Advisory Invoice | Y2C Portal</title>
     
-    <!-- 🚀 [가속 2] 네트워크 조기 연결망 -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,7 +39,6 @@
     <!-- 🌟 [PDF 엔진 탑재] 클라이언트 사이드 PDF 렌더러 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <!-- 🌟 [가속 5] FOUC 하얀 화면 방어막 -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -76,7 +73,6 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 🌟 [그래픽 1] Tailwind 커스텀 테마 엔진 구축 -->
     <script>
         tailwind.config = {
             theme: {
@@ -159,19 +155,33 @@
         
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
 
-        /* 🌟 인보이스 A4 페이퍼 스타일 */
+        /* 🌟 인보이스 A4 페이퍼 베이스 스타일 */
         .a4-paper {
             width: 100%; max-width: 800px; margin: 0 auto; background: white;
-            box-shadow: var(--tw-shadow-paper); border-radius: 8px; overflow: hidden;
-            position: relative;
+            box-shadow: var(--tw-shadow-paper); border-radius: 1.5rem; overflow: hidden;
+            position: relative; transition: all 0.3s ease;
         }
         
         .invoice-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 16px; border-bottom: 2px solid #e2e8f0; }
         .invoice-table td { padding: 14px 16px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; }
 
+        /* 🚨 [CRITICAL FIX] PDF 강제 추출 모드 - 모든 반응형/그림자 붕괴 방지 */
+        .pdf-export-mode {
+            width: 800px !important;
+            max-width: 800px !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            transform: none !important;
+            background-color: #ffffff !important;
+            border: none !important;
+            padding: 40px !important; /* 내부 여백 고정 */
+        }
+
         @media print { 
-            .no-print { display: none !important; } 
-            body { background: white !important; margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { margin: 0; size: auto; }
+            body { background-color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
             .a4-paper { box-shadow: none !important; max-width: 100% !important; width: 100% !important; border: none !important; margin: 0 !important; border-radius: 0 !important; }
             main { padding: 0 !important; margin: 0 !important; }
         }
@@ -180,17 +190,17 @@
 
 <body id="mainBody" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
     
-    <!-- 🚨 1단계: 보안 축출 (Pre-routing - MASTER ONLY) -->
+    <!-- 🚨 1단계: 보안 축출 (Pre-routing - MASTER ONLY 록다운) -->
     <script>
         (function() {
-            var _sysRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-            var _sysToken = String(localStorage.getItem("y2c_token") || "").trim();
+            var _sysRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _sysToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
             window.__INITIAL_ROLE__ = _sysRole;
 
             if (!_sysRole || _sysRole === "NULL" || !_sysToken || _sysToken.length < 10) {
                 window.location.replace("index.html"); return;
             }
-            // 🚨 오직 MASTER 계정만 정산 시스템에 접근 가능합니다. 파트너/벤더는 대시보드나 카탈로그로 우회됩니다.
+            // 🚨 오직 MASTER 계정만 정산 시스템에 접근 가능합니다. 파트너/벤더는 즉각 튕겨냅니다.
             if (_sysRole !== "MASTER") {
                 window.location.replace("dashboard.html"); return;
             }
@@ -247,7 +257,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap">Advisory Invoice</a>
     </div>
 
-    <!-- 🚨 권한 기반 라우팅 해제 -->
+    <!-- 🚨 권한 기반 라우팅 해제 (모바일 대응) -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -276,194 +286,183 @@
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter">
         
-        <header class="flex flex-col justify-between gap-2 mb-8 no-print">
-            <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">🧾</span> Advisory Invoice Generator
-            </h2>
-            <p class="text-xs sm:text-sm font-bold text-gray-500 tracking-wide font-inter">
-                Generate dynamic PDF invoices for franchise royalty and advisory fees.
-            </p>
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
+            <div>
+                <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
+                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">🧾</span> Advisory Invoice Generator
+                    <span class="px-2 py-1 bg-[#111827] text-white text-[9px] font-black rounded uppercase tracking-widest align-middle ml-2">HQ ONLY</span>
+                </h2>
+                <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter">
+                    Generate secure, PDF-ready invoices for franchise royalty and system fees.
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button type="button" id="btnExportPDF" class="btn-solid-red px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 focus:outline-none" disabled>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Export PDF
+                </button>
+            </div>
         </header>
 
-        <!-- 🌟 인보이스 생성 컨트롤 패널 -->
-        <section class="bg-white border border-gray-200 shadow-premium-card rounded-[2rem] p-6 sm:p-8 mb-10 no-print">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                
-                <div class="md:col-span-2">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Select Franchise</label>
-                    <div class="relative">
-                        <select id="invClientSelect" class="premium-input bg-gray-50 cursor-pointer appearance-none">
-                            <option value="" disabled selected>Loading Franchises...</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
-                    </div>
-                </div>
-
-                <div class="md:col-span-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
-                    <div class="relative">
-                        <select id="invYearSelect" class="premium-input bg-gray-50 cursor-pointer appearance-none text-center">
-                            <!-- JS Population -->
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
-                    </div>
-                </div>
-
-                <div class="md:col-span-1">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Month / Range</label>
-                    <div class="relative flex items-center gap-1">
-                        <select id="invMonthSelect" class="premium-input bg-gray-50 cursor-pointer appearance-none text-center px-2">
-                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
-                            <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                        </select>
-                        <span class="text-gray-400 font-black">~</span>
-                        <select id="invMonthEndSelect" class="premium-input bg-gray-50 cursor-pointer appearance-none text-center px-2">
-                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
-                            <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="md:col-span-1">
-                    <button type="button" id="btnGenerateInvoice" class="btn-solid-red w-full h-[2.875rem] rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
-                        Generate
-                    </button>
-                </div>
+        <!-- 🌟 컨트롤 패널 -->
+        <section class="bg-gray-50 border border-gray-200 rounded-[1.5rem] p-6 mb-10 no-print flex flex-col md:flex-row gap-4 items-end shadow-sm">
+            <div class="w-full md:w-48">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
+                <select id="invClientSelector" class="premium-input bg-white cursor-pointer"><option value="">Loading...</option></select>
+            </div>
+            <div class="w-full md:w-32">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
+                <select id="invYearSelector" class="premium-input bg-white cursor-pointer"></select>
+            </div>
+            <div class="w-full md:w-32">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Start Month</label>
+                <select id="invStartSelector" class="premium-input bg-white cursor-pointer"></select>
+            </div>
+            <div class="w-full md:w-32">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">End Month</label>
+                <select id="invEndSelector" class="premium-input bg-white cursor-pointer"></select>
+            </div>
+            <div class="w-full md:w-auto">
+                <button type="button" id="btnGenerateInvoice" class="bg-[var(--premium-charcoal)] hover:bg-[#E3000F] text-white px-8 py-[14px] rounded-xl font-black text-[12px] uppercase tracking-widest transition-colors w-full focus:outline-none shadow-sm">Generate</button>
             </div>
         </section>
 
-        <!-- 🌟 클라이언트 렌더링 영역 (PDF Source) -->
+        <!-- 🌟 인보이스 A4 렌더링 영역 (PDF Export Target) -->
         <section id="invoiceCanvasContainer" class="hidden">
+            <!-- 🚨 id="invoiceDocument"는 html2pdf가 스캔할 타겟입니다. -->
             <div class="a4-paper p-10 sm:p-14" id="invoiceDocument">
                 
-                <!-- Invoice Header -->
-                <div class="flex justify-between items-start border-b-2 border-[#E3000F] pb-8 mb-8">
-                    <div class="flex items-center gap-4">
-                        <img src="favicon.png" alt="Sinjeon Logo" class="h-16 w-auto object-contain">
-                        <div>
-                            <h1 class="font-montserrat text-3xl font-black text-[#111827] tracking-tighter" id="docHqName">SINJEON CANADA</h1>
-                            <p class="text-[11px] font-bold text-gray-500 mt-1 tracking-widest uppercase">Master Franchise Operations</p>
+                <div id="invContent">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start border-b-2 border-[#E3000F] pb-8 mb-8">
+                        <div class="flex items-center gap-4">
+                            <img src="favicon.png" alt="Sinjeon Logo" class="h-16 w-auto object-contain">
+                            <div>
+                                <h1 class="font-montserrat text-3xl font-black text-[#111827] tracking-tighter" id="docHqName">SINJEON CANADA</h1>
+                                <p class="text-[11px] font-bold text-gray-500 mt-1 tracking-widest uppercase">Master Franchise Operations</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h2 class="font-montserrat text-4xl font-black text-gray-200 tracking-tighter uppercase">Invoice</h2>
+                            <p class="text-sm font-bold text-gray-800 mt-2 font-mono" id="docInvoiceNo">INV-000000</p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <h2 class="font-montserrat text-4xl font-black text-gray-200 tracking-tighter uppercase">Invoice</h2>
-                        <p class="text-sm font-bold text-gray-800 mt-2 font-mono" id="docInvoiceNo">INV-000000</p>
-                    </div>
-                </div>
 
-                <!-- Addresses -->
-                <div class="grid grid-cols-2 gap-10 mb-10">
-                    <div>
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">From</h4>
-                        <p class="font-bold text-[13px] text-[#111827] mb-1" id="docHqRep">Y2C Holdings Ltd.</p>
-                        <p class="text-[12px] font-medium text-gray-600 leading-relaxed font-inter" id="docHqAddress">HQ Address Placeholder<br>Toronto, ON</p>
-                        <p class="text-[11px] font-bold text-gray-500 mt-2 font-mono" id="docHqRegNo">Business No: 123456789</p>
-                    </div>
-                    <div>
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">Bill To</h4>
-                        <p class="font-black text-[14px] text-[#E3000F] mb-1" id="docClientName">Client Name</p>
-                        <p class="text-[12px] font-medium text-gray-600 leading-relaxed font-inter" id="docClientAddress">Client Address<br>City, State</p>
-                        <p class="text-[11px] font-bold text-gray-500 mt-2 font-inter" id="docClientAttn">Attn: Manager</p>
-                    </div>
-                </div>
-
-                <!-- Invoice Meta -->
-                <div class="bg-gray-50 rounded-xl p-4 mb-10 border border-gray-200 flex justify-between">
-                    <div>
-                        <span class="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Issue Date</span>
-                        <span class="font-bold text-[13px] text-[#111827] font-mono" id="docIssueDate">2026-01-01</span>
-                    </div>
-                    <div>
-                        <span class="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Billing Period</span>
-                        <span class="font-bold text-[13px] text-[#111827] font-mono" id="docBillingPeriod">Jan 2026</span>
-                    </div>
-                    <div>
-                        <span class="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Due Date</span>
-                        <span class="font-black text-[#E3000F] text-[13px] font-mono" id="docDueDate">2026-01-15</span>
-                    </div>
-                </div>
-
-                <!-- Sales Summary Table -->
-                <table class="w-full text-left invoice-table mb-8">
-                    <thead>
-                        <tr>
-                            <th class="w-1/2">Description</th>
-                            <th class="text-right">Amount (CAD)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="font-bold">Total POS Sales (Dine-in / Takeout)</td>
-                            <td class="text-right font-mono text-gray-600" id="valPosSales">$0.00</td>
-                        </tr>
-                        <tr>
-                            <td class="font-bold">Total Delivery Platform Sales</td>
-                            <td class="text-right font-mono text-gray-600" id="valDelSales">$0.00</td>
-                        </tr>
-                        <tr class="bg-gray-50">
-                            <td class="font-black text-[#111827]">Gross Sales Subject to Royalty</td>
-                            <td class="text-right font-black font-mono text-[#111827]" id="valGrossSales">$0.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Calculation Table -->
-                <table class="w-full text-left invoice-table mb-10">
-                    <thead>
-                        <tr>
-                            <th class="w-2/3">Fee Calculation</th>
-                            <th class="text-right">Rate</th>
-                            <th class="text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="font-bold text-[#E3000F]">Advisory / Royalty Fee</td>
-                            <td class="text-right font-mono text-gray-500" id="valRoyaltyRate">5.0%</td>
-                            <td class="text-right font-mono font-bold text-[#111827]" id="valRoyaltyFee">$0.00</td>
-                        </tr>
-                        <tr>
-                            <td class="font-bold text-gray-600" id="lblTaxType">Tax (HST/GST)</td>
-                            <td class="text-right font-mono text-gray-500" id="valTaxRate">0.0%</td>
-                            <td class="text-right font-mono text-gray-600" id="valTaxAmount">$0.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Grand Total -->
-                <div class="flex justify-end mb-16">
-                    <div class="w-64">
-                        <div class="flex justify-between items-center border-t-2 border-black pt-3">
-                            <span class="font-black text-[14px] text-[#111827] uppercase tracking-widest">Total Due</span>
-                            <span class="font-black text-2xl text-[#E3000F] font-mono tracking-tighter" id="valGrandTotal">$0.00</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer Bank Info -->
-                <div class="border-t border-gray-200 pt-6">
-                    <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Payment Instructions (Wire Transfer)</h4>
-                    <div class="grid grid-cols-2 gap-4 text-[11px] font-medium text-gray-600 font-inter">
+                    <!-- Addresses -->
+                    <div class="grid grid-cols-2 gap-10 mb-10">
                         <div>
-                            <span class="block text-gray-400 mb-0.5">Bank Name</span>
-                            <strong class="text-gray-800" id="bankName">Loading...</strong>
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">From</h4>
+                            <p class="font-bold text-[13px] text-[#111827] mb-1" id="docHqRep">Y2C Holdings Ltd.</p>
+                            <p class="text-[12px] font-medium text-gray-600 leading-relaxed font-inter" id="docHqAddress">HQ Address Placeholder<br>Toronto, ON</p>
+                            <p class="text-[11px] font-bold text-gray-500 mt-2 font-mono" id="docHqRegNo">Business No: 123456789</p>
                         </div>
                         <div>
-                            <span class="block text-gray-400 mb-0.5">Account Number</span>
-                            <strong class="text-gray-800 font-mono" id="bankAccount">Loading...</strong>
-                        </div>
-                        <div>
-                            <span class="block text-gray-400 mb-0.5">Bank Address</span>
-                            <strong class="text-gray-800" id="bankAddress">Loading...</strong>
-                        </div>
-                        <div>
-                            <span class="block text-gray-400 mb-0.5">Swift / Transit Code</span>
-                            <strong class="text-gray-800 font-mono" id="bankSwift">Loading...</strong>
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">Bill To</h4>
+                            <p class="font-black text-[14px] text-[#E3000F] mb-1" id="docClientName">Client Name</p>
+                            <p class="text-[12px] font-medium text-gray-600 leading-relaxed font-inter" id="docClientAddress">Client Address<br>City, State</p>
+                            <p class="text-[11px] font-bold text-gray-500 mt-2 font-inter" id="docClientAttn">Attn: Manager</p>
                         </div>
                     </div>
-                    <p class="text-[10px] font-bold text-[#E3000F] mt-6 text-center italic">
-                        * Payment is due within 14 days of the issue date. Late payments may be subject to a 1.5% monthly interest fee.
-                    </p>
+
+                    <!-- Invoice Meta -->
+                    <div class="bg-gray-50 rounded-xl p-4 mb-10 border border-gray-200 flex justify-between">
+                        <div>
+                            <span class="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Issue Date</span>
+                            <span class="font-bold text-[13px] text-[#111827] font-mono" id="docIssueDate">2026-01-01</span>
+                        </div>
+                        <div>
+                            <span class="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Billing Period</span>
+                            <span class="font-bold text-[13px] text-[#111827] font-mono" id="docBillingPeriod">Jan 2026</span>
+                        </div>
+                        <div>
+                            <span class="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Due Date</span>
+                            <span class="font-black text-[#E3000F] text-[13px] font-mono" id="docDueDate">2026-01-15</span>
+                        </div>
+                    </div>
+
+                    <!-- Sales Summary Table -->
+                    <table class="w-full text-left invoice-table mb-8">
+                        <thead>
+                            <tr>
+                                <th class="w-1/2">Description</th>
+                                <th class="text-right">Amount (CAD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold">Total POS Sales (Dine-in / Takeout)</td>
+                                <td class="text-right font-mono text-gray-600" id="valPosSales">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold">Total Delivery Platform Sales</td>
+                                <td class="text-right font-mono text-gray-600" id="valDelSales">$0.00</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="font-black text-[#111827]">Gross Sales Subject to Royalty</td>
+                                <td class="text-right font-black font-mono text-[#111827]" id="valGrossSales">$0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Calculation Table -->
+                    <table class="w-full text-left invoice-table mb-10">
+                        <thead>
+                            <tr>
+                                <th class="w-2/3">Fee Calculation</th>
+                                <th class="text-right">Rate</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold text-[#E3000F]">Advisory / Royalty Fee</td>
+                                <td class="text-right font-mono text-gray-500" id="valRoyaltyRate">5.0%</td>
+                                <td class="text-right font-mono font-bold text-[#111827]" id="valRoyaltyFee">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-gray-600" id="lblTaxType">Tax (HST/GST)</td>
+                                <td class="text-right font-mono text-gray-500" id="valTaxRate">0.0%</td>
+                                <td class="text-right font-mono text-gray-600" id="valTaxAmount">$0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Grand Total -->
+                    <div class="flex justify-end mb-16">
+                        <div class="w-64">
+                            <div class="flex justify-between items-center border-t-2 border-[#111827] pt-3">
+                                <span class="font-black text-[14px] text-[#111827] uppercase tracking-widest">Total Due</span>
+                                <span class="font-black text-2xl text-[#E3000F] font-mono tracking-tighter" id="valGrandTotal">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Bank Info -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Payment Instructions (Wire Transfer)</h4>
+                        <div class="grid grid-cols-2 gap-4 text-[11px] font-medium text-gray-600 font-inter">
+                            <div>
+                                <span class="block text-gray-400 mb-0.5">Bank Name</span>
+                                <strong class="text-gray-800" id="bankName">Loading...</strong>
+                            </div>
+                            <div>
+                                <span class="block text-gray-400 mb-0.5">Account Number</span>
+                                <strong class="text-gray-800 font-mono" id="bankAccount">Loading...</strong>
+                            </div>
+                            <div>
+                                <span class="block text-gray-400 mb-0.5">Account Name</span>
+                                <strong class="text-gray-800" id="bankAccName">Loading...</strong>
+                            </div>
+                            <div>
+                                <span class="block text-gray-400 mb-0.5">Swift / Transit Code</span>
+                                <strong class="text-gray-800 font-mono" id="bankSwift">Loading...</strong>
+                            </div>
+                        </div>
+                        <p class="text-[10px] font-bold text-[#E3000F] mt-6 text-center italic">
+                            * Payment is due within 14 days of the issue date. Late payments may be subject to a 1.5% monthly interest fee.
+                        </p>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -485,7 +484,7 @@
                 
                 <div class="flex gap-2 w-full sm:w-auto">
                     <button type="button" onclick="window.print()" class="flex-1 sm:flex-none px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-[var(--premium-charcoal)] rounded-xl font-black text-[11px] uppercase tracking-widest transition-colors focus:outline-none flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> Print
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> Print
                     </button>
                     <button type="button" id="btnDownloadPdf" class="flex-1 sm:flex-none btn-solid-red px-8 py-3.5 rounded-xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
                         Download PDF <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -495,19 +494,36 @@
         </div>
     </div>
 
+    <!-- 🌟 프리미엄 푸터 -->
+    <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
+                    &copy; 2026 Y2C Holdings. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
+                </p>
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
+                    </span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V41.50 STABLE</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
-    <!-- 🚨 [코어 엔진 바인딩] -->
+    <!-- 🚨 코어 엔진 바인딩 -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
 
     <script>
     /**
-     * 🌟 V40.80 Enterprise Invoice Logic
-     * [ARCHITECTURE] Depends entirely on Y2C_AuthEngine (auth.js V40.65+).
-     * [PERFORMANCE] html2pdf.js for blazing fast client-side rendering.
-     * [FINANCE] State-based Auto Tax Calculator (ON: 13%, BC: 12% etc).
+     * 🌟 V41.50 Enterprise Invoice Logic
+     * [ARCHITECTURE] Depends entirely on Y2C_AuthEngine (auth.js V41+).
+     * [PERFORMANCE] html2pdf.js integration with strict CSS isolation.
+     * [FINANCE] State-based Auto Tax Calculator with NaN protection.
      */
     document.addEventListener('DOMContentLoaded', () => {
         
@@ -516,17 +532,17 @@
         }
 
         const AppState = {
-            role: String(localStorage.getItem("y2c_role") || "").toUpperCase(),
-            clientName: localStorage.getItem("y2c_client") || "Unknown",
+            role: String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase(),
+            clientName: sessionStorage.getItem("y2c_client") || "Unknown",
+            clients: [],
             isSubmitting: false,
-            // 🌟 주정부별 세율 엔진 (백엔드 Config와 동일한 구조)
             taxRates: {
                 "ON": { name: "HST (13%)", rate: 0.13 }, 
-                "BC": { name: "GST 5% + PST 7%", rate: 0.12 }, 
+                "BC": { name: "GST (5%)", rate: 0.05 }, // Royalties usually charge GST only in BC
                 "AB": { name: "GST (5%)", rate: 0.05 }, 
-                "SK": { name: "GST 5% + PST 6%", rate: 0.11 }, 
-                "MB": { name: "GST 5% + RST 7%", rate: 0.12 }, 
-                "QC": { name: "GST 5% + QST 9.975%", rate: 0.14975 },
+                "SK": { name: "GST (5%)", rate: 0.05 }, 
+                "MB": { name: "GST (5%)", rate: 0.05 }, 
+                "QC": { name: "GST (5%)", rate: 0.05 },
                 "DEFAULT": { name: "Standard Tax (13%)", rate: 0.13 }
             },
             advisoryFeeRate: 0.05 // 표준 로열티 5%
@@ -537,178 +553,138 @@
         if(uName) uName.innerText = AppState.clientName;
         if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
 
-        const formatCurrency = (amt) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amt || 0);
+        const formatCurrency = (amt) => {
+            if (isNaN(amt) || amt == null) amt = 0;
+            return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amt);
+        };
         const formatPercent = (rate) => (rate * 100).toFixed(2) + "%";
 
         // ==========================================
         // 🚀 UI 초기화 (드롭다운 세팅)
         // ==========================================
-        function initDropdowns() {
-            const yearSelect = document.getElementById('invYearSelect');
-            const currentYear = new Date().getFullYear();
-            if (yearSelect) {
-                for (let y = currentYear + 1; y >= 2022; y--) {
-                    const opt = document.createElement('option');
-                    opt.value = y; opt.innerText = `${y} Fiscal Year`;
-                    if (y === currentYear) opt.selected = true;
-                    yearSelect.appendChild(opt);
-                }
-            }
+        const clientSel = document.getElementById('invClientSelector');
+        const yearSel = document.getElementById('invYearSelector');
+        const startSel = document.getElementById('invStartSelector');
+        const endSel = document.getElementById('invEndSelector');
+        const btnGen = document.getElementById('btnGenerateInvoice');
+        const btnPdf = document.getElementById('btnExportPDF');
+        const btnDownload = document.getElementById('btnDownloadPdf');
 
-            const currentMonth = new Date().getMonth() + 1; // 1-12
-            const startSelect = document.getElementById('invMonthSelect');
-            const endSelect = document.getElementById('invMonthEndSelect');
-            if (startSelect && endSelect) {
-                let defaultMonth = currentMonth === 1 ? 12 : currentMonth - 1; // 지난 달 기본 설정
-                startSelect.value = defaultMonth;
-                endSelect.value = defaultMonth;
-            }
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear + 1; y >= 2022; y--) {
+            const opt = document.createElement('option'); opt.value = y; opt.innerText = `${y} Fiscal Year`;
+            if (y === currentYear) opt.selected = true;
+            yearSel.appendChild(opt);
         }
+        
+        const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        for (let m = 1; m <= 12; m++) {
+            const optS = document.createElement('option'); optS.value = m; optS.innerText = `${m} (${mNames[m-1]})`; startSel.appendChild(optS);
+            const optE = document.createElement('option'); optE.value = m; optE.innerText = `${m} (${mNames[m-1]})`; endSel.appendChild(optE);
+        }
+        // 기본값 세팅: 지난달
+        let prevM = new Date().getMonth(); if(prevM === 0) prevM = 12; // 1-based
+        startSel.value = prevM; endSel.value = prevM;
 
-        // ==========================================
-        // 🚀 통신 1: 가맹점 목록 불러오기 (get_master_data)
-        // ==========================================
         async function fetchClients() {
             try {
                 const res = await Y2C_AuthEngine.request("get_master_data");
                 if (res && res.success && res.clients) {
-                    const clientSelect = document.getElementById('invClientSelect');
-                    if (clientSelect) {
-                        clientSelect.innerHTML = '<option value="" disabled selected>-- Select Franchise --</option>';
-                        res.clients.forEach(c => {
-                            const opt = document.createElement('option');
-                            opt.value = c.name; opt.innerText = c.name;
-                            clientSelect.appendChild(opt);
-                        });
-                    }
+                    AppState.clients = res.clients || [];
+                    clientSel.innerHTML = '<option value="" disabled selected>-- Select Franchise --</option>';
+                    AppState.clients.forEach(c => {
+                        const opt = document.createElement('option'); opt.value = c.name; opt.innerText = c.name; clientSel.appendChild(opt);
+                    });
                 }
-            } catch (err) {
-                Y2C_AuthEngine.showToast("가맹점 목록을 불러오지 못했습니다.", "error");
-            }
+            } catch (err) { Y2C_AuthEngine.showToast("가맹점 목록을 불러오지 못했습니다.", "error"); }
         }
 
         // ==========================================
-        // 🚀 통신 2: 인보이스 데이터 생성 (get_invoice)
+        // 📊 정산 로직 (Royalty & Tax Calculation Engine)
         // ==========================================
-        const btnGenerate = document.getElementById('btnGenerateInvoice');
-        if (btnGenerate) {
-            btnGenerate.addEventListener('click', async () => {
+        if (btnGen) {
+            btnGen.addEventListener('click', async () => {
+                const client = clientSel.value;
+                const year = yearSel.value;
+                const sM = parseInt(startSel.value, 10);
+                const eM = parseInt(endSel.value, 10);
+
+                if (!client || !year || !sM || !eM) { Y2C_AuthEngine.showToast("모든 검색 조건을 설정해주십시오.", "warning"); return; }
+                if (sM > eM) { Y2C_AuthEngine.showToast("시작 월은 종료 월보다 클 수 없습니다.", "error"); return; }
+
                 if (AppState.isSubmitting) return;
-
-                const clientSelect = document.getElementById('invClientSelect');
-                const yearSelect = document.getElementById('invYearSelect');
-                const startSelect = document.getElementById('invMonthSelect');
-                const endSelect = document.getElementById('invMonthEndSelect');
-
-                if (!clientSelect.value) {
-                    Y2C_AuthEngine.showToast("청구할 가맹점을 선택해 주십시오.", "warning"); return;
-                }
-
-                const sMonth = parseInt(startSelect.value, 10);
-                const eMonth = parseInt(endSelect.value, 10);
-                if (sMonth > eMonth) {
-                    Y2C_AuthEngine.showToast("시작 월은 종료 월보다 클 수 없습니다.", "error"); return;
-                }
-
                 AppState.isSubmitting = true;
-                const originalHtml = btnGenerate.innerHTML;
-                btnGenerate.innerHTML = `<span class="animate-pulse">GENERATING...</span>`;
-                btnGenerate.disabled = true;
+                const origHtml = btnGen.innerHTML;
+                btnGen.innerHTML = `⏳`; btnGen.disabled = true;
 
                 try {
-                    const payload = {
-                        targetYear: yearSelect.value,
-                        clientName: clientSelect.value,
-                        startMonth: sMonth,
-                        endMonth: eMonth
-                    };
-
-                    const res = await Y2C_AuthEngine.request("get_invoice", payload);
-
+                    const res = await Y2C_AuthEngine.request("get_invoice", { targetYear: year, clientName: client, startMonth: sM, endMonth: eM });
+                    
                     if (res && res.success && res.invoiceData) {
-                        renderInvoiceDocument(res.invoiceData, payload);
+                        renderInvoiceDocument(res.invoiceData, { targetYear: year, clientName: client, startMonth: sM, endMonth: eM });
                         Y2C_AuthEngine.showToast("인보이스가 성공적으로 렌더링되었습니다.", "success");
                     }
-                } catch (err) {
-                    Y2C_AuthEngine.showToast(err.message, "error");
+                } catch (e) {
+                    Y2C_AuthEngine.showToast(e.message, "error");
                 } finally {
                     AppState.isSubmitting = false;
-                    btnGenerate.innerHTML = originalHtml;
-                    btnGenerate.disabled = false;
+                    btnGen.innerHTML = origHtml; btnGen.disabled = false;
                 }
             });
         }
 
-        // ==========================================
-        // 🖨️ [핵심] 클라이언트 렌더링 및 세무 계산 엔진
-        // ==========================================
         function renderInvoiceDocument(data, params) {
             const container = document.getElementById('invoiceCanvasContainer');
-            const doc = document.getElementById('invoiceDocument');
             const dock = document.getElementById('pdfActionContainer');
-            if(!container || !doc || !dock) return;
+            if(!container || !dock) return;
 
-            // 1. 발급 정보 세팅
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
             const issueDateStr = `${yyyy}-${mm}-${dd}`;
             
-            // Due Date: 14 days from issue
             const dueDate = new Date(today);
             dueDate.setDate(dueDate.getDate() + 14);
-            const d_yyyy = dueDate.getFullYear();
-            const d_mm = String(dueDate.getMonth() + 1).padStart(2, '0');
-            const d_dd = String(dueDate.getDate()).padStart(2, '0');
-            const dueDateStr = `${d_yyyy}-${d_mm}-${d_dd}`;
+            const dueDateStr = `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, '0')}-${String(dueDate.getDate()).padStart(2, '0')}`;
 
-            // Invoice No: INV-YYMMDD-XXX
-            const invNo = `INV-${yyyy.toString().slice(2)}${mm}${dd}-${Math.floor(Math.random() * 900 + 100)}`;
-            
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const periodStr = params.startMonth === params.endMonth 
-                ? `${monthNames[params.startMonth - 1]} ${params.targetYear}` 
-                : `${monthNames[params.startMonth - 1]} - ${monthNames[params.endMonth - 1]} ${params.targetYear}`;
+            const cli = data.clientInfo || {};
+            const hq = data.hqInfo || {};
+            const invNo = `INV-${yyyy.toString().slice(2)}${mm}${dd}-${cli.bizId ? cli.bizId.slice(-4) : Math.floor(Math.random()*900+100)}`;
+            const periodStr = params.startMonth === params.endMonth ? `${mNames[params.startMonth - 1]} ${params.targetYear}` : `${mNames[params.startMonth - 1]} - ${mNames[params.endMonth - 1]} ${params.targetYear}`;
 
             document.getElementById('docInvoiceNo').innerText = invNo;
             document.getElementById('docIssueDate').innerText = issueDateStr;
             document.getElementById('docDueDate').innerText = dueDateStr;
             document.getElementById('docBillingPeriod').innerText = periodStr;
 
-            // 2. HQ (From) Info
-            const hq = data.hqInfo || {};
-            document.getElementById('docHqName').innerText = hq.name || "Y2C Holdings Ltd.";
-            document.getElementById('docHqRep').innerText = hq.rep || "Master Franchise Operations";
+            document.getElementById('docHqName').innerText = hq.name || "SINJEON CANADA HQ";
+            document.getElementById('docHqRep').innerText = hq.rep || "Y2C Holdings Ltd.";
             document.getElementById('docHqAddress').innerHTML = (hq.address || "Toronto, ON").replace(/\n/g, "<br>");
-            document.getElementById('docHqRegNo').innerText = "Business Reg No: " + (hq.regNo || "N/A");
+            document.getElementById('docHqRegNo').innerText = "Business No: " + (hq.regNo || "N/A");
 
             document.getElementById('bankName').innerText = hq.bankName || "TBD";
             document.getElementById('bankAccount').innerText = hq.accountNo || "TBD";
-            document.getElementById('bankAddress').innerText = hq.bankAddress || "TBD";
+            document.getElementById('bankAccName').innerText = hq.name || "TBD";
             document.getElementById('bankSwift').innerText = hq.swiftCode || "TBD";
 
-            // 3. Client (Bill To) Info
-            const cli = data.clientInfo || {};
             document.getElementById('docClientName').innerText = cli.name || params.clientName;
             document.getElementById('docClientAddress').innerHTML = `${cli.address || ""}<br>${cli.city || ""}, ${cli.state || ""}`;
             document.getElementById('docClientAttn').innerText = "Attn: " + (cli.attn || "Manager") + (cli.email ? ` (${cli.email})` : "");
 
-            // 4. 재무 논리 (Bottom Line Calculation)
-            const pos = data.posSales || 0;
-            const del = data.deliverySales || 0;
+            // Calculation Engine
+            const pos = isNaN(data.posSales) ? 0 : data.posSales;
+            const del = isNaN(data.deliverySales) ? 0 : data.deliverySales;
             const gross = pos + del;
 
             document.getElementById('valPosSales').innerText = formatCurrency(pos);
             document.getElementById('valDelSales').innerText = formatCurrency(del);
             document.getElementById('valGrossSales').innerText = formatCurrency(gross);
 
-            // 로열티 계산 (Gross * 5%)
             const feeAmt = gross * AppState.advisoryFeeRate;
             document.getElementById('valRoyaltyRate').innerText = formatPercent(AppState.advisoryFeeRate);
             document.getElementById('valRoyaltyFee').innerText = formatCurrency(feeAmt);
 
-            // 세금 계산 (가맹점 위치 기반)
             const cliState = (cli.state || "DEFAULT").toUpperCase();
             const taxObj = AppState.taxRates[cliState] || AppState.taxRates["DEFAULT"];
             const taxAmt = feeAmt * taxObj.rate;
@@ -719,57 +695,64 @@
             document.getElementById('valTaxAmount').innerText = formatCurrency(taxAmt);
             document.getElementById('valGrandTotal').innerText = formatCurrency(grandTotal);
 
-            // 5. 화면 표출 및 애니메이션
             container.classList.remove('hidden');
             container.classList.add('animate-slide-up');
             
-            // 마그네틱 독 띄우기
             dock.classList.remove('translate-y-full');
             dock.classList.add('translate-y-0');
+            btnPdf.disabled = false;
         }
 
         // ==========================================
-        // 🚀 PDF 다운로드 엔진 (html2pdf.js)
+        // 🖨️ [핵심] PDF 추출 엔진 록다운 (html2pdf)
         // ==========================================
-        const btnDownload = document.getElementById('btnDownloadPdf');
-        if (btnDownload) {
-            btnDownload.addEventListener('click', () => {
-                const element = document.getElementById('invoiceDocument');
-                if (!element) return;
-                
-                const clientName = document.getElementById('docClientName').innerText.replace(/[^a-zA-Z0-9]/g, '_');
-                const period = document.getElementById('docBillingPeriod').innerText.replace(/\s/g, '_');
-                const filename = `Invoice_${clientName}_${period}.pdf`;
+        if (btnPdf) { btnPdf.addEventListener('click', generatePDF); }
+        if (btnDownload) { btnDownload.addEventListener('click', generatePDF); }
 
-                const opt = {
-                    margin:       [10, 10, 10, 10], // top, left, bottom, right
-                    filename:     filename,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+        function generatePDF() {
+            const element = document.getElementById('invoiceDocument');
+            if (!element) return;
+            
+            const clientName = document.getElementById('docClientName').innerText.replace(/[^a-zA-Z0-9]/g, '_');
+            const period = document.getElementById('docBillingPeriod').innerText.replace(/\s/g, '_');
+            const filename = `Invoice_${clientName}_${period}.pdf`;
 
-                const originalHtml = btnDownload.innerHTML;
-                btnDownload.innerHTML = `<span class="animate-pulse">GENERATING PDF...</span>`;
-                btnDownload.disabled = true;
+            // 🚨 [CRITICAL FIX] PDF 렌더링 붕괴를 막기 위해 일시적으로 CSS 클래스 주입
+            element.classList.add('pdf-export-mode');
 
-                // html2pdf 라이브러리 구동 (비동기)
-                if(typeof html2pdf !== 'undefined') {
-                    html2pdf().set(opt).from(element).save().then(() => {
-                        btnDownload.innerHTML = originalHtml;
-                        btnDownload.disabled = false;
-                        Y2C_AuthEngine.showToast("PDF 문서가 성공적으로 다운로드되었습니다.", "success");
-                    });
-                } else {
-                    Y2C_AuthEngine.showToast("PDF 렌더링 엔진 로드 실패. 인쇄 버튼을 이용하여 PDF로 저장하십시오.", "error");
-                    btnDownload.innerHTML = originalHtml;
+            const opt = {
+                margin:       [10, 10, 10, 10], // top, left, bottom, right
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 1.0 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff' },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const origHtml = btnDownload.innerHTML;
+            btnDownload.innerHTML = `<span class="animate-pulse">GENERATING PDF...</span>`;
+            btnDownload.disabled = true;
+
+            if(typeof html2pdf !== 'undefined') {
+                html2pdf().set(opt).from(element).save().then(() => {
+                    // 🚨 PDF 구운 후 UI 롤백
+                    element.classList.remove('pdf-export-mode');
+                    btnDownload.innerHTML = origHtml;
                     btnDownload.disabled = false;
-                }
-            });
+                    Y2C_AuthEngine.showToast("PDF 문서가 성공적으로 다운로드되었습니다.", "success");
+                }).catch(err => {
+                    element.classList.remove('pdf-export-mode');
+                    btnDownload.innerHTML = origHtml;
+                    btnDownload.disabled = false;
+                    Y2C_AuthEngine.showToast("PDF 생성 중 오류가 발생했습니다.", "error");
+                });
+            } else {
+                element.classList.remove('pdf-export-mode');
+                Y2C_AuthEngine.showToast("PDF 렌더링 엔진 로드 실패. 브라우저 인쇄 버튼을 이용하십시오.", "error");
+                btnDownload.innerHTML = origHtml;
+                btnDownload.disabled = false;
+            }
         }
 
-        // 시스템 기동
-        initDropdowns();
         fetchClients();
     });
     </script>
