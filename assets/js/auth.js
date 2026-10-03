@@ -1,9 +1,9 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
- * Version: V56.00 GRAND FINALE (Hyper-Accelerated Fast-Fail & Corporate Edition)
+ * Version: V57.00 GRAND FINALE (Hyper-Accelerated Payload Engine & Corporate Edition)
  * ============================================================================
- * [CRITICAL FIX 1] 404 & AbortError Fast-Fail: Bypassed pointless 15s waits on 404 errors for instant UI recovery.
+ * [CRITICAL FIX 1] Widespread AbortError Eradicated: Raised global timeout to 30s to allow massive Catalog/Recipe parsing.
  * [ACCELERATOR 1] Preflight Bypass: Forced `Content-Type: text/plain` to skip CORS OPTIONS delay.
  * [ACCELERATOR 2] Cache Buster & Priority Engine: `?_t=Date.now()` & `priority: 'high'` injected for edge-server bypass.
  * [ENTERPRISE UPGRADE] Upgraded all UI Toast messages to premium B2B SaaS corporate standards.
@@ -18,14 +18,14 @@
     if (typeof global.SYSTEM_CONFIG === 'undefined') {
         console.error("CRITICAL FATAL ERROR: SYSTEM_CONFIG is not loaded. Ensure config.js is loaded before auth.js.");
         global.SYSTEM_CONFIG = {
-            API: { BASE_URL: "", TIMEOUT_MS: 15000, MAX_RETRIES: 2 },
+            API: { BASE_URL: "", TIMEOUT_MS: 30000, MAX_RETRIES: 2 },
             STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", REGION: "y2c_region" },
             APP: { VERSION: "EMERGENCY_FALLBACK", ENVIRONMENT: "PRODUCTION" }
         };
     }
 
     const CFG = global.SYSTEM_CONFIG;
-    const OFFLINE_DB_NAME = 'Y2C_Enterprise_Offline_DB_V56';
+    const OFFLINE_DB_NAME = 'Y2C_Enterprise_Offline_DB_V57';
     const QUEUE_STORE = 'mutation_request_queue';
 
     // ============================================================================
@@ -152,7 +152,7 @@
             if (type === "success") {
                 bgClass = "bg-emerald-50"; borderClass = "border-emerald-200"; textClass = "text-emerald-800"; icon = "✅"; iconColor = "text-emerald-600";
             } else if (type === "error") {
-                bgClass = "bg-red-50"; borderClass = "border-red-200"; textClass = "text-[#E3000F]"; icon = "⚠️️"; iconColor = "text-[#E3000F]";
+                bgClass = "bg-red-50"; borderClass = "border-red-200"; textClass = "text-[#E3000F]"; icon = "⚠️"; iconColor = "text-[#E3000F]";
             } else if (type === "warning") {
                 bgClass = "bg-amber-50"; borderClass = "border-amber-200"; textClass = "text-amber-800"; icon = "⚡"; iconColor = "text-amber-500";
             }
@@ -300,7 +300,7 @@
     };
 
     // ============================================================================
-    // 🌐 [MODULE 4] NETWORK ENGINE (Hyper-Accelerated Fast-Fail Proxy)
+    // 🌐 [MODULE 4] NETWORK ENGINE (Hyper-Accelerated Payload Engine)
     // ============================================================================
     const NetworkEngine = {
         
@@ -329,8 +329,8 @@
             // 🚀 [핵심 가속] 타임스탬프 캐시 버스터 주입으로 GAS 엣지 서버의 302 리다이렉트 지연을 강제 돌파합니다.
             const targetUrl = `${CFG.API.BASE_URL}?_t=${Date.now()}&action=${action}`;
 
-            // 🚨 [핵심 가속] 404 및 서버 먹통 시 무의미한 대기를 막기 위해 타임아웃을 10초(로그인 18초)로 대폭 축소 (Fast-Fail)
-            const timeoutDuration = (action === "login") ? 18000 : 10000;
+            // 🚨 [크리티컬 버그 타파] 대용량 JSON 파싱(get_items, get_recipes)을 견디기 위해 기본 타임아웃을 30초로 전면 상향!
+            const timeoutDuration = (action === "login") ? 20000 : 30000;
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
@@ -391,7 +391,6 @@
                 // 서버의 진짜 메시지는 무조건 UI로 직행 (Hijacking 방어)
                 if (error.isBackendLogicError) throw error; 
                 if (error.message.includes("엔드포인트")) throw error; 
-                // 404 등 치명적 에러는 재시도 없이 즉각 튕겨냄 (Fast-Fail)
                 if (error.isFatal) throw error;
 
                 const isNetworkError = error.name === 'AbortError' || error.message.includes('Failed to fetch') || error.message.includes('HTTP Error');
@@ -402,8 +401,11 @@
                     console.warn(`[Y2C Network Engine] Node latency detected (${error.message}). Re-establishing connection in ${delay}ms...`);
                     
                     if (retryCount === 0) {
-                        // 💎 대기업식 멘트 적용: 사용자에게 현재 지연 상황을 고지
-                        UIController.showToast("네트워크 지연 감지. 예비 채널로 재접속합니다...", "warning", 2000);
+                        // 💎 대기업식 멘트 적용: 대용량 데이터 로딩 시 사용자 안심 유도
+                        const retryMsg = (action === "get_items" || action === "get_recipes") 
+                            ? "대용량 데이터 응답 지연 감지. 백업 채널을 통해 재연결을 시도합니다..." 
+                            : "네트워크 지연 감지. 통신망을 재정렬합니다...";
+                        UIController.showToast(retryMsg, "warning", 2500);
                     }
                     
                     await new Promise(res => setTimeout(res, delay));
@@ -575,7 +577,6 @@
                 userPwInput.classList.remove('input-error');
 
                 if (!id || !pw) {
-                    // 💎 대기업식 멘트 적용
                     UIController.showToast("보안 인가 실패: 파트너 식별자(ID) 및 패스키(Passkey)를 모두 입력해 주십시오.", "error");
                     if (!id) userIdInput.classList.add('input-error');
                     if (!pw) userPwInput.classList.add('input-error');
@@ -604,7 +605,6 @@
                     if (res && res.success) {
                         SessionManager.saveSession(res, true);
                         
-                        // 💎 대기업식 멘트 적용
                         UIController.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
                         
                         setTimeout(() => {
@@ -618,7 +618,6 @@
                         }, 800);
                     }
                 } catch (err) {
-                    // 서버 에러를 그대로 전달하되, UI 토스트로 세련되게 표현
                     let finalMsg = err.message;
                     if(err.message.includes("초과")) finalMsg = "서버 응답 지연: 엔터프라이즈 노드 연결에 실패했습니다. 다시 한 번 클릭해 주십시오.";
                     
@@ -640,7 +639,7 @@
     };
 
     global.Y2C_AuthEngine = Object.freeze(AuthEngine);
-    console.log("[Y2C Security] Auth Engine V56.00 Injected and Frozen.");
+    console.log("[Y2C Security] Auth Engine V57.00 Injected and Frozen.");
 
     global.addEventListener('DOMContentLoaded', () => {
         const logoutBtn = document.getElementById('logoutBtn');
