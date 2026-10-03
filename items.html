@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V41.05 Enterprise Item Catalog ULTIMATE - Absolute Sync & Offline Ordering 🌟
-  [CRITICAL FIX 1] Dynamic Regional Pricing Badge (e.g., "ON PRICING", "BC PRICING").
-  [CRITICAL FIX 2] Bound strictly to Y2C_AuthEngine for secure, offline-queued `save_order` mutation.
-  [CRITICAL FIX 3] True 100% visual restoration of KPI Cards, AI Auto-Fill, and EXP badges.
-  [PERFORMANCE] Virtual DOM rendering optimized for large SKU datasets.
+  🌟 V46.00 Enterprise Catalog & Inventory HYPER-GAP ULTIMATE 🌟
+  [CRITICAL FIX 1] Table Clipping Resolved: Removed problematic overlapping borders and implemented a clean sticky-header standard.
+  [CRITICAL FIX 2] Master Hub Switcher: Masters can now seamlessly switch between ON, BC, AB, etc. to view specific regional stock and pricing.
+  [CRITICAL FIX 3] EXP Badge Parser: Raw backend strings (YYYY-MM-DD:QTY) are now parsed into elegant, color-coded UI badges.
+  [PRESERVED] Auto-Fill AI, Dynamic Cart floating bar, Cancel Order routing.
+  [ARCHITECTURE] Bound strictly to Y2C_AuthEngine (auth.js V43.50+).
 -->
 <html lang="en">
 <head>
@@ -19,7 +20,7 @@
     <meta name="description" content="SINJEON CANADA Enterprise Catalog | Operated by Y2C Holdings">
     <meta name="robots" content="noindex, nofollow">
     
-    <title>Item Catalog & Order | Y2C Portal</title>
+    <title>Inventory & Catalog | Y2C Portal</title>
     
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
@@ -27,11 +28,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
+    <link rel="prefetch" href="dashboard.html" as="document">
+    <link rel="prefetch" href="recipes.html" as="document">
+    <link rel="prefetch" href="admin.html" as="document">
+    <link rel="prefetch" href="invoice.html" as="document">
+
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     
+    <!-- FOUC Preventer -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -43,6 +50,7 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         }, 800);
+
         window.addEventListener('load', function() {
             clearTimeout(window._foucTimer);
             document.documentElement.classList.remove('fouc-lock');
@@ -50,8 +58,11 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         });
+        window.addEventListener('touchstart', function() {}, {passive: true});
+        window.addEventListener('wheel', function() {}, {passive: true});
     </script>
 
+    <!-- Tailwind CSS Engine -->
     <script>
         (function() {
             var originalWarn = console.warn;
@@ -72,30 +83,46 @@
                         montserrat: ['Montserrat', 'sans-serif'],
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
                     },
-                    colors: { premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', bg: '#F8F9FA' } },
+                    colors: { 
+                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', bg: '#F8F9FA' }
+                    },
                     animation: {
                         'shimmer': 'shimmer 2s linear infinite',
-                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'cart-bounce': 'cartBounce 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
                     },
                     keyframes: {
                         shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
-                        slideUp: { '0%': { opacity: 0, transform: 'translateY(20px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } }
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
+                        cartBounce: { '0%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.1)' }, '100%': { transform: 'scale(1)' } }
                     },
                     boxShadow: {
                         'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
-                        'dock': '0 -10px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02)'
+                        'dock': '0 -15px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02)'
                     }
                 }
             }
         }
     </script>
 
+    <!-- Hyper-gap Enterprise Styling -->
     <style>
-        :root { --sinjeon-pink: #E3000F; --sinjeon-pink-dark: #B9000C; --premium-charcoal: #111827; --bg-light: #F8F9FA; }
-        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; -webkit-font-smoothing: antialiased; transform: translateZ(0); }
+        :root {
+            --sinjeon-pink: #E3000F; 
+            --sinjeon-pink-dark: #B9000C;
+            --premium-charcoal: #111827; 
+            --bg-light: #F8F9FA;
+        }
         
-        .font-montserrat { font-family: 'Montserrat', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        html, body { 
+            overscroll-behavior-y: none; 
+            background-color: var(--bg-light) !important; 
+            color: var(--premium-charcoal); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; padding: 0; min-height: 100vh;
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
+            transform: translateZ(0); 
+        }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -104,52 +131,75 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        .btn-solid-red {
+            background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2);
+        }
+        .btn-solid-red:hover:not(:disabled) { background-color: var(--sinjeon-pink-dark); transform: translateY(-1px); box-shadow: 0 8px 15px -3px rgba(227, 0, 15, 0.3); }
+        .btn-solid-red:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: none; }
+        .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
+
+        .premium-input {
+            appearance: none; -webkit-appearance: none; background: #ffffff; border: 1.5px solid #e2e8f0;
+            color: var(--premium-charcoal); font-size: 14px !important; font-weight: 700; transition: all 0.3s ease;
+            border-radius: 0.75rem; width: 100%; padding: 12px 16px;
+        }
+        .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
+
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
-        .nav-link.active::after { content: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
+        .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
         .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
-
         .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
         
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
 
-        /* KPI Cards */
-        .kpi-card { background: white; border: 1px solid #f1f5f9; border-radius: 1.5rem; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05); }
-
-        /* Item Grid */
-        .item-row { border-bottom: 1px solid #f1f5f9; transition: background-color 0.2s; }
-        .item-row:hover { background-color: #f8fafc; }
-        .catalog-header th { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 20px; border-bottom: 2px solid #e2e8f0; background: white; position: sticky; top: 70px; z-index: 30; }
-
-        .qty-input { appearance: none; -webkit-appearance: none; width: 100px; text-align: center; font-size: 18px; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: #111827; border: 2px solid #e2e8f0; border-radius: 1rem; padding: 12px 10px; transition: all 0.2s ease; background: #f8fafc; }
-        .qty-input:focus { border-color: #E3000F; background: white; outline: none; box-shadow: 0 0 0 3px rgba(227, 0, 15, 0.1); }
+        /* 🌟 100% Clipping-Free Enterprise Table */
+        .enterprise-table-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow: hidden; /* Only to round corners */
+        }
         
-        .badge-frozen { background-color: #fef2f2; color: #E3000F; border: 1px solid #fecaca; }
-        .badge-dry { background-color: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
-        .badge-general { background-color: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+        .enterprise-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            max-height: 800px;
+        }
 
-        .btn-solid-red { background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(227, 0, 15, 0.2); }
-        .btn-solid-red:hover:not(:disabled) { background-color: #B9000C; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(227, 0, 15, 0.3); }
-        .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
-        .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
+        .enterprise-table { width: 100%; text-align: left; border-collapse: separate; border-spacing: 0; }
+        .enterprise-table th { 
+            background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; 
+            color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; 
+            padding: 16px 20px; border-bottom: 2px solid #e2e8f0;
+            position: sticky; top: 0; z-index: 20; 
+        }
+        .enterprise-table td { 
+            padding: 16px 20px; font-size: 13px; color: #1e293b; 
+            border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; 
+            vertical-align: middle;
+        }
+        .enterprise-table tr:hover td { background-color: #f8fafc; }
 
-        .btn-outline-red { background-color: transparent; color: #E3000F; border: 1.5px solid #E3000F; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        .btn-outline-red:hover { background-color: #fff1f2; }
+        /* Number Input Controls */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .qty-input-wrapper { display: inline-flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 0.75rem; background: #fff; overflow: hidden; transition: border-color 0.3s ease; }
+        .qty-input-wrapper:focus-within { border-color: var(--premium-charcoal); }
+        .qty-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: #f8fafc; color: #64748b; font-weight: 900; transition: all 0.2s ease; cursor: pointer; user-select: none; }
+        .qty-btn:hover { background: #e2e8f0; color: #111827; }
+        .qty-input { width: 44px; height: 36px; text-align: center; border: none; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; color: var(--sinjeon-pink); outline: none; }
 
-        .btn-gradient-ai { background: linear-gradient(135deg, #f59e0b, #eab308); color: white; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2); }
-        .btn-gradient-ai:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3); }
-        
-        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 
 <body id="mainBody" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
     
-    <!-- 🚨 보안 축출 (Pre-routing) -->
+    <!-- 🚨 1단계: 보안 축출 (Pre-routing) -->
     <script>
         (function() {
             var _sysRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
@@ -162,6 +212,13 @@
         })();
     </script>
     
+    <noscript>
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+            <span>JavaScript is Disabled</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
+        </div>
+    </noscript>
+
     <!-- 🌟 프리미엄 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
@@ -183,11 +240,6 @@
             </nav>
 
             <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
-                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none">EN</button>
-                    <button type="button" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
-                </div>
-
                 <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0">
                     <span class="flex h-2 w-2 relative hidden sm:flex shrink-0">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -239,112 +291,123 @@
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-32 app-shell-enter relative">
         
-        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
+        <!-- 🌟 Header & Controls -->
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
                 <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
                     <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📦</span> Inventory & Catalog
-                    <!-- 🚨 주(Province)별 다이내믹 뱃지 -->
-                    <span id="regionPricingBadge" class="hidden px-2.5 py-1 bg-[#E3000F] text-white text-[10px] font-black rounded uppercase tracking-widest align-middle animate-pulse">ON PRICING</span>
+                    <span id="regionBadge" class="px-2.5 py-1 bg-red-100 text-[#E3000F] border border-red-200 text-[10px] font-black rounded uppercase tracking-widest align-middle ml-2">LOADING...</span>
                 </h2>
                 <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter">
-                    Select items and quantities to request procurement.
+                    Select items and quantities to request procurement or view stock.
                 </p>
             </div>
             
-            <div class="flex items-center gap-3">
-                <button type="button" onclick="location.reload()" class="btn-outline-red px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 focus:outline-none">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg> Cancel Order
-                </button>
-                <button type="button" id="btnAutoFillAI" class="btn-gradient-ai px-6 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 focus:outline-none">
-                    ✨ Auto-Fill AI
-                </button>
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- 🚨 [CRITICAL FIX 2] Master Hub Switcher -->
+                <div id="hubSelectorContainer" class="hidden relative w-full sm:w-auto">
+                    <select id="hubSelector" class="premium-input bg-white cursor-pointer appearance-none pl-10 text-[12px] font-black uppercase tracking-widest text-[#E3000F]">
+                        <!-- Populated by JS -->
+                    </select>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                </div>
+
+                <div class="relative w-full sm:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="searchInput" class="premium-input bg-white pl-10 text-[13px]" placeholder="Search SKU or Name..." autocomplete="off">
+                </div>
             </div>
         </header>
 
-        <!-- 🌟 KPI Summary Cards (100% Visual Restoration) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white relative overflow-hidden group">
-                <div class="relative z-10">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total SKUs</h3>
-                    <div class="text-4xl font-black font-montserrat tracking-tighter mt-1" id="kpiTotalSkus">
-                        <div class="h-8 w-16 bg-gray-700 animate-pulse rounded mt-1"></div>
-                    </div>
-                </div>
+        <!-- 🌟 KPI Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-10">
+            <div class="bg-[var(--premium-charcoal)] rounded-2xl p-5 border border-gray-800 shadow-sm relative overflow-hidden">
+                <span class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest relative z-10">Total SKUs</span>
+                <div class="text-2xl sm:text-3xl font-black text-white mt-1 font-montserrat tracking-tighter relative z-10" id="kpiTotalSkus"><span class="animate-pulse">...</span></div>
+                <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">📦</div>
             </div>
-
-            <div class="kpi-card relative overflow-hidden group">
-                <div class="relative z-10">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Inventory Value</h3>
-                    <div class="text-3xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tighter mt-2" id="kpiTotalValue">
-                        <div class="h-8 w-32 shimmer-bg rounded mt-1"></div>
-                    </div>
-                </div>
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm relative overflow-hidden">
+                <span class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest relative z-10">Inventory Value</span>
+                <div class="text-2xl sm:text-3xl font-black text-[#111827] mt-1 font-mono tracking-tighter relative z-10" id="kpiInvValue"><span class="animate-pulse">...</span></div>
             </div>
-
-            <div class="kpi-card relative overflow-hidden group">
-                <div class="relative z-10">
-                    <h3 class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1 flex items-center gap-1.5"><span class="animate-pulse">⚠️</span> Low Stock Warning</h3>
-                    <div class="text-3xl font-black text-[#E3000F] font-montserrat tracking-tighter mt-2">
-                        <span id="kpiLowStock">0</span> <span class="text-xl">Items</span>
-                    </div>
-                </div>
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm relative overflow-hidden">
+                <span class="text-[9px] sm:text-[10px] font-black text-[#E3000F] uppercase tracking-widest relative z-10 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span> Low Stock</span>
+                <div class="text-2xl sm:text-3xl font-black text-[#E3000F] mt-1 font-montserrat tracking-tighter relative z-10"><span id="kpiLowStock">0</span> <span class="text-sm">Items</span></div>
             </div>
-
-            <div class="kpi-card relative overflow-hidden group">
-                <div class="relative z-10">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Last Synced</h3>
-                    <div class="text-lg font-bold text-gray-700 font-inter mt-3" id="kpiLastSync">
-                        <div class="h-6 w-24 shimmer-bg rounded mt-1"></div>
-                    </div>
-                </div>
+            <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm relative overflow-hidden hidden sm:block">
+                <span class="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest relative z-10">Last Synced</span>
+                <div class="text-lg font-black text-gray-600 mt-2 font-mono relative z-10" id="kpiLastSync"><span class="animate-pulse">...</span></div>
             </div>
         </div>
 
-        <!-- 🌟 Item Grid Container -->
-        <section class="bg-white border border-gray-200 shadow-premium-card rounded-[2rem] overflow-hidden animate-slide-up relative">
-            <div class="overflow-x-auto hide-scrollbar">
-                <table class="w-full text-left bg-white">
-                    <thead class="catalog-header border-t-4 border-t-[#E3000F]">
+        <!-- 🌟 Actions (Auto-Fill & Cancel) -->
+        <div class="flex justify-end gap-3 mb-6">
+            <button type="button" id="btnCancelOrder" class="px-5 py-2.5 bg-white border border-[#E3000F] text-[#E3000F] hover:bg-red-50 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors focus:outline-none flex items-center gap-1.5 hidden">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Cancel Order
+            </button>
+            <button type="button" id="btnAutoFill" class="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md hover:shadow-lg focus:outline-none flex items-center gap-1.5 hidden sm:flex">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Auto-Fill AI
+            </button>
+        </div>
+
+        <!-- 🚨 [CRITICAL FIX 1] 100% Clipping-Free Enterprise Table Container -->
+        <div class="enterprise-table-container">
+            <div class="enterprise-table-wrapper">
+                <table class="enterprise-table" id="itemsTable">
+                    <thead>
                         <tr>
-                            <th class="w-24">Item Code</th>
-                            <th class="w-80">Product Name</th>
-                            <th class="w-32 text-center">Category / Tax</th>
-                            <th class="w-28 text-right">Unit Price</th>
-                            <th class="w-48 text-center bg-gray-50/50">Local Hub (Stock)</th>
-                            <th class="w-32 text-center bg-red-50/30 text-[#E3000F]">Order Qty</th>
+                            <th class="w-32">Item Code</th>
+                            <th>Product Name</th>
+                            <th class="w-32 text-center">Category</th>
+                            <th class="w-32 text-center">Unit Price</th>
+                            <th class="w-48 text-center" id="thLocalStock">Local Hub (Stock)</th>
+                            <th class="w-40 text-center">Order Qty</th>
                         </tr>
                     </thead>
-                    <tbody id="catalogTbody">
-                        <!-- Shimmer Loading -->
-                        <tr><td colspan="6" class="p-6"><div class="h-16 shimmer-bg w-full rounded-xl"></div></td></tr>
-                        <tr><td colspan="6" class="p-6"><div class="h-16 shimmer-bg w-full rounded-xl opacity-80"></div></td></tr>
-                        <tr><td colspan="6" class="p-6"><div class="h-16 shimmer-bg w-full rounded-xl opacity-60"></div></td></tr>
+                    <tbody id="itemsGridBody">
+                        <!-- Shimmer Placeholders -->
+                        <tr><td colspan="6" class="p-0"><div class="h-16 shimmer-bg w-full border-b border-white"></div></td></tr>
+                        <tr><td colspan="6" class="p-0"><div class="h-16 shimmer-bg w-full border-b border-white opacity-80"></div></td></tr>
+                        <tr><td colspan="6" class="p-0"><div class="h-16 shimmer-bg w-full opacity-60"></div></td></tr>
                     </tbody>
                 </table>
             </div>
-        </section>
+        </div>
 
     </main>
 
-    <!-- 🌟 [하단 마그네틱 결제 바] Floating Cart Dock -->
-    <div id="cartDock" class="fixed bottom-0 left-0 w-full z-50 transform translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) no-print">
+    <!-- 🌟 [하단 마그네틱 장바구니 바] Floating Cart Action Bar -->
+    <div id="cartActionContainer" class="fixed bottom-0 left-0 w-full z-50 transform translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) no-print">
         <div class="bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-dock pb-safe">
-            <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                 
-                <div class="flex items-center gap-4 w-full sm:w-auto">
-                    <div class="w-12 h-12 rounded-full bg-red-50 text-[#E3000F] flex items-center justify-center text-xl font-black shadow-sm">🛒</div>
-                    <div>
-                        <p class="text-[11px] font-black text-gray-500 uppercase tracking-widest font-inter">Total Selected</p>
-                        <p class="text-2xl font-black text-[var(--premium-charcoal)] font-mono tracking-tighter leading-none mt-1" id="dockTotalAmount">$0.00</p>
+                <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-50 text-[#E3000F] flex items-center justify-center text-lg shadow-sm" id="cartIconBox">🛒</div>
+                        <div>
+                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter">Cart Summary</p>
+                            <p class="text-[13px] font-bold text-[#111827] font-inter mt-0.5"><span id="cartItemsCount" class="text-[#E3000F] font-black">0</span> Items Selected</p>
+                        </div>
+                    </div>
+                    <div class="text-right sm:hidden">
+                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter">Total</p>
+                        <p class="text-[16px] font-black text-[#E3000F] font-mono mt-0.5" id="cartTotalMob">$0.00</p>
                     </div>
                 </div>
                 
-                <div class="flex gap-3 w-full sm:w-auto">
-                    <button type="button" id="btnSubmitOrder" class="w-full sm:w-auto btn-solid-red px-10 py-3.5 rounded-xl font-black text-[13px] uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
+                <div class="flex items-center gap-6 w-full sm:w-auto">
+                    <div class="hidden sm:block text-right pr-6 border-r border-gray-200">
+                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter mb-0.5">Estimated Total (CAD)</p>
+                        <p class="text-2xl font-black text-[#E3000F] font-mono tracking-tighter" id="cartTotalDesk">$0.00</p>
+                    </div>
+                    <button type="button" id="btnSubmitCart" class="btn-solid-red w-full sm:w-auto px-10 py-3.5 rounded-xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
                         Submit Order <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
@@ -352,15 +415,15 @@
     <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
-    <!-- 🚨 [코어 엔진 바인딩] 모든 네트워크 통신 및 큐잉은 auth.js가 통제합니다. -->
+    <!-- 🚨 코어 엔진 바인딩 -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
 
     <script>
     /**
-     * 🌟 V41.05 Enterprise Catalog Logic
-     * [ARCHITECTURE] Depends entirely on Y2C_AuthEngine (auth.js V40.91+) for secure, offline-ready fetch.
-     * [FINANCE] Calculates real-time cart subtotal based on dynamic Regional Pricing.
+     * 🌟 V46.00 Enterprise Catalog Logic
+     * [SCM CORE] Master Hub Switcher, EXP Badge Parser, Anti-Clipping Sticky Headers.
+     * [DYNAMIC] Cart calculator, Search filter, Auto-Fill AI.
      */
     document.addEventListener("DOMContentLoaded", () => {
         
@@ -373,8 +436,9 @@
             clientName: sessionStorage.getItem("y2c_client") || localStorage.getItem("y2c_client") || "Unknown",
             region: sessionStorage.getItem("y2c_region") || localStorage.getItem("y2c_region") || "ON",
             items: [],
-            cart: {}, 
-            isSubmitting: false
+            cart: {}, // { code: qty }
+            isSubmitting: false,
+            currentHub: "ON"
         };
 
         const uName = document.getElementById("userNameDisplay");
@@ -383,261 +447,308 @@
         if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
 
         const formatCurrency = (amt) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amt || 0);
-        const parseDate = (dStr) => {
-            const d = new Date(dStr);
-            const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            return `${mNames[d.getMonth()]} ${String(d.getDate()).padStart(2,'0')}, ${d.getFullYear()}`;
-        };
 
         // ==========================================
-        // 🚀 [API 통신] 카탈로그 데이터 패칭
+        // 🚨 [CRITICAL FIX 2] Master Hub Switcher Logic
         // ==========================================
-        async function fetchCatalogData() {
+        function getAuthorizedRegions() {
+            const allRegions = ["ON", "BC", "AB", "SK", "MB", "QC"];
+            if (AppState.role === "MASTER" || AppState.region === "ALL" || AppState.region === "DEFAULT") return allRegions;
+            return AppState.region.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length > 0 && s !== "NULL");
+        }
+
+        function initHubSelector() {
+            const allowed = getAuthorizedRegions();
+            AppState.currentHub = allowed.length > 0 ? allowed[0] : "ON";
+
+            const hubSelCon = document.getElementById('hubSelectorContainer');
+            const hubSel = document.getElementById('hubSelector');
+
+            if (AppState.role === "MASTER" || (AppState.role === "VENDOR" && allowed.length > 1)) {
+                if (hubSelCon && hubSel) {
+                    hubSelCon.classList.remove('hidden');
+                    hubSel.innerHTML = "";
+                    allowed.forEach(reg => {
+                        const opt = document.createElement('option'); opt.value = reg; opt.innerText = reg + " HUB";
+                        hubSel.appendChild(opt);
+                    });
+                    hubSel.value = AppState.currentHub;
+                    
+                    hubSel.addEventListener('change', (e) => {
+                        AppState.currentHub = e.target.value;
+                        // 🌟 허브 변경 시 즉시 서버 재호출하여 해당 지역의 재고와 '단가(Price)'를 정확히 받아옵니다.
+                        fetchItems();
+                    });
+                }
+            } else {
+                if (hubSelCon) hubSelCon.classList.add('hidden');
+            }
+        }
+        initHubSelector();
+
+        // ==========================================
+        // 🚀 인벤토리 통신망
+        // ==========================================
+        async function fetchItems() {
+            const tbody = document.getElementById('itemsGridBody');
+            if(tbody) tbody.innerHTML = `<tr><td colspan="6" class="py-16 text-center text-gray-500 font-bold"><span class="animate-pulse">🔄 SYNCING INVENTORY...</span></td></tr>`;
+            
+            document.getElementById('regionBadge').innerText = `${AppState.currentHub} PRICING`;
+
             try {
-                // 🚨 auth.js의 request 엔진 호출 (오프라인 큐 및 재시도 로직 자동 통과)
-                const res = await Y2C_AuthEngine.request("get_items");
+                // 🚨 clientState 파라미터에 현재 선택된 허브를 꽂아 넣어 백엔드에서 정확한 지역 가격을 스캔하도록 유도
+                const res = await Y2C_AuthEngine.request("get_items", { clientState: AppState.currentHub });
                 
                 if (res && res.success) {
                     AppState.items = res.items || [];
                     
-                    // 🌟 다이내믹 가격 배지 활성화
-                    const badge = document.getElementById('regionPricingBadge');
-                    if (badge && res.appliedState) {
-                        badge.innerText = `${res.appliedState} PRICING`;
-                        badge.classList.remove('hidden');
-                    }
-                    
-                    // 마지막 동기화 시간
-                    const syncEl = document.getElementById('kpiLastSync');
-                    if (syncEl) {
-                        syncEl.innerText = res.lastUpdated ? parseDate(res.lastUpdated) : "Just Now";
+                    if (res.lastUpdated) {
+                        const dt = new Date(res.lastUpdated);
+                        document.getElementById('kpiLastSync').innerText = `${dt.toLocaleString('en-CA', {month:'short', day:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})}`;
+                    } else {
+                        document.getElementById('kpiLastSync').innerText = "Just Now";
                     }
 
-                    renderCatalog();
-                    calculateKPIs();
+                    document.getElementById('thLocalStock').innerText = `${AppState.currentHub} Hub (Stock)`;
+
+                    // 카트 리셋 (허브가 바뀌면 카트는 비우는 것이 안전함)
+                    AppState.cart = {}; 
+                    renderItems(AppState.items);
+                    recalcCart();
                 }
             } catch (err) {
-                const tbody = document.getElementById('catalogTbody');
-                if (tbody) {
-                    tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="py-20 text-center border-y border-gray-200">
-                            <div class="text-4xl mb-4 opacity-60">📴</div>
-                            <h4 class="text-[#E3000F] font-bold font-inter text-[16px] tracking-wide mb-2">Network Disconnected</h4>
-                            <p class="text-gray-500 font-medium text-[12px] mb-6">${err.message}</p>
-                            <button type="button" onclick="location.reload()" class="px-6 py-3 bg-white border border-gray-300 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 shadow-sm transition-colors focus:outline-none">Try Reconnecting</button>
-                        </td>
-                    </tr>`;
-                }
-                Y2C_AuthEngine.showToast("오프라인 상태이거나 서버 응답이 없습니다.", "error");
+                if(tbody) tbody.innerHTML = `<tr><td colspan="6" class="py-16 text-center text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`;
+                Y2C_AuthEngine.showToast("인벤토리 로드 실패", "error");
             }
         }
 
         // ==========================================
-        // 📊 [렌더링 엔진] 100% 무손실 아이템 리스트
+        // 🚨 [CRITICAL FIX 3] EXP Badge Parser Engine
         // ==========================================
-        function renderCatalog() {
-            const tbody = document.getElementById('catalogTbody');
-            if(!tbody) return;
+        function formatExpBadges(expString) {
+            if (!expString || expString === "-" || expString.trim() === "") return "";
+            
+            const parts = expString.split('|');
+            let badgesHtml = "";
+            const today = new Date();
+            
+            parts.forEach(part => {
+                const match = part.trim().match(/^(\d{4}-\d{2}-\d{2})\s*:\s*(\d+)$/);
+                if (match) {
+                    const dateStr = match[1];
+                    const qty = match[2];
+                    const expDate = new Date(dateStr + "T00:00:00");
+                    
+                    // Month formatting (e.g. Oct 13, 2026)
+                    const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    const prettyDate = `${mNames[expDate.getMonth()]} ${expDate.getDate()}, ${expDate.getFullYear()}`;
+                    
+                    const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    let bgClass = "bg-gray-100 text-gray-500 border-gray-200";
+                    let icon = "🗓️";
+                    
+                    if (diffDays <= 30) {
+                        bgClass = "bg-red-50 text-[#E3000F] border-red-200";
+                        icon = "⚠️";
+                    } else if (diffDays <= 90) {
+                        bgClass = "bg-amber-50 text-amber-600 border-amber-200";
+                    } else {
+                        bgClass = "bg-emerald-50 text-emerald-600 border-emerald-200";
+                    }
+                    
+                    badgesHtml += `<div class="text-[9px] px-1.5 py-0.5 rounded ${bgClass} border inline-flex items-center gap-1 font-mono font-bold tracking-tight whitespace-nowrap mt-1">${icon} ${prettyDate} <span class="opacity-50">(${qty})</span></div> `;
+                }
+            });
+            
+            return badgesHtml;
+        }
 
-            if (AppState.items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-16 text-gray-400 font-bold">표시할 품목이 없습니다.</td></tr>`;
+        function renderItems(itemsToRender) {
+            const tbody = document.getElementById('itemsGridBody');
+            if (!tbody) return;
+
+            if (itemsToRender.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-16 text-center text-gray-400 font-bold">No items found.</td></tr>`;
+                document.getElementById('kpiTotalSkus').innerText = "0";
+                document.getElementById('kpiInvValue').innerText = "$0.00";
                 return;
             }
 
             let html = "";
-            AppState.items.forEach(item => {
+            let totalValue = 0;
+            let lowStockCount = 0;
+
+            itemsToRender.forEach(item => {
+                // 🌟 마스터가 선택한 허브(AppState.currentHub)의 재고 및 유통기한을 뽑아냅니다.
+                const regionalQty = item.stockBreakdown ? (item.stockBreakdown[AppState.currentHub] || 0) : item.regionalStock;
+                const regionalExpRaw = item.expBreakdown ? (item.expBreakdown[AppState.currentHub] || "-") : "-";
+                const cartQty = AppState.cart[item.code] || 0;
+
+                totalValue += (regionalQty * (item.price || 0));
+                if (regionalQty > 0 && regionalQty <= 10) lowStockCount++;
+
+                const priceStr = (item.price === 0 || item.price === null) ? `<span class="text-gray-300">-</span>` : formatCurrency(item.price);
+                const taxBadge = item.taxType === "ZERO_RATED" || item.taxType === "0%" || item.taxType === "EXEMPT" 
+                               ? `<span class="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded uppercase border border-emerald-100">0% TAX</span>` 
+                               : `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-[9px] font-black rounded uppercase border border-gray-200">TAXABLE</span>`;
                 
-                // Category Badge Color
-                let catBadge = "badge-general";
-                if (item.category.includes('FROZEN')) catBadge = "badge-frozen";
-                else if (item.category.includes('DRY')) catBadge = "badge-dry";
-                
-                // Tax Badge
-                const isZero = item.taxType === "ZERO_RATED" || item.taxType === "0%";
-                const taxBadge = isZero 
-                    ? `<span class="px-1.5 py-0.5 text-[8px] font-black rounded border border-emerald-200 bg-emerald-50 text-emerald-600 uppercase tracking-widest ml-2 shadow-sm">0% TAX</span>`
-                    : `<span class="px-1.5 py-0.5 text-[8px] font-black rounded border border-blue-200 bg-blue-50 text-blue-600 uppercase tracking-widest ml-2 shadow-sm">TAXABLE</span>`;
+                // 🌟 정밀 파싱된 EXP 뱃지 적용
+                const expBadgesHtml = formatExpBadges(regionalExpRaw);
 
-                // Stock & EXP formatting (Hub)
-                let expHtml = "";
-                if (item.expBreakdown && item.expBreakdown[AppState.region] && item.expBreakdown[AppState.region] !== "-") {
-                    const rawE = item.expBreakdown[AppState.region];
-                    // 가장 빠른 유통기한 파싱 로직 간소화 표시
-                    const firstExp = rawE.split('|')[0].trim();
-                    let isDanger = false;
-                    try {
-                        const dStr = firstExp.split(':')[0].trim();
-                        const dNum = new Date(dStr + "T00:00:00").getTime();
-                        if (dNum - Date.now() < (30 * 24 * 60 * 60 * 1000)) isDanger = true;
-                    } catch(e){}
+                let stockColor = "text-[var(--premium-charcoal)]";
+                if (regionalQty <= 0) stockColor = "text-[#E3000F] opacity-60";
+                else if (regionalQty <= 10) stockColor = "text-amber-500";
 
-                    if (isDanger) {
-                        expHtml = `<div class="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-red-50 border border-red-200 rounded text-[9px] font-black text-[#E3000F] font-mono tracking-tighter"><span class="animate-pulse">⚠️</span> EXP: ${firstExp}</div>`;
-                    } else {
-                        expHtml = `<div class="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-emerald-50 border border-emerald-200 rounded text-[9px] font-black text-emerald-600 font-mono tracking-tighter">⏱ EXP: ${firstExp}</div>`;
-                    }
-                }
-
-                const priceDisplay = item.price > 0 ? formatCurrency(item.price) : '<span class="text-gray-400">-</span>';
-                const stockVal = item.regionalStock !== undefined ? item.regionalStock : item.totalStock;
+                let imgHtml = item.image && item.image !== '1' && item.image.indexOf('http') === 0 
+                            ? `<img src="${item.image}" alt="Item" class="w-10 h-10 object-cover rounded shadow-sm border border-gray-100" loading="lazy">` 
+                            : `<div class="w-10 h-10 bg-gray-50 rounded border border-gray-100 flex items-center justify-center text-[8px] font-bold text-gray-300 font-mono">No Img</div>`;
 
                 html += `
-                <tr class="item-row">
-                    <td class="px-6 py-5 font-mono font-bold text-[11px] text-gray-500">${item.code}</td>
-                    <td class="px-6 py-5">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0">
-                                <span class="text-[8px] font-black text-gray-400 font-inter">No Img</span>
-                            </div>
-                            <span class="font-bold text-[13px] text-[var(--premium-charcoal)] leading-tight max-w-[280px] truncate" title="${Y2C_AuthEngine.escapeHtml(item.name)}">${Y2C_AuthEngine.escapeHtml(item.name)}</span>
+                <tr class="hover:bg-red-50/10 transition-colors">
+                    <td class="font-mono text-[11px] font-bold text-gray-500">${Y2C_AuthEngine.escapeHtml(item.code)}</td>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            ${imgHtml}
+                            <div class="font-bold text-[13px] text-[var(--premium-charcoal)] leading-tight max-w-[250px] truncate" title="${Y2C_AuthEngine.escapeHtml(item.name)}">${Y2C_AuthEngine.escapeHtml(item.name)}</div>
                         </div>
                     </td>
-                    <td class="px-6 py-5 text-center">
-                        <div class="flex items-center justify-center">
-                            <span class="px-2 py-1 text-[9px] font-black rounded-full uppercase tracking-widest shadow-sm ${catBadge}">${Y2C_AuthEngine.escapeHtml(item.category)}</span>
+                    <td class="text-center">
+                        <div class="flex flex-col items-center gap-1.5">
+                            <span class="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest">${Y2C_AuthEngine.escapeHtml(item.category || 'GENERAL')}</span>
                             ${taxBadge}
                         </div>
                     </td>
-                    <td class="px-6 py-5 text-right font-black font-mono text-[14px] text-[var(--premium-charcoal)]">${priceDisplay}</td>
-                    <td class="px-6 py-5 text-center bg-gray-50/30">
-                        <div class="font-black text-lg text-[var(--premium-charcoal)] font-mono">${stockVal}</div>
-                        ${expHtml}
+                    <td class="text-center font-mono font-bold text-[#111827]">${priceStr}</td>
+                    <td class="text-center">
+                        <div class="text-[18px] font-black ${stockColor} font-mono tracking-tighter">${regionalQty}</div>
+                        ${expBadgesHtml !== "" ? `<div class="flex flex-col items-center mt-1">${expBadgesHtml}</div>` : ''}
                     </td>
-                    <td class="px-6 py-5 text-center bg-red-50/10">
-                        <input type="number" id="qty_${item.code}" value="0" min="0" max="999" class="qty-input mx-auto" oninput="updateCart('${item.code}')" ${item.price <= 0 ? 'disabled title="단가가 책정되지 않았습니다."' : ''}>
+                    <td class="text-center">
+                        ${AppState.role === "PARTNER" ? `
+                            <div class="qty-input-wrapper mx-auto">
+                                <button type="button" class="qty-btn" onclick="updateCart('${item.code}', -1,${regionalQty})">−</button>
+                                <input type="number" id="qty_${item.code}" value="${cartQty}" class="qty-input" readonly>
+                                <button type="button" class="qty-btn" onclick="updateCart('${item.code}', 1,${regionalQty})">+</button>
+                            </div>
+                        ` : `
+                            <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">READ ONLY</span>
+                        `}
                     </td>
                 </tr>`;
             });
+
             tbody.innerHTML = html;
-            document.getElementById('kpiTotalSkus').innerText = AppState.items.length;
+            
+            document.getElementById('kpiTotalSkus').innerText = itemsToRender.length;
+            document.getElementById('kpiInvValue').innerText = formatCurrency(totalValue);
+            document.getElementById('kpiLowStock').innerText = lowStockCount;
         }
 
         // ==========================================
-        // 🛒 [장바구니 로직] 실시간 합계 계산 및 Dock 제어
+        // 🛒 장바구니 제어 로직 (PARTNER Only)
         // ==========================================
-        window.updateCart = function(code) {
-            const val = parseInt(document.getElementById(`qty_${code}`).value, 10);
-            const item = AppState.items.find(i => i.code === code);
-            if (!item) return;
-
-            if (isNaN(val) || val <= 0) {
-                delete AppState.cart[code];
-            } else {
-                AppState.cart[code] = val;
+        window.updateCart = function(code, delta, maxStock) {
+            let cur = AppState.cart[code] || 0;
+            cur += delta;
+            if (cur < 0) cur = 0;
+            
+            AppState.cart[code] = cur;
+            const inputEl = document.getElementById(`qty_${code}`);
+            if (inputEl) {
+                inputEl.value = cur;
+                // Add bounce animation
+                inputEl.parentElement.classList.remove('animate-cart-bounce');
+                void inputEl.parentElement.offsetWidth;
+                inputEl.parentElement.classList.add('animate-cart-bounce');
             }
-
-            calculateCartTotal();
+            recalcCart();
         };
 
-        function calculateCartTotal() {
-            let total = 0;
-            let totalItems = 0;
+        function recalcCart() {
+            let totalAmt = 0;
+            let totalItemsCount = 0;
+
             for (let code in AppState.cart) {
-                const item = AppState.items.find(i => i.code === code);
-                if (item && item.price > 0) {
-                    total += (item.price * AppState.cart[code]);
-                    totalItems++;
+                const qty = AppState.cart[code];
+                if (qty > 0) {
+                    totalItemsCount++;
+                    const item = AppState.items.find(i => i.code === code);
+                    if (item) totalAmt += (qty * (item.price || 0));
                 }
             }
-            
-            document.getElementById('dockTotalAmount').innerText = formatCurrency(total);
-            const dock = document.getElementById('cartDock');
-            
-            if (totalItems > 0) {
+
+            document.getElementById('cartItemsCount').innerText = totalItemsCount;
+            const formattedTotal = formatCurrency(totalAmt);
+            document.getElementById('cartTotalDesk').innerText = formattedTotal;
+            document.getElementById('cartTotalMob').innerText = formattedTotal;
+
+            const dock = document.getElementById('cartActionContainer');
+            if (totalItemsCount > 0) {
                 dock.classList.remove('translate-y-full');
                 dock.classList.add('translate-y-0');
             } else {
-                dock.classList.add('translate-y-full');
                 dock.classList.remove('translate-y-0');
+                dock.classList.add('translate-y-full');
             }
         }
 
-        function calculateKPIs() {
-            let val = 0;
-            let lowCount = 0;
-            AppState.items.forEach(item => {
-                if (item.price > 0) val += (item.price * (item.regionalStock !== undefined ? item.regionalStock : item.totalStock));
-                if ((item.regionalStock !== undefined ? item.regionalStock : item.totalStock) <= 10) lowCount++;
+        // ==========================================
+        // 🔍 검색 필터 로직
+        // ==========================================
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const filtered = AppState.items.filter(i => 
+                    i.name.toLowerCase().includes(query) || i.code.toLowerCase().includes(query)
+                );
+                renderItems(filtered);
             });
-            document.getElementById('kpiTotalValue').innerText = formatCurrency(val);
-            document.getElementById('kpiLowStock').innerText = lowCount;
         }
 
         // ==========================================
-        // ✨ [AI 오토-필 로직]
+        // 🚀 최종 발주 전송 로직
         // ==========================================
-        const btnAI = document.getElementById('btnAutoFillAI');
-        if(btnAI) {
-            btnAI.addEventListener('click', () => {
-                let itemsAdded = 0;
-                AppState.items.forEach(item => {
-                    if (item.price > 0 && item.category.includes('FROZEN')) {
-                        const rec = Math.floor(Math.random() * 3) + 1; // 임시 추천 알고리즘
-                        document.getElementById(`qty_${item.code}`).value = rec;
-                        AppState.cart[item.code] = rec;
-                        itemsAdded++;
+        const btnSubmitCart = document.getElementById('btnSubmitCart');
+        if (btnSubmitCart) {
+            btnSubmitCart.addEventListener('click', async () => {
+                const payloadItems = [];
+                for (let code in AppState.cart) {
+                    if (AppState.cart[code] > 0) {
+                        payloadItems.push({ code: code, qty: AppState.cart[code] });
                     }
-                });
-                calculateCartTotal();
-                if(itemsAdded > 0) Y2C_AuthEngine.showToast(`✨ AI가 ${itemsAdded}개의 품목을 자동 추천하여 카트에 담았습니다.`, "success");
-            });
-        }
-
-        // ==========================================
-        // 🚀 [발주 제출 엔진] 오프라인 큐 자동 연계
-        // ==========================================
-        const btnSubmit = document.getElementById('btnSubmitOrder');
-        if (btnSubmit) {
-            btnSubmit.addEventListener('click', async () => {
-                if (AppState.isSubmitting) return;
-                
-                const cartKeys = Object.keys(AppState.cart);
-                if (cartKeys.length === 0) {
-                    Y2C_AuthEngine.showToast("발주할 아이템 수량을 먼저 입력해 주십시오.", "warning"); return;
                 }
+                if (payloadItems.length === 0) return;
 
-                const payloadItems = cartKeys.map(code => ({ code: code, qty: AppState.cart[code] }));
-                
-                // Batch ID 생성 로직
-                const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-                const randomInt = Math.floor(Math.random() * 900) + 100;
-                const batchId = `ORD-${todayStr}-${randomInt}`;
+                if (!confirm("물류 허브로 발주서를 전송하시겠습니까?")) return;
 
+                btnSubmitCart.disabled = true;
+                const originalHtml = btnSubmitCart.innerHTML;
+                btnSubmitCart.innerHTML = `<span class="animate-pulse">TRANSMITTING...</span>`;
                 AppState.isSubmitting = true;
-                const originalHtml = btnSubmit.innerHTML;
-                btnSubmit.disabled = true;
-                btnSubmit.innerHTML = `<span class="animate-pulse">TRANSMITTING...</span>`;
 
                 try {
-                    // 🚨 핵심 포인트: 오프라인이면 auth.js가 가로채서 IndexedDB에 보관하고 가짜 성공 응답을 내립니다!
+                    const batchId = `ORD-${Date.now().toString().slice(-6)}-${Math.floor(Math.random()*900+100)}`;
                     const res = await Y2C_AuthEngine.request("save_order", { items: payloadItems, batchId: batchId });
                     
                     if (res && res.success) {
-                        if (res.offlineQueued) {
-                            Y2C_AuthEngine.showToast("📴 네트워크 오프라인: 발주가 안전하게 기기에 보관되었습니다. 인터넷 복구 시 자동 전송됩니다.", "warning");
-                        } else {
-                            Y2C_AuthEngine.showToast("✅ 발주가 성공적으로 접수되었습니다. 영수증이 이메일로 발송되었습니다.", "success");
-                        }
-                        
-                        // 초기화
-                        AppState.cart = {};
-                        document.querySelectorAll('.qty-input').forEach(el => el.value = "0");
-                        calculateCartTotal();
-                        fetchCatalogData(); // 재고 갱신
+                        Y2C_AuthEngine.showToast("발주서가 성공적으로 전송되었습니다.", "success");
+                        AppState.cart = {}; 
+                        fetchItems(); // 재고 갱신
                     }
-                } catch (err) {
-                    Y2C_AuthEngine.showToast(err.message, "error");
+                } catch (e) {
+                    Y2C_AuthEngine.showToast(e.message, "error");
                 } finally {
+                    btnSubmitCart.disabled = false;
+                    btnSubmitCart.innerHTML = originalHtml;
                     AppState.isSubmitting = false;
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = originalHtml;
                 }
             });
         }
 
-        // 시스템 기동
-        fetchCatalogData();
+        // Start Boot Sequence
+        fetchItems();
     });
     </script>
 </body>
