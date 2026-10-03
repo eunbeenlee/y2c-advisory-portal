@@ -1,9 +1,10 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Progressive Web App Service Worker
- * Version: V50.00 GRAND FINALE (Absolute Offline Cache & Extension Crash Fix)
+ * Version: V51.00 GRAND FINALE (Absolute Offline Cache & Deep CORS Fix)
  * ============================================================================
- * [CRITICAL FIX 1] Extension Crash Prevented: Added `req.url.startsWith('http')` check to avoid caching `chrome-extension://` schemes.
+ * [CRITICAL FIX 1] Extension Crash Prevented: Absolute top-level `startsWith('http')` fast-return added.
+ * [CRITICAL FIX 2] CDN CORS Crash Fix: Removed strict external CDNs from Install Phase to prevent aborts. Handled dynamically instead.
  * [RESTORED 1] Intelligent Caching Routing: Network-First for HTML/JS, Cache-First for static images/fonts.
  * [RESTORED 2] Poison Pill Protection: Retry Count limit (max 5) to IndexedDB Queue to prevent infinite loops.
  * [RESTORED 3] Premium Offline UI: High-end fallback HTML template for complete offline scenarios.
@@ -13,12 +14,11 @@
 
 "use strict";
 
-// 🚨 캐시 버전을 V50.00으로 하드 록다운. (버전 갱신 시 과거 캐시 자동 소각)
-const CACHE_NAME = 'Y2C_ENTERPRISE_CACHE_V50_00';
-const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V50';
+const CACHE_NAME = 'Y2C_ENTERPRISE_CACHE_V51_00';
+const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V51';
 const QUEUE_STORE = 'mutation_queue';
 
-// 🌟 오프라인에서도 무조건 띄워야 하는 핵심 에셋 목록
+// 🌟 오프라인 코어 자산 (CORS 충돌을 막기 위해 철저히 내부 로컬 에셋만 지정)
 const CORE_ASSETS = [
     '/',
     '/index.html',
@@ -30,16 +30,11 @@ const CORE_ASSETS = [
     '/assets/js/auth.js',
     '/assets/js/config.js',
     '/favicon.png',
-    '/y2c_holdings_logo.png', // 공식 로고 오프라인 지원
-    'https://cdn.tailwindcss.com',
-    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-    'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap'
+    '/y2c_holdings_logo.png'
 ];
 
 // ============================================================================
-// 💾 [MODULE 1] IndexedDB Offline Queue Manager (Poison Pill Protected)
+// 💾 [MODULE 1] IndexedDB Offline Queue Manager
 // ============================================================================
 function openOfflineDB() {
     return new Promise((resolve, reject) => {
@@ -60,13 +55,7 @@ async function enqueueRequest(requestData) {
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(QUEUE_STORE, 'readwrite');
         const store = transaction.objectStore(QUEUE_STORE);
-        
-        const record = {
-            ...requestData,
-            retryCount: requestData.retryCount || 0,
-            timestamp: requestData.timestamp || Date.now()
-        };
-
+        const record = { ...requestData, retryCount: requestData.retryCount || 0, timestamp: requestData.timestamp || Date.now() };
         store.put(record);
         transaction.oncomplete = () => resolve(true);
         transaction.onerror = () => reject(transaction.error);
@@ -119,9 +108,10 @@ self.addEventListener('install', event => {
     self.skipWaiting(); 
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('[Y2C SW Engine] Core Assets Caching Started.');
+            console.log('[Y2C SW Engine] Core Local Assets Caching Started.');
+            // Promise.allSettled를 통해 단일 에셋 로드 실패가 전체 설치를 중단시키지 않도록 방어
             return Promise.allSettled(
-                CORE_ASSETS.map(url => cache.add(url).catch(err => console.warn(`[Y2C SW Engine] Caching skipped for: ${url}`, err)))
+                CORE_ASSETS.map(url => cache.add(url).catch(err => console.warn(`[Y2C SW Engine] Local cache skipped: ${url}`, err)))
             );
         })
     );
@@ -148,46 +138,46 @@ self.addEventListener('fetch', event => {
     const req = event.request;
     const url = new URL(req.url);
 
-    // 🚨 1. 백엔드 API 통신 (POST) 인터셉트 및 오프라인 큐잉 로직
+    // 🚨 [CRITICAL FIX 1] 크롬 익스텐션 등 비정상 프로토콜 최상단 원천 차단
+    if (!req.url.startsWith('http')) {
+        return; 
+    }
+
+    // 1. 백엔드 API 통신 (POST) 인터셉트 및 오프라인 큐잉 로직
     if (req.method === 'POST' && url.hostname.includes('script.google.com')) {
         event.respondWith(handleApiFetch(req));
         return;
     }
 
-    // 🚨 [CRITICAL FIX] 크롬 익스텐션 통신 캐싱 거부 (HTTP/HTTPS 통신만 허용)
-    const isHttpProtocol = req.url.startsWith('http://') || req.url.startsWith('https://');
-
-    // 🌟 2. 정적 이미지/폰트 에셋 -> Cache-First (로딩 속도 극대화)
-    const isStaticAsset = req.url.match(/\.(png|jpg|jpeg|svg|woff2|woff|ttf)$/) || url.hostname.includes('fonts.gstatic.com');
+    // 2. 정적 이미지/폰트 에셋 -> Cache-First
+    const isStaticAsset = req.url.match(/\.(png|jpg|jpeg|svg|woff2|woff|ttf)$/) || url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('cdn');
     if (req.method === 'GET' && isStaticAsset) {
         event.respondWith(
             caches.match(req).then(cachedRes => {
                 if (cachedRes) return cachedRes;
                 return fetch(req).then(networkRes => {
-                    // 크롬 익스텐션 프로토콜 방어
-                    if (networkRes && networkRes.status === 200 && networkRes.type === 'basic' && isHttpProtocol) {
+                    // CORS No-Cors 대응 (Opaque Response 저장)
+                    if (networkRes && (networkRes.status === 200 || networkRes.type === 'opaque')) {
                         const responseToCache = networkRes.clone();
                         caches.open(CACHE_NAME).then(cache => cache.put(req, responseToCache));
                     }
                     return networkRes;
-                });
+                }).catch(() => { console.warn(`[Y2C SW Engine] Asset Fetch Failed: ${req.url}`); });
             })
         );
         return;
     }
 
-    // 🌟 3. HTML, JS, CSS -> Network-First, Cache-Fallback (항상 최신 버전 보장)
+    // 3. HTML, JS, CSS -> Network-First, Cache-Fallback
     if (req.method === 'GET') {
         event.respondWith(
             fetch(req).then(networkRes => {
-                // 크롬 익스텐션 프로토콜 방어
-                if (networkRes && networkRes.status === 200 && networkRes.type === 'basic' && isHttpProtocol) {
+                if (networkRes && networkRes.status === 200 && networkRes.type === 'basic') {
                     const responseToCache = networkRes.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(req, responseToCache));
                 }
                 return networkRes;
             }).catch(async () => {
-                // 네트워크 단절 시 캐시에서 꺼냄
                 const cachedRes = await caches.match(req);
                 if (cachedRes) {
                     console.log('[Y2C SW Engine] Offline Mode Active: Served from Cache', req.url);
@@ -234,28 +224,20 @@ self.addEventListener('fetch', event => {
 
 // 🚨 백엔드 에러 및 오프라인 타임아웃 방어막 (Mutation Queue Injector)
 async function handleApiFetch(req) {
-    const clonedReq = req.clone(); // 본문(Body)을 읽기 위해 클론
+    const clonedReq = req.clone(); 
     try {
-        // 1. 정상적으로 네트워크로 쏘아봅니다. (redirect: 'follow' 필수 유지)
         const fetchOptions = {
-            method: req.method,
-            headers: req.headers,
-            body: await req.clone().text(),
-            mode: req.mode,
-            credentials: req.credentials,
-            redirect: 'follow'
+            method: req.method, headers: req.headers, body: await req.clone().text(),
+            mode: req.mode, credentials: req.credentials, redirect: 'follow'
         };
         const networkResponse = await fetch(req.url, fetchOptions);
         return networkResponse;
     } catch (error) {
-        // 2. 🚨 통신이 끊겼거나 타임아웃이 발생한 경우 (오프라인 모드 발동)
         try {
             const bodyText = await clonedReq.text();
             let payload = {};
-            
-            try { 
-                payload = JSON.parse(bodyText); 
-            } catch (e) {
+            try { payload = JSON.parse(bodyText); } 
+            catch (e) {
                 const parts = bodyText.split('&');
                 for (let p of parts) {
                     const kv = p.split('=');
@@ -266,36 +248,23 @@ async function handleApiFetch(req) {
             const mutationActions = ['save_order', 'update_stock', 'upsert_hq_order', 'update_master_data', 'update_hq_order_status', 'save_sales_records'];
             
             if (mutationActions.includes(payload.action)) {
-                await enqueueRequest({
-                    url: req.url,
-                    headers: [...req.headers.entries()],
-                    body: bodyText,
-                    action: payload.action,
-                    timestamp: Date.now(),
-                    retryCount: 0
-                });
-                
+                await enqueueRequest({ url: req.url, headers: [...req.headers.entries()], body: bodyText, action: payload.action, timestamp: Date.now(), retryCount: 0 });
                 return new Response(JSON.stringify({
                     success: true,
                     message: "[오프라인 보관 완료] 네트워크가 단절되어 기기 저장소에 안전하게 보관되었습니다. 인터넷 복구 시 백그라운드에서 자동 처리됩니다.",
-                    offlineQueued: true,
-                    action: payload.action,
-                    batchId: payload.batchId || `OFFLINE-${Date.now()}`
-                }), { 
-                    status: 200, 
-                    headers: { 'Content-Type': 'application/json' }
-                });
+                    offlineQueued: true, action: payload.action, batchId: payload.batchId || `OFFLINE-${Date.now()}`
+                }), { status: 200, headers: { 'Content-Type': 'application/json' } });
             } else {
                 throw error;
             }
         } catch (fallbackError) {
-            throw error; // 궁극의 실패
+            throw error;
         }
     }
 }
 
 // ============================================================================
-// 🚀 [MODULE 4] Auto-Flush Background Sync Engine (Poison Pill Guarded)
+// 🚀 [MODULE 4] Auto-Flush Background Sync Engine
 // ============================================================================
 let isFlushing = false;
 
@@ -307,13 +276,8 @@ async function flushQueue() {
         const queue = await getQueuedRequests();
         if (queue.length === 0) return;
 
-        console.log(`[Y2C SW Daemon] Initiating background sync. ${queue.length} items in queue.`);
-
         for (const requestData of queue) {
-            
-            // 🚨 Poison Pill Protection: 5번 이상 실패한 쓰레기 데이터는 영구 소각
             if (requestData.retryCount >= 5) {
-                console.error(`[Y2C SW Daemon] Request ID ${requestData.id} exceeded max retries. Purging from queue.`);
                 await dequeueRequest(requestData.id);
                 continue;
             }
@@ -322,28 +286,16 @@ async function flushQueue() {
                 const headers = new Headers();
                 requestData.headers.forEach(h => headers.append(h[0], h[1]));
 
-                const response = await fetch(requestData.url, {
-                    method: 'POST',
-                    headers: headers,
-                    body: requestData.body,
-                    redirect: 'follow'
-                });
+                const response = await fetch(requestData.url, { method: 'POST', headers: headers, body: requestData.body, redirect: 'follow' });
 
                 if (response.ok) {
                     const resJson = await response.json();
-                    
-                    if (resJson.success) {
-                        await dequeueRequest(requestData.id);
-                        console.log("[Y2C SW Daemon] Offline request successfully synced:", requestData.action);
-                    } else {
-                        console.warn("[Y2C SW Daemon] Logical error during sync, purging request:", resJson.message);
-                        await dequeueRequest(requestData.id);
-                    }
+                    if (resJson.success) { await dequeueRequest(requestData.id); } 
+                    else { await dequeueRequest(requestData.id); }
                 } else {
                     throw new Error(`HTTP Error ${response.status}`);
                 }
             } catch (error) {
-                console.warn(`[Y2C SW Daemon] Flush failed for ${requestData.action}. Backing off.`);
                 await incrementRetryCount(requestData.id, requestData.retryCount);
                 break; 
             }
@@ -353,14 +305,5 @@ async function flushQueue() {
     }
 }
 
-self.addEventListener('sync', event => {
-    if (event.tag === 'y2c-flush-queue') {
-        event.waitUntil(flushQueue());
-    }
-});
-
-self.addEventListener('message', event => {
-    if (event.data && event.data.type === 'FLUSH_QUEUE') {
-        flushQueue();
-    }
-});
+self.addEventListener('sync', event => { if (event.tag === 'y2c-flush-queue') event.waitUntil(flushQueue()); });
+self.addEventListener('message', event => { if (event.data && event.data.type === 'FLUSH_QUEUE') flushQueue(); });
