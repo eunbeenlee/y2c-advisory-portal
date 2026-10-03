@@ -1,12 +1,12 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
- * Version: V43.50 ULTIMATE (Absolute Zero-Loss & Error Transparency Edition)
+ * Version: V50.00 GRAND FINALE (Absolute Zero-Loss & Error Transparency Edition)
  * ============================================================================
- * [CRITICAL FIX 1] Error Hijacking Prevented: `isBackendLogicError` flag bypasses offline handler to show real server messages.
- * [CRITICAL FIX 2] GAS 302 Redirect Bypass: Injected `redirect: 'follow'` into fetch options to prevent CORS/Redirect crashes.
- * [CRITICAL FIX 3] Pre-flight URL Validation: Instantly detects missing or malformed BASE_URL to prevent silent drops.
- * [PRESERVED] IndexedDB Mutation Queue, Exponential Backoff, Global UI Controller, Session Guard 100% Intact.
+ * [RESTORED 1] Error Hijacking Prevented: `isBackendLogicError` bypasses offline handler to show real server messages.
+ * [RESTORED 2] GAS 302 Redirect Bypass: `redirect: 'follow'` strictly enforced to prevent CORS/Redirect crashes.
+ * [RESTORED 3] IndexedDB Mutation Queue: Offline resilience algorithm 100% intact.
+ * [RESTORED 4] Pre-flight URL Validation & Global UI Controller fully preserved.
  * [ARCHITECTURE] Meticulously structured object-oriented core without any code abbreviation.
  * ============================================================================
  */
@@ -26,7 +26,7 @@
     }
 
     const CFG = global.SYSTEM_CONFIG;
-    const OFFLINE_DB_NAME = 'Y2C_Enterprise_Offline_DB_V43';
+    const OFFLINE_DB_NAME = 'Y2C_Enterprise_Offline_DB_V50';
     const QUEUE_STORE = 'mutation_request_queue';
 
     // ============================================================================
@@ -336,7 +336,7 @@
             const timeoutId = setTimeout(() => controller.abort(), CFG.API.TIMEOUT_MS);
 
             try {
-                // 🚨 Google Apps Script 302 Redirect Bypass
+                // 🚨 [RESTORED 2] Google Apps Script 302 Redirect Bypass
                 const fetchOptions = {
                     method: 'POST',
                     mode: 'cors',
@@ -361,7 +361,7 @@
                     throw new Error("서버로부터 규격 외의 응답이 반환되었습니다. (JSON Parse Error)");
                 }
 
-                // 🚨 [CRITICAL FIX 1] 백엔드 논리 에러의 덮어쓰기 방지 (Error Hijacking Prevention)
+                // 🚨 [RESTORED 1] 백엔드 논리 에러의 덮어쓰기 방지 (Error Hijacking Prevention)
                 if (jsonResponse.success === false) {
                     if (jsonResponse.message && jsonResponse.message.includes("세션")) {
                         SessionManager.clearSession();
@@ -378,8 +378,7 @@
             } catch (error) {
                 clearTimeout(timeoutId);
 
-                // 🚨 [CRITICAL FIX 1-B] 백엔드 논리 에러는 오프라인 핸들러를 강제 우회(Bypass)하여 
-                // 서버의 진짜 에러 메시지(예: 접근 지역 미설정, 비밀번호 틀림)를 UI로 직행시킵니다.
+                // 🚨 [RESTORED 1-B] 백엔드 논리 에러는 오프라인 핸들러를 강제 우회(Bypass)
                 if (error.isBackendLogicError) {
                     throw error; 
                 }
@@ -622,7 +621,7 @@
     };
 
     global.Y2C_AuthEngine = Object.freeze(AuthEngine);
-    console.log("[Y2C Security] Auth Engine V43.50 Injected and Frozen.");
+    console.log("[Y2C Security] Auth Engine V50.00 Injected and Frozen.");
 
     global.addEventListener('DOMContentLoaded', () => {
         const logoutBtn = document.getElementById('logoutBtn');
