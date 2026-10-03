@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V48.00 Enterprise Admin HYPER-GAP ACCELERATED - Commercial Grade Engine 🌟
-  [ACCELERATOR 1] JS Asynchronous Chunking: Y2C_Accelerator prevents Main Thread freezing during heavy Excel/DB parsing.
-  [ACCELERATOR 2] Hardware-Accelerated Rendering: requestAnimationFrame (rAF) replaces raw innerHTML to prevent screen tearing.
-  [ACCELERATOR 3] CSS Off-Screen Bypassing: content-visibility & contain-intrinsic-size drastically reduces RAM usage.
-  [CRITICAL FIXES] iOS Auto-Zoom Prevented, Modal Scroll Bleeding Blocked, Safe Area (100dvh) Active.
+  🌟 V56.00 Enterprise Admin GRAND FINALE - Commercial Grade Engine 🌟
+  [RESTORED 1] Y2C Dual-Logo Header accurately transplanted from index.html without layout shifts.
+  [RESTORED 2] 404/AbortError Graceful Degradation: Replaced blank infinite loading with Corporate Error Panels.
+  [ACCELERATOR] Y2C_Accelerator (Asynchronous Chunking & rAF Virtual DOM) implemented to prevent freezing on large Excel arrays.
+  [CRITICAL FIX] Mobile Home Bar (Notch) clipping prevented via env(safe-area-inset-bottom) and 100dvh.
   [PRESERVED] Global Shipping Tracking, Excel Price Tracker, ERP Sales, Franchise DB (100% Loss-less).
-  [ARCHITECTURE] Bound strictly to Y2C_AuthEngine (auth.js V46.50+).
 -->
 <html lang="en">
 <head>
@@ -32,6 +31,7 @@
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     
     <!-- Deferred & Asynchronous Font Loading -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
@@ -60,8 +60,12 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         });
+        window.addEventListener('touchstart', function() {}, {passive: true});
+        window.addEventListener('wheel', function() {}, {passive: true});
+        window.addEventListener('scroll', function() {}, {passive: true});
     </script>
 
+    <!-- Tailwind CSS Hijacker -->
     <script>
         (function() {
             var originalWarn = console.warn;
@@ -87,11 +91,13 @@
                     },
                     animation: {
                         'shimmer': 'shimmer 2s linear infinite',
-                        'lock-shake': 'lockShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both'
+                        'lock-shake': 'lockShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both',
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards'
                     },
                     keyframes: {
                         shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
-                        lockShake: { '0%, 100%': { transform: 'translateX(0)' }, '20%, 60%': { transform: 'translateX(-4px)' }, '40%, 80%': { transform: 'translateX(4px)' } }
+                        lockShake: { '0%, 100%': { transform: 'translateX(0)' }, '20%, 60%': { transform: 'translateX(-4px)' }, '40%, 80%': { transform: 'translateX(4px)' } },
+                        slideUp: { '0%': { opacity: 0, transform: 'translateY(20px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } }
                     },
                     boxShadow: {
                         'premium-card': '0 35px 60px -15px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0,0,0,0.02)',
@@ -106,23 +112,15 @@
         :root { --sinjeon-pink: #E3000F; --premium-charcoal: #111827; --bg-light: #F8F9FA; --input-bg: #f8fafc; }
         
         /* 🚨 [UI 록다운] 100dvh 및 Safe-Area 융합으로 스크롤 하단 짤림 방지 */
-        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100dvh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transform: translateZ(0); }
+        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100dvh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transform: translateZ(0); touch-action: manipulation; }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
         /* 🚀 [ACCELERATOR] CSS GPU & Off-Screen 렌더링 차단 엔진 */
-        .tab-section { 
-            content-visibility: auto; 
-            contain-intrinsic-size: auto 800px; 
-            display: none; opacity: 0; transition: opacity 0.4s ease; 
-            will-change: opacity; /* GPU Hint */
-        }
+        .tab-section { content-visibility: auto; contain-intrinsic-size: auto 800px; display: none; opacity: 0; transition: opacity 0.4s ease; will-change: opacity; }
         .tab-section.active { display: block; opacity: 1; }
         
-        .enterprise-table-container {
-            content-visibility: auto; 
-            contain-intrinsic-size: auto 500px;
-        }
+        .enterprise-table-container { content-visibility: auto; contain-intrinsic-size: auto 500px; }
 
         .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
@@ -143,7 +141,7 @@
         .sub-nav-btn:hover:not(.active) { color: var(--premium-charcoal); background: #f1f5f9; }
         .sub-nav-btn.active { color: #ffffff; background: var(--premium-charcoal); box-shadow: 0 4px 10px rgba(17, 24, 39, 0.15); }
 
-        /* 🚨 [UI 록다운] font-size: 16px !important 적용으로 iOS Safari 강제 줌인 현상 완벽 방어 */
+        /* 🚨 iOS 줌인 차단 (16px 강제화) */
         .premium-input { appearance: none; -webkit-appearance: none; background: #ffffff; border: 1.5px solid #e2e8f0; color: var(--premium-charcoal); font-size: 16px !important; font-weight: 700; transition: all 0.3s ease; border-radius: 0.75rem; width: 100%; padding: 12px 16px; }
         .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
         .premium-input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
@@ -162,7 +160,7 @@
 
         .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
 
-        /* 🚨 [UI 록다운] whitespace-nowrap 적용으로 모바일에서 데이터 찌그러짐 방지 */
+        /* 🚨 모바일 데이터 찌그러짐 방지 (whitespace-nowrap) */
         .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 24px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
         .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; white-space: nowrap; }
         .enterprise-table tr:hover td { background: #f8fafc; }
@@ -202,8 +200,23 @@
     
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
+            
+            <!-- 🌟 [복원 완수] Y2C 오리지널 듀얼 샌드박스 로고 -->
+            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
+                <div class="flex items-center gap-2">
+                    <!-- 신전 로고 -->
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group">
+                        <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
+                        <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
+                    </div>
+                    <!-- Y2C 로고 -->
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-full shadow-sm border-[2px] border-[#D4AF37] transform hover:scale-105 transition-transform duration-300 overflow-hidden relative group">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white to-gray-50 flex items-center justify-center">
+                            <span class="font-black text-[#D4AF37] text-[10px] sm:text-[12px] tracking-tighter" style="text-shadow: 0 1px 2px rgba(0,0,0,0.08);">Y2C</span>
+                        </div>
+                        <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
+                    </div>
+                </div>
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
                     <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
@@ -232,7 +245,7 @@
         </div>
     </header>
 
-    <!-- 🚨 [UI 록다운] env(safe-area-inset-bottom) 적용으로 모바일 네비게이션이 노치/홈바에 가려지지 않게 보호 -->
+    <!-- 🚨 모바일 노치(Home Bar) 가림 보호망 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Item Catalog</a>
@@ -586,14 +599,14 @@
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
-                    &copy; 2026 Y2C Holdings. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
+                    &copy; 2026 Y2C Holdings Inc. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
                 </p>
                 <div class="flex items-center gap-4">
                     <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V48.00 ACCELERATED</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V56.00 GRAND FINALE</span>
                 </div>
             </div>
         </div>
@@ -607,9 +620,9 @@
 
     <script>
     /**
-     * 🌟 V48.00 Enterprise Admin Quad-Core Integration Logic (HYPER-GAP ACCELERATED Edition)
-     * [ACCELERATOR] Hardware-Accelerated Virtual DOM Rendering & Asynchronous Chunking Engine injected.
-     * [CRITICAL FIX] Modal Scroll Locking added to prevent Scroll Bleeding on mobile devices.
+     * 🌟 V56.00 Enterprise Admin Quad-Core Integration Logic
+     * [ACCELERATOR] Y2C_Accelerator Asynchronous Chunking Engine injected for heavy Excel parsing.
+     * [CRITICAL FIX] 404 & AbortError gracefully handled with Corporate Error UI.
      */
     document.addEventListener("DOMContentLoaded", () => {
         
@@ -621,9 +634,6 @@
         // 🚀 [ACCELERATION ENGINE] 비동기 하드웨어 렌더링 코어
         // ==========================================
         const Y2C_Accelerator = {
-            /** 
-             * requestAnimationFrame을 활용한 무손실 비동기 렌더링. 화면 깜빡임을 소거합니다. 
-             */
             renderReactively: function(targetId, htmlString) {
                 return new Promise(resolve => {
                     requestAnimationFrame(() => {
@@ -633,9 +643,6 @@
                     });
                 });
             },
-            /** 
-             * 수만 건의 엑셀/DB 연산을 브라우저 메인 스레드 멈춤 없이 500개 단위 청크로 분할 처리합니다.
-             */
             processInChunks: async function(array, processFn, onComplete, chunkSize = 500) {
                 let index = 0;
                 function nextChunk() {
@@ -644,7 +651,7 @@
                         processFn(array[index], index);
                     }
                     if (index < array.length) {
-                        setTimeout(nextChunk, 0); // 메인 스레드 양보 (Yielding)
+                        setTimeout(nextChunk, 0); // Yielding to main thread
                     } else {
                         if (onComplete) onComplete();
                     }
@@ -741,13 +748,10 @@
         populateHubDropdown();
 
         // ==========================================
-        // 🚀 [CORE 1] 복원된 가맹점 DB (Franchise Master) 로직 (가속화 적용)
+        // 🚀 [CORE 1] 프랜차이즈 DB 마스터
         // ==========================================
         async function fetchMasterData() {
             if (AppState.role === "VENDOR") return;
-            const tbody = document.getElementById('masterTableBody');
-            if(!tbody) return;
-
             try {
                 const res = await Y2C_AuthEngine.request("get_master_data");
                 if (res && res.success) {
@@ -756,7 +760,17 @@
                     populateSalesClientSelector();
                 }
             } catch (err) {
-                Y2C_Accelerator.renderReactively('masterTableBody', `<tr><td colspan="8" class="text-center py-10 text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`);
+                // 🚨 404 및 AbortError 우아한 실패 처리
+                Y2C_Accelerator.renderReactively('masterTableBody', `
+                    <tr>
+                        <td colspan="8" class="text-center py-16 bg-red-50/20 border-y border-red-100">
+                            <div class="text-4xl mb-4 opacity-80">⚠️</div>
+                            <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">엔터프라이즈 데이터 노드 접근 실패</h4>
+                            <p class="text-gray-500 font-medium text-[11px] mb-4">${err.message}</p>
+                            <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">보안 세션 재연결 시도</button>
+                        </td>
+                    </tr>
+                `);
             }
         }
 
@@ -838,7 +852,7 @@
         };
 
         // ==========================================
-        // 🚀 [CORE 2] 복원된 ERP Sales 로직 (가속화 적용)
+        // 🚀 [CORE 2] ERP Sales
         // ==========================================
         function populateSalesYearSelector() {
             const sel = document.getElementById('salesYearSelector');
@@ -973,7 +987,7 @@
         };
 
         // ==========================================
-        // 🚀 [CORE 3 & 4] 조달 및 VENDOR PRICE TRACKER 엔진 (가속화 적용)
+        // 🚀 [CORE 3 & 4] 조달, 아이템 데이터 및 VENDOR PRICE TRACKER 엔진
         // ==========================================
         async function fetchInitialData() {
             try {
@@ -997,17 +1011,17 @@
                 }
 
             } catch (err) {
+                // 🚨 404 및 AbortError 우아한 실패 처리
                 Y2C_Accelerator.renderReactively('hqOrdersTableBody', `
                     <tr>
                         <td colspan="7" class="py-16 text-center bg-red-50/20 border-y border-red-100">
                             <div class="text-4xl mb-4 opacity-80">⚠️</div>
-                            <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">통신 지연 (Connection Failed)</h4>
+                            <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">서버 응답 지연 (Connection Failed)</h4>
                             <p class="text-gray-500 font-medium text-[11px] mb-4">${err.message}</p>
                             <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">데이터 다시 불러오기</button>
                         </td>
                     </tr>
                 `);
-                Y2C_AuthEngine.showToast("서버와 통신할 수 없습니다.", "error");
             }
         }
 
@@ -1020,7 +1034,6 @@
             let html = "";
             const reversedOrders = [...AppState.hqOrders].reverse();
             
-            // Chunked Processing is overkill for typical HQ orders (usually <100), but standard reaction is good.
             reversedOrders.forEach(order => {
                 const st = String(order.status).toUpperCase();
                 let badgeClass = "status-badge status-pending"; let icon = "⏳";
@@ -1070,7 +1083,7 @@
         }
 
         // ==========================================
-        // 🛒 조달 발주 카트 모달 (모바일 스크롤 락 방어)
+        // 🛒 조달 발주 (HQ PROCUREMENT) 카트 모달 (모달 록다운)
         // ==========================================
         const modal = document.getElementById('itemSelectionModal');
         const modalPanel = document.getElementById('itemModalPanel');
@@ -1450,7 +1463,7 @@
             }, () => {
                 window.currentExcelPreviewData = displayRows;
                 renderAdvancedExcelPreviewFast();
-            }, 100); // 100행씩 끊어서 UI 프리징 방지
+            }, 100); 
         }
 
         window.renderAdvancedExcelPreviewFast = function() {
@@ -1460,7 +1473,6 @@
             const targetRegion = inboundRegionSelector.value.trim().replace("Hub: ", ""); 
             let tempUpdates = {}; 
 
-            // 비동기 청크 기반 렌더링
             Y2C_Accelerator.processInChunks(window.currentExcelPreviewData, (row, idx) => {
                 let trClass = ""; let statusHtml = ""; let hqCodeHtml = ""; let priceHtml = "-";
 
@@ -1472,7 +1484,7 @@
                             <button type="button" onclick="ignoreExcelRow(${idx})" class="text-[9px] text-gray-500 hover:text-[#E3000F] font-bold underline font-inter transition-colors">Ignore Row</button>
                         </div>`;
                     
-                    let selectOptions = `<option value="" disabled selected>치환할 품목 선택</option>`;
+                    let selectOptions = `<option value="" disabled selected>치환할 마스터 품목 선택</option>`;
                     AppState.catalogItems.forEach(cat => { selectOptions += `<option value="${cat.code}">[${cat.code}] ${Y2C_AuthEngine.escapeHtml(cat.name)}</option>`; });
                     hqCodeHtml = `<select onchange="resolveExcelMapping(${idx}, this.value)" class="w-full text-[11px] font-bold border border-red-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-[#E3000F]/20 bg-white text-[#E3000F] cursor-pointer shadow-sm font-inter">${selectOptions}</select>`;
                     
@@ -1555,9 +1567,9 @@
                         }
                     }
 
-                    document.getElementById('excelMetaText').innerText = `Processed ${window.currentExcelPreviewData.length} unique aggregated rows.`;
+                    document.getElementById('excelMetaText').innerText = `Processed ${window.currentExcelPreviewData.length} unique aggregated rows. Ready to commit.`;
                 });
-            }, 50); // 50행 단위로 청크 처리하여 테이블 렌더링 부하 최소화
+            }, 50); 
         }
 
         window.resolveExcelMapping = function(idx, newHqCode) {
@@ -1620,7 +1632,6 @@
         
         fetchMasterData().then(() => fetchInitialData());
     });
-
     </script>
 </body>
 </html>
