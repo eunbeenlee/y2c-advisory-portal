@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V42.05 Enterprise Admin ULTIMATE - Global Shipping Tracking Fusion 🌟
-  [NEW CORE] Global Logistics Tracker: Integrated EMS, Ocean, Air Cargo Tracking & Status Updater Modal.
-  [CRITICAL FIX 1] Excel AI Auto-Mapper: Preserved Price/단가 columns auto-extraction & Vendor Price Override.
-  [CRITICAL FIX 2] Bound strictly to Y2C_AuthEngine (auth.js V41.99+) for secure offline-queued dispatch.
-  [CRITICAL FIX 3] Payload Injection: Injects `shippingMethod` & `trackingNo` into backend routes.
-  [RESTORED] Franchise DB, ERP Sales, and HQ Procurement engines 100% loss-less preserved.
+  🌟 V47.00 Enterprise Admin HYPER-GAP ULTIMATE - Absolute UI/UX Lockdown 🌟
+  [CRITICAL FIX 1] iOS Auto-Zoom Prevented: All premium-inputs standardized to 16px minimum to stop aggressive Safari viewport zooming.
+  [CRITICAL FIX 2] Modal Scroll Bleeding Blocked: Injected dynamic 'overflow: hidden' to body when modals are active.
+  [CRITICAL FIX 3] Dynamic Viewport (dvh) & Safe Area: Replaced 100vh with 100dvh + env(safe-area-inset-bottom) to prevent Mobile Home Bar collision.
+  [CRITICAL FIX 4] Table White-Space Wrap Prevented: Enforced 'whitespace-nowrap' in critical table cells to prevent data squishing on small screens.
+  [PRESERVED] Global Shipping Tracking, Excel Price Tracker, ERP Sales, Franchise DB (100% Loss-less).
+  [ARCHITECTURE] Bound strictly to Y2C_AuthEngine (auth.js V46.50+).
 -->
 <html lang="en">
 <head>
@@ -100,7 +101,8 @@
     <style>
         :root { --sinjeon-pink: #E3000F; --premium-charcoal: #111827; --bg-light: #F8F9FA; --input-bg: #f8fafc; }
         
-        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transform: translateZ(0); }
+        /* 🚨 [UI 록다운] 100dvh 및 Safe-Area 융합으로 스크롤 하단 짤림 방지 */
+        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100dvh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transform: translateZ(0); }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
@@ -126,7 +128,8 @@
         .sub-nav-btn:hover:not(.active) { color: var(--premium-charcoal); background: #f1f5f9; }
         .sub-nav-btn.active { color: #ffffff; background: var(--premium-charcoal); box-shadow: 0 4px 10px rgba(17, 24, 39, 0.15); }
 
-        .premium-input { appearance: none; -webkit-appearance: none; background: #ffffff; border: 1.5px solid #e2e8f0; color: var(--premium-charcoal); font-size: 14px !important; font-weight: 700; transition: all 0.3s ease; border-radius: 0.75rem; width: 100%; padding: 12px 16px; }
+        /* 🚨 [UI 록다운] font-size: 16px !important 적용으로 iOS Safari 강제 줌인 현상 완벽 방어 */
+        .premium-input { appearance: none; -webkit-appearance: none; background: #ffffff; border: 1.5px solid #e2e8f0; color: var(--premium-charcoal); font-size: 16px !important; font-weight: 700; transition: all 0.3s ease; border-radius: 0.75rem; width: 100%; padding: 12px 16px; }
         .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
         .premium-input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
 
@@ -135,7 +138,7 @@
         .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
         .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
 
-        .glass-lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2rem; opacity: 0; transition: opacity 0.5s ease; }
+        .glass-lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2rem; opacity: 0; transition: opacity 0.5s ease; }
         .glass-lock-overlay.show { opacity: 1; }
         .lock-icon-wrapper { width: 80px; height: 80px; background: linear-gradient(135deg, #111827, #374151); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.2); color: #D4AF37; margin-bottom: 24px; }
 
@@ -144,8 +147,9 @@
 
         .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
 
-        .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 24px; border-bottom: 2px solid #e2e8f0; }
-        .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; }
+        /* 🚨 [UI 록다운] whitespace-nowrap 적용으로 모바일에서 데이터 찌그러짐 방지 */
+        .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 24px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+        .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; white-space: nowrap; }
         .enterprise-table tr:hover td { background: #f8fafc; }
         .enterprise-table tr.bg-red-50:hover td { background: #fee2e2; }
 
@@ -156,9 +160,9 @@
         .status-completed { background: #111827; color: #ffffff; border: 1px solid #374151; }
         .status-canceled { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
 
-        .tracking-badge { display: inline-flex; items-center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-family: 'JetBrains Mono', monospace; }
+        .tracking-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-family: 'JetBrains Mono', monospace; }
 
-        #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+        #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
         @media print { .no-print { display: none !important; } body { background: white !important; } }
     </style>
 </head>
@@ -213,7 +217,8 @@
         </div>
     </header>
 
-    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
+    <!-- 🚨 [UI 록다운] env(safe-area-inset-bottom) 적용으로 모바일 네비게이션이 노치/홈바에 가려지지 않게 보호 -->
+    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Item Catalog</a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Recipe Center</a>
@@ -248,7 +253,7 @@
     </script>
 
     <!-- 📊 메인 컨텐츠 영역 -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative">
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative pb-24">
         
         <!-- 🌟 서브 네비게이션 -->
         <nav class="flex flex-wrap items-center justify-start gap-2 mb-10 border-b border-gray-200 pb-2 no-print" id="adminSubNav">
@@ -303,11 +308,11 @@
                 <div class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-50 p-6 rounded-[1.5rem] border border-gray-200">
                     <div class="w-full md:w-48">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
-                        <select id="salesYearSelector" class="premium-input bg-white"></select>
+                        <select id="salesYearSelector" class="premium-input bg-white appearance-none"></select>
                     </div>
                     <div class="w-full md:w-64">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
-                        <select id="salesClientSelector" class="premium-input bg-white">
+                        <select id="salesClientSelector" class="premium-input bg-white appearance-none">
                             <option value="">-- Loading --</option>
                         </select>
                     </div>
@@ -411,7 +416,6 @@
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Global logistics procurement status, digital cart, and EMS/Ocean freight tracking.</p>
             </header>
 
-            <!-- 🚨 조달 입력 폼 확장 (물류 방식 및 트래킹 번호 추가) -->
             <div class="bg-white rounded-[2rem] p-6 sm:p-8 shadow-premium-card border border-gray-100 mb-10 no-print">
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end mb-4">
                     
@@ -498,13 +502,14 @@
 
     </main>
 
-    <!-- 🌟 [모달 1] 아이템 선택 팝업 -->
+    <!-- 🌟 [모달 1] 아이템 선택 팝업 (Z-index 및 Scroll Bleed 방어) -->
     <div id="itemSelectionModal" class="fixed inset-0 z-[100000] hidden items-center justify-center px-4 no-print">
+        <!-- Scroll lock is handled in JS -->
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="itemModalBackdrop"></div>
-        <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-[2rem] shadow-2xl relative z-10 flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="itemModalPanel">
+        <div class="bg-white w-full max-w-4xl max-h-[85dvh] rounded-[2rem] shadow-2xl relative z-10 flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="itemModalPanel">
             <header class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                 <h3 class="font-montserrat font-black text-xl text-[var(--premium-charcoal)]">Select Items</h3>
-                <button id="btnCloseModal" class="text-gray-400 hover:text-[#E3000F] transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="btnCloseModal" class="text-gray-400 hover:text-[#E3000F] transition-colors focus:outline-none"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </header>
             <div class="p-8 overflow-y-auto hide-scrollbar flex-grow bg-white relative">
                 <div id="modalItemsList" class="space-y-4">
@@ -514,12 +519,12 @@
             </div>
             <footer class="px-8 py-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
                 <span class="text-xs font-bold text-gray-500 font-inter">Total Selected: <span id="modalSelectedCount" class="text-[#E3000F] font-black">0</span></span>
-                <button id="btnConfirmModal" class="btn-solid-red px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest">Confirm Selection</button>
+                <button id="btnConfirmModal" class="btn-solid-red px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest focus:outline-none">Confirm Selection</button>
             </footer>
         </div>
     </div>
 
-    <!-- 🌟 [모달 2] 물류 상태(Status) 업데이트 팝업 -->
+    <!-- 🌟 [모달 2] 물류 상태(Status) 업데이트 팝업 (Z-index 및 Scroll Bleed 방어) -->
     <div id="statusUpdateModal" class="fixed inset-0 z-[100000] hidden items-center justify-center px-4 no-print">
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="statusModalBackdrop" onclick="closeStatusUpdateModal()"></div>
         <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl relative z-10 flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="statusModalPanel">
@@ -574,7 +579,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V42.05 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V47.00 HYPER-GAP</span>
                 </div>
             </div>
         </div>
@@ -588,7 +593,8 @@
 
     <script>
     /**
-     * 🌟 V42.05 Enterprise Admin Quad-Core Integration Logic
+     * 🌟 V47.00 Enterprise Admin Quad-Core Integration Logic (Hyper-Gap Edition)
+     * [CRITICAL FIX] Modal Scroll Locking added to prevent Scroll Bleeding on mobile devices.
      * [CORE 1] Franchise DB Manager (Master Only)
      * [CORE 2] ERP Sales Terminal (Master Only)
      * [CORE 3] AI Auto-Mapper & PRICE TRACKER Excel Engine
@@ -966,7 +972,7 @@
             }
         }
 
-        // 🚨 [NEW CORE] 글로벌 트래킹 정보 렌더링 포함
+        // 🚨 글로벌 트래킹 정보 렌더링 포함
         function renderHqOrders() {
             const tbody = document.getElementById('hqOrdersTableBody');
             if(!tbody) return;
@@ -1037,13 +1043,16 @@
         const btnClose = document.getElementById('btnCloseModal');
         const btnConfirm = document.getElementById('btnConfirmModal');
 
+        // 🚨 [CRITICAL FIX 2] Scroll Bleeding 방지 (body overflow hidden)
         function openModal() {
+            document.body.style.overflow = 'hidden';
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modalPanel.classList.remove('scale-95', 'opacity-0'); modalPanel.classList.add('scale-100', 'opacity-100'); }, 10);
             renderModalItems();
         }
 
         function closeModal() {
+            document.body.style.overflow = '';
             modalPanel.classList.remove('scale-100', 'opacity-100'); modalPanel.classList.add('scale-95', 'opacity-0');
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
@@ -1156,6 +1165,8 @@
         const statusModalPanel = document.getElementById('statusModalPanel');
         
         window.openStatusUpdateModal = function(orderId, currentStatus, currentMethod, currentTracking) {
+            document.body.style.overflow = 'hidden'; // Scroll lock
+            
             document.getElementById('statusModalOrderId').value = orderId;
             document.getElementById('statusModalStatus').value = currentStatus;
             document.getElementById('statusModalMethod').value = currentMethod || "NONE";
@@ -1166,6 +1177,8 @@
         };
 
         window.closeStatusUpdateModal = function() {
+            document.body.style.overflow = ''; // Scroll unlock
+            
             statusModalPanel.classList.remove('scale-100', 'opacity-100'); statusModalPanel.classList.add('scale-95', 'opacity-0');
             setTimeout(() => { statusModal.classList.add('hidden'); statusModal.classList.remove('flex'); }, 300);
         };
@@ -1352,7 +1365,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // 🚨 [CRITICAL FIX 1] 엑셀에서 단가(Price) 자동 추출 
         function processAndMapExcelData(jsonArray) {
             let aggregatedData = {}; 
             
@@ -1361,7 +1373,7 @@
                 const qtyKey = findBestKey(row, ['QTY', 'QUANTITY', '수량', 'STOCK']);
                 const expKey = findBestKey(row, ['EXP', '유통기한', 'DATE']);
                 const nameKey = findBestKey(row, ['PRODUCT', 'NAME', '품명', '제품']);
-                const priceKey = findBestKey(row, ['PRICE', 'UNITPRICE', '단가', '가격', 'COST']); // 가격 파싱 추가
+                const priceKey = findBestKey(row, ['PRICE', 'UNITPRICE', '단가', '가격', 'COST']);
 
                 let rawCode = codeKey ? String(row[codeKey]).trim().toUpperCase() : "";
                 let qtyStr = qtyKey ? String(row[qtyKey]).replace(/[^0-9]/g, '') : "0";
@@ -1377,7 +1389,6 @@
                         aggregatedData[aggKey] = { rawCode: rawCode, rawName: rawName, exp: exp, qty: 0, price: rawPrice };
                     }
                     aggregatedData[aggKey].qty += qty;
-                    // 최신 단가 덮어쓰기
                     if(rawPrice !== null && !isNaN(rawPrice)) aggregatedData[aggKey].price = rawPrice;
                 }
             });
@@ -1410,7 +1421,6 @@
             renderAdvancedExcelPreview();
         }
 
-        // 🚨 [CRITICAL FIX 2] 단가 변동 감지 UI 렌더링
         window.renderAdvancedExcelPreview = function() {
             const tbody = document.getElementById('excelTbody'); 
             const container = document.getElementById('excelPreviewContainer');
@@ -1454,12 +1464,10 @@
                         hqCodeHtml = `<span class="font-mono font-bold text-emerald-700 text-[12px] bg-emerald-50 px-2 py-1 border border-emerald-100 rounded">${row.hqCode}</span>`;
                     }
                     
-                    // 🌟 단가(Price) 변동 비교
                     const masterItem = AppState.catalogItems.find(c => c.code === row.hqCode);
                     if (masterItem) {
                         const mPrice = masterItem.price || 0;
                         if (row.price !== null && !isNaN(row.price) && row.price > 0 && Math.abs(row.price - mPrice) > 0.01) {
-                            // 가격이 변경됨
                             const isIncrease = row.price > mPrice;
                             const diffColor = isIncrease ? "text-[#E3000F]" : "text-blue-600";
                             priceHtml = `
@@ -1469,16 +1477,13 @@
                                     <span class="text-[8px] font-bold ${diffColor} bg-${isIncrease ? 'red' : 'blue'}-50 px-1 rounded mt-0.5">PRICE CHANGED</span>
                                 </div>`;
                         } else {
-                            // 가격 동일하거나 엑셀에 없음
                             priceHtml = `<span class="text-[13px] font-bold text-gray-600">$${mPrice.toFixed(2)}</span>`;
                         }
                     }
                     
-                    // 페이로드 구조체 생성
                     if (!tempUpdates[row.hqCode]) {
                         tempUpdates[row.hqCode] = { code: row.hqCode, stockBreakdown: {}, expBreakdown: {} };
                         tempUpdates[row.hqCode].stockBreakdown[targetRegion] = 0;
-                        // 🚨 [CRITICAL FIX 3] 가격 변경 시 페이로드에 새 단가 인젝션
                         if (row.price !== null && !isNaN(row.price) && row.price > 0) {
                              if(masterItem && Math.abs(row.price - masterItem.price) > 0.01) {
                                  tempUpdates[row.hqCode].newPrice = row.price;
@@ -1564,7 +1569,6 @@
                         document.getElementById('excelPreviewContainer').classList.add('hidden'); document.getElementById('dropZone').classList.remove('hidden');
                         if(fileInput) fileInput.value = ''; parsedExcelData = null; pendingStockUpdates = [];
                         
-                        // 백그라운드 데이터 갱신
                         fetchInitialData();
                     }
                 } catch (err) {
