@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V41.10 Enterprise Admin ULTIMATE - Vendor Price Override & Tracking Fusion 🌟
-  [CRITICAL FIX 1] Excel AI Auto-Mapper: Now scans and dynamically extracts "Price/단가" columns.
-  [CRITICAL FIX 2] Price Change Detection UI: Visually warns if the uploaded vendor price differs from Master DB.
-  [CRITICAL FIX 3] Payload Injection: Injects `newPrice` into the `update_stock` payload for backend dynamic routing.
-  [RESTORED] Franchise DB, ERP Sales, and HQ Procurement engines 100% preserved.
+  🌟 V45.00 Enterprise Recipe Center HYPER-GAP ULTIMATE 🌟
+  [CRITICAL FIX 1] Strict Auth Routing: Vendors are immediately kicked out at the Pre-routing stage.
+  [CRITICAL FIX 2] Dynamic Content Parsing: Automatically parses newline characters from Google Sheets into beautiful UI lists and numbered steps.
+  [ENTERPRISE UI] Glassmorphism Modal Viewer: High-end overlay with backdrop-blur for reading recipes without leaving the page.
+  [ENTERPRISE UI] Secure Print Engine: @media print CSS totally isolates the recipe modal for clean, watermarked A4 kitchen printing.
+  [ARCHITECTURE] Bound strictly to Y2C_AuthEngine (auth.js V43.50+) for secure data fetching and error transparency.
 -->
 <html lang="en">
 <head>
@@ -16,26 +17,28 @@
     <meta name="theme-color" content="#F8F9FA">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="description" content="SINJEON CANADA Enterprise Master DB | Operated by Y2C Holdings">
+    <meta name="description" content="SINJEON CANADA Enterprise Recipe Center | Operated by Y2C Holdings">
     <meta name="robots" content="noindex, nofollow">
     
-    <title>Master DB & Procurement | Y2C Portal</title>
+    <title>Recipe Center | Y2C Portal</title>
     
     <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    
+    <link rel="prefetch" href="dashboard.html" as="document">
+    <link rel="prefetch" href="items.html" as="document">
+    <link rel="prefetch" href="admin.html" as="document">
+    <link rel="prefetch" href="invoice.html" as="document">
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FOUC Preventer -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -47,6 +50,7 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         }, 800);
+
         window.addEventListener('load', function() {
             clearTimeout(window._foucTimer);
             document.documentElement.classList.remove('fouc-lock');
@@ -54,8 +58,11 @@
             document.documentElement.style.visibility = 'visible';
             if(document.body) document.body.style.opacity = '1';
         });
+        window.addEventListener('touchstart', function() {}, {passive: true});
+        window.addEventListener('wheel', function() {}, {passive: true});
     </script>
 
+    <!-- Tailwind CSS Engine -->
     <script>
         (function() {
             var originalWarn = console.warn;
@@ -74,40 +81,48 @@
                     fontFamily: { 
                         sans: ['Inter', 'sans-serif'], 
                         montserrat: ['Montserrat', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
+                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']
                     },
                     colors: { 
-                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', border: '#e2e8f0', bg: '#F8F9FA' }
+                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', bg: '#F8F9FA' }
                     },
                     animation: {
                         'shimmer': 'shimmer 2s linear infinite',
-                        'lock-shake': 'lockShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both'
+                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'modal-pop': 'modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
                     },
                     keyframes: {
                         shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
-                        lockShake: { '0%, 100%': { transform: 'translateX(0)' }, '20%, 60%': { transform: 'translateX(-4px)' }, '40%, 80%': { transform: 'translateX(4px)' } }
+                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
+                        modalPop: { '0%': { transform: 'scale(0.95)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } }
                     },
                     boxShadow: {
-                        'premium-card': '0 35px 60px -15px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0,0,0,0.02)',
-                        'glass-panel': '0 25px 50px -12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.2)',
+                        'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
+                        'modal': '0 35px 60px -15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0,0,0,0.05)'
                     }
                 }
             }
         }
     </script>
 
+    <!-- Hyper-gap Enterprise Styling -->
     <style>
-        :root { --sinjeon-pink: #E3000F; --premium-charcoal: #111827; --bg-light: #F8F9FA; --input-bg: #f8fafc; }
+        :root {
+            --sinjeon-pink: #E3000F; 
+            --sinjeon-pink-dark: #B9000C;
+            --premium-charcoal: #111827; 
+            --bg-light: #F8F9FA;
+        }
         
-        html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transform: translateZ(0); }
-        .font-montserrat { font-family: 'Montserrat', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-        .tab-section { content-visibility: auto; contain-intrinsic-size: auto 800px; display: none; opacity: 0; transition: opacity 0.4s ease; }
-        .tab-section.active { display: block; opacity: 1; }
-
-        .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
-        @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
+        html, body { 
+            overscroll-behavior-y: none; 
+            background-color: var(--bg-light) !important; 
+            color: var(--premium-charcoal); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; padding: 0; min-height: 100vh;
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
+            transform: translateZ(0); 
+        }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -116,70 +131,91 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        .btn-solid-red {
+            background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 6px -1px rgba(227, 0, 15, 0.2);
+        }
+        .btn-solid-red:hover:not(:disabled) { background-color: var(--sinjeon-pink-dark); transform: translateY(-1px); box-shadow: 0 8px 15px -3px rgba(227, 0, 15, 0.3); }
+        .btn-solid-red:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: none; }
+
+        .premium-input {
+            appearance: none; -webkit-appearance: none; background: #ffffff; border: 1.5px solid #e2e8f0;
+            color: var(--premium-charcoal); font-size: 14px !important; font-weight: 700; transition: all 0.3s ease;
+            border-radius: 0.75rem; width: 100%; padding: 12px 16px;
+        }
+        .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
+
         .nav-link { position: relative; color: #64748b; font-weight: 700; transition: color 0.2s ease; height: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; white-space: nowrap; }
         .nav-link:hover { color: var(--premium-charcoal); }
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
-        .sub-nav-btn { position: relative; color: #64748b; font-weight: 800; font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 0.1em; padding: 12px 24px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 9999px; text-transform: uppercase; }
-        .sub-nav-btn:hover:not(.active) { color: var(--premium-charcoal); background: #f1f5f9; }
-        .sub-nav-btn.active { color: #ffffff; background: var(--premium-charcoal); box-shadow: 0 4px 10px rgba(17, 24, 39, 0.15); }
-
-        .premium-input { appearance: none; -webkit-appearance: none; background: #ffffff; border: 1.5px solid #e2e8f0; color: var(--premium-charcoal); font-size: 14px !important; font-weight: 700; transition: all 0.3s ease; border-radius: 0.75rem; width: 100%; padding: 12px 16px; }
-        .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
-        .premium-input:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
-
-        .btn-solid-red { background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(227, 0, 15, 0.2); }
-        .btn-solid-red:hover:not(:disabled) { background-color: #B9000C; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(227, 0, 15, 0.3); }
-        .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
-        .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
-
-        .glass-lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2rem; opacity: 0; transition: opacity 0.5s ease; }
-        .glass-lock-overlay.show { opacity: 1; }
-        .lock-icon-wrapper { width: 80px; height: 80px; background: linear-gradient(135deg, #111827, #374151); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.2); color: #D4AF37; margin-bottom: 24px; }
-
-        .drop-zone { border: 2px dashed #cbd5e1; border-radius: 1.5rem; background: #f8fafc; transition: all 0.3s ease; cursor: pointer; }
-        .drop-zone.dragover { border-color: var(--sinjeon-pink); background: #fef2f2; }
-
+        .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
+        @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
         .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
-
-        .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 24px; border-bottom: 2px solid #e2e8f0; }
-        .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; }
-        .enterprise-table tr:hover td { background: #f8fafc; }
-        .enterprise-table tr.bg-red-50:hover td { background: #fee2e2; }
-
-        .status-badge { padding: 4px 10px; border-radius: 9999px; font-size: 10px; font-weight: 900; font-family: 'Montserrat', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; }
-        .status-pending { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
-        .status-shipped { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
-        .status-arrived { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce3; }
-        .status-completed { background: #111827; color: #ffffff; border: 1px solid #374151; }
-        .status-canceled { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
-
+        
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
-        @media print { .no-print { display: none !important; } body { background: white !important; } }
+
+        /* Recipe Card Hover Effect */
+        .recipe-card { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; border: 1px solid #f1f5f9; }
+        .recipe-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08); border-color: #fee2e2; }
+
+        /* Custom Scrollbar for Modal Content */
+        .modal-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Step-by-step numbering */
+        .step-number { width: 24px; height: 24px; border-radius: 50%; background-color: #111827; color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+
+        /* 🚨 Secure Print Engine */
+        @media print {
+            body { background: white !important; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body * { visibility: hidden; }
+            #recipeModalPanel, #recipeModalPanel * { visibility: visible; }
+            #recipeModalPanel { position: absolute; left: 0; top: 0; width: 100%; max-width: 100%; margin: 0; padding: 20px; box-shadow: none !important; border: none !important; transform: none !important; }
+            .no-print { display: none !important; }
+            .modal-scroll { overflow: visible !important; max-height: none !important; }
+            
+            /* Watermark for Printed Recipe */
+            #recipeModalPanel::after {
+                content: 'STRICTLY CONFIDENTIAL - Y2C HOLDINGS';
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
+                font-size: 60px; font-family: 'Montserrat', sans-serif; font-weight: 900;
+                color: rgba(0, 0, 0, 0.04); white-space: nowrap; pointer-events: none; z-index: -1;
+            }
+        }
     </style>
 </head>
 
-<body id="mainBody" class="flex flex-col min-h-screen selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
-
-    <!-- 🚨 보안 축출 (Pre-routing) -->
+<body id="mainBody" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
+    
+    <!-- 🚨 1단계: 보안 축출 (Pre-routing - VENDOR Lockout) -->
     <script>
         (function() {
-            var _inlineRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-            var _inlineToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
-            window.__INITIAL_ROLE__ = _inlineRole;
+            var _sysRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _sysToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
+            window.__INITIAL_ROLE__ = _sysRole;
 
-            if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
+            if (!_sysRole || _sysRole === "NULL" || !_sysToken || _sysToken.length < 10) {
                 window.location.replace("index.html"); return;
             }
-            if (_inlineRole !== 'MASTER' && _inlineRole !== 'VENDOR') {
-                 window.location.replace("index.html"); return;
+            // 🚨 Vendor accounts cannot access confidential recipes
+            if (_sysRole === "VENDOR") {
+                window.location.replace("admin.html"); return;
             }
         })();
     </script>
     
+    <noscript>
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+            <span>JavaScript is Disabled</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
+        </div>
+    </noscript>
+
+    <!-- 🌟 프리미엄 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
+
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="h-9 lg:h-11 w-auto object-contain drop-shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300">
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
@@ -191,34 +227,35 @@
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Dashboard</a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden">Master DB</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Master DB</a>
                 <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Advisory Invoice</a>
             </nav>
 
             <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <div class="flex items-center space-x-2 sm:space-x-3 bg-white py-1.5 px-3 rounded-full border border-gray-200 shadow-sm shrink-0">
-                    <span class="flex h-2 w-2 relative hidden sm:flex">
+                    <span class="flex h-2 w-2 relative hidden sm:flex shrink-0">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none">LOGOUT</button>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none">LOGOUT</button>
                 </div>
             </div>
+
         </div>
     </header>
 
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Item Catalog</a>
-        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Recipe Center</a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap">Master DB</a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap">Recipe Center</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Master DB</a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Advisory Invoice</a>
     </div>
 
-    <!-- 🚨 권한 기반 라우팅 해제 -->
+    <!-- 🚨 권한 기반 라우팅 해제 (모바일 대응) -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -245,249 +282,116 @@
     </script>
 
     <!-- 📊 메인 컨텐츠 영역 -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative">
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative no-print">
         
-        <!-- 🌟 서브 네비게이션 -->
-        <nav class="flex flex-wrap items-center justify-start gap-2 mb-10 border-b border-gray-200 pb-2 no-print" id="adminSubNav">
-            <button class="sub-nav-btn active" data-target="tab-franchise">FRANCHISE DB</button>
-            <button class="sub-nav-btn" data-target="tab-sales">ERP SALES</button>
-            <button class="sub-nav-btn" data-target="tab-excel">INBOUND (EXCEL)</button>
-            <button class="sub-nav-btn" data-target="tab-procurement">HQ PROCUREMENT</button>
-        </nav>
-
-        <!-- ========================================== -->
-        <!-- 🔒 SECTION 1: FRANCHISE DB -->
-        <!-- ========================================== -->
-        <section id="tab-franchise" class="tab-section active relative rounded-3xl overflow-hidden bg-white shadow-premium-card min-h-[600px]">
-            <div id="lock-franchise" class="glass-lock-overlay hidden">
-                <div class="lock-icon-wrapper">
-                    <svg class="w-10 h-10 animate-lock-shake" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                </div>
-                <h3 class="font-montserrat font-black text-2xl text-[var(--premium-charcoal)] mb-2">ACCESS DENIED</h3>
-                <p class="font-inter text-gray-500 font-bold text-sm tracking-wide">Requires Master Clearance Level</p>
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+            <div>
+                <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
+                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">👨‍🍳</span> Standard Recipe Center
+                    <span class="px-2 py-1 bg-red-100 text-[#E3000F] border border-red-200 text-[9px] font-black rounded uppercase tracking-widest align-middle ml-2">Strictly Confidential</span>
+                </h2>
+                <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter">
+                    Official culinary guidelines and preparation instructions. Do not distribute.
+                </p>
             </div>
             
-            <div class="p-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2"><span class="opacity-80">🏢</span> Franchise Master DB</h2>
-                <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Manage partner details, billing logic, and system access.</p>
-                <div class="overflow-x-auto border border-gray-200 rounded-xl">
-                    <table class="w-full text-left enterprise-table" id="franchiseTable">
-                        <thead><tr><th>Client Name</th><th class="w-24 text-center">Hub(State)</th><th>City</th><th>Full Address</th><th>Manager</th><th>Email</th><th>Business ID</th><th class="w-28 text-center">Action</th></tr></thead>
-                        <tbody id="masterTableBody">
-                            <tr><td colspan="8" class="text-center py-10"><div class="shimmer-bg h-10 w-full rounded"></div></td></tr>
-                        </tbody>
-                    </table>
+            <!-- 🌟 Search & Filter Controls -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div class="relative w-full sm:w-64">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="recipeSearchInput" class="premium-input bg-white pl-10" placeholder="Search recipes..." autocomplete="off">
                 </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- 🔒 SECTION 2: ERP SALES -->
-        <!-- ========================================== -->
-        <section id="tab-sales" class="tab-section relative rounded-3xl overflow-hidden bg-white shadow-premium-card min-h-[600px]">
-            <div id="lock-sales" class="glass-lock-overlay hidden">
-                <div class="lock-icon-wrapper">
-                    <svg class="w-10 h-10 animate-lock-shake" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                </div>
-                <h3 class="font-montserrat font-black text-2xl text-[var(--premium-charcoal)] mb-2">ACCESS DENIED</h3>
-                <p class="font-inter text-gray-500 font-bold text-sm tracking-wide">Requires Master Clearance Level</p>
-            </div>
-            
-            <div class="p-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2"><span class="opacity-80">📊</span> ERP Sales Terminal</h2>
-                <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Global financial data entry and tax synchronization.</p>
-                
-                <div class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-50 p-6 rounded-[1.5rem] border border-gray-200">
-                    <div class="w-full md:w-48">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
-                        <select id="salesYearSelector" class="premium-input bg-white"></select>
-                    </div>
-                    <div class="w-full md:w-64">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
-                        <select id="salesClientSelector" class="premium-input bg-white">
-                            <option value="">-- Loading --</option>
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="button" onclick="loadSalesGrid()" class="btn-solid-red h-[46px] px-8 rounded-xl font-black text-[12px] uppercase tracking-widest focus:outline-none">Load Ledger</button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Sales</span>
-                        <div class="text-2xl font-black text-[#111827] mt-1 font-mono" id="salesKpiTotal">CAD $0.00</div>
-                    </div>
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                        <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">POS (Takeout)</span>
-                        <div class="text-xl font-bold text-gray-700 mt-1 font-mono" id="salesKpiPos">CAD $0.00</div>
-                    </div>
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                        <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Delivery</span>
-                        <div class="text-xl font-bold text-gray-700 mt-1 font-mono" id="salesKpiDelivery">CAD $0.00</div>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto border border-gray-200 rounded-xl mb-6">
-                    <table class="w-full text-left enterprise-table" id="salesTable">
-                        <thead><tr><th>Month</th><th class="text-center w-40">POS Sales</th><th class="text-center w-40">Delivery Sales</th><th class="text-right">Total</th><th class="text-center">Status</th></tr></thead>
-                        <tbody id="salesGridBody">
-                            <tr><td colspan="5" class="text-center py-16 text-gray-400 font-bold text-sm">연도와 가맹점을 선택하고 'LOAD LEDGER'를 클릭하십시오.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="flex justify-end">
-                    <button type="button" onclick="saveSalesGridData()" id="saveAllSalesBtn" class="btn-solid-red px-10 py-4 rounded-xl font-black text-[13px] uppercase tracking-widest shadow-md">Synchronize Data</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- 📦 SECTION 3: INBOUND (EXCEL) - PRICE TRACKER -->
-        <!-- ========================================== -->
-        <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-8 relative">
-            <header class="mb-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3"><span class="opacity-80">📥</span> Mass Inbound (Excel)</h2>
-                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Upload vendor files. Auto-tracks price overrides & promotions.</p>
-            </header>
-            
-            <div class="mb-6 flex flex-col md:flex-row gap-4 items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm relative z-20">
-                <label class="font-black text-gray-500 uppercase tracking-widest text-[11px] shrink-0">1. Select Target Hub <span class="text-[#E3000F]">*</span></label>
-                <select id="inboundRegionSelector" class="premium-input bg-white cursor-pointer appearance-none text-[13px] font-bold w-full md:w-64">
-                    <option value="" disabled selected>Loading Authorized Hubs...</option>
-                </select>
-            </div>
-
-            <div id="dropZone" class="drop-zone flex flex-col items-center justify-center py-16 px-4 text-center mb-8 relative overflow-hidden group">
-                <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
-                <div class="w-16 h-16 bg-white shadow-sm border border-gray-200 rounded-full flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform">📄</div>
-                <h3 class="font-bold text-[15px] text-[var(--premium-charcoal)] mb-1">2. Drag & Drop Excel File</h3>
-                <p class="text-[12px] font-medium text-gray-400">Auto-detects Item, QTY, EXP, and Price columns (.xlsx)</p>
-            </div>
-
-            <div id="excelPreviewContainer" class="hidden">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-4">
-                    <div>
-                        <h4 class="font-black text-lg text-[var(--premium-charcoal)] flex items-center gap-2">
-                            Data Preview <span id="excelErrorBadge" class="hidden px-2 py-0.5 bg-red-100 text-[#E3000F] text-[10px] rounded font-black tracking-widest border border-red-200">ERROR DETECTED</span>
-                        </h4>
-                        <p class="text-[11px] text-gray-500 font-bold mt-1" id="excelMetaText">Parsed 0 rows</p>
-                    </div>
-                    <button type="button" id="btnSyncExcel" class="btn-solid-red px-6 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        <span id="btnSyncExcelText">Commit to Master</span>
-                    </button>
-                </div>
-                <div class="overflow-x-auto border border-gray-200 rounded-xl max-h-[500px] overflow-y-auto">
-                    <table class="w-full text-left enterprise-table" id="excelTable">
-                        <thead class="sticky top-0 bg-[#f8fafc] z-10" id="excelThead">
-                            <tr>
-                                <th class="w-24 text-center border-r border-gray-200">Status</th>
-                                <th class="w-64 border-r border-gray-200">HQ Master Code</th>
-                                <th class="w-64">Product Name</th>
-                                <th class="w-32 text-center">Unit Price (CAD)</th>
-                                <th class="w-32 text-center">Exp. Date</th>
-                                <th class="w-24 text-center text-[#E3000F]">Inbound Qty</th>
-                            </tr>
-                        </thead>
-                        <tbody id="excelTbody" class="divide-y divide-gray-50"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- 🌐 SECTION 4: HQ PROCUREMENT -->
-        <!-- ========================================== -->
-        <section id="tab-procurement" class="tab-section">
-            <header class="mb-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3"><span class="opacity-80">🌐</span> HQ Procurement Console</h2>
-                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Global logistics procurement status, digital cart, and system health scan center.</p>
-            </header>
-
-            <div class="bg-white rounded-[2rem] p-6 sm:p-8 shadow-premium-card border border-gray-100 mb-10 no-print">
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                    
-                    <div class="md:col-span-3">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Vendor Name</label>
-                        <input type="text" id="procVendorName" class="premium-input bg-gray-50" placeholder="e.g. CJ Foods" autocomplete="off" disabled>
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Hub</label>
-                        <div class="relative">
-                            <select id="procHubSelect" class="premium-input bg-gray-50 cursor-pointer appearance-none text-[13px] font-bold">
-                                <option value="" disabled selected>Loading...</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
-                        </div>
-                    </div>
-
-                    <div class="md:col-span-5 relative">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Items & Quantities</label>
-                        <div class="relative cursor-pointer group" id="btnOpenItemModal">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-hover:text-var(--sinjeon-pink)"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>
-                            <input type="text" id="procItemsSummary" class="premium-input bg-gray-50 pl-11 cursor-pointer pointer-events-none text-ellipsis" placeholder="Click to Select Items & Qty..." readonly>
-                        </div>
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <button type="button" id="btnSubmitProcurement" class="btn-solid-red w-full h-[4.25rem] rounded-xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2">
-                            <span class="text-lg leading-none">+</span> ADD ORDER
-                        </button>
+                <div class="relative w-full sm:w-48">
+                    <select id="recipeCategoryFilter" class="premium-input bg-white cursor-pointer appearance-none">
+                        <option value="ALL">All Categories</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
             </div>
+        </header>
 
-            <div class="mb-4 flex items-center gap-3 px-2">
-                <span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span>
-                <h3 class="font-montserrat font-black text-[14px] text-[var(--premium-charcoal)] uppercase tracking-widest">Active Inbound Shipments</h3>
-            </div>
-            
-            <div class="bg-white border border-gray-200 rounded-[1.5rem] overflow-hidden shadow-sm relative min-h-[200px]">
-                <div class="overflow-x-auto hide-scrollbar">
-                    <table class="w-full text-left enterprise-table" id="hqOrdersTable">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="w-32">Order ID</th>
-                                <th class="w-32">Issue Date</th>
-                                <th class="w-48">Vendor</th>
-                                <th class="w-24">Hub</th>
-                                <th class="w-64">Items Summary</th>
-                                <th class="w-24 text-center">ETA</th>
-                                <th class="w-32 text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="hqOrdersTableBody" class="divide-y divide-gray-50">
-                            <tr><td colspan="7" class="p-0"><div class="h-16 shimmer-bg w-full border-b border-white"></div></td></tr>
-                            <tr><td colspan="7" class="p-0"><div class="h-16 shimmer-bg w-full border-b border-white opacity-80"></div></td></tr>
-                            <tr><td colspan="7" class="p-0"><div class="h-16 shimmer-bg w-full opacity-60"></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+        <!-- 🌟 레시피 그리드 (Grid Display) -->
+        <div id="recipeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Shimmer Loading -->
+            <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm h-48 shimmer-bg"></div>
+            <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm h-48 shimmer-bg"></div>
+            <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm h-48 shimmer-bg"></div>
+            <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm h-48 shimmer-bg"></div>
+        </div>
+
+        <div id="emptyState" class="hidden py-20 text-center border-2 border-dashed border-gray-200 rounded-3xl mt-6">
+            <span class="text-4xl block mb-4 opacity-50">🔍</span>
+            <h3 class="font-montserrat font-black text-xl text-gray-400">No Recipes Found</h3>
+            <p class="text-sm font-medium text-gray-400 mt-2">Try adjusting your search or category filter.</p>
+        </div>
 
     </main>
 
-    <!-- 🌟 [모달 UI] 아이템 선택 팝업 -->
-    <div id="itemSelectionModal" class="fixed inset-0 z-[100000] hidden items-center justify-center px-4 no-print">
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="itemModalBackdrop"></div>
-        <div class="bg-white w-full max-w-4xl max-h-[85vh] rounded-[2rem] shadow-2xl relative z-10 flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="itemModalPanel">
-            <header class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <h3 class="font-montserrat font-black text-xl text-[var(--premium-charcoal)]">Select Items</h3>
-                <button id="btnCloseModal" class="text-gray-400 hover:text-[#E3000F] transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            </header>
-            <div class="p-8 overflow-y-auto hide-scrollbar flex-grow bg-white relative">
-                <div id="modalItemsList" class="space-y-4">
-                    <div class="h-12 shimmer-bg rounded-lg w-full"></div>
-                    <div class="h-12 shimmer-bg rounded-lg w-full opacity-80"></div>
+    <!-- 🌟 [모달] 글래스모피즘(Glassmorphism) 하이엔드 레시피 뷰어 -->
+    <div id="recipeModal" class="fixed inset-0 z-[100000] hidden flex flex-col items-center justify-end sm:justify-center sm:px-4 pb-0 pt-10 sm:pt-4 no-print">
+        <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md transition-opacity duration-300 opacity-0" id="recipeModalBackdrop"></div>
+        
+        <div class="bg-white w-full sm:w-auto sm:min-w-[650px] sm:max-w-3xl max-h-[95vh] rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-modal relative z-10 flex flex-col overflow-hidden transform translate-y-full sm:translate-y-0 sm:scale-95 opacity-0 transition-all duration-400" id="recipeModalPanel">
+            
+            <!-- Modal Header -->
+            <header class="px-6 sm:px-10 py-6 border-b border-gray-100 flex justify-between items-start bg-gray-50/80 sticky top-0 z-20">
+                <div class="pr-8">
+                    <span id="modalCategoryBadge" class="inline-block px-3 py-1 bg-red-100 text-[#E3000F] text-[10px] font-black rounded-full uppercase tracking-widest border border-red-200 mb-3">CATEGORY</span>
+                    <h3 id="modalRecipeTitle" class="font-montserrat font-black text-2xl sm:text-3xl text-[var(--premium-charcoal)] leading-tight tracking-tight">Recipe Title</h3>
+                    <p class="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mt-2">Document ID: <span id="modalRecipeId">#0000</span></p>
                 </div>
+                <button id="btnCloseModal" class="text-gray-400 hover:text-[#E3000F] transition-colors bg-white p-2 rounded-full shadow-sm border border-gray-100 focus:outline-none shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </header>
+
+            <!-- Modal Content (Scrollable) -->
+            <div class="p-6 sm:p-10 overflow-y-auto modal-scroll flex-grow bg-white relative">
+                
+                <!-- Ingredients Section -->
+                <div class="mb-10">
+                    <h4 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] flex items-center gap-2 mb-4">
+                        <span class="opacity-80">🛒</span> Ingredients
+                    </h4>
+                    <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100">
+                        <ul id="modalIngredients" class="space-y-3 text-sm font-medium text-gray-700 font-inter list-none">
+                            <!-- Parsed via JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Instructions Section -->
+                <div class="mb-10">
+                    <h4 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] flex items-center gap-2 mb-5">
+                        <span class="opacity-80">🍳</span> Instructions
+                    </h4>
+                    <div id="modalInstructions" class="space-y-6">
+                        <!-- Parsed via JS -->
+                    </div>
+                </div>
+
+                <!-- Pro Tips Section -->
+                <div id="modalTipsContainer" class="hidden">
+                    <h4 class="font-montserrat font-black text-lg text-[#E3000F] flex items-center gap-2 mb-4">
+                        <span class="opacity-80">💡</span> Pro-Tips
+                    </h4>
+                    <div class="bg-red-50/50 rounded-2xl p-5 border border-red-100 border-l-4 border-l-[#E3000F]">
+                        <p id="modalTips" class="text-sm font-bold text-gray-800 leading-relaxed font-inter whitespace-pre-wrap"></p>
+                    </div>
+                </div>
+
             </div>
-            <footer class="px-8 py-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
-                <span class="text-xs font-bold text-gray-500 font-inter">Total Selected: <span id="modalSelectedCount" class="text-[#E3000F] font-black">0</span></span>
-                <button id="btnConfirmModal" class="btn-solid-red px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest">Confirm Selection</button>
+
+            <!-- Modal Footer -->
+            <footer class="px-6 sm:px-10 py-5 border-t border-gray-100 bg-gray-50 flex justify-between items-center no-print">
+                <span class="text-[9px] font-bold text-gray-400 tracking-widest uppercase font-mono hidden sm:inline-block">INTERNAL USE ONLY</span>
+                <button type="button" onclick="window.print()" class="btn-solid-red px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 w-full sm:w-auto justify-center focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> Print Recipe
+                </button>
             </footer>
         </div>
     </div>
@@ -497,19 +401,20 @@
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
-                    &copy; 2026 Y2C Holdings. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
+                    &copy; 2026 Y2C Holdings Inc. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
                 </p>
                 <div class="flex items-center gap-4">
                     <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V41.10 STABLE</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V45.00 HYPER-GAP</span>
                 </div>
             </div>
         </div>
     </footer>
 
+    <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
@@ -518,13 +423,12 @@
 
     <script>
     /**
-     * 🌟 V41.10 Enterprise Admin Quad-Core Integration Logic
-     * [CORE 1] Franchise DB Manager (Master Only)
-     * [CORE 2] ERP Sales Terminal (Master Only)
-     * [CORE 3] AI Auto-Mapper & PRICE TRACKER Excel Engine
-     * [CORE 4] Procurement Console (Global Logistics)
+     * 🌟 V45.00 Enterprise Recipe Center Logic
+     * [ARCHITECTURE] Strictly bound to Y2C_AuthEngine (auth.js V43+).
+     * [DYNAMIC] Real-time regex parsing for multi-line ingredients & instructions.
+     * [UX] Real-time Search & Filter Engine.
      */
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener('DOMContentLoaded', () => {
         
         if (typeof Y2C_AuthEngine === 'undefined') {
             console.error("CRITICAL: Y2C_AuthEngine missing."); return;
@@ -532,14 +436,9 @@
 
         const AppState = {
             role: String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase(),
-            clientName: sessionStorage.getItem("y2c_client") || localStorage.getItem("y2c_client") || "Unknown",
-            region: sessionStorage.getItem("y2c_region") || localStorage.getItem("y2c_region") || "ON",
-            hqOrders: [],
-            mappings: [], 
-            catalogItems: [], 
-            cachedClients: [], 
-            cart: {},
-            isSubmitting: false
+            clientName: sessionStorage.getItem("y2c_client") || "Unknown",
+            recipes: [],
+            categories: new Set()
         };
 
         const uName = document.getElementById("userNameDisplay");
@@ -547,866 +446,198 @@
         if(uName) uName.innerText = AppState.clientName;
         if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
 
-        const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount || 0);
+        const searchInput = document.getElementById('recipeSearchInput');
+        const categoryFilter = document.getElementById('recipeCategoryFilter');
+        const grid = document.getElementById('recipeGrid');
+        const emptyState = document.getElementById('emptyState');
 
-        // ==========================================
-        // 🔒 탭 네비게이션 및 Lock UI
-        // ==========================================
-        const tabs = document.querySelectorAll('.tab-section');
-        const btns = document.querySelectorAll('.sub-nav-btn');
-
-        function renderLockOverlay(containerId) {
-            const el = document.getElementById(containerId);
-            if(el) { el.classList.remove('hidden'); setTimeout(() => el.classList.add('show'), 10); }
-        }
-
-        function switchTab(targetId) {
-            btns.forEach(b => b.classList.remove('active'));
-            const targetBtn = document.querySelector(`[data-target="${targetId}"]`);
-            if(targetBtn) targetBtn.classList.add('active');
-            
-            tabs.forEach(t => t.classList.remove('active'));
-            const targetSec = document.getElementById(targetId);
-            if(targetSec) targetSec.classList.add('active');
-
-            if (AppState.role === "VENDOR") {
-                if (targetId === "tab-franchise") renderLockOverlay("lock-franchise");
-                if (targetId === "tab-sales") renderLockOverlay("lock-sales");
-            }
-        }
-
-        btns.forEach(btn => { btn.addEventListener('click', (e) => { switchTab(e.target.getAttribute('data-target')); }); });
-
-        // ==========================================
-        // ⚙️ Synchronous Hub Dropdown
-        // ==========================================
-        function getAuthorizedRegions() {
-            const allRegions = ["ON", "BC", "AB", "SK", "MB", "QC"];
-            if (AppState.role === "MASTER" || AppState.region === "ALL") return allRegions;
-            return AppState.region.split(',').map(s => s.trim().toUpperCase()).filter(s => s.length > 0 && s !== "NULL" && s !== "UNDEFINED");
-        }
-
-        function populateHubDropdown() {
-            const selectEl = document.getElementById("procHubSelect"); 
-            const inboundEl = document.getElementById("inboundRegionSelector"); 
-            const allowed = getAuthorizedRegions();
-
-            if (allowed.length === 0) {
-                if(selectEl) { selectEl.innerHTML = `<option value="" disabled selected>No Authorized Regions</option>`; selectEl.disabled = true; }
-                if(inboundEl) { inboundEl.innerHTML = `<option value="" disabled selected>No Authorized Regions</option>`; inboundEl.disabled = true; }
-                return;
-            }
-
-            if(selectEl) {
-                selectEl.innerHTML = "";
-                allowed.forEach(reg => {
-                    const opt = document.createElement('option'); opt.value = reg; opt.innerText = reg + " Hub";
-                    selectEl.appendChild(opt);
-                });
-                selectEl.value = allowed[0]; 
-            }
-
-            if(inboundEl) {
-                inboundEl.innerHTML = `<option value="" disabled selected>-- Select Hub Region for Inbound --</option>`;
-                allowed.forEach(reg => {
-                    const opt = document.createElement('option'); opt.value = reg; opt.innerText = "Hub: " + reg;
-                    inboundEl.appendChild(opt);
-                });
-                if(AppState.role !== "MASTER" && allowed.length === 1) inboundEl.value = allowed[0];
-            }
-        }
-        populateHubDropdown();
-
-        // ==========================================
-        // 🚀 [CORE 1] 복원된 가맹점 DB (Franchise Master) 로직
-        // ==========================================
-        async function fetchMasterData() {
-            if (AppState.role === "VENDOR") return;
-            const tbody = document.getElementById('masterTableBody');
-            if(!tbody) return;
-
-            try {
-                const res = await Y2C_AuthEngine.request("get_master_data");
-                if (res && res.success) {
-                    AppState.cachedClients = res.clients || [];
-                    renderMasterDataFast();
-                    populateSalesClientSelector();
-                }
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`;
-            }
-        }
-
-        function renderMasterDataFast() {
-            const tbody = document.getElementById('masterTableBody');
-            if(!tbody) return;
-
-            if (AppState.cachedClients.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-gray-500 font-bold">등록된 가맹점 정보가 없습니다.</td></tr>`;
-                return;
-            }
-
-            let html = "";
-            const inputClass = "w-full bg-gray-50 focus:bg-white border border-gray-200 rounded-lg px-2 py-2 text-[12px] font-bold text-gray-800 outline-none transition-colors focus:border-[#E3000F]";
-
-            AppState.cachedClients.forEach(c => {
-                html += `
-                <tr class="hover:bg-red-50/10 transition-colors border-b border-gray-50">
-                    <td class="px-6 py-4 font-black text-[var(--premium-charcoal)] whitespace-nowrap">${Y2C_AuthEngine.escapeHtml(c.name)}</td>
-                    <td class="px-2 py-4"><input type="text" id="state_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.state)}" class="${inputClass} text-center uppercase" maxlength="2"></td>
-                    <td class="px-2 py-4"><input type="text" id="city_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.city)}" class="${inputClass}"></td>
-                    <td class="px-2 py-4"><input type="text" id="addr_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.address)}" class="${inputClass}"></td>
-                    <td class="px-2 py-4"><input type="text" id="attn_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.attn)}" class="${inputClass}"></td>
-                    <td class="px-2 py-4"><input type="text" id="email_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.email)}" class="${inputClass}"></td>
-                    <td class="px-2 py-4"><input type="text" id="biz_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.bizId)}" class="${inputClass} font-mono"></td>
-                    <td class="px-4 py-4 text-center">
-                        <button type="button" onclick="saveClientData(${c.rowIdx})" id="saveBtn_${c.rowIdx}" class="bg-[var(--premium-charcoal)] hover:bg-[#E3000F] text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors w-full focus:outline-none">SAVE</button>
-                    </td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        window.saveClientData = async function(rowIdx) {
-            if (AppState.isSubmitting) return;
-
-            const stateEl = document.getElementById(`state_${rowIdx}`);
-            const cityEl = document.getElementById(`city_${rowIdx}`);
-            const addrEl = document.getElementById(`addr_${rowIdx}`);
-            const attnEl = document.getElementById(`attn_${rowIdx}`);
-            const emailEl = document.getElementById(`email_${rowIdx}`);
-            const bizEl = document.getElementById(`biz_${rowIdx}`);
-
-            if (!stateEl || !cityEl) return;
-
-            const btn = document.getElementById(`saveBtn_${rowIdx}`);
-            const originalHtml = btn.innerHTML;
-            
-            AppState.isSubmitting = true;
-            btn.disabled = true;
-            btn.innerHTML = "⏳";
-            btn.classList.add('opacity-50');
-
-            try {
-                const payload = {
-                    client: {
-                        rowIdx: rowIdx,
-                        state: stateEl.value.trim().toUpperCase(),
-                        city: cityEl.value.trim(),
-                        address: addrEl.value.trim(),
-                        attn: attnEl.value.trim(),
-                        email: emailEl.value.trim(),
-                        bizId: bizEl.value.trim()
-                    }
-                };
-
-                const res = await Y2C_AuthEngine.request("update_master_data", payload);
-                if (res && res.success) {
-                    Y2C_AuthEngine.showToast("마스터 데이터 동기화 완료", "success");
-                    btn.innerHTML = "✅ SAVED";
-                    btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600');
-                    setTimeout(() => { btn.innerHTML = originalHtml; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); }, 2000);
-                }
-            } catch (err) {
-                Y2C_AuthEngine.showToast(err.message, "error");
-                btn.innerHTML = originalHtml;
-            } finally {
-                AppState.isSubmitting = false;
-                btn.disabled = false;
-                btn.classList.remove('opacity-50');
-            }
-        };
-
-        // ==========================================
-        // 🚀 [CORE 2] 복원된 ERP Sales 로직
-        // ==========================================
-        function populateSalesYearSelector() {
-            const sel = document.getElementById('salesYearSelector');
-            if(!sel) return;
-            const currentYear = new Date().getFullYear();
-            for (let y = currentYear + 1; y >= 2022; y--) {
-                const opt = document.createElement('option');
-                opt.value = y; opt.innerText = `${y} Fiscal Year`;
-                if(y === currentYear) opt.selected = true;
-                sel.appendChild(opt);
-            }
-        }
-
-        function populateSalesClientSelector() {
-            const sel = document.getElementById('salesClientSelector');
-            if(!sel || AppState.cachedClients.length === 0) return;
-            sel.innerHTML = `<option value="">-- Select Franchise --</option>`;
-            AppState.cachedClients.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.name; opt.innerText = c.name;
-                sel.appendChild(opt);
-            });
-        }
-
-        window.loadSalesGrid = async function() {
-            if (AppState.isSubmitting) return;
-            const year = document.getElementById('salesYearSelector')?.value;
-            const client = document.getElementById('salesClientSelector')?.value;
-            const tbody = document.getElementById('salesGridBody');
-
-            if (!year || !client) {
-                Y2C_AuthEngine.showToast("연도와 가맹점을 모두 선택해 주십시오.", "warning");
-                return;
-            }
-
-            AppState.isSubmitting = true;
-            tbody.innerHTML = `<tr><td colspan="5" class="py-16 text-center text-gray-500 font-bold"><span class="animate-pulse">🔄 로딩 중...</span></td></tr>`;
-
-            try {
-                const res = await Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client });
-                if (res && res.success) {
-                    renderSalesGrid(res.records || []);
-                }
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`;
-            } finally {
-                AppState.isSubmitting = false;
-            }
-        };
-
-        function renderSalesGrid(records) {
-            const tbody = document.getElementById('salesGridBody');
-            if (!tbody) return;
-            
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            let html = "";
-            const inputClass = "w-full max-w-[150px] mx-auto bg-gray-50 focus:bg-white border border-gray-200 rounded-lg px-3 py-2 text-center text-[13px] font-mono font-bold text-gray-800 outline-none transition-colors focus:border-[#E3000F]";
-
-            records.forEach(r => {
-                const mIdx = r.month;
-                const badgeHTML = r.exists 
-                    ? `<span class="px-2 py-1 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase">SAVED</span>` 
-                    : `<span class="px-2 py-1 text-[9px] font-black rounded bg-gray-100 text-gray-400 border border-gray-200 uppercase">EMPTY</span>`;
-
-                html += `
-                <tr class="hover:bg-red-50/10 border-b border-gray-50">
-                    <td class="px-6 py-4 font-black text-gray-700 font-inter">${monthNames[mIdx - 1]}</td>
-                    <td class="px-2 py-4 text-center"><input type="number" id="pos_${mIdx}" value="${r.pos > 0 ? r.pos : ''}" class="${inputClass}" oninput="recalcSalesRow(${mIdx})"></td>
-                    <td class="px-2 py-4 text-center"><input type="number" id="del_${mIdx}" value="${r.delivery > 0 ? r.delivery : ''}" class="${inputClass}" oninput="recalcSalesRow(${mIdx})"></td>
-                    <td class="px-6 py-4 text-right font-black font-mono text-[var(--premium-charcoal)]" id="tot_${mIdx}">${formatCurrency(r.total)}</td>
-                    <td class="px-4 py-4 text-center">${badgeHTML}</td>
-                </tr>`;
-            });
-
-            tbody.innerHTML = html;
-            recalculateSalesKPIs();
-        }
-
-        window.recalcSalesRow = function(mIdx) {
-            const pos = parseFloat(document.getElementById(`pos_${mIdx}`)?.value || 0);
-            const del = parseFloat(document.getElementById(`del_${mIdx}`)?.value || 0);
-            const total = pos + del;
-            document.getElementById(`tot_${mIdx}`).innerText = formatCurrency(total);
-            recalculateSalesKPIs();
-        };
-
-        function recalculateSalesKPIs() {
-            let tPos = 0, tDel = 0;
-            for(let i=1; i<=12; i++) {
-                tPos += parseFloat(document.getElementById(`pos_${i}`)?.value || 0);
-                tDel += parseFloat(document.getElementById(`del_${i}`)?.value || 0);
-            }
-            document.getElementById('salesKpiPos').innerText = formatCurrency(tPos);
-            document.getElementById('salesKpiDelivery').innerText = formatCurrency(tDel);
-            document.getElementById('salesKpiTotal').innerText = formatCurrency(tPos + tDel);
-        }
-
-        window.saveSalesGridData = async function() {
-            if (AppState.isSubmitting) return;
-
-            const year = document.getElementById('salesYearSelector')?.value;
-            const client = document.getElementById('salesClientSelector')?.value;
-
-            if (!year || !client) {
-                Y2C_AuthEngine.showToast("연도와 가맹점을 선택하십시오.", "warning"); return;
-            }
-
-            const recordsToSave = [];
-            for (let m = 1; m <= 12; m++) {
-                const pos = parseFloat(document.getElementById(`pos_${m}`)?.value || 0);
-                const del = parseFloat(document.getElementById(`del_${m}`)?.value || 0);
-                recordsToSave.push({ month: m, pos: pos, delivery: del });
-            }
-
-            const btn = document.getElementById('saveAllSalesBtn');
-            const originalHtml = btn.innerHTML;
-            AppState.isSubmitting = true;
-            btn.disabled = true;
-            btn.innerHTML = `<span class="animate-pulse">SYNCING...</span>`;
-
-            try {
-                const payload = { year: year, clientName: client, records: recordsToSave };
-                const res = await Y2C_AuthEngine.request("save_sales_records", payload);
-                if (res && res.success) {
-                    Y2C_AuthEngine.showToast("매출 데이터가 완벽히 동기화되었습니다.", "success");
-                    loadSalesGrid();
-                }
-            } catch (err) {
-                Y2C_AuthEngine.showToast(err.message, "error");
-            } finally {
-                AppState.isSubmitting = false;
-                btn.disabled = false;
-                btn.innerHTML = originalHtml;
-            }
-        };
-
-        // ==========================================
-        // 🚀 [CORE 3 & 4] 조달, 아이템 데이터 및 VENDOR PRICE TRACKER 엔진
-        // ==========================================
-        async function fetchInitialData() {
-            try {
-                const [procRes, itemRes] = await Promise.all([
-                    Y2C_AuthEngine.request("get_procurement_data"),
-                    Y2C_AuthEngine.request("get_items")
-                ]);
-
-                if (procRes && procRes.success) {
-                    AppState.hqOrders = procRes.hqOrders || [];
-                    AppState.mappings = procRes.mappings || [];
-                    if (AppState.role === "VENDOR") {
-                        const vInput = document.getElementById('procVendorName');
-                        if(vInput) { vInput.value = AppState.clientName; vInput.disabled = true; }
-                    }
-                    renderHqOrders();
-                }
-
-                if (itemRes && itemRes.success) {
-                    AppState.catalogItems = itemRes.items || [];
-                }
-
-            } catch (err) {
-                const tbody = document.getElementById('hqOrdersTableBody');
-                if(tbody) {
-                    tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="py-16 text-center bg-red-50/20 border-y border-red-100">
-                            <div class="text-4xl mb-4 opacity-80">⚠️</div>
-                            <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">통신 지연 (Connection Failed)</h4>
-                            <p class="text-gray-500 font-medium text-[11px] mb-4">${err.message}</p>
-                            <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">데이터 다시 불러오기</button>
-                        </td>
-                    </tr>`;
-                }
-                Y2C_AuthEngine.showToast("서버와 통신할 수 없습니다.", "error");
-            }
-        }
-
-        function renderHqOrders() {
-            const tbody = document.getElementById('hqOrdersTableBody');
-            if(!tbody) return;
-
-            if (AppState.hqOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-16 text-center text-gray-400 font-bold">진행 중인 조달 발주 내역이 없습니다.</td></tr>`;
-                return;
-            }
-
-            let html = "";
-            AppState.hqOrders.reverse().forEach(order => {
-                const st = String(order.status).toUpperCase();
-                let badgeClass = "status-badge status-pending"; let icon = "⏳";
-                if(st === "SHIPPED") { badgeClass = "status-badge status-shipped"; icon = "🚢"; }
-                if(st === "ARRIVED" || st === "RECEIVED") { badgeClass = "status-badge status-arrived"; icon = "✅"; }
-                if(st === "COMPLETED") { badgeClass = "status-badge status-completed"; icon = "📦"; }
-                if(st === "CANCELED") { badgeClass = "status-badge status-canceled"; icon = "❌"; }
-
-                html += `
-                <tr class="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
-                    <td class="px-6 py-4 font-mono font-bold text-[11px] text-gray-500">${Y2C_AuthEngine.escapeHtml(order.id)}</td>
-                    <td class="px-6 py-4 text-xs text-[var(--premium-charcoal)] font-bold">${Y2C_AuthEngine.escapeHtml(order.date)}</td>
-                    <td class="px-6 py-4 font-bold text-[13px] text-[var(--premium-charcoal)]">${Y2C_AuthEngine.escapeHtml(order.vendor)}</td>
-                    <td class="px-6 py-4 font-black text-[11px] text-[#E3000F]">${Y2C_AuthEngine.escapeHtml(order.region)}</td>
-                    <td class="px-6 py-4 text-xs text-gray-600 max-w-[200px] truncate" title="${Y2C_AuthEngine.escapeHtml(order.items)}">${Y2C_AuthEngine.escapeHtml(order.items)}</td>
-                    <td class="px-6 py-4 text-center font-mono text-xs">${Y2C_AuthEngine.escapeHtml(order.eta)}</td>
-                    <td class="px-6 py-4 text-center"><span class="${badgeClass}">${icon} ${Y2C_AuthEngine.escapeHtml(st)}</span></td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        // ==========================================
-        // 🛒 조달 발주 (HQ PROCUREMENT) 모달 및 카트
-        // ==========================================
-        const modal = document.getElementById('itemSelectionModal');
-        const modalPanel = document.getElementById('itemModalPanel');
-        const backdrop = document.getElementById('itemModalBackdrop');
-        const btnOpen = document.getElementById('btnOpenItemModal');
+        // Modal Elements
+        const modal = document.getElementById('recipeModal');
+        const modalPanel = document.getElementById('recipeModalPanel');
+        const backdrop = document.getElementById('recipeModalBackdrop');
         const btnClose = document.getElementById('btnCloseModal');
-        const btnConfirm = document.getElementById('btnConfirmModal');
 
-        function openModal() {
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-            setTimeout(() => { modalPanel.classList.remove('scale-95', 'opacity-0'); modalPanel.classList.add('scale-100', 'opacity-100'); }, 10);
-            renderModalItems();
+        // ==========================================
+        // 🚀 데이터 페칭 및 렌더링 엔진
+        // ==========================================
+        async function fetchRecipes() {
+            try {
+                const res = await Y2C_AuthEngine.request("get_recipes");
+                if (res && res.success) {
+                    AppState.recipes = res.recipes || [];
+                    extractCategories();
+                    renderGrid(AppState.recipes);
+                }
+            } catch (err) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center bg-red-50/50 border border-red-100 rounded-3xl">
+                        <span class="text-4xl mb-4 block">⚠️</span>
+                        <h3 class="font-black text-[#E3000F] font-montserrat tracking-wide">Failed to Load Recipes</h3>
+                        <p class="text-sm font-bold text-gray-500 mt-2">${err.message}</p>
+                    </div>`;
+                Y2C_AuthEngine.showToast("레시피 데이터를 불러올 수 없습니다.", "error");
+            }
         }
 
-        function closeModal() {
-            modalPanel.classList.remove('scale-100', 'opacity-100'); modalPanel.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
-        }
-
-        if(btnOpen) btnOpen.addEventListener('click', openModal);
-        if(btnClose) btnClose.addEventListener('click', closeModal);
-        if(backdrop) backdrop.addEventListener('click', closeModal);
-
-        function renderModalItems() {
-            const listEl = document.getElementById('modalItemsList'); if(!listEl) return;
+        function extractCategories() {
+            AppState.categories.clear();
+            AppState.recipes.forEach(r => {
+                if (r.category && r.category.trim() !== "") AppState.categories.add(r.category.trim());
+            });
             
-            if (AppState.catalogItems.length === 0) {
-                listEl.innerHTML = `<p class="text-[#E3000F] font-bold p-4 text-center">아이템을 불러오지 못했습니다. 새로고침 해주세요.</p>`;
+            categoryFilter.innerHTML = '<option value="ALL">All Categories</option>';
+            Array.from(AppState.categories).sort().forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.innerText = c;
+                categoryFilter.appendChild(opt);
+            });
+        }
+
+        function renderGrid(recipesToRender) {
+            if (recipesToRender.length === 0) {
+                grid.innerHTML = "";
+                emptyState.classList.remove('hidden');
                 return;
             }
-
-            let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">`;
-            AppState.catalogItems.forEach(item => {
-                const qty = AppState.cart[item.code] || 0;
+            
+            emptyState.classList.add('hidden');
+            let html = "";
+            
+            recipesToRender.forEach(r => {
                 html += `
-                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] font-mono text-gray-400">${item.code}</span>
-                        <span class="text-xs font-bold text-[var(--premium-charcoal)] leading-tight">${Y2C_AuthEngine.escapeHtml(item.name)}</span>
+                <div class="bg-white rounded-3xl p-6 recipe-card shadow-sm flex flex-col justify-between h-full" onclick="openRecipeModal('${r.id}')">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2.5 py-1 bg-gray-100 text-[10px] font-black text-gray-600 rounded-md uppercase tracking-widest border border-gray-200">${Y2C_AuthEngine.escapeHtml(r.category || 'General')}</span>
+                            <span class="text-xl opacity-20">📜</span>
+                        </div>
+                        <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] leading-tight mb-2 line-clamp-2">${Y2C_AuthEngine.escapeHtml(r.title)}</h3>
                     </div>
-                    <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-8 w-24">
-                        <button type="button" onclick="updateModalCart('${item.code}', -1)" class="w-8 h-full flex justify-center items-center text-gray-500 hover:text-[#E3000F] focus:outline-none">-</button>
-                        <input type="number" id="modQty_${item.code}" value="${qty}" class="w-8 h-full text-center text-[12px] font-bold bg-transparent border-none p-0 outline-none" readonly>
-                        <button type="button" onclick="updateModalCart('${item.code}', 1)" class="w-8 h-full flex justify-center items-center text-gray-500 hover:text-[#E3000F] focus:outline-none">+</button>
+                    <div class="mt-6 flex items-center justify-between border-t border-gray-50 pt-4">
+                        <span class="text-[10px] font-mono font-bold text-gray-400">#${Y2C_AuthEngine.escapeHtml(r.id)}</span>
+                        <span class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest flex items-center gap-1 group-hover:underline">
+                            View <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                        </span>
                     </div>
                 </div>`;
             });
-            html += `</div>`; listEl.innerHTML = html;
-        }
-
-        window.updateModalCart = function(code, delta) {
-            let cur = AppState.cart[code] || 0; cur += delta; if(cur < 0) cur = 0;
-            AppState.cart[code] = cur;
-            document.getElementById(`modQty_${code}`).value = cur;
-            let typesCount = 0; for(let c in AppState.cart) { if(AppState.cart[c] > 0) typesCount++; }
-            document.getElementById('modalSelectedCount').innerText = typesCount;
-        }
-
-        if(btnConfirm) {
-            btnConfirm.addEventListener('click', () => {
-                let summaryStr = [];
-                for(let c in AppState.cart) { if(AppState.cart[c] > 0) summaryStr.push(`${c}: ${AppState.cart[c]}`); }
-                const summaryInput = document.getElementById('procItemsSummary');
-                if(summaryInput) { summaryInput.value = summaryStr.length > 0 ? summaryStr.join(', ') : ''; }
-                closeModal();
-            });
-        }
-
-        const btnSubmitProc = document.getElementById('btnSubmitProcurement');
-        if(btnSubmitProc) {
-            btnSubmitProc.addEventListener('click', async () => {
-                const vName = document.getElementById('procVendorName').value;
-                const hSelect = document.getElementById('procHubSelect');
-                const hub = hSelect ? hSelect.value : "";
-                const itemsStr = document.getElementById('procItemsSummary').value;
-
-                if(!vName || !hub || !itemsStr) { Y2C_AuthEngine.showToast("모든 발주 정보를 입력해주세요.", "error"); return; }
-
-                btnSubmitProc.disabled = true; btnSubmitProc.innerHTML = `<span class="animate-pulse">PROCESSING...</span>`;
-
-                const payload = {
-                    order: { id: "HQ-" + Date.now().toString().slice(-6), date: new Date().toISOString().split('T')[0], vendor: vName, region: hub, items: itemsStr, status: "HQ_PENDING", eta: "-" }
-                };
-
-                try {
-                    const res = await Y2C_AuthEngine.request("upsert_hq_order", payload);
-                    if(res && res.success) {
-                        Y2C_AuthEngine.showToast("조달 발주가 성공적으로 서버에 전송되었습니다.", "success");
-                        AppState.cart = {}; document.getElementById('procItemsSummary').value = ""; document.getElementById('modalSelectedCount').innerText = "0";
-                        const refreshRes = await Y2C_AuthEngine.request("get_procurement_data");
-                        if(refreshRes && refreshRes.success) { AppState.hqOrders = refreshRes.hqOrders || []; renderHqOrders(); }
-                    }
-                } catch(e) {
-                    Y2C_AuthEngine.showToast(e.message, "error");
-                } finally {
-                    btnSubmitProc.disabled = false; btnSubmitProc.innerHTML = `<span class="text-lg leading-none">+</span> ADD ORDER`;
-                }
-            });
+            
+            grid.innerHTML = html;
         }
 
         // ==========================================
-        // 🤖 [CORE 3] 지능형 엑셀 파서 & PRICE TRACKER 엔진
+        // 🔍 검색 및 필터링 엔진
         // ==========================================
-        const AdvancedAutoMapper = {
-            normalize: function(str) { return String(str).toLowerCase().replace(/[\s\(\)\[\]\-_]/g, '').replace(/신전떡볶이|신전|냉동/g, ''); },
-            extractCoreKeywords: function(name) {
-                const keywords = [];
-                if (name.includes('순한')) keywords.push('순한');
-                if (name.includes('매운')) keywords.push('매운');
-                if (name.includes('로제')) keywords.push('로제');
-                if (name.includes('밀떡')) keywords.push('밀떡');
-                if (name.includes('김말이')) keywords.push('김말이');
-                if (name.includes('잡채말이')) keywords.push('잡채말이');
-                if (name.includes('어묵')) keywords.push('어묵');
-                if (name.includes('납작')) keywords.push('납작');
-                if (name.includes('만두') && !name.includes('납작')) keywords.push('만두');
-                if (name.includes('통살')) keywords.push('통살');
-                if (name.includes('오징어') && !name.includes('통살')) keywords.push('오징어'); 
-                if (name.includes('치즈핫도그') && !name.includes('감자')) keywords.push('치즈핫도그');
-                if (name.includes('올모짜') && !name.includes('감자')) keywords.push('올모짜');
-                if (name.includes('감자') && name.includes('치즈')) keywords.push('감자치즈');
-                if (name.includes('감자') && name.includes('올모짜')) keywords.push('감자올모짜');
-                if (name.includes('멘보샤')) keywords.push('멘보샤');
-                if (name.includes('꽈배기')) keywords.push('꽈배기');
-                return keywords;
-            },
-            findBestMatch: function(vendorName, catalog) {
-                const vNameNorm = this.normalize(vendorName);
-                const vKeywords = this.extractCoreKeywords(vNameNorm);
-                
-                let bestMatchCode = null;
-                let highestScore = 0;
-
-                for (let i = 0; i < catalog.length; i++) {
-                    const hqItem = catalog[i];
-                    const hqNameNorm = this.normalize(hqItem.name);
-                    let score = 0;
-
-                    const hqKeywords = this.extractCoreKeywords(hqNameNorm);
-                    for (let kw of vKeywords) {
-                        if (hqKeywords.includes(kw) || hqNameNorm.includes(kw)) score += 50; 
-                    }
-
-                    if (hqNameNorm.includes(vNameNorm) || vNameNorm.includes(hqNameNorm)) score += 30;
-
-                    if (vKeywords.includes('통살') && !hqNameNorm.includes('통살')) score -= 100;
-                    if (!vKeywords.includes('통살') && hqNameNorm.includes('통살')) score -= 100;
-                    if (vKeywords.includes('납작') && !hqNameNorm.includes('납작')) score -= 100;
-                    if (!vKeywords.includes('납작') && hqNameNorm.includes('납작')) score -= 100;
-                    if (vKeywords.includes('순한') && hqNameNorm.includes('매운')) score -= 100;
-                    if (vKeywords.includes('매운') && hqNameNorm.includes('순한')) score -= 100;
-
-                    if (score > highestScore && score >= 50) {
-                        highestScore = score;
-                        bestMatchCode = hqItem.code;
-                    }
-                }
-                return bestMatchCode;
-            }
-        };
-
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('excelFileInput');
-        const btnSyncExcel = document.getElementById('btnSyncExcel');
-        const btnSyncExcelText = document.getElementById('btnSyncExcelText');
-        const inboundRegionSelector = document.getElementById('inboundRegionSelector');
-        const errorBadge = document.getElementById('excelErrorBadge');
-        
-        let pendingStockUpdates = []; 
-
-        function findBestKey(row, keywords) {
-            const keys = Object.keys(row);
-            for (let k of keys) {
-                let cleanK = k.replace(/[^a-zA-Z0-9가-힣]/g, '').toUpperCase();
-                for (let kw of keywords) {
-                    if (cleanK.includes(kw)) return k;
-                }
-            }
-            return null;
-        }
-
-        function normalizeExcelDate(value) {
-            if (value === undefined || value === null || value === "" || value === "-") return "-";
-            if (typeof value === 'number' && value > 20000) {
-                const date = new Date((value - 25569) * 86400 * 1000);
-                date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-                const y = date.getFullYear();
-                const m = String(date.getMonth() + 1).padStart(2, '0');
-                const d = String(date.getDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
-            }
-            const strVal = String(value).trim();
-            const match = strVal.match(/\d{4}-\d{2}-\d{2}/);
-            if (match) return match[0];
-            return strVal;
-        }
-
-        if (dropZone && fileInput) {
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, preventDefaults, false); });
-            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-
-            ['dragenter', 'dragover'].forEach(eventName => { dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false); });
-            ['dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false); });
-
-            dropZone.addEventListener('drop', (e) => { let dt = e.dataTransfer; let files = dt.files; handleExcelFiles(files); });
-            fileInput.addEventListener('change', function(e) { handleExcelFiles(this.files); });
-        }
-
-        function handleExcelFiles(files) {
-            if(!files || files.length === 0) return;
-            const file = files[0];
+        function filterEngine() {
+            const query = searchInput.value.toLowerCase().trim();
+            const cat = categoryFilter.value;
             
-            if (!inboundRegionSelector || !inboundRegionSelector.value) {
-                Y2C_AuthEngine.showToast("입고될 타겟 지역(Target Hub)을 먼저 선택해 주십시오.", "error");
-                inboundRegionSelector.classList.add('border-[#E3000F]', 'animate-pulse');
-                setTimeout(() => inboundRegionSelector.classList.remove('animate-pulse'), 1500);
-                if(fileInput) fileInput.value = ''; return;
-            }
-
-            if(!file.name.match(/\.(xlsx|xls)$/i)) {
-                Y2C_AuthEngine.showToast("엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.", "error");
-                if(fileInput) fileInput.value = ''; return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, {raw: false});
-
-                    if(json.length === 0) throw new Error("엑셀 파일에 데이터가 비어있습니다.");
-                    
-                    processAndMapExcelData(json);
-                } catch(err) { Y2C_AuthEngine.showToast("엑셀 파싱 실패: " + err.message, "error"); }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        // 🚨 [CRITICAL FIX 1] 엑셀에서 단가(Price) 자동 추출 
-        function processAndMapExcelData(jsonArray) {
-            let aggregatedData = {}; 
-            
-            jsonArray.forEach(row => {
-                const codeKey = findBestKey(row, ['ITEM', 'CODE', '품번', 'SKU', 'BARCODE']);
-                const qtyKey = findBestKey(row, ['QTY', 'QUANTITY', '수량', 'STOCK']);
-                const expKey = findBestKey(row, ['EXP', '유통기한', 'DATE']);
-                const nameKey = findBestKey(row, ['PRODUCT', 'NAME', '품명', '제품']);
-                const priceKey = findBestKey(row, ['PRICE', 'UNITPRICE', '단가', '가격', 'COST']); // 가격 파싱 추가
-
-                let rawCode = codeKey ? String(row[codeKey]).trim().toUpperCase() : "";
-                let qtyStr = qtyKey ? String(row[qtyKey]).replace(/[^0-9]/g, '') : "0";
-                let qty = parseInt(qtyStr, 10);
-                let rawExp = expKey ? row[expKey] : "-";
-                let exp = normalizeExcelDate(rawExp);
-                let rawName = nameKey ? String(row[nameKey]).trim() : "";
-                let rawPrice = priceKey ? parseFloat(String(row[priceKey]).replace(/[^0-9.]/g, '')) : null;
-
-                if (rawCode && !isNaN(qty) && qty > 0) {
-                    let aggKey = rawCode + '|' + exp;
-                    if (!aggregatedData[aggKey]) {
-                        aggregatedData[aggKey] = { rawCode: rawCode, rawName: rawName, exp: exp, qty: 0, price: rawPrice };
-                    }
-                    aggregatedData[aggKey].qty += qty;
-                    // 최신 단가 덮어쓰기
-                    if(rawPrice !== null && !isNaN(rawPrice)) aggregatedData[aggKey].price = rawPrice;
-                }
+            const filtered = AppState.recipes.filter(r => {
+                const matchQuery = r.title.toLowerCase().includes(query) || (r.ingredients && r.ingredients.toLowerCase().includes(query));
+                const matchCat = cat === "ALL" || r.category === cat;
+                return matchQuery && matchCat;
             });
+            
+            renderGrid(filtered);
+        }
 
-            let displayRows = [];
-            Object.values(aggregatedData).forEach(item => {
-                let hqCode = null;
-                let isAiMapped = false;
-                
-                let mapObj = AppState.mappings.find(m => String(m.vendorCode).toUpperCase() === item.rawCode);
-                if (mapObj) hqCode = mapObj.hqCode;
-                
-                if (!hqCode) {
-                    let directMatch = AppState.catalogItems.find(c => String(c.code).toUpperCase() === item.rawCode);
-                    if (directMatch) hqCode = directMatch.code;
-                }
+        if (searchInput) searchInput.addEventListener('input', filterEngine);
+        if (categoryFilter) categoryFilter.addEventListener('change', filterEngine);
 
-                if (!hqCode && item.rawName) {
-                    hqCode = AdvancedAutoMapper.findBestMatch(item.rawName, AppState.catalogItems);
-                    if (hqCode) isAiMapped = true;
-                }
+        // ==========================================
+        // 📜 모달 렌더링 및 파서 엔진
+        // ==========================================
+        window.openRecipeModal = function(recipeId) {
+            const recipe = AppState.recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
 
-                displayRows.push({
-                    rawCode: item.rawCode, rawName: item.rawName, exp: item.exp, qty: item.qty, price: item.price,
-                    hqCode: hqCode, status: hqCode ? (isAiMapped ? "AI_MAPPED" : "OK") : "ERROR", ignored: false
+            document.getElementById('modalRecipeId').innerText = Y2C_AuthEngine.escapeHtml(recipe.id);
+            document.getElementById('modalRecipeTitle').innerText = Y2C_AuthEngine.escapeHtml(recipe.title);
+            document.getElementById('modalCategoryBadge').innerText = Y2C_AuthEngine.escapeHtml(recipe.category || 'General');
+
+            // 1. 재료 파싱 (줄바꿈 또는 쉼표 기준 분리)
+            const ingList = document.getElementById('modalIngredients');
+            let ingHtml = "";
+            let rawIng = recipe.ingredients || "";
+            let ingArr = rawIng.split(/\r?\n/).filter(line => line.trim() !== "");
+            if (ingArr.length === 0 && rawIng.includes(",")) ingArr = rawIng.split(',').filter(i => i.trim() !== "");
+            
+            if (ingArr.length > 0) {
+                ingArr.forEach(ing => {
+                    ingHtml += `<li class="flex items-start gap-2.5"><svg class="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> <span>${Y2C_AuthEngine.escapeHtml(ing.trim())}</span></li>`;
                 });
-            });
+            } else {
+                ingHtml = `<li class="text-gray-400 italic">No specific ingredients listed.</li>`;
+            }
+            ingList.innerHTML = ingHtml;
 
-            window.currentExcelPreviewData = displayRows;
-            renderAdvancedExcelPreview();
-        }
+            // 2. 조리법 파싱 (줄바꿈 기준, 숫자 태그 자동 생성)
+            const instContainer = document.getElementById('modalInstructions');
+            let instHtml = "";
+            let rawInst = recipe.instructions || "";
+            let instArr = rawInst.split(/\r?\n/).filter(line => line.trim() !== "");
+            
+            if (instArr.length > 0) {
+                instArr.forEach((step, index) => {
+                    // 제거: 번호 매기기 하드코딩이 이미 텍스트에 있다면 정규식으로 삭제 (예: "1. ", "1) ")
+                    let cleanStep = step.replace(/^\d+[\.\)]\s*/, '').trim();
+                    instHtml += `
+                    <div class="flex items-start gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                        <span class="step-number">${index + 1}</span>
+                        <p class="text-[13.5px] font-medium text-gray-700 leading-relaxed font-inter pt-0.5">${Y2C_AuthEngine.escapeHtml(cleanStep)}</p>
+                    </div>`;
+                });
+            } else {
+                instHtml = `<p class="text-gray-400 italic text-sm p-2">Instructions are not provided.</p>`;
+            }
+            instContainer.innerHTML = instHtml;
 
-        // 🚨 [CRITICAL FIX 2] 단가 변동 감지 UI 렌더링
-        window.renderAdvancedExcelPreview = function() {
-            const tbody = document.getElementById('excelTbody'); 
-            const container = document.getElementById('excelPreviewContainer');
-            if(!tbody || !container) return;
-
-            let html = "";
-            let errorCount = 0;
-            pendingStockUpdates = []; 
-            const targetRegion = inboundRegionSelector.value.trim(); 
-            let tempUpdates = {}; 
-
-            window.currentExcelPreviewData.forEach((row, idx) => {
-                let trClass = ""; let statusHtml = ""; let hqCodeHtml = ""; let priceHtml = "-";
-
-                if (row.status === "ERROR" && !row.ignored) {
-                    errorCount++; trClass = "bg-red-50";
-                    statusHtml = `
-                        <div class="flex flex-col gap-1 items-start">
-                            <span class="px-2 py-0.5 bg-[#E3000F] text-white text-[9px] font-black rounded uppercase tracking-widest border border-[#E3000F]">미등록 품번</span>
-                            <button type="button" onclick="ignoreExcelRow(${idx})" class="text-[9px] text-gray-500 hover:text-[#E3000F] font-bold underline font-inter transition-colors">Ignore Row</button>
-                        </div>`;
-                    
-                    let selectOptions = `<option value="" disabled selected>치환할 마스터 품목 선택</option>`;
-                    AppState.catalogItems.forEach(cat => { selectOptions += `<option value="${cat.code}">[${cat.code}] ${Y2C_AuthEngine.escapeHtml(cat.name)}</option>`; });
-                    hqCodeHtml = `<select onchange="resolveExcelMapping(${idx}, this.value)" class="w-full text-[11px] font-bold border border-red-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-[#E3000F]/20 bg-white text-[#E3000F] cursor-pointer shadow-sm font-inter">${selectOptions}</select>`;
-                    
-                } else if (row.ignored) {
-                    trClass = "opacity-40 bg-gray-50";
-                    statusHtml = `
-                        <div class="flex flex-col gap-1 items-start">
-                            <span class="px-2 py-0.5 bg-gray-200 text-gray-500 text-[9px] font-black rounded uppercase tracking-widest border border-gray-300">제외됨</span>
-                            <button type="button" onclick="restoreExcelRow(${idx})" class="text-[9px] text-gray-500 hover:text-emerald-600 font-bold underline mt-1 font-inter transition-colors">Restore Row</button>
-                        </div>`;
-                    hqCodeHtml = `<span class="text-gray-400 font-mono text-xs font-bold">-</span>`;
-                } else {
-                    if (row.status === "AI_MAPPED") {
-                        statusHtml = `<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black rounded uppercase tracking-widest border border-blue-200" title="AI Auto-Substituted">AI 맵핑완료</span>`;
-                        hqCodeHtml = `<span class="font-mono font-bold text-blue-700 text-[12px] bg-blue-50 px-2 py-1 border border-blue-100 rounded">${row.hqCode}</span>`;
-                    } else {
-                        statusHtml = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-black rounded uppercase tracking-widest border border-emerald-200">DB 매핑완료</span>`;
-                        hqCodeHtml = `<span class="font-mono font-bold text-emerald-700 text-[12px] bg-emerald-50 px-2 py-1 border border-emerald-100 rounded">${row.hqCode}</span>`;
-                    }
-                    
-                    // 🌟 단가(Price) 변동 비교
-                    const masterItem = AppState.catalogItems.find(c => c.code === row.hqCode);
-                    if (masterItem) {
-                        const mPrice = masterItem.price || 0;
-                        if (row.price !== null && !isNaN(row.price) && row.price > 0 && Math.abs(row.price - mPrice) > 0.01) {
-                            // 가격이 변경됨
-                            const isIncrease = row.price > mPrice;
-                            const diffColor = isIncrease ? "text-[#E3000F]" : "text-blue-600";
-                            priceHtml = `
-                                <div class="flex flex-col items-center">
-                                    <span class="text-[10px] text-gray-400 line-through mb-0.5">$${mPrice.toFixed(2)}</span>
-                                    <span class="text-[13px] font-black ${diffColor}">$${row.price.toFixed(2)}</span>
-                                    <span class="text-[8px] font-bold ${diffColor} bg-${isIncrease ? 'red' : 'blue'}-50 px-1 rounded mt-0.5">PRICE CHANGED</span>
-                                </div>`;
-                        } else {
-                            // 가격 동일하거나 엑셀에 없음
-                            priceHtml = `<span class="text-[13px] font-bold text-gray-600">$${mPrice.toFixed(2)}</span>`;
-                        }
-                    }
-                    
-                    // 페이로드 구조체 생성
-                    if (!tempUpdates[row.hqCode]) {
-                        tempUpdates[row.hqCode] = { code: row.hqCode, stockBreakdown: {}, expBreakdown: {} };
-                        tempUpdates[row.hqCode].stockBreakdown[targetRegion] = 0;
-                        // 🚨 [CRITICAL FIX 3] 가격 변경 시 페이로드에 새 단가 인젝션
-                        if (row.price !== null && !isNaN(row.price) && row.price > 0) {
-                             if(masterItem && Math.abs(row.price - masterItem.price) > 0.01) {
-                                 tempUpdates[row.hqCode].newPrice = row.price;
-                             }
-                        }
-                    }
-                    
-                    tempUpdates[row.hqCode].stockBreakdown[targetRegion] += row.qty;
-                    if (row.exp !== "-") {
-                        let existingExp = tempUpdates[row.hqCode].expBreakdown[targetRegion];
-                        if (existingExp) tempUpdates[row.hqCode].expBreakdown[targetRegion] += ` | ${row.exp}:${row.qty}`;
-                        else tempUpdates[row.hqCode].expBreakdown[targetRegion] = `${row.exp}:${row.qty}`;
-                    }
-                }
-
-                html += `
-                    <tr class="${trClass}">
-                        <td class="w-24 text-center border-r border-gray-200/50">${statusHtml}</td>
-                        <td class="w-64 border-r border-gray-200/50">${hqCodeHtml}</td>
-                        <td class="w-64">
-                            <div class="text-[11px] font-mono text-gray-400 mb-0.5">${Y2C_AuthEngine.escapeHtml(row.rawCode)}</div>
-                            <div class="font-bold text-[13px] text-[var(--premium-charcoal)] truncate max-w-[250px]" title="${Y2C_AuthEngine.escapeHtml(row.rawName)}">${Y2C_AuthEngine.escapeHtml(row.rawName)}</div>
-                        </td>
-                        <td class="w-32 text-center font-mono align-middle">${priceHtml}</td>
-                        <td class="w-32 text-center font-mono text-[12px] text-gray-600 align-middle">${Y2C_AuthEngine.escapeHtml(row.exp)}</td>
-                        <td class="w-24 text-center font-black text-[#E3000F] text-[15px] bg-red-50/10 align-middle">${row.qty}</td>
-                    </tr>
-                `;
-            });
-
-            tbody.innerHTML = html;
-            pendingStockUpdates = Object.values(tempUpdates); 
-
-            if (errorBadge) {
-                if (errorCount > 0) {
-                    errorBadge.classList.remove('hidden'); errorBadge.innerText = `${errorCount} ERRORS DETECTED`;
-                    btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "Fix Errors to Commit";
-                } else {
-                    errorBadge.classList.add('hidden'); btnSyncExcel.disabled = pendingStockUpdates.length === 0;
-                    if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
-                }
+            // 3. Pro Tips 파싱
+            const tipsContainer = document.getElementById('modalTipsContainer');
+            const tipsEl = document.getElementById('modalTips');
+            if (recipe.tips && recipe.tips.trim() !== "") {
+                tipsEl.innerText = recipe.tips.trim();
+                tipsContainer.classList.remove('hidden');
+            } else {
+                tipsContainer.classList.add('hidden');
             }
 
-            document.getElementById('excelMetaText').innerText = `Processed ${window.currentExcelPreviewData.length} unique aggregated rows. Ready to commit.`;
-            document.getElementById('dropZone').classList.add('hidden'); container.classList.remove('hidden');
-        }
-
-        window.resolveExcelMapping = function(idx, newHqCode) {
-            if (!newHqCode) return;
-            window.currentExcelPreviewData[idx].hqCode = newHqCode;
-            window.currentExcelPreviewData[idx].status = "OK";
-            renderAdvancedExcelPreview(); 
-        };
-
-        window.ignoreExcelRow = function(idx) {
-            window.currentExcelPreviewData[idx].ignored = true;
-            renderAdvancedExcelPreview();
-        };
-
-        window.restoreExcelRow = function(idx) {
-            window.currentExcelPreviewData[idx].ignored = false;
-            renderAdvancedExcelPreview();
-        };
-
-        if (btnSyncExcel) {
-            btnSyncExcel.addEventListener('click', async () => {
-                if (pendingStockUpdates.length === 0) { Y2C_AuthEngine.showToast("서버로 전송할 데이터가 없습니다.", "warning"); return; }
-                if (!confirm(`총 ${pendingStockUpdates.length}개 품목의 입고 데이터를 마스터 DB에 강제 병합(ADD)합니다. 단가가 변동된 항목은 마스터 DB의 가격표를 실시간으로 갱신합니다. 진행하시겠습니까?`)) return;
-
-                btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "COMMITTING...";
-
-                try {
-                    let hash = 0; const dataStr = JSON.stringify(pendingStockUpdates);
-                    for (let i = 0; i < dataStr.length; i++) { hash = ((hash << 5) - hash) + dataStr.charCodeAt(i); hash |= 0; }
-                    const syncId = `EXCEL-${new Date().toISOString().split('T')[0]}-${Math.abs(hash).toString(16).toUpperCase()}`;
-
-                    const payload = { mode: "ADD", syncId: syncId, stockUpdates: pendingStockUpdates };
-
-                    const res = await Y2C_AuthEngine.request("update_stock", payload, 0); 
-                    
-                    if (res && res.success) {
-                        Y2C_AuthEngine.showToast(`✅ ${pendingStockUpdates.length}개 품목의 재고 및 가격이 마스터 DB와 완벽히 동기화되었습니다.`, "success");
-                        document.getElementById('excelPreviewContainer').classList.add('hidden'); document.getElementById('dropZone').classList.remove('hidden');
-                        if(fileInput) fileInput.value = ''; parsedExcelData = null; pendingStockUpdates = [];
-                        
-                        // 백그라운드 데이터 갱신
-                        fetchInitialData();
-                    }
-                } catch (err) {
-                    if (err.message.includes("스레드") || err.message.includes("분산")) Y2C_AuthEngine.showToast("⏳ 백그라운드 처리 중입니다. 중복 제출을 방지합니다.", "warning");
-                    else if (err.message.includes("시간 초과") || err.message.includes("네트워크")) Y2C_AuthEngine.showToast("⏳ 대량 데이터 처리로 응답이 지연되었습니다. 새로고침 후 확인하십시오.", "warning");
-                    else Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
-                } finally {
-                    btnSyncExcel.disabled = false; if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
+            // 모달 열기 애니메이션
+            modal.classList.remove('hidden');
+            
+            // 데스크톱 vs 모바일 트랜지션 처리
+            setTimeout(() => { 
+                backdrop.classList.remove('opacity-0');
+                if (window.innerWidth >= 640) {
+                    modalPanel.classList.remove('scale-95', 'opacity-0'); 
+                    modalPanel.classList.add('scale-100', 'opacity-100'); 
+                } else {
+                    modalPanel.classList.remove('translate-y-full', 'opacity-0'); 
+                    modalPanel.classList.add('translate-y-0', 'opacity-100'); 
                 }
-            });
-        }
+            }, 10);
+        };
+
+        window.closeRecipeModal = function() {
+            backdrop.classList.add('opacity-0');
+            if (window.innerWidth >= 640) {
+                modalPanel.classList.remove('scale-100', 'opacity-100'); 
+                modalPanel.classList.add('scale-95', 'opacity-0');
+            } else {
+                modalPanel.classList.remove('translate-y-0', 'opacity-100'); 
+                modalPanel.classList.add('translate-y-full', 'opacity-0');
+            }
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        };
+
+        if (btnClose) btnClose.addEventListener('click', closeRecipeModal);
+        if (backdrop) backdrop.addEventListener('click', closeRecipeModal);
 
         // ==========================================
         // 🚀 초기 구동 파이프라인
         // ==========================================
-        populateSalesYearSelector();
-        
-        if (AppState.role === "VENDOR") switchTab("tab-procurement");
-        else switchTab("tab-franchise"); 
-        
-        fetchMasterData().then(() => fetchInitialData());
+        fetchRecipes();
     });
-
     </script>
 </body>
 </html>
