@@ -1,7 +1,12 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Dashboard Engine (V40.19 HOTFIX)
- * [Critical Fix] TypeError: Assignment to constant variable (controller) Fixed
+ * Y2C Holdings Premium Partner Portal - Dashboard JS Engine
+ * Version: V53.00 GRAND FINALE (Enterprise Corporate Edition)
+ * ============================================================================
+ * [CRITICAL FIX] TypeError: Assignment to constant variable (controller) completely resolved.
+ * [ENTERPRISE] UI/UX Toasts & Alerts upgraded to B2B SaaS Corporate terminology.
+ * [PRESERVED] Y2C_DB IndexedDB Caching, i18n Translation Engine, Chart.js Memory Leak Prevention.
+ * [ARCHITECTURE] 100% lossless preservation of V40.19 HOTFIX core logic.
  * ============================================================================
  */
 
@@ -15,8 +20,10 @@ try {
             docEl.classList.remove("opacity-0");
             docEl.style.opacity = "1";
             docEl.style.visibility = "visible";
-            document.body.classList.remove("opacity-0");
-            document.body.style.opacity = "1";
+            if (document.body) {
+                document.body.classList.remove("opacity-0");
+                document.body.style.opacity = "1";
+            }
         });
     });
 } catch(e) {}
@@ -36,12 +43,12 @@ try {
     sessionToken = String(localStorage.getItem(STORAGE.USER_TOKEN) || "").trim();
     currentClientState = String(localStorage.getItem("y2c_premium_state") || "DEFAULT").trim();
 } catch (e) {
-    console.error("[Y2C Storage Error]", e);
+    console.error("[Y2C Storage Error] Security Sandbox Access Denied.", e);
 }
 
-// 🌟 권한 무결성 1차 검증
+// 🌟 권한 무결성 1차 검증 (대기업식 멘트)
 if (!sessionToken || sessionToken.length < 10 || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
-    alert("보안 세션이 유효하지 않습니다. 안전을 위해 다시 로그인해 주세요."); 
+    alert("보안 세션이 유효하지 않습니다. 기업 데이터 보호를 위해 안전하게 로그아웃 되었습니다. 다시 로그인해 주십시오."); 
     window.location.replace("index.html"); 
 }
 
@@ -76,7 +83,7 @@ const Y2C_DB = {
                 tx.oncomplete = () => resolve();
                 tx.onerror = () => reject(tx.error);
             });
-        } catch(e) { console.warn("[Y2C_DB Set Warn] DB Fallback to memory", e); }
+        } catch(e) { console.warn("[Y2C_DB Set Warn] DB Fallback to volatile memory", e); }
     },
     get: async function(key) {
         if (!this.isSupported) return null;
@@ -194,6 +201,7 @@ function showToast(message, type = 'success') {
         container.className = 'fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none no-print'; 
         document.body.appendChild(container);
     }
+    // 큐 제한을 5개로 두어 뷰포트 오버플로우 방지
     if (container.childNodes.length >= 5) container.firstChild.remove();
 
     const toast = document.createElement('div');
@@ -208,8 +216,9 @@ function showToast(message, type = 'success') {
     setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-[-100%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3500);
 }
 
-window.addEventListener('offline', () => showToast("인터넷 연결이 끊어졌습니다. 오프라인 캐시 모드로 전환됩니다.", "error"));
-window.addEventListener('online', () => { showToast("네트워크 복구 완료. 라이브 데이터를 동기화합니다.", "success"); if(!isFetchingDashboard) fetchDashboardData(); });
+// 💎 대기업식 멘트 적용
+window.addEventListener('offline', () => showToast("네트워크가 단절되었습니다. 시스템이 오프라인 안전 모드(Secure Cache Mode)로 전환됩니다.", "error"));
+window.addEventListener('online', () => { showToast("네트워크 세션 복구 완료. 라이브 데이터를 동기화합니다.", "success"); if(!isFetchingDashboard) fetchDashboardData(); });
 window.addEventListener('unhandledrejection', function(event) { 
     console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
     isFetchingDashboard = false; 
@@ -223,11 +232,11 @@ window.addEventListener('unhandledrejection', function(event) {
 const apiInFlight = new Set(); 
 
 async function executeApi(action, payload = {}, retries = 2) {
-    if (!navigator.onLine) throw new Error("네트워크가 오프라인 상태입니다.");
+    if (!navigator.onLine) throw new Error("현재 네트워크가 오프라인 상태입니다.");
     
     const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
     const hashKey = action;
-    if (apiInFlight.has(hashKey)) throw new Error("동일한 요청이 처리 중입니다. 잠시 대기하세요.");
+    if (apiInFlight.has(hashKey)) throw new Error("동일한 요청 트랜잭션이 처리 중입니다. 잠시 대기해 주십시오.");
     apiInFlight.add(hashKey);
 
     let lastNetworkError;
@@ -248,12 +257,12 @@ async function executeApi(action, payload = {}, retries = 2) {
             
             if (!response.ok) {
                 if (response.status === 404 || response.status === 401 || response.status === 403) {
-                    const explicitError = new Error(`서버 엔드포인트 접근 거부 (HTTP ${response.status})`);
+                    const explicitError = new Error(`서버 엔드포인트 접근이 거부되었습니다 (HTTP ${response.status}). 관리자에게 문의하십시오.`);
                     explicitError.httpStatus = response.status;
                     explicitError.isFatal = true;
                     throw explicitError;
                 }
-                const httpError = new Error(`HTTP ${response.status}`);
+                const httpError = new Error(`서버 네트워크 오류 (HTTP ${response.status})`);
                 httpError.httpStatus = response.status;
                 throw httpError;
             }
@@ -265,18 +274,18 @@ async function executeApi(action, payload = {}, retries = 2) {
             
             let jsonResult;
             try { jsonResult = JSON.parse(rawText); } 
-            catch (parseErr) { throw new Error("서버 응답 파싱 실패. 시스템 포맷 오염 감지."); }
+            catch (parseErr) { throw new Error("서버 응답 페이로드 파싱 실패. 시스템 포맷 오염이 감지되었습니다."); }
 
-            if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 규격 오염.");
+            if (!jsonResult || typeof jsonResult !== "object" || Array.isArray(jsonResult)) throw new Error("서버 응답 규격이 오염되었습니다.");
 
             if (!jsonResult.success) {
                 if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
                     [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
-                    alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
+                    alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주십시오.");
                     window.location.replace("index.html");
                     return;
                 }
-                const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 오류가 발생했습니다.");
+                const err = new Error(jsonResult.message || "서버 연산 중 알 수 없는 시스템 오류가 발생했습니다.");
                 err.ledgerPending = jsonResult.ledgerPending === true;
                 err.txId = safeDisplay(jsonResult.txId, null);
                 throw err;
@@ -295,17 +304,18 @@ async function executeApi(action, payload = {}, retries = 2) {
             }
 
             if (err.message && err.message.includes("Failed to fetch")) {
-                lastNetworkError = new Error("🚨 구글 서버 접근 지연(CORS) 또는 네트워크 단절.");
+                lastNetworkError = new Error("🚨 구글 서버 접근 지연(CORS 충돌) 또는 네트워크가 단절되었습니다.");
             }
 
             if (i < retries) {
+                // 지수 백오프(Exponential Backoff) 알고리즘 무손실 보존
                 const waitTime = (Math.pow(1.5, i) * 1000) + Math.floor(Math.random() * 800); 
                 await new Promise(res => setTimeout(res, waitTime));
             }
         }
     }
     apiInFlight.delete(hashKey);
-    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 시간이 초과되었습니다. (35초 대기열 초과)" : (lastNetworkError?.message || "서버 통신 실패. 잠시 후 새로고침 해주세요."));
+    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 대기 시간이 초과되었습니다. (35초 타임아웃)" : (lastNetworkError?.message || "서버 통신에 실패했습니다. 잠시 후 새로고침 해주십시오."));
 }
 
 // ============================================================================
@@ -360,7 +370,7 @@ async function fetchDashboardData() {
     dashboardLockTimer = setTimeout(() => {
         isFetchingDashboard = false;
         resetRefreshButton();
-        showToast("데이터 로딩 시간이 초과되었습니다.", "error");
+        showToast("데이터 렌더링 시간이 초과되었습니다. 네트워크 환경을 확인해 주십시오.", "error");
     }, 35000);
 
     const cacheKey = `DASHBOARD_DATA_${targetYear}_${targetClient}`;
@@ -385,9 +395,9 @@ async function fetchDashboardData() {
 
             await Y2C_DB.set(cacheKey, dataToRender);
             renderDashboardKpiAndChart(dataToRender);
-            showToast("대시보드 데이터가 실시간으로 동기화되었습니다.", "success");
+            showToast("엔터프라이즈 대시보드 데이터가 실시간으로 동기화되었습니다.", "success");
         } else {
-            throw new Error(result?.message || "대시보드 데이터를 불러올 수 없습니다.");
+            throw new Error(result?.message || "대시보드 메트릭을 불러올 수 없습니다.");
         }
     } catch (err) {
         showToast(`데이터 갱신 실패: ${err.message}`, "error");
