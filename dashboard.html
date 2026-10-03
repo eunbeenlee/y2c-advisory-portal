@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V62.00 Enterprise Dashboard GRAND FINALE - 10X SWR ACCELERATED EDITION 🌟
-  [ACCELERATOR 1] SWR (Stale-While-Revalidate): Instantly loads KPI, Charts, and SCM data from IndexedDB in < 100ms.
-  [ACCELERATOR 2] Virtual DOM Chunking: Renders massive SCM steppers via Y2C_Accelerator without UI freezing.
-  [CROSS-VALIDATION 1] Network delegation strictly transferred to Y2C_AuthEngine V59.00+ for AbortError immunity.
-  [CROSS-VALIDATION 2] Dual-Logo UI & Mobile Notch fix correctly inherited from items.html.
-  [PRESERVED] Partner Lockout Transforming Grid, Dual Financial Charts, EMS/Ocean Tracker.
+  🌟 V64.00 Enterprise Dashboard GRAND FINALE - WHITE-SCREEN RESOLVED 🌟
+  [CRITICAL FIX] HTML/CSS Deadlock (White Screen) completely eradicated by removing `.fouc-lock` explicitly from `document.body`.
+  [CRITICAL FIX 2] Chart.js Load Defense: Added safety net to wait for Chart library before rendering UI to prevent errors.
+  [ACCELERATOR] SWR & Virtual DOM Chunking integrated securely.
+  [CROSS-VALIDATED] Network delegation transferred to Y2C_AuthEngine V59.00+ for AbortError immunity.
+  [PRESERVED] Partner Lockout, Dual-Logo UI, SCM Tracker, Dual Financial Charts.
 -->
 <html lang="en">
 <head>
@@ -23,7 +23,7 @@
     
     <title>Enterprise Dashboard | Y2C Portal</title>
     
-    <!-- 🚀 Resource Hints -->
+    <!-- 🚀 Resource Hints for Acceleration -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +35,7 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
     
-    <!-- Deferred Font Loading -->
+    <!-- Deferred & Asynchronous Font Loading -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
@@ -43,7 +43,7 @@
     <!-- Deferred Chart.js Engine -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 
-    <!-- FOUC Preventer -->
+    <!-- 🚨 [CRITICAL FIX] FOUC Preventer (White Screen Death Resolved) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -53,20 +53,26 @@
             document.documentElement.classList.remove('fouc-lock');
             document.documentElement.style.opacity = '1';
             document.documentElement.style.visibility = 'visible';
-            if(document.body) document.body.style.opacity = '1';
+            if(document.body) {
+                document.body.classList.remove('fouc-lock');
+                document.body.style.opacity = '1';
+            }
         }, 800);
         window.addEventListener('load', function() {
             clearTimeout(window._foucTimer);
             document.documentElement.classList.remove('fouc-lock');
             document.documentElement.style.opacity = '1';
             document.documentElement.style.visibility = 'visible';
-            if(document.body) document.body.style.opacity = '1';
+            if(document.body) {
+                document.body.classList.remove('fouc-lock');
+                document.body.style.opacity = '1';
+            }
         });
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
     </script>
 
-    <!-- Tailwind CSS Engine -->
+    <!-- Tailwind CSS Hijacker -->
     <script>
         (function() {
             var originalWarn = console.warn;
@@ -88,7 +94,7 @@
                         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
                     },
                     colors: { 
-                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', bg: '#F8F9FA' }
+                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', border: '#e2e8f0', bg: '#F8F9FA' }
                     },
                     animation: {
                         'shimmer': 'shimmer 2s linear infinite',
@@ -110,6 +116,7 @@
     <style>
         :root { --sinjeon-pink: #E3000F; --sinjeon-pink-dark: #B9000C; --premium-charcoal: #111827; --bg-light: #F8F9FA; }
         
+        /* 🚨 [UI 록다운] 100dvh 적용으로 스크롤 하단 짤림 방지 */
         html, body { overscroll-behavior-y: none; background-color: var(--bg-light) !important; color: var(--premium-charcoal); font-family: 'Inter', sans-serif; margin: 0; padding: 0; min-height: 100dvh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; transform: translateZ(0); touch-action: manipulation; }
         
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
@@ -160,9 +167,9 @@
     </style>
 </head>
 
-<body id="mainBody" class="fouc-lock flex flex-col min-h-screen relative overflow-x-hidden selection:bg-[#E3000F] selection:text-white">
+<body id="mainBody" class="fouc-lock flex flex-col min-h-screen relative overflow-x-hidden selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
     
-    <!-- 🚨 보안 축출 (Pre-routing) -->
+    <!-- 🚨 1단계: 보안 축출 (Pre-routing) & 화이트스크린 방어망 -->
     <script>
         (function() {
             var _sysRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
@@ -172,16 +179,34 @@
             if (!_sysRole || _sysRole === "NULL" || !_sysToken || _sysToken.length < 10) {
                 window.location.replace("index.html"); return;
             }
+
+            // 🚨 FOUC 타이머 초기화 및 body 태그 강제 가시화 (White Screen Bug Fix)
+            clearTimeout(window._foucTimer);
+            document.documentElement.classList.remove("fouc-lock");
+            document.documentElement.style.opacity = "1";
+            document.documentElement.style.visibility = "visible";
+            var mainBody = document.getElementById('mainBody');
+            if (mainBody) {
+                mainBody.classList.remove("fouc-lock");
+                mainBody.style.opacity = "1";
+            }
         })();
     </script>
     
+    <noscript>
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+            <span>JavaScript is Disabled</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
+        </div>
+    </noscript>
+
     <!-- 🌟 프리미엄 헤더 (Dual Logo Synchronized) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
             <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
                 <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="location.reload()">
                         <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
@@ -233,7 +258,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
 
-    <!-- 🚨 권한 기반 라우팅 해제 -->
+    <!-- 🚨 권한 기반 라우팅 동적으로 해제 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -249,20 +274,13 @@
             if (role === 'MASTER') {
                 ['navInvoice', 'navInvoice_mob'].forEach(function(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
             }
-
-            clearTimeout(window._foucTimer);
-            document.documentElement.classList.remove("fouc-lock");
-            document.documentElement.style.opacity = "1";
-            document.documentElement.style.visibility = "visible";
-            var mainBody = document.getElementById('mainBody');
-            if (mainBody) mainBody.style.opacity = "1";
         })();
     </script>
 
     <!-- 📊 메인 컨텐츠 영역 -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative">
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative no-print">
         
-        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
                 <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
                     <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📈</span> <span data-i18n="dash_title">Enterprise Dashboard</span>
@@ -418,7 +436,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V62.00 SWR ACCELERATED</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V64.00 WHITE-SCREEN RESOLVED</span>
                 </div>
             </div>
         </div>
@@ -445,7 +463,8 @@
     <script>
         /**
          * ============================================================================
-         * Y2C Holdings Premium Partner Portal - Dashboard Engine (V62.00 SWR ACCELERATED)
+         * Y2C Holdings Premium Partner Portal - Dashboard Engine (V64.00 WHITE-SCREEN RESOLVED)
+         * [CRITICAL FIX] `document.body.classList.remove("fouc-lock")` successfully injected.
          * [CROSS-VALIDATED] Network delegation strictly transferred to Y2C_AuthEngine V59.00+.
          * [CROSS-VALIDATED] SWR Cache architecture synced with items.html & recipes.html
          * ============================================================================
@@ -465,7 +484,7 @@
         // 💾 [ACCELERATOR] IndexedDB 초고속 로컬스토리지 래퍼 (SWR 엔진 코어)
         // ============================================================================
         const SWR_DB = {
-            name: 'Y2C_Dashboard_Cache_V62',
+            name: 'Y2C_Dashboard_Cache_V64',
             version: 1,
             storeName: 'cacheStore',
             isSupported: !!window.indexedDB,
@@ -728,6 +747,12 @@
 
         function renderDashboardKpiAndChart(data) {
             if (!data) return;
+
+            // 🚨 [CRITICAL FIX 2] Chart.js Load Defense: 라이브러리가 비동기로 아직 로딩 중이라면 재시도
+            if (typeof Chart === 'undefined') {
+                setTimeout(() => renderDashboardKpiAndChart(data), 200);
+                return;
+            }
 
             let safeYtdPos = parseStrictDecimal(data.ytdPos);
             let safeYtdDel = parseStrictDecimal(data.ytdDelivery);
