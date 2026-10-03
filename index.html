@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V42.25 Enterprise Login ULTIMATE - Absolute Security & Presentation Fusion 🌟
-  [CRITICAL FIX 1] Full synchronization with Y2C_AuthEngine V41.99+. Eliminated false "Offline" read request bug.
-  [CRITICAL FIX 2] DOM IDs (btnSpinner, btnText) precisely mapped to prevent AuthEngine catch-block crash.
-  [PRESERVED] 100% of V40.66's visual masterpiece (Magnetic 3D Buttons, Caps Lock slide, FOUC locks, Shimmer, Honeypot).
+  🌟 V50.00 Enterprise Login Gateway GRAND FINALE - Absolute PWA & UI Restoration 🌟
+  [RESTORED 1] Inner-Floating Labels & Magnetic 3D Button (.btn-hip) 100% recovered from V40.66.
+  [RESTORED 2] Cinematic Entry Animations & Background Glow Shimmer strictly preserved.
+  [RESTORED 3] Zero-Latency Initial Routing (IIFE) injected before DOM paint.
+  [CRITICAL FIX 1] Service Worker Registration: navigator.serviceWorker.register('sw.js') ignited.
+  [CRITICAL FIX 2] Web App Manifest Linked: Connects manifest.json for true Native App installation.
   [ARCHITECTURE] Zero-latency routing. Network payload completely delegated to external `auth.js`.
 -->
 <html lang="en">
@@ -11,44 +13,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     
-    <!-- 🌟 [보안 1] CSP 방어망 및 모바일 웹앱 풀스크린 록다운 -->
+    <!-- 🌟 [PWA 엔진] 앱 명세서 및 모바일 네이티브 록다운 -->
+    <link rel="manifest" href="manifest.json">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
-    <meta name="theme-color" content="#F8F9FA">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#111827">
+    
+    <!-- Apple iOS 전용 PWA 록다운 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Y2C Portal">
-    <meta name="description" content="SINJEON CANADA Enterprise Portal Secure Login Gateway | Operated by Y2C Holdings">
+    <link rel="apple-touch-icon" href="favicon.png">
+
+    <meta name="description" content="SINJEON CANADA Enterprise Portal Secure Login Gateway | Operated by Y2C Holdings Inc.">
     <meta name="robots" content="noindex, nofollow">
     <meta name="format-detection" content="telephone=no">
     
-    <title>SINJEON CANADA | Enterprise Portal</title>
+    <title>Enterprise Portal | SINJEON CANADA</title>
     
-    <!-- 🚀 [가속 2] 구글 서버 및 폰트 CDN 조기 연결 (DNS-Prefetch & Preconnect) -->
+    <!-- 🚀 가속: 서버 및 폰트 사전 연결 -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
-    <!-- 🚀 [가속 3] 핵심 사내 포털 리소스 백그라운드 사전 다운로드 (Sub-resource Prefetching) -->
+    <!-- 핵심 리소스 사전 다운로드 -->
     <link rel="prefetch" href="dashboard.html" as="document">
     <link rel="prefetch" href="admin.html" as="document">
     <link rel="prefetch" href="items.html" as="document">
     <link rel="prefetch" href="recipes.html" as="document">
     <link rel="prefetch" href="invoice.html" as="document">
 
-    <!-- 🚨 [가속 4] LCP(Largest Contentful Paint) 최적화를 위한 파비콘 최우선 로딩 강제 -->
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="favicon.png">
     
-    <!-- 🚀 [가속 5] CSSOM 블로킹 타파를 위한 비동기 폰트 로드 아키텍처 -->
+    <!-- 🚀 가속: CSSOM 블로킹 타파 폰트 아키텍처 -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
 
-    <!-- 🌟 [가속 6] FOUC Absolute Fail-Safe (하얀 화면 렌더링 먹통 이중 차단망) -->
+    <!-- 🌟 FOUC Absolute Fail-Safe -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
     </style>
@@ -69,27 +74,24 @@
             if(document.body) document.body.style.opacity = '1';
         });
 
-        // 🚀 [가속 7] Passive Event Listener 강제화로 모바일 휠/터치 프레임 드랍(Jank) 100% 방지
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
         window.addEventListener('scroll', function() {}, {passive: true});
     </script>
 
-    <!-- 🚨 [가속 8] Tailwind CSS Warning Hijacker (콘솔 노란색 경고창 렌더링 블로킹 원천 차단 프록시) -->
+    <!-- Tailwind CSS Hijacker -->
     <script>
         (function() {
             var originalWarn = console.warn;
             console.warn = function() {
-                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) {
-                    return; 
-                }
+                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) return; 
                 originalWarn.apply(console, arguments);
             };
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 🌟 [그래픽 1] Tailwind 커스텀 테마 엔진 구축 (대기업 브랜드 컬러코드 주입) -->
+    <!-- 🌟 Tailwind 커스텀 테마 엔진 (100% 복원) -->
     <script>
         tailwind.config = {
             theme: {
@@ -135,7 +137,6 @@
     </script>
 
     <style>
-        /* CSS Variables 록다운 */
         :root {
             --sinjeon-pink: #E3000F; 
             --premium-charcoal: #111827; 
@@ -143,7 +144,7 @@
             --input-bg: #f8fafc;
         }
         
-        /* 🌟 [UX 1] 터치 딜레이, 바운스 스크롤, 텍스트 드래그 하이라이트 원천 차단 */
+        /* 🌟 터치 딜레이, 바운스 스크롤 원천 차단 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
@@ -152,147 +153,90 @@
             font-family: 'Inter', sans-serif; 
             margin: 0; padding: 0; min-height: 100vh;
             -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
-            transform: translateZ(0); /* GPU 레이어 격리 가속 */
+            transform: translateZ(0); 
         }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* 🌟 [그래픽 2] 하이엔드 글래스 폼 컨테이너 */
         .solid-panel {
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            border-radius: 2.5rem;
-            position: relative;
-            z-index: 10;
+            background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 2.5rem; position: relative; z-index: 10;
         }
         
-        /* 🌟 [그래픽 3] Inner-Floating 방식의 프리미엄 인풋 박스 (텍스트 겹침 100% 원천 차단) */
+        /* 🌟 [복원 1] Inner-Floating 방식 프리미엄 인풋 박스 */
         .premium-input {
-            appearance: none; -webkit-appearance: none;
-            background: var(--input-bg);
-            border: 1.5px solid #e2e8f0;
-            color: var(--premium-charcoal);
-            font-size: 16px !important; /* iOS 사파리 강제 줌인 버그 방어 */
-            font-weight: 700;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            border-radius: 1rem;
-            width: 100%;
-            height: 4.25rem; 
-            padding-top: 1.7rem !important; 
-            padding-bottom: 0.5rem !important;
-            padding-left: 3.25rem !important;
-            padding-right: 1rem !important;
+            appearance: none; -webkit-appearance: none; background: var(--input-bg);
+            border: 1.5px solid #e2e8f0; color: var(--premium-charcoal);
+            font-size: 16px !important; font-weight: 700; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 1rem; width: 100%; height: 4.25rem; 
+            padding-top: 1.7rem !important; padding-bottom: 0.5rem !important;
+            padding-left: 3.25rem !important; padding-right: 1rem !important;
         }
         
         .premium-input:focus {
-            background: #ffffff;
-            border-color: var(--premium-charcoal);
-            outline: none;
-            transform: translateY(-1px);
+            background: #ffffff; border-color: var(--premium-charcoal);
+            outline: none; transform: translateY(-1px);
         }
         
         .premium-input.input-error {
-            border-color: var(--sinjeon-pink) !important;
-            background-color: #FEF2F2 !important; 
+            border-color: var(--sinjeon-pink) !important; background-color: #FEF2F2 !important; 
             box-shadow: 0 0 0 4px rgba(227, 0, 15, 0.15), inset 0 2px 4px 0 rgba(227, 0, 15, 0.05) !important;
         }
-        .premium-input.input-error ~ .floating-label { color: var(--sinjeon-pink) !important; }
-        .premium-input.input-error ~ .input-icon { color: var(--sinjeon-pink) !important; }
+        .premium-input.input-error ~ .floating-label, .premium-input.input-error ~ .input-icon { color: var(--sinjeon-pink) !important; }
 
         .premium-input::placeholder { color: transparent; }
         .input-icon { transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #94a3b8; }
         .premium-input:focus ~ .input-icon { color: var(--premium-charcoal); }
 
-        /* 🌟 [가속 9] 브라우저 자동완성 오염 방지 하얀색 덮어쓰기 */
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
-            -webkit-text-fill-color: #111827 !important;
-            transition: background-color 5000s ease-in-out 0s;
+            -webkit-text-fill-color: #111827 !important; transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* 🌟 [그래픽 4] 플로팅 레이블 Inner-안착 아키텍처 */
+        /* 🌟 [복원 2] 플로팅 레이블 Inner 안착 아키텍처 */
         .floating-label-group { position: relative; }
         .floating-label {
-            position: absolute;
-            left: 3.25rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 14px;
-            color: #64748b;
-            pointer-events: none;
+            position: absolute; left: 3.25rem; top: 50%; transform: translateY(-50%);
+            font-size: 14px; color: #64748b; pointer-events: none;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-            z-index: 10;
-            margin: 0;
+            font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: 0.03em; z-index: 10; margin: 0;
         }
         
         .premium-input:focus ~ .floating-label,
         .premium-input:not(:placeholder-shown) ~ .floating-label {
-            top: 15px; 
-            transform: translateY(-50%) scale(0.75);
-            transform-origin: left center;
-            color: #94a3b8;
-            background: transparent; 
-            padding: 0;
-            border: none;
-            box-shadow: none;
+            top: 15px; transform: translateY(-50%) scale(0.75); transform-origin: left center;
+            color: #94a3b8; background: transparent; padding: 0; border: none; box-shadow: none;
         }
         .premium-input:focus ~ .floating-label { color: var(--premium-charcoal); }
 
-        /* 🌟 [그래픽 5] 3D 마그네틱 SECURE LOGIN 버튼 */
+        /* 🌟 [복원 3] 3D 마그네틱 SECURE LOGIN 버튼 */
         .btn-hip {
             background: linear-gradient(135deg, var(--sinjeon-pink) 0%, #A3000B 100%);
-            color: #ffffff;
-            border: none;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            color: #ffffff; border: none; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; overflow: hidden; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         .btn-hip::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: none;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: none;
         }
-        .btn-hip:hover:not(:disabled) {
-            transform: translateY(-3px);
-            letter-spacing: 0.25em; 
-        }
-        .btn-hip:hover:not(:disabled):after {
-            left: 200%;
-            transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .btn-hip:active:not(:disabled) { 
-            transform: translateY(1px) scale(0.98); 
-            box-shadow: 0 2px 10px rgba(227, 0, 15, 0.2); 
-        }
-        .btn-hip:disabled {
-            background: #cbd5e1;
-            transform: none;
-            box-shadow: none;
-            cursor: not-allowed;
-            letter-spacing: 0.1em;
-        }
+        .btn-hip:hover:not(:disabled) { transform: translateY(-3px); letter-spacing: 0.25em; }
+        .btn-hip:hover:not(:disabled):after { left: 200%; transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-hip:active:not(:disabled) { transform: translateY(1px) scale(0.98); box-shadow: 0 2px 10px rgba(227, 0, 15, 0.2); }
+        .btn-hip:disabled { background: #cbd5e1; transform: none; box-shadow: none; cursor: not-allowed; letter-spacing: 0.1em; }
 
         .text-glow { text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
         .text-glow-red { text-shadow: 0 2px 15px rgba(227, 0, 15, 0.2); }
         ::-webkit-scrollbar { display: none; }
 
         /* 🌟 시네마틱 등장 애니메이션 */
-        .cinematic-enter { 
-            animation: fadeUpCinematic 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; 
-            will-change: opacity, transform; 
-        }
+        .cinematic-enter { animation: fadeUpCinematic 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; will-change: opacity, transform; }
         .delay-100 { animation-delay: 0.1s; } 
         @keyframes fadeUpCinematic { 
             0% { opacity: 0; transform: translateY(20px) translateZ(0); }
             100% { opacity: 1; transform: translateY(0) translateZ(0); } 
         }
 
-        /* 🌟 폼 증발 절대 방어 록다운 */
         @keyframes error-shake {
             0%, 100% { transform: translateX(0) translateZ(0); opacity: 1 !important; }
             20% { transform: translateX(-8px) translateZ(0); opacity: 1 !important; }
@@ -302,15 +246,8 @@
         }
         .shake-animation { animation: error-shake 0.5s cubic-bezier(.36,.07,.19,.97) both !important; }
 
-        /* 🌟 Caps Lock 아코디언 */
-        .alert-slide { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            opacity: 0; 
-            max-height: 0; 
-            overflow: hidden; 
-            margin-top: 0;
-            padding-left: 0.5rem;
-        }
+        /* Caps Lock 아코디언 */
+        .alert-slide { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; max-height: 0; overflow: hidden; margin-top: 0; padding-left: 0.5rem; }
         .alert-slide.active { opacity: 1; max-height: 30px; margin-top: 8px; }
         
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
@@ -319,13 +256,13 @@
 
 <body id="mainBody" class="flex items-center justify-center p-4 sm:p-6 overflow-hidden relative selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
-    <!-- 🌟 [보안 2] 제로 레이턴시 라우팅 (Zero-Latency Routing) -->
+    <!-- 🌟 [복원 5] 제로 레이턴시 라우팅 (Zero-Latency Routing) -->
     <!-- auth.js가 로딩되기도 전에, 기존 세션이 유효하면 0초 만에 대시보드로 강제 우회시킵니다. -->
     <script>
         (function() {
             try {
-                var _sysRole = String(localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-                var _sysToken = String(localStorage.getItem("y2c_token") || "").trim();
+                var _sysRole = String(localStorage.getItem("y2c_role") || sessionStorage.getItem("y2c_role") || "").toUpperCase().trim();
+                var _sysToken = String(localStorage.getItem("y2c_token") || sessionStorage.getItem("y2c_token") || "").trim();
                 
                 if (_sysRole && _sysRole !== "NULL" && _sysToken && _sysToken.length > 10) {
                     if (_sysRole === "VENDOR" || _sysRole === "MASTER") { window.location.replace("admin.html"); } 
@@ -333,7 +270,7 @@
                     else { window.location.replace("items.html"); }
                 } else {
                     const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region"];
-                    keysToClear.forEach(function(k) { localStorage.removeItem(k); });
+                    keysToClear.forEach(function(k) { localStorage.removeItem(k); sessionStorage.removeItem(k); });
                 }
             } catch (e) { console.error("[Y2C Boot Init]", e); }
         })();
@@ -346,7 +283,7 @@
         </div>
     </noscript>
 
-    <!-- 🌟 대시보드 톤앤매너와 일치하는 은은한 블러 광원 애니메이션 -->
+    <!-- 🌟 [복원 6] 은은한 블러 광원 애니메이션 -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#E3000F]/8 rounded-full blur-[100px] animate-pulse"></div>
         <div class="absolute bottom-[5%] -right-[5%] w-[40%] h-[40%] bg-amber-500/5 rounded-full blur-[120px]"></div>
@@ -355,8 +292,7 @@
     <main class="w-full max-w-[440px] z-10 block relative mt-4 sm:mt-0 cinematic-enter">
         
         <header class="text-center mb-8 block w-full relative z-20">
-            
-            <!-- 🌟 [그래픽 8] 로고 샌드박스 (404 에러 원천 차단용 벡토릭 디자인 유지 및 Shimmer 효과 추가) -->
+            <!-- 🌟 [복원 7] 로고 샌드박스 및 Shimmer 효과 -->
             <div class="flex items-center justify-center gap-5 mb-8">
                 <div class="w-16 h-16 sm:w-[76px] sm:h-[76px] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-2.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group">
                     <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
@@ -387,12 +323,12 @@
         <!-- 🌟 엔터 키 렌더 붕괴 방어망 (auth.js에 100% 이벤트 통제 위임) -->
         <form id="loginForm" class="solid-panel shadow-premium-card p-8 sm:p-10 w-full relative z-20 cinematic-enter delay-100" autocomplete="off">
             
-            <!-- 🌟 [보안 4] 허니팟 (Bot-trap) 샌드박싱 (auth.js가 스캔함) -->
+            <!-- 허니팟 (Bot-trap) -->
             <input type="text" name="hp_field" id="hp_field" style="display:none !important;" tabindex="-1" autocomplete="off">
 
             <div class="space-y-6">
                 
-                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 ID Input -->
+                <!-- ID Input (Inner-Floating 복원 완료) -->
                 <div class="floating-label-group">
                     <div class="relative flex items-center">
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
@@ -403,7 +339,7 @@
                     </div>
                 </div>
 
-                <!-- 🌟 [UI 픽스 1] 플로팅 레이블 타이핑 겹침 100% 소거 PW Input -->
+                <!-- PW Input (Inner-Floating 복원 완료) -->
                 <div class="floating-label-group">
                     <div class="relative flex items-center">
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
@@ -412,7 +348,6 @@
                         <input type="password" id="userPw" name="userPw" autocomplete="current-password" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-[0.3em] text-lg relative z-0">
                         <label for="userPw" class="floating-label">Passkey</label>
                         
-                        <!-- 비밀번호 가시성 토글 아이콘 (자체 UI 컨트롤) -->
                         <button type="button" id="togglePwBtn" class="absolute right-4 text-gray-400 hover:text-[var(--premium-charcoal)] transition-colors focus:outline-none z-10 p-1">
                             <svg id="eyeIconClosed" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
                             <svg id="eyeIconOpen" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -420,23 +355,21 @@
                     </div>
                 </div>
 
-                <!-- 🌟 Caps Lock 감지 유체 아코디언 모션 -->
+                <!-- Caps Lock 감지 유체 아코디언 모션 -->
                 <div id="capsLockWarning" role="alert" class="alert-slide flex items-center gap-1.5 text-[11px] font-bold text-[#E3000F]">
                     <svg class="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
                     Caps Lock is ON
                 </div>
 
-                <!-- 🌟 Biometric UI Hint -->
+                <!-- Biometric UI Hint -->
                 <div class="flex justify-between items-center px-1 mt-1 mb-2 hidden sm:flex opacity-60">
                     <span class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">Secure Auth Level 4</span>
                     <svg class="w-4 h-4 text-gray-400 animate-heartbeat" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
                 </div>
 
-                <!-- 🚨 [CRITICAL FIX 2] auth.js가 통제할 버튼 구조와 ID를 완벽하게 매핑 -->
+                <!-- 🌟 [복원 8] 3D 마그네틱 SECURE LOGIN 버튼 -->
                 <button type="submit" id="loginBtn" class="btn-hip shadow-premium-btn hover:shadow-premium-btn-hover w-full font-montserrat font-black text-[13.5px] tracking-[0.2em] uppercase py-5 rounded-xl mt-3 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
-                    <!-- 버튼 평상시 텍스트 -->
                     <span id="btnText">Secure Login</span>
-                    <!-- 버튼 로딩 스피너 (auth.js가 토글함) -->
                     <div id="btnSpinner" class="hidden flex items-center justify-center gap-3">
                         <svg class="animate-spin h-5 w-5 text-white drop-shadow-md" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -449,14 +382,14 @@
             
             <footer class="mt-10 text-center border-t border-gray-100 pt-6 space-y-2">
                 <p class="font-montserrat text-[9px] font-bold text-gray-400 tracking-[0.2em] uppercase opacity-80">
-                    Operated by Y2C Holdings Ltd.
+                    Operated by Y2C Holdings Inc.
                 </p>
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V42.25 Enterprise
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V50.00 PWA
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <p class="font-montserrat text-[8px] font-bold text-gray-400 tracking-[0.1em] uppercase transition-colors duration-300">
+                    <p id="networkStatusPill" class="font-montserrat text-[8px] font-bold text-gray-400 tracking-[0.1em] uppercase transition-colors duration-300">
                         Secure Connection
                     </p>
                 </div>
@@ -464,22 +397,32 @@
         </form>
     </main>
 
-    <!-- 🌟 auth.js 가 렌더링할 애플 스타일 토스트 컨테이너의 타겟 지점 -->
+    <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
-    <!-- 🚨 [아키텍처 모듈 융합] config.js와 auth.js를 로드하여 모든 백엔드 통신 로직을 코어 엔진에 100% 위임 -->
+    <!-- 🚨 코어 엔진 바인딩 -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
 
+    <!-- 🌟 [PWA 엔진 점화] 모바일 네이티브 앱 설치 지원 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('[Y2C PWA] Service Worker Registered.', reg.scope))
+                    .catch(err => console.error('[Y2C PWA] SW Registration Failed.', err));
+            });
+        }
+    </script>
+
     <script>
     /**
-     * 🌟 V42.25 Enterprise Ultimate Presentation Engine
-     * UI/DOM 제어만 담당하며, 무거운 백엔드 통신 및 인증 록다운은 auth.js (Y2C_AuthEngine)에 100% 위임합니다.
-     * 이를 통해 렌더링 블로킹(Blocking)을 차단하고 제로 레이턴시(Zero-Latency)를 달성합니다.
+     * 🌟 V50.00 Enterprise Login Engine (100% UI Restoration Edition)
+     * DOM Manipulation isolated to UI only. Auth delegation strictly bound to Y2C_AuthEngine.
      */
     document.addEventListener("DOMContentLoaded", () => {
         
-        // 1. 시간에 따른 동적 인사말 마이크로 카피 (UI 전용)
+        // 1. Dynamic Greeting
         const greetingEl = document.getElementById('dynamicGreeting');
         if (greetingEl) {
             const hour = new Date().getHours();
@@ -488,7 +431,7 @@
             else greetingEl.innerText = "Good Evening, Partner";
         }
 
-        // 2. 패스워드 가시성 토글 (네이티브 DOM 제어)
+        // 2. Password Visibility Toggle
         const pwInput = document.getElementById("userPw");
         const togglePwBtn = document.getElementById('togglePwBtn');
         const eyeOpen = document.getElementById('eyeIconOpen');
@@ -510,7 +453,7 @@
             });
         }
 
-        // 3. Caps Lock 경고 UI 작동
+        // 3. Caps Lock Warning Engine
         const capsLockWarning = document.getElementById("capsLockWarning");
         if (pwInput && capsLockWarning) {
             pwInput.addEventListener('keyup', (e) => {
@@ -523,12 +466,11 @@
             pwInput.addEventListener('blur', () => { capsLockWarning.classList.remove('active'); });
         }
 
-        // 4. 🚨 [핵심 통신망 바인딩] auth.js 코어 모듈 100% 다이렉트 바인딩
-        // index.html 내부에는 복잡한 fetch 통신 코드가 단 한 줄도 존재하지 않습니다.
+        // 4. Secure Core Engine Binding
         if (typeof Y2C_AuthEngine !== 'undefined') {
             Y2C_AuthEngine.bindLoginForm('loginForm');
         } else {
-            console.error("CRITICAL ERROR: Y2C_AuthEngine is not loaded. Please ensure auth.js is correctly linked.");
+            console.error("CRITICAL ERROR: Y2C_AuthEngine is not loaded.");
             const container = document.getElementById('premiumToastContainer');
             if (container) {
                 container.innerHTML = `<div class="bg-white/95 backdrop-blur-md border border-gray-200 border-l-4 border-l-[#E3000F] text-[#111827] p-4 rounded-xl shadow-lg flex items-center gap-3 font-bold text-[13.5px]"><span class="text-[#E3000F]">⚠️ 보안 통신 모듈(auth.js)을 불러올 수 없습니다. 서버 상태를 확인하십시오.</span></div>`;
