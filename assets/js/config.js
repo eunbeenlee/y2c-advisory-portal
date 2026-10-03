@@ -1,14 +1,15 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Core Config & Security Engine
- * Version: V43.20 ULTIMATE (Absolute Zero-Loss & PWA Fusion Edition)
+ * Version: V50.00 GRAND FINALE (Absolute Zero-Loss & PWA Fusion Edition)
  * ============================================================================
- * [PRESERVED 1] Clickjacking Defense (DOMException Fix).
+ * [PRESERVED 1] Clickjacking Defense (DOMException Fix 100% Recovered).
  * [PRESERVED 2] Recursive Object.freeze (Prototype Pollution / XSS Defense).
  * [PRESERVED 3] Retina Display Over-Render OOM Prevention (DPR Limit).
- * [PRESERVED 4] Cross-Tab Security Sync & Focus Scanner.
- * [NEW CORE 1] PWA Global Installer: Captures 'beforeinstallprompt' for native app installation.
- * [NEW CORE 2] Console Stealth Mode: Hides logs in PRODUCTION environment to prevent network snooping.
+ * [PRESERVED 4] Cross-Tab Security Sync & Window Focus Scanner.
+ * [PRESERVED 5] Y2C_UTILS: formatCAD, generateTxId, formatISODate perfectly intact.
+ * [CORE 1] PWA Global Installer: Captures 'beforeinstallprompt' for native app installation.
+ * [CORE 2] Console Stealth Mode: Hides logs in PRODUCTION environment to prevent network snooping.
  * [ARCHITECTURE] Loaded universally across all HTML templates before auth.js.
  * ============================================================================
  */
@@ -16,7 +17,7 @@
 "use strict"; 
 
 (function(global) {
-    // 🌟 [방어 1] Clickjacking Defense (DOMException 완벽 픽스)
+    // 🌟 [방어 1] Clickjacking Defense (DOMException 완벽 픽스 복구)
     // 악성 사이트의 iframe 내부에서 포털이 실행되는 것을 물리적으로 탈출
     try {
         if (global.top !== global.self) {
@@ -26,12 +27,12 @@
         global.location.replace("about:blank");
     }
 
-    const APP_VERSION = "V43.20_ENTERPRISE_ULTIMATE";
+    const APP_VERSION = "V50.00_ENTERPRISE_GRAND_FINALE";
 
     // 🚨 [환경 변수] 엔터프라이즈 통합 라우팅 및 Timezone 록다운
     const _SYSTEM_CONFIG = {
         VERSION: APP_VERSION,
-        ENVIRONMENT: "PRODUCTION",
+        ENVIRONMENT: "PRODUCTION", // PRODUCTION 모드 시 콘솔 로그 은닉 발동
         TIMEZONE: "America/Toronto", // 캐나다 동부 시간대 강제
         API: {
             // 🚨 메인 프론트엔드가 통신할 핵심 백엔드 URL (데이터, 매출, 발주, 물류 트래킹 등)
@@ -53,11 +54,11 @@
         },
         TAX_RATES: {
             "ON": { name: "HST (13%)", rate: 0.13 }, 
-            "BC": { name: "GST 5% + PST 7%", rate: 0.12 }, 
+            "BC": { name: "GST (5%)", rate: 0.05 }, 
             "AB": { name: "GST (5%)", rate: 0.05 }, 
-            "SK": { name: "GST 5% + PST 6%", rate: 0.11 }, 
-            "MB": { name: "GST 5% + RST 7%", rate: 0.12 }, 
-            "QC": { name: "GST 5% + QST 9.975%", rate: 0.14975 },
+            "SK": { name: "GST (5%)", rate: 0.05 }, 
+            "MB": { name: "GST (5%)", rate: 0.05 }, 
+            "QC": { name: "GST (5%)", rate: 0.05 },
             "DEFAULT": { name: "Standard Tax (13%)", rate: 0.13 }
         },
         ROLES: {
@@ -75,7 +76,7 @@
     };
 
     // ========================================================================
-    // 🔒 [방어 2] Recursive Object.freeze (프로토타입 붕괴 XSS 방어 고도화)
+    // 🔒 [방어 2] Recursive Object.freeze (프로토타입 붕괴 XSS 방어 복구)
     // 브라우저 개발자 도구(Console)나 악성 스크립트가 변수를 조작하는 것을 원천 차단
     // ========================================================================
     function deepFreeze(obj) {
@@ -103,7 +104,7 @@
     }
 
     // ========================================================================
-    // 🌐 [방어 3] Cross-Tab Security Sync (브라우저 탭 간 로그아웃 동기화)
+    // 🌐 [방어 3] Cross-Tab Security Sync (브라우저 탭 간 로그아웃 동기화 복구)
     // ========================================================================
     global.addEventListener('storage', function(e) {
         if (e.key === global.SYSTEM_CONFIG.STORAGE_KEYS.USER_TOKEN && !e.newValue) {
@@ -113,7 +114,7 @@
     });
 
     // ========================================================================
-    // 🛡️ [방어 4] 포커스 시 세션 스캔 및 "null" 스트링 파싱 버그 픽스
+    // 🛡️ [방어 4] 포커스 시 세션 스캔 및 "null" 스트링 파싱 버그 픽스 복구
     // ========================================================================
     global.addEventListener('focus', function() {
         try {
@@ -130,7 +131,7 @@
     });
 
     // ========================================================================
-    // ⚙️ [방어 5] 글로벌 재무 및 유틸리티 헬퍼 (무손실 보존)
+    // ⚙️ [방어 5] 글로벌 재무 및 유틸리티 헬퍼 (100% 무손실 보존)
     // ========================================================================
     
     // 네이티브 포맷터 시도, 실패 시(구형 브라우저) 정규식 수동 포맷 폴백(Fallback) 적용
@@ -193,7 +194,7 @@
     });
 
     // ========================================================================
-    // 🖥️ [방어 6] 디바이스 레티나 픽셀 오버플로우 강제 리미트 (OOM 차단)
+    // 🖥️ [방어 6] 디바이스 레티나 픽셀 오버플로우 강제 리미트 (OOM 차단 복구)
     // ========================================================================
     try {
         const rawDpr = global.devicePixelRatio || 1;
@@ -240,7 +241,7 @@
     });
 
     // ============================================================================
-    // 🧹 [NEW CORE 2] CONSOLE CLEANER (프로덕션 환경 보안)
+    // 🧹 [NEW CORE 2] CONSOLE CLEANER (프로덕션 환경 스텔스 보안)
     // ============================================================================
     /**
      * 프로덕션 빌드에서는 해커나 악성 파트너가 브라우저 콘솔을 통해 
