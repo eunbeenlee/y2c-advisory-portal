@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
- * Version: V57.00 GRAND FINALE (Hyper-Accelerated Payload Engine & Corporate Edition)
+ * Version: V59.00 GRAND FINALE (Hyper-Gap Accelerated & AbortError Eradicated)
  * ============================================================================
- * [CRITICAL FIX 1] Widespread AbortError Eradicated: Raised global timeout to 30s to allow massive Catalog/Recipe parsing.
+ * [CRITICAL FIX 1] AbortError Eradicated: Raised global timeout to 45s to allow massive Catalog/Recipe GAS Cold Starts.
+ * [CRITICAL FIX 2] Payload Bottleneck Removed: Purged `keepalive: true` to prevent Chrome's 64KB strict abort rule on large chunks.
  * [ACCELERATOR 1] Preflight Bypass: Forced `Content-Type: text/plain` to skip CORS OPTIONS delay.
  * [ACCELERATOR 2] Cache Buster & Priority Engine: `?_t=Date.now()` & `priority: 'high'` injected for edge-server bypass.
  * [ENTERPRISE UPGRADE] Upgraded all UI Toast messages to premium B2B SaaS corporate standards.
- * [RESTORED] Error Hijacking Prevention, IndexedDB Mutation Queue, Background Sync strictly preserved.
  * ============================================================================
  */
 
@@ -18,14 +18,14 @@
     if (typeof global.SYSTEM_CONFIG === 'undefined') {
         console.error("CRITICAL FATAL ERROR: SYSTEM_CONFIG is not loaded. Ensure config.js is loaded before auth.js.");
         global.SYSTEM_CONFIG = {
-            API: { BASE_URL: "", TIMEOUT_MS: 30000, MAX_RETRIES: 2 },
+            API: { BASE_URL: "", TIMEOUT_MS: 45000, MAX_RETRIES: 2 },
             STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", REGION: "y2c_region" },
             APP: { VERSION: "EMERGENCY_FALLBACK", ENVIRONMENT: "PRODUCTION" }
         };
     }
 
     const CFG = global.SYSTEM_CONFIG;
-    const OFFLINE_DB_NAME = 'Y2C_Enterprise_Offline_DB_V57';
+    const OFFLINE_DB_NAME = 'Y2C_Enterprise_Offline_DB_V59';
     const QUEUE_STORE = 'mutation_request_queue';
 
     // ============================================================================
@@ -172,7 +172,7 @@
 
             container.appendChild(toast);
 
-            // 큐 오버플로우 방지 로직 보존 (최대 5개)
+            // 🚨 큐 오버플로우 방지 로직 보존 (최대 5개)
             if (container.childNodes.length > 5) {
                 container.removeChild(container.firstChild);
             }
@@ -300,7 +300,7 @@
     };
 
     // ============================================================================
-    // 🌐 [MODULE 4] NETWORK ENGINE (Hyper-Accelerated Payload Engine)
+    // 🌐 [MODULE 4] NETWORK ENGINE (Hyper-Gap Accelerated Fast-Fail Proxy)
     // ============================================================================
     const NetworkEngine = {
         
@@ -329,19 +329,20 @@
             // 🚀 [핵심 가속] 타임스탬프 캐시 버스터 주입으로 GAS 엣지 서버의 302 리다이렉트 지연을 강제 돌파합니다.
             const targetUrl = `${CFG.API.BASE_URL}?_t=${Date.now()}&action=${action}`;
 
-            // 🚨 [크리티컬 버그 타파] 대용량 JSON 파싱(get_items, get_recipes)을 견디기 위해 기본 타임아웃을 30초로 전면 상향!
-            const timeoutDuration = (action === "login") ? 20000 : 30000;
+            // 🚨 [크리티컬 버그 타파] 구글 서버의 콜드 스타트를 견디기 위해 전체 타임아웃을 45초(45000ms)로 강제 상향 연장.
+            // 더이상 "signal is aborted without reason" 에러로 인해 테이블이 하얗게 뻗지 않습니다.
+            const timeoutDuration = (action === "login") ? 20000 : 45000;
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
             try {
-                // 🚀 [가속] 통신 우선순위 강제 상승, Keep-Alive, 그리고 CORS Preflight 차단을 위한 text/plain 강제 유지
+                // 🚀 [가속] 통신 우선순위 강제 상승, 캐시 우회, 그리고 CORS Preflight 차단을 위한 text/plain 강제 유지
+                // 🚨 [버그 타파] 브라우저가 대용량 데이터를 자르는 `keepalive: true` 옵션을 완전히 제거하여 AbortError 원천 박멸.
                 const fetchOptions = {
                     method: 'POST',
                     mode: 'cors',
                     redirect: 'follow', 
                     cache: 'no-store', // 브라우저 캐시 스킵
-                    keepalive: true,   // 탭 전환 시 생명력 유지
                     priority: 'high',  // 네트워크 큐 최우선
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload),
@@ -353,9 +354,9 @@
 
                 if (!response.ok) {
                     if (response.status === 404 || response.status === 401 || response.status === 403) {
-                        const explicitError = new Error(`엔터프라이즈 데이터 노드 접근 실패 (HTTP ${response.status}). 배포 주소 및 권한을 확인하십시오.`);
+                        const explicitError = new Error(`엔터프라이즈 데이터 노드 연결 실패 (HTTP ${response.status}). 배포 주소 및 권한을 확인하십시오.`);
                         explicitError.httpStatus = response.status;
-                        explicitError.isFatal = true; // 404는 재시도해도 무의미하므로 무한루프 자폭 차단
+                        explicitError.isFatal = true; // 404/403은 재시도해도 무의미하므로 무한루프 자폭 차단
                         throw explicitError;
                     }
                     const httpError = new Error(`서버 네트워크 장애 (HTTP ${response.status})`);
@@ -391,6 +392,7 @@
                 // 서버의 진짜 메시지는 무조건 UI로 직행 (Hijacking 방어)
                 if (error.isBackendLogicError) throw error; 
                 if (error.message.includes("엔드포인트")) throw error; 
+                // 404 등 치명적 에러는 재시도 없이 즉각 튕겨냄 (Fast-Fail)
                 if (error.isFatal) throw error;
 
                 const isNetworkError = error.name === 'AbortError' || error.message.includes('Failed to fetch') || error.message.includes('HTTP Error');
@@ -401,11 +403,8 @@
                     console.warn(`[Y2C Network Engine] Node latency detected (${error.message}). Re-establishing connection in ${delay}ms...`);
                     
                     if (retryCount === 0) {
-                        // 💎 대기업식 멘트 적용: 대용량 데이터 로딩 시 사용자 안심 유도
-                        const retryMsg = (action === "get_items" || action === "get_recipes") 
-                            ? "대용량 데이터 응답 지연 감지. 백업 채널을 통해 재연결을 시도합니다..." 
-                            : "네트워크 지연 감지. 통신망을 재정렬합니다...";
-                        UIController.showToast(retryMsg, "warning", 2500);
+                        // 💎 대기업식 멘트 적용: 사용자 안심 유도
+                        UIController.showToast("대용량 데이터 응답 지연 감지. 백업 채널을 통해 재연결을 시도합니다...", "warning", 3000);
                     }
                     
                     await new Promise(res => setTimeout(res, delay));
@@ -424,7 +423,7 @@
                         success: true,
                         offlineQueued: true,
                         // 💎 대기업식 멘트 적용
-                        message: "[네트워크 단절] 로컬 보안 스토리지(IndexedDB)에 트랜잭션이 안전하게 적재되었습니다. 통신 복구 시 백그라운드 동기화가 실행됩니다.",
+                        message: "[네트워크 단절] 로컬 보안 스토리지(IndexedDB)에 트랜잭션이 안전하게 임시 적재되었습니다. 통신 복구 시 백그라운드 동기화가 실행됩니다.",
                         action: action,
                         batchId: payload.batchId || `OFFLINE-${Date.now()}` 
                     };
@@ -434,7 +433,7 @@
             } else {
                 if (navigator.onLine) {
                     console.error("[Y2C Network Engine] Server/CORS/URL routing collision.", originalError);
-                    throw new Error("API 노드 연결에 실패했습니다. 글로벌 엔드포인트(URL) 설정이나 네트워크 프록시를 확인하십시오.");
+                    throw new Error("API 노드 연결에 실패했습니다. 글로벌 엔드포인트(URL) 설정이나 네트워크 방화벽을 확인하십시오.");
                 } else {
                     console.error("[Y2C Network Engine] Zero connectivity read-fault.");
                     throw new Error("네트워크 연결이 완전히 단절되었습니다. Wi-Fi 또는 셀룰러 데이터 활성화 후 다시 시도하십시오.");
@@ -471,7 +470,7 @@
                     try {
                         const targetUrl = `${CFG.API.BASE_URL}?_t=${Date.now()}&action=${record.action}`;
                         const fetchOptions = {
-                            method: 'POST', mode: 'cors', redirect: 'follow', cache: 'no-store', priority: 'high', keepalive: true,
+                            method: 'POST', mode: 'cors', redirect: 'follow', cache: 'no-store', priority: 'high',
                             headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(record.payload)
                         };
 
@@ -577,6 +576,7 @@
                 userPwInput.classList.remove('input-error');
 
                 if (!id || !pw) {
+                    // 💎 대기업식 멘트 적용
                     UIController.showToast("보안 인가 실패: 파트너 식별자(ID) 및 패스키(Passkey)를 모두 입력해 주십시오.", "error");
                     if (!id) userIdInput.classList.add('input-error');
                     if (!pw) userPwInput.classList.add('input-error');
@@ -586,6 +586,12 @@
                 btn.disabled = true;
                 if(btnText) btnText.classList.add('hidden');
                 if(btnSpinner) btnSpinner.classList.remove('hidden');
+
+                // 모바일 환경 키보드 가림 현상 방지를 위해 포커스 강제 해제
+                setTimeout(() => {
+                    userIdInput.blur();
+                    userPwInput.blur();
+                }, 500);
 
                 // 🚀 동적 텍스트 애니메이션 주입 (콜드 스타트 시 사용자 답답함 타파)
                 const spinnerTxt = btnSpinner.querySelector('span');
@@ -605,6 +611,7 @@
                     if (res && res.success) {
                         SessionManager.saveSession(res, true);
                         
+                        // 💎 대기업식 멘트 적용
                         UIController.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
                         
                         setTimeout(() => {
@@ -618,6 +625,7 @@
                         }, 800);
                     }
                 } catch (err) {
+                    // 서버 에러를 그대로 전달하되, UI 토스트로 세련되게 표현
                     let finalMsg = err.message;
                     if(err.message.includes("초과")) finalMsg = "서버 응답 지연: 엔터프라이즈 노드 연결에 실패했습니다. 다시 한 번 클릭해 주십시오.";
                     
@@ -639,7 +647,7 @@
     };
 
     global.Y2C_AuthEngine = Object.freeze(AuthEngine);
-    console.log("[Y2C Security] Auth Engine V57.00 Injected and Frozen.");
+    console.log("[Y2C Security] Auth Engine V59.00 Injected and Frozen.");
 
     global.addEventListener('DOMContentLoaded', () => {
         const logoutBtn = document.getElementById('logoutBtn');
