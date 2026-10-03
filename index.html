@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V50.00 Enterprise Login Gateway GRAND FINALE - Absolute PWA & UI Restoration 🌟
-  [RESTORED 1] Inner-Floating Labels & Magnetic 3D Button (.btn-hip) 100% recovered from V40.66.
+  🌟 V51.00 Enterprise Login Gateway GRAND FINALE - Absolute PWA & UI Restoration 🌟
+  [CRITICAL FIX 1] Appended `<meta name="mobile-web-app-capable" content="yes">` to clear console deprecation warnings.
+  [RESTORED 1] Inner-Floating Labels & Magnetic 3D Button (.btn-hip) 100% recovered.
   [RESTORED 2] Cinematic Entry Animations & Background Glow Shimmer strictly preserved.
   [RESTORED 3] Zero-Latency Initial Routing (IIFE) injected before DOM paint.
-  [CRITICAL FIX 1] Service Worker Registration: navigator.serviceWorker.register('sw.js') ignited.
-  [CRITICAL FIX 2] Web App Manifest Linked: Connects manifest.json for true Native App installation.
+  [CRITICAL FIX 2] Service Worker Registration: navigator.serviceWorker.register('sw.js') ignited.
+  [CRITICAL FIX 3] Web App Manifest Linked: Connects manifest.json for true Native App installation.
   [ARCHITECTURE] Zero-latency routing. Network payload completely delegated to external `auth.js`.
 -->
 <html lang="en">
@@ -19,7 +20,8 @@
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#111827">
     
-    <!-- Apple iOS 전용 PWA 록다운 -->
+    <!-- 🚨 [CRITICAL FIX] W3C 표준 및 Apple iOS 전용 PWA 메타태그 융합 -->
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Y2C Portal">
@@ -91,7 +93,7 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 🌟 Tailwind 커스텀 테마 엔진 (100% 복원) -->
+    <!-- 🌟 Tailwind 커스텀 테마 엔진 -->
     <script>
         tailwind.config = {
             theme: {
@@ -257,7 +259,6 @@
 <body id="mainBody" class="flex items-center justify-center p-4 sm:p-6 overflow-hidden relative selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
     <!-- 🌟 [복원 5] 제로 레이턴시 라우팅 (Zero-Latency Routing) -->
-    <!-- auth.js가 로딩되기도 전에, 기존 세션이 유효하면 0초 만에 대시보드로 강제 우회시킵니다. -->
     <script>
         (function() {
             try {
@@ -386,7 +387,7 @@
                 </p>
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V50.00 PWA
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V51.00 PWA
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <p id="networkStatusPill" class="font-montserrat text-[8px] font-bold text-gray-400 tracking-[0.1em] uppercase transition-colors duration-300">
@@ -397,7 +398,6 @@
         </form>
     </main>
 
-    <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
@@ -417,8 +417,7 @@
 
     <script>
     /**
-     * 🌟 V50.00 Enterprise Login Engine (100% UI Restoration Edition)
-     * DOM Manipulation isolated to UI only. Auth delegation strictly bound to Y2C_AuthEngine.
+     * 🌟 V51.00 Enterprise Login Engine
      */
     document.addEventListener("DOMContentLoaded", () => {
         
