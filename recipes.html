@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V61.00 Enterprise Recipe Center GRAND FINALE - 10X SWR ACCELERATED EDITION 🌟
+  🌟 V63.00 Enterprise Recipe Center GRAND FINALE - 10X SWR SYNCHRONIZED EDITION 🌟
+  [CRITICAL FIX 1] ReferenceError Eradicated: Injected missing I18N Engine (`currentLang`, `changeLanguage`) that was crashing the main thread.
   [ACCELERATOR 1] SWR (Stale-While-Revalidate): Loads recipes instantly from IndexedDB in < 100ms.
   [ACCELERATOR 2] Virtual DOM Chunking: Renders recipe grid without main thread locking via Y2C_Accelerator.
   [ACCELERATOR 3] Debounced Search: Prevents UI stuttering during query typing.
   [RESTORED 1] Strict Auth Routing: Vendors are immediately kicked out.
   [RESTORED 2] Dynamic Content Parsing: Multi-line strings to beautiful UI lists/steps intact.
   [RESTORED 3] Secure Print Engine: @media print isolation for clean, watermarked kitchen printing preserved.
-  [CROSS-VALIDATED] Y2C Dual-Logo Header & Mobile Notch fix.
 -->
 <html lang="en">
 <head>
@@ -133,9 +133,6 @@
             transform: translateZ(0); touch-action: manipulation;
         }
 
-        /* 🚀 [ACCELERATOR] CSS GPU & Off-Screen 렌더링 차단 엔진 */
-        .accelerated-container { content-visibility: auto; contain-intrinsic-size: auto 800px; }
-
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; border: 2px solid var(--bg-light); }
@@ -164,7 +161,6 @@
 
         .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
-        
         .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
         
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
@@ -250,11 +246,11 @@
             </div>
 
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Master DB</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden">Advisory Invoice</a>
+                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
             <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
@@ -269,7 +265,7 @@
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
                     <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none">LOGOUT</button>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
 
@@ -278,11 +274,11 @@
 
     <!-- 🚨 모바일 노치(Home Bar) 가림 보호망 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
-        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Dashboard</a>
-        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Item Catalog</a>
-        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap">Recipe Center</a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Master DB</a>
-        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap">Advisory Invoice</a>
+        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
 
     <!-- 🚨 권한 기반 라우팅 해제 -->
@@ -334,7 +330,7 @@
                     <input type="text" id="recipeSearchInput" class="premium-input bg-white pl-11 !rounded-full" placeholder="Search recipes..." autocomplete="off">
                 </div>
                 <div class="relative w-full sm:w-48">
-                    <select id="recipeCategoryFilter" class="premium-input bg-white cursor-pointer appearance-none !rounded-full">
+                    <select id="recipeCategoryFilter" class="premium-input bg-white cursor-pointer appearance-none !rounded-full text-[13px] font-bold">
                         <option value="ALL">All Categories</option>
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500">
@@ -345,7 +341,7 @@
         </header>
 
         <!-- 🌟 레시피 그리드 (가상 DOM SWR 렌더러 적용 영역) -->
-        <div id="recipeGrid" class="accelerated-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div id="recipeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style="content-visibility: auto; contain-intrinsic-size: auto 500px;">
             <!-- Shimmer Loading -->
             <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm h-48 shimmer-bg"></div>
             <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm h-48 shimmer-bg"></div>
@@ -438,7 +434,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V61.00 SWR ACCELERATED</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">V63.00 SYNCHRONIZED</span>
                 </div>
             </div>
         </div>
@@ -464,11 +460,11 @@
 
     <script>
     /**
-     * 🌟 V61.00 Enterprise Recipe Center Logic (SWR + Hyper-Accelerator)
+     * 🌟 V63.00 Enterprise Recipe Center Logic (SWR + Hyper-Accelerator)
+     * [CRITICAL FIX] `ReferenceError` eliminated by injecting global I18N Engine (`currentLang`, `changeLanguage`).
      * [ACCELERATOR] IndexedDB SWR Architecture eliminates white screens by pre-rendering cached data in 0.1s.
      * [ACCELERATOR] Y2C_Accelerator chunks DOM creations to free up the Main Thread.
      * [ACCELERATOR] Debounced Search Engine ensures 60FPS typing experience.
-     * [DYNAMIC] Real-time regex parsing for multi-line ingredients & instructions intact.
      */
     document.addEventListener('DOMContentLoaded', () => {
         
@@ -501,10 +497,53 @@
         const btnClose = document.getElementById('btnCloseModal');
 
         // ==========================================
+        // 🚨 [CRITICAL FIX] 다국어(i18n) 번역 엔진 완벽 이식
+        // ==========================================
+        const I18N_DICT = {
+            en: {
+                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+                "logout": "LOGOUT", "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization."
+            },
+            ko: {
+                "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+                "logout": "로그아웃", "dash_title": "엔터프라이즈 대시보드", "dash_desc": "실시간 핵심 성과 지표 및 매출 데이터 동기화 현황입니다."
+            }
+        };
+
+        let currentLang = 'en';
+        try { currentLang = localStorage.getItem('y2c_lang') === 'ko' ? 'ko' : 'en'; } catch(e){}
+
+        window.changeLanguage = function(lang) {
+            const safeLang = lang === "ko" ? "ko" : "en";
+            currentLang = safeLang; 
+            try { localStorage.setItem('y2c_lang', safeLang); } catch(e){}
+            
+            const btnEn = document.getElementById('lang_en'), btnKo = document.getElementById('lang_ko');
+            if (btnEn && btnKo) {
+                btnEn.className = safeLang === 'en' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none";
+                btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none";
+            }
+            if (typeof window.applyTranslations === 'function') window.applyTranslations();
+        };
+
+        window.applyTranslations = function() {
+            const dict = I18N_DICT[currentLang] || I18N_DICT['en'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.innerHTML = dict[key];
+            });
+        };
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.addEventListener('click', () => {
+            if (typeof Y2C_AuthEngine !== 'undefined') Y2C_AuthEngine.logout();
+        });
+
+        // ==========================================
         // 🚀 [ACCELERATION] IndexedDB Caching (SWR 엔진 코어)
         // ==========================================
         const SWR_DB = {
-            name: 'Y2C_Recipe_Cache_V61',
+            name: 'Y2C_Recipe_Cache_V63',
             version: 1,
             storeName: 'cacheStore',
             isSupported: !!window.indexedDB,
@@ -604,16 +643,16 @@
                 if (res && res.success && res.recipes) {
                     const newRecipes = res.recipes;
                     
+                    // Diff Check
                     if (JSON.stringify(AppState.recipes) !== JSON.stringify(newRecipes)) {
                         AppState.recipes = newRecipes;
                         AppState.filteredRecipes = [...AppState.recipes];
                         await SWR_DB.set(cacheKey, newRecipes);
                         
                         extractCategories();
-                        // 기존 검색 필터 유지하며 리렌더링
                         filterEngine();
                         if (isCachedRendered) {
-                            Y2C_AuthEngine.showToast("새로운 레시피가 동기화되었습니다.", "success", 2000);
+                            Y2C_AuthEngine.showToast("새로운 레시피가 성공적으로 동기화되었습니다.", "success", 2000);
                         }
                     }
                 }
