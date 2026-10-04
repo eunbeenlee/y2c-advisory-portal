@@ -1,13 +1,13 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
- * Version: V59.00 GRAND FINALE (Hyper-Gap Accelerated & AbortError Eradicated)
+ * Version: V61.00 GRAND FINALE (Hyper-Gap Accelerated & GZIP Decompression)
  * ============================================================================
- * [CRITICAL FIX 1] AbortError Eradicated: Raised global timeout to 45s to allow massive Catalog/Recipe GAS Cold Starts.
- * [CRITICAL FIX 2] Payload Bottleneck Removed: Purged `keepalive: true` to prevent Chrome's 64KB strict abort rule on large chunks.
- * [ACCELERATOR 1] Preflight Bypass: Forced `Content-Type: text/plain` to skip CORS OPTIONS delay.
- * [ACCELERATOR 2] Cache Buster & Priority Engine: `?_t=Date.now()` & `priority: 'high'` injected for edge-server bypass.
- * [ENTERPRISE UPGRADE] Upgraded all UI Toast messages to premium B2B SaaS corporate standards.
+ * [PHASE 2 ACCELERATOR] Embedded native `DecompressionStream` to instantaneously decode Base64 GZIP payloads.
+ * [CRITICAL FIX 1] AbortError Eradicated: 45s timeout allows massive Catalog/Recipe GAS Cold Starts.
+ * [CRITICAL FIX 2] Payload Bottleneck Removed: `keepalive` purged. `Content-Type: text/plain` bypasses CORS OPTIONS.
+ * [RESTORED] Offline IndexedDB Mutation Queue & Background Auto-Sync Daemon 100% Intact.
+ * [ENTERPRISE UPGRADE] Premium B2B SaaS Toast UI and Deep Purge Logout included.
  * ============================================================================
  */
 
@@ -25,7 +25,7 @@
     }
 
     const CFG = global.SYSTEM_CONFIG;
-    const OFFLINE_DB_NAME = 'Y2C_Enterprise_Offline_DB_V59';
+    const OFFLINE_DB_NAME = 'Y2C_Enterprise_Offline_DB_V61';
     const QUEUE_STORE = 'mutation_request_queue';
 
     // ============================================================================
@@ -141,28 +141,30 @@
     // ============================================================================
     const UIController = {
         
+        toastTimeout: null,
+
         showToast: function(message, type = "info", duration = 4500) {
             const container = document.getElementById('premiumToastContainer');
             if (!container) return;
 
             const toast = document.createElement('div');
             
-            let bgClass = "bg-white", borderClass = "border-gray-200", textClass = "text-gray-700", icon = "ℹ️", iconColor = "text-blue-500";
+            let bgClass = "bg-white", borderClass = "border-gray-200 border-l-gray-500", textClass = "text-gray-700", icon = "ℹ️", iconColor = "text-blue-500";
             
             if (type === "success") {
-                bgClass = "bg-emerald-50"; borderClass = "border-emerald-200"; textClass = "text-emerald-800"; icon = "✅"; iconColor = "text-emerald-600";
+                bgClass = "bg-emerald-50"; borderClass = "border-emerald-200 border-l-emerald-500"; textClass = "text-emerald-800"; icon = "✅"; iconColor = "text-emerald-600";
             } else if (type === "error") {
-                bgClass = "bg-red-50"; borderClass = "border-red-200"; textClass = "text-[#E3000F]"; icon = "⚠️"; iconColor = "text-[#E3000F]";
+                bgClass = "bg-red-50"; borderClass = "border-red-200 border-l-[#E3000F]"; textClass = "text-[#E3000F]"; icon = "🚨"; iconColor = "text-[#E3000F]";
             } else if (type === "warning") {
-                bgClass = "bg-amber-50"; borderClass = "border-amber-200"; textClass = "text-amber-800"; icon = "⚡"; iconColor = "text-amber-500";
+                bgClass = "bg-amber-50"; borderClass = "border-amber-200 border-l-amber-500"; textClass = "text-amber-800"; icon = "⚠️"; iconColor = "text-amber-500";
             }
 
-            toast.className = `transform transition-all duration-500 translate-x-full opacity-0 flex items-start gap-3 p-4 rounded-2xl shadow-2xl border ${bgClass} ${borderClass} backdrop-blur-md relative overflow-hidden group`;
+            toast.className = `transform transition-all duration-500 translate-x-full opacity-0 flex items-start gap-3 p-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border ${bgClass} ${borderClass} border-l-4 backdrop-blur-md relative overflow-hidden group`;
             
             toast.innerHTML = `
                 <div class="flex-shrink-0 text-lg mt-0.5 ${iconColor}">${icon}</div>
                 <div class="flex-1">
-                    <p class="text-[13px] font-bold ${textClass} leading-snug font-inter tracking-wide">${message}</p>
+                    <p class="text-[13px] sm:text-[14px] font-bold ${textClass} leading-snug font-inter tracking-wide">${this.escapeHtml(message)}</p>
                 </div>
                 <button type="button" class="text-gray-400 hover:${textClass} transition-colors focus:outline-none ml-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -172,7 +174,6 @@
 
             container.appendChild(toast);
 
-            // 🚨 큐 오버플로우 방지 로직 보존 (최대 5개)
             if (container.childNodes.length > 5) {
                 container.removeChild(container.firstChild);
             }
@@ -261,23 +262,30 @@
             return sessionStorage.getItem(CFG.STORAGE_KEYS.USER_TOKEN) || localStorage.getItem(CFG.STORAGE_KEYS.USER_TOKEN);
         },
         
+        getRegion: function() {
+            return sessionStorage.getItem(CFG.STORAGE_KEYS.REGION) || localStorage.getItem(CFG.STORAGE_KEYS.REGION) || "ON";
+        },
+
         saveSession: function(data, rememberMe) {
+            this.clearSession(); // 꼬임 방지 선제 삭제
             const storage = rememberMe ? localStorage : sessionStorage;
             storage.setItem(CFG.STORAGE_KEYS.USER_TOKEN, data.token);
             storage.setItem(CFG.STORAGE_KEYS.ROLE, data.role);
             storage.setItem(CFG.STORAGE_KEYS.CLIENT_NAME, data.clientName);
-            storage.setItem(CFG.STORAGE_KEYS.REGION, data.clientState);
+            storage.setItem(CFG.STORAGE_KEYS.REGION, data.allowedStates || data.clientState || "ON");
+            storage.setItem("y2c_id", data.id || "");
             
             if (!rememberMe) {
                 localStorage.setItem(CFG.STORAGE_KEYS.USER_TOKEN, data.token);
                 localStorage.setItem(CFG.STORAGE_KEYS.ROLE, data.role);
                 localStorage.setItem(CFG.STORAGE_KEYS.CLIENT_NAME, data.clientName);
+                localStorage.setItem(CFG.STORAGE_KEYS.REGION, data.allowedStates || data.clientState || "ON");
             }
         },
         
         clearSession: function() {
-            sessionStorage.clear();
-            localStorage.clear();
+            const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
+            keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
         },
 
         isSessionValid: function() {
@@ -318,6 +326,7 @@
                     throw new Error("보안 세션이 만료되었습니다. 기업 데이터 보호를 위해 재로그인 해주십시오.");
                 }
                 payload.token = SessionManager.getToken();
+                payload.clientState = SessionManager.getRegion();
             }
 
             const isMutation = ["save_order", "update_stock", "update_master_data", "save_sales_records", "upsert_hq_order", "update_hq_order_status", "cancel_order"].includes(action);
@@ -326,24 +335,22 @@
                 return this.handleOfflineScenario(action, payload, isMutation);
             }
 
-            // 🚀 [핵심 가속] 타임스탬프 캐시 버스터 주입으로 GAS 엣지 서버의 302 리다이렉트 지연을 강제 돌파합니다.
+            // 🚀 [가속 1] 캐시 버스터 주입으로 구글 엣지 서버의 302 리다이렉트 지연 강제 돌파
             const targetUrl = `${CFG.API.BASE_URL}?_t=${Date.now()}&action=${action}`;
 
-            // 🚨 [크리티컬 버그 타파] 구글 서버의 콜드 스타트를 견디기 위해 전체 타임아웃을 45초(45000ms)로 강제 상향 연장.
-            // 더이상 "signal is aborted without reason" 에러로 인해 테이블이 하얗게 뻗지 않습니다.
-            const timeoutDuration = (action === "login") ? 20000 : 45000;
+            // 🚨 [보안] 구글 서버의 콜드 스타트를 견디기 위해 전체 타임아웃 45초 유지
+            const timeoutDuration = (action === "login") ? 20000 : CFG.API.TIMEOUT_MS || 45000;
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
             try {
-                // 🚀 [가속] 통신 우선순위 강제 상승, 캐시 우회, 그리고 CORS Preflight 차단을 위한 text/plain 강제 유지
-                // 🚨 [버그 타파] 브라우저가 대용량 데이터를 자르는 `keepalive: true` 옵션을 완전히 제거하여 AbortError 원천 박멸.
+                // 🚀 [가속 2] CORS Preflight 차단을 위한 text/plain 유지 및 keepalive 제거
                 const fetchOptions = {
                     method: 'POST',
                     mode: 'cors',
                     redirect: 'follow', 
-                    cache: 'no-store', // 브라우저 캐시 스킵
-                    priority: 'high',  // 네트워크 큐 최우선
+                    cache: 'no-store', 
+                    priority: 'high',  
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload),
                     signal: controller.signal
@@ -356,7 +363,7 @@
                     if (response.status === 404 || response.status === 401 || response.status === 403) {
                         const explicitError = new Error(`엔터프라이즈 데이터 노드 연결 실패 (HTTP ${response.status}). 배포 주소 및 권한을 확인하십시오.`);
                         explicitError.httpStatus = response.status;
-                        explicitError.isFatal = true; // 404/403은 재시도해도 무의미하므로 무한루프 자폭 차단
+                        explicitError.isFatal = true; // 무한루프 재시도 방지
                         throw explicitError;
                     }
                     const httpError = new Error(`서버 네트워크 장애 (HTTP ${response.status})`);
@@ -373,7 +380,32 @@
                     throw new Error("서버 페이로드 파싱 실패. 시스템 포맷 오염이 감지되었습니다.");
                 }
 
-                // 🚨 [RESTORED] 에러 하이재킹 방어 (서버의 논리 에러 보존)
+                // 🚨 [PHASE 2 ACCELERATOR] GZIP Base64 해독 로직 이식
+                if (jsonResponse.isCompressed && jsonResponse.method === "gzip" && jsonResponse.payload) {
+                    try {
+                        const binaryString = atob(jsonResponse.payload);
+                        const len = binaryString.length;
+                        const bytes = new Uint8Array(len);
+                        for (let i = 0; i < len; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        
+                        if ('DecompressionStream' in window) {
+                            const ds = new DecompressionStream('gzip');
+                            const decompressedStream = new Response(bytes).body.pipeThrough(ds);
+                            const buffer = await new Response(decompressedStream).arrayBuffer();
+                            const jsonText = new TextDecoder('utf-8').decode(buffer);
+                            jsonResponse = JSON.parse(jsonText);
+                        } else {
+                            throw new Error("DecompressionStream API Not Supported.");
+                        }
+                    } catch (decompErr) {
+                        console.error("[Y2C Engine] GZIP Decompression Failed:", decompErr);
+                        throw new Error("압축된 서버 데이터를 해독하는 데 실패했습니다. 브라우저를 업데이트해 주십시오.");
+                    }
+                }
+
+                // 🚨 에러 하이재킹 방어 (서버의 논리 에러 보존)
                 if (jsonResponse.success === false) {
                     if (jsonResponse.message && (jsonResponse.message.includes("만료") || jsonResponse.message.includes("로그인"))) {
                         SessionManager.clearSession();
@@ -389,21 +421,18 @@
             } catch (error) {
                 clearTimeout(timeoutId);
 
-                // 서버의 진짜 메시지는 무조건 UI로 직행 (Hijacking 방어)
                 if (error.isBackendLogicError) throw error; 
                 if (error.message.includes("엔드포인트")) throw error; 
-                // 404 등 치명적 에러는 재시도 없이 즉각 튕겨냄 (Fast-Fail)
                 if (error.isFatal) throw error;
 
                 const isNetworkError = error.name === 'AbortError' || error.message.includes('Failed to fetch') || error.message.includes('HTTP Error');
                 
-                if (isNetworkError && retryCount < CFG.API.MAX_RETRIES) {
+                if (isNetworkError && retryCount < (CFG.API.MAX_RETRIES || 2)) {
                     // 🚀 지수 백오프 기반 랜덤 딜레이 (Jitter) 적용
                     const delay = Math.pow(2, retryCount) * 1000 + Math.floor(Math.random() * 500); 
                     console.warn(`[Y2C Network Engine] Node latency detected (${error.message}). Re-establishing connection in ${delay}ms...`);
                     
                     if (retryCount === 0) {
-                        // 💎 대기업식 멘트 적용: 사용자 안심 유도
                         UIController.showToast("대용량 데이터 응답 지연 감지. 백업 채널을 통해 재연결을 시도합니다...", "warning", 3000);
                     }
                     
@@ -422,7 +451,6 @@
                     return {
                         success: true,
                         offlineQueued: true,
-                        // 💎 대기업식 멘트 적용
                         message: "[네트워크 단절] 로컬 보안 스토리지(IndexedDB)에 트랜잭션이 안전하게 임시 적재되었습니다. 통신 복구 시 백그라운드 동기화가 실행됩니다.",
                         action: action,
                         batchId: payload.batchId || `OFFLINE-${Date.now()}` 
@@ -477,7 +505,10 @@
                         const response = await fetch(targetUrl, fetchOptions);
                         
                         if (response.ok) {
-                            const resJson = await response.json();
+                            const rawText = await response.text();
+                            let resJson;
+                            try { resJson = JSON.parse(rawText); } catch(e) { throw new Error("Parse Error"); }
+
                             if (resJson.success) {
                                 await OfflineEngine.dequeueRequest(record.id);
                                 UIController.showToast(`[동기화 완료] 오프라인 대기열에 있던 [${record.action}] 트랜잭션이 메인 서버에 병합되었습니다.`, "success");
@@ -547,7 +578,18 @@
 
         logout: function() {
             SessionManager.clearSession();
-            global.location.replace("index.html");
+            
+            // 🚨 Deep Purge: PWA Service Worker Cache Delete
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    for (let name of names) {
+                        if (name.startsWith('Y2C')) caches.delete(name);
+                    }
+                }).catch(() => {});
+            }
+            
+            UIController.showToast("보안 세션이 완전히 종료되었습니다.", "success", 2000);
+            setTimeout(() => { global.location.replace("index.html"); }, 600);
         },
 
         bindLoginForm: function(formId) {
@@ -576,7 +618,6 @@
                 userPwInput.classList.remove('input-error');
 
                 if (!id || !pw) {
-                    // 💎 대기업식 멘트 적용
                     UIController.showToast("보안 인가 실패: 파트너 식별자(ID) 및 패스키(Passkey)를 모두 입력해 주십시오.", "error");
                     if (!id) userIdInput.classList.add('input-error');
                     if (!pw) userPwInput.classList.add('input-error');
@@ -587,13 +628,11 @@
                 if(btnText) btnText.classList.add('hidden');
                 if(btnSpinner) btnSpinner.classList.remove('hidden');
 
-                // 모바일 환경 키보드 가림 현상 방지를 위해 포커스 강제 해제
                 setTimeout(() => {
                     userIdInput.blur();
                     userPwInput.blur();
                 }, 500);
 
-                // 🚀 동적 텍스트 애니메이션 주입 (콜드 스타트 시 사용자 답답함 타파)
                 const spinnerTxt = btnSpinner.querySelector('span');
                 let txtState = 0;
                 let loadingInterval = setInterval(() => {
@@ -609,9 +648,9 @@
                     const res = await NetworkEngine.dispatch("login", { id: id, pw: pw });
 
                     if (res && res.success) {
+                        res.id = id; // 로컬 저장을 위한 ID 패치
                         SessionManager.saveSession(res, true);
                         
-                        // 💎 대기업식 멘트 적용
                         UIController.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
                         
                         setTimeout(() => {
@@ -625,7 +664,6 @@
                         }, 800);
                     }
                 } catch (err) {
-                    // 서버 에러를 그대로 전달하되, UI 토스트로 세련되게 표현
                     let finalMsg = err.message;
                     if(err.message.includes("초과")) finalMsg = "서버 응답 지연: 엔터프라이즈 노드 연결에 실패했습니다. 다시 한 번 클릭해 주십시오.";
                     
@@ -647,7 +685,7 @@
     };
 
     global.Y2C_AuthEngine = Object.freeze(AuthEngine);
-    console.log("[Y2C Security] Auth Engine V59.00 Injected and Frozen.");
+    console.log("[Y2C Security] Auth Engine V61.00 Injected and Frozen.");
 
     global.addEventListener('DOMContentLoaded', () => {
         const logoutBtn = document.getElementById('logoutBtn');
