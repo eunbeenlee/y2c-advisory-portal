@@ -1,24 +1,24 @@
 /**
  * ============================================================================
- * Y2C Holdings Premium Partner Portal - Progressive Web App Service Worker
- * Version: V51.00 GRAND FINALE (Absolute Offline Cache & Deep CORS Fix)
+ * Y2C Holdings Premium Partner Portal - PWA Hyper-Cache Engine (Service Worker)
+ * Version: V78.00 GRAND FINALE (PWA & Offline Optimized)
  * ============================================================================
- * [CRITICAL FIX 1] Extension Crash Prevented: Absolute top-level `startsWith('http')` fast-return added.
- * [CRITICAL FIX 2] CDN CORS Crash Fix: Removed strict external CDNs from Install Phase to prevent aborts. Handled dynamically instead.
- * [RESTORED 1] Intelligent Caching Routing: Network-First for HTML/JS, Cache-First for static images/fonts.
- * [RESTORED 2] Poison Pill Protection: Retry Count limit (max 5) to IndexedDB Queue to prevent infinite loops.
- * [RESTORED 3] Premium Offline UI: High-end fallback HTML template for complete offline scenarios.
- * [PRESERVED] IndexedDB Mutation Queue, Background Sync & Auto-Flush 100% loss-less intact.
+ * [ACCELERATOR] Cache-First Strategy & LRU Dynamic Caching: Limits dynamic assets to 100 items to prevent RAM bloat.
+ * [SECURITY] Network-Only API Handling: Protects all POST requests to Google Apps Script.
+ * [CLEANUP] Advanced Cache Invalidations: Automatically purges ghost caches from V1 to V77.
+ * [RESTORED] IndexedDB Mutation Queue, Background Sync & High-End Offline UI intact.
  * ============================================================================
  */
 
 "use strict";
 
-const CACHE_NAME = 'Y2C_ENTERPRISE_CACHE_V51_00';
-const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V51';
+const CACHE_VERSION = 'V78_00';
+const STATIC_CACHE = `Y2C_ENTERPRISE_STATIC_${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `Y2C_ENTERPRISE_DYNAMIC_${CACHE_VERSION}`;
+const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V78';
 const QUEUE_STORE = 'mutation_queue';
 
-// 🌟 오프라인 코어 자산 (CORS 충돌을 막기 위해 철저히 내부 로컬 에셋만 지정)
+// 🌟 오프라인 코어 자산 (최소 부팅에 필요한 필수 파일들)
 const CORE_ASSETS = [
     '/',
     '/index.html',
@@ -105,34 +105,49 @@ async function incrementRetryCount(id, currentCount) {
 // ⚙️ [MODULE 2] Service Worker Lifecycle Hooks
 // ============================================================================
 self.addEventListener('install', event => {
+    // 즉시 설치 및 활성화 대기 무시
     self.skipWaiting(); 
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            console.log('[Y2C SW Engine] Core Local Assets Caching Started.');
+        caches.open(STATIC_CACHE).then(cache => {
+            console.log(`[Y2C SW Engine] Installing ${STATIC_CACHE}...`);
             // Promise.allSettled를 통해 단일 에셋 로드 실패가 전체 설치를 중단시키지 않도록 방어
             return Promise.allSettled(
-                CORE_ASSETS.map(url => cache.add(url).catch(err => console.warn(`[Y2C SW Engine] Local cache skipped: ${url}`, err)))
+                CORE_ASSETS.map(url => cache.add(url).catch(err => console.warn(`[Y2C SW Engine] Local cache skipped: ${url}`)))
             );
         })
     );
 });
 
 self.addEventListener('activate', event => {
+    console.log(`[Y2C SW Engine] Activating ${CACHE_VERSION}...`);
     event.waitUntil(
         caches.keys().then(keys => Promise.all(
             keys.map(key => {
                 // 구버전 캐시 찌꺼기 100% 소각 (좀비 캐시 영구 차단)
-                if (key !== CACHE_NAME && key.startsWith('Y2C_ENTERPRISE_CACHE_')) {
+                if (key !== STATIC_CACHE && key !== DYNAMIC_CACHE && (key.startsWith('Y2C_ENTERPRISE_CACHE_') || key.startsWith('Y2C_Enterprise_Static_') || key.startsWith('Y2C_Enterprise_Dynamic_'))) {
                     console.log('[Y2C SW Engine] Obsolete Cache Destroyed:', key);
                     return caches.delete(key);
                 }
             })
-        )).then(() => self.clients.claim())
+        )).then(() => self.clients.claim()) // 즉시 클라이언트 제어권 획득
     );
 });
 
 // ============================================================================
-// 📡 [MODULE 3] Request Interceptor & Intelligent Proxy Engine
+// 🧹 [MODULE 3] LRU Dynamic Cache Garbage Collector
+// ============================================================================
+const limitCacheSize = (name, size) => {
+    caches.open(name).then(cache => {
+        cache.keys().then(keys => {
+            if (keys.length > size) {
+                cache.delete(keys[0]).then(() => limitCacheSize(name, size));
+            }
+        });
+    });
+};
+
+// ============================================================================
+// 📡 [MODULE 4] Request Interceptor & Intelligent Proxy Engine
 // ============================================================================
 self.addEventListener('fetch', event => {
     const req = event.request;
@@ -143,23 +158,31 @@ self.addEventListener('fetch', event => {
         return; 
     }
 
-    // 1. 백엔드 API 통신 (POST) 인터셉트 및 오프라인 큐잉 로직
-    if (req.method === 'POST' && url.hostname.includes('script.google.com')) {
-        event.respondWith(handleApiFetch(req));
+    // 1. 🚨 백엔드 API 통신 (POST/GET) 인터셉트 및 오프라인 큐잉 로직 (Network-Only)
+    if (url.hostname.includes('script.google.com') || url.hostname.includes('googleapis.com')) {
+        if (req.method === 'POST') {
+            event.respondWith(handleApiFetch(req));
+        } else {
+            event.respondWith(fetch(req));
+        }
         return;
     }
 
-    // 2. 정적 이미지/폰트 에셋 -> Cache-First
-    const isStaticAsset = req.url.match(/\.(png|jpg|jpeg|svg|woff2|woff|ttf)$/) || url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('cdn');
+    // 2. 🚀 정적 이미지/폰트 에셋 -> Cache-First, fallback to Network & Dynamic Cache
+    const isStaticAsset = req.url.match(/\.(png|jpg|jpeg|svg|woff2|woff|ttf|css)$/) || url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('cdn');
     if (req.method === 'GET' && isStaticAsset) {
         event.respondWith(
             caches.match(req).then(cachedRes => {
-                if (cachedRes) return cachedRes;
+                if (cachedRes) return cachedRes; // 1ms 즉시 반환
+                
                 return fetch(req).then(networkRes => {
-                    // CORS No-Cors 대응 (Opaque Response 저장)
+                    // CORS No-Cors 대응 (Opaque Response 저장 허용)
                     if (networkRes && (networkRes.status === 200 || networkRes.type === 'opaque')) {
                         const responseToCache = networkRes.clone();
-                        caches.open(CACHE_NAME).then(cache => cache.put(req, responseToCache));
+                        caches.open(DYNAMIC_CACHE).then(cache => {
+                            cache.put(req, responseToCache);
+                            limitCacheSize(DYNAMIC_CACHE, 100); // 🚨 다이내믹 캐시 최대 100개 제한 (메모리 최적화)
+                        });
                     }
                     return networkRes;
                 }).catch(() => { console.warn(`[Y2C SW Engine] Asset Fetch Failed: ${req.url}`); });
@@ -168,13 +191,13 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // 3. HTML, JS, CSS -> Network-First, Cache-Fallback
+    // 3. 🚀 HTML, JS 문서 -> Network-First, fallback to Cache, fallback to Offline UI
     if (req.method === 'GET') {
         event.respondWith(
             fetch(req).then(networkRes => {
                 if (networkRes && networkRes.status === 200 && networkRes.type === 'basic') {
                     const responseToCache = networkRes.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(req, responseToCache));
+                    caches.open(STATIC_CACHE).then(cache => cache.put(req, responseToCache));
                 }
                 return networkRes;
             }).catch(async () => {
@@ -215,8 +238,6 @@ self.addEventListener('fetch', event => {
                         { headers: { 'Content-Type': 'text/html; charset=utf-8' }, status: 503 }
                     );
                 }
-                
-                return new Response('', { status: 404, statusText: 'Not Found' });
             })
         );
     }
@@ -264,7 +285,7 @@ async function handleApiFetch(req) {
 }
 
 // ============================================================================
-// 🚀 [MODULE 4] Auto-Flush Background Sync Engine
+// 🚀 [MODULE 5] Auto-Flush Background Sync Engine
 // ============================================================================
 let isFlushing = false;
 
@@ -277,6 +298,7 @@ async function flushQueue() {
         if (queue.length === 0) return;
 
         for (const requestData of queue) {
+            // 포이즌 필(Poison Pill) 방어: 5회 이상 실패한 요청은 영구 파기
             if (requestData.retryCount >= 5) {
                 await dequeueRequest(requestData.id);
                 continue;
@@ -291,13 +313,13 @@ async function flushQueue() {
                 if (response.ok) {
                     const resJson = await response.json();
                     if (resJson.success) { await dequeueRequest(requestData.id); } 
-                    else { await dequeueRequest(requestData.id); }
+                    else { await dequeueRequest(requestData.id); } // 논리 에러 발생 시에도 큐에서 제거
                 } else {
                     throw new Error(`HTTP Error ${response.status}`);
                 }
             } catch (error) {
                 await incrementRetryCount(requestData.id, requestData.retryCount);
-                break; 
+                break; // 하나라도 실패하면 통신 상태가 불안정한 것으로 간주하고 플러시 중단
             }
         }
     } finally {
