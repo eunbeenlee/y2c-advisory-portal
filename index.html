@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V52.00 Enterprise Login Gateway GRAND FINALE - Absolute Corporate Standard 🌟
+  🌟 V67.00 Enterprise Login Gateway GRAND FINALE - MOBILE OPTIMIZED EDITION 🌟
+  [CRITICAL FIX 1] Mobile Virtual Keyboard Squish Bug Resolved: Changed `overflow-hidden` to `overflow-y-auto` with `100dvh`.
+  [CRITICAL FIX 2] Session Safe-Escape: Added "RESET SESSION (LOGOUT)" button to flush ghost/expired tokens.
   [RESTORED 1] Original Y2C Dual-Logo UI exactly restored based on client's architectural request.
   [RESTORED 2] Inner-Floating Labels & Magnetic 3D Button (.btn-hip) 100% loss-less recovered.
   [RESTORED 3] Cinematic Entry Animations & Background Glow Shimmer strictly preserved.
-  [RESTORED 4] Zero-Latency Initial Routing (IIFE) injected before DOM paint.
-  [CRITICAL FIX 1] Service Worker Registration & PWA Manifest properly mapped to clear all warnings.
-  [ARCHITECTURE] Zero-latency routing. Network payload completely delegated to external `auth.js`.
+  [ARCHITECTURE] Zero-latency routing. Network payload completely delegated to external `auth.js` V59+.
 -->
 <html lang="en">
 <head>
@@ -64,7 +64,10 @@
             document.documentElement.classList.remove('fouc-lock');
             document.documentElement.style.opacity = '1';
             document.documentElement.style.visibility = 'visible';
-            if(document.body) document.body.style.opacity = '1';
+            if(document.body) {
+                document.body.classList.remove('fouc-lock');
+                document.body.style.opacity = '1';
+            }
         }, 800);
 
         window.addEventListener('load', function() {
@@ -72,12 +75,14 @@
             document.documentElement.classList.remove('fouc-lock');
             document.documentElement.style.opacity = '1';
             document.documentElement.style.visibility = 'visible';
-            if(document.body) document.body.style.opacity = '1';
+            if(document.body) {
+                document.body.classList.remove('fouc-lock');
+                document.body.style.opacity = '1';
+            }
         });
 
         window.addEventListener('touchstart', function() {}, {passive: true});
         window.addEventListener('wheel', function() {}, {passive: true});
-        window.addEventListener('scroll', function() {}, {passive: true});
     </script>
 
     <!-- Tailwind CSS Hijacker -->
@@ -145,16 +150,31 @@
             --input-bg: #f8fafc;
         }
         
-        /* 🌟 터치 딜레이, 바운스 스크롤 원천 차단 */
+        /* 🚨 [모바일 최적화] 가상 키보드 스퀴즈 방어 & 상하 스크롤 허용 */
         html, body { 
             overscroll-behavior-y: none; 
             touch-action: manipulation; 
             background-color: var(--bg-light) !important; 
             color: var(--premium-charcoal); 
             font-family: 'Inter', sans-serif; 
-            margin: 0; padding: 0; min-height: 100dvh;
+            margin: 0; padding: 0; 
+            min-height: 100dvh;
             -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
             transform: translateZ(0); 
+        }
+
+        /* 모바일에서 폼이 잘리지 않도록 overflow-y-auto 허용 */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 1rem;
+            /* Safe area for mobile notch */
+            padding-bottom: max(env(safe-area-inset-bottom), 1.5rem);
+            padding-top: max(env(safe-area-inset-top), 1.5rem);
         }
 
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
@@ -165,7 +185,7 @@
             border-radius: 2.5rem; position: relative; z-index: 10;
         }
         
-        /* 🌟 Inner-Floating 방식 프리미엄 인풋 박스 */
+        /* 🌟 Inner-Floating 방식 프리미엄 인풋 박스 (iOS 줌인 방어: font-size 16px) */
         .premium-input {
             appearance: none; -webkit-appearance: none; background: var(--input-bg);
             border: 1.5px solid #e2e8f0; color: var(--premium-charcoal);
@@ -255,7 +275,7 @@
     </style>
 </head>
 
-<body id="mainBody" class="flex items-center justify-center p-4 sm:p-6 overflow-hidden relative selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
+<body id="mainBody" class="selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
     <!-- 🌟 제로 레이턴시 라우팅 (Zero-Latency Routing) -->
     <script>
@@ -269,7 +289,7 @@
                     else if (_sysRole === "PARTNER") { window.location.replace("dashboard.html"); } 
                     else { window.location.replace("items.html"); }
                 } else {
-                    const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region"];
+                    const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
                     keysToClear.forEach(function(k) { localStorage.removeItem(k); sessionStorage.removeItem(k); });
                 }
             } catch (e) { console.error("[Y2C Boot Init]", e); }
@@ -289,9 +309,10 @@
         <div class="absolute bottom-[5%] -right-[5%] w-[40%] h-[40%] bg-amber-500/5 rounded-full blur-[120px]"></div>
     </div>
 
-    <main class="w-full max-w-[440px] z-10 block relative mt-4 sm:mt-0 cinematic-enter">
+    <!-- 🌟 메인 컨테이너 (모바일 Y스크롤 대응을 위한 margin: auto) -->
+    <main class="w-full max-w-[440px] z-10 block relative my-auto cinematic-enter">
         
-        <header class="text-center mb-8 block w-full relative z-20">
+        <header class="text-center mb-8 block w-full relative z-20 mt-8">
             <!-- 🌟 [복원 완수] Y2C 오리지널 듀얼 샌드박스 로고 -->
             <div class="flex items-center justify-center gap-4 mb-8">
                 <!-- 붉은 펜촉 신전 로고 (라운드 스퀘어) -->
@@ -386,12 +407,13 @@
                 </p>
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V52.00 PWA
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V67.00
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <p id="networkStatusPill" class="font-montserrat text-[8px] font-bold text-gray-400 tracking-[0.1em] uppercase transition-colors duration-300">
-                        Secure Connection
-                    </p>
+                    <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches and session tokens.">
+                        RESET SESSION
+                    </button>
                 </div>
             </footer>
         </form>
@@ -416,7 +438,7 @@
 
     <script>
     /**
-     * 🌟 V52.00 Enterprise Login Engine
+     * 🌟 V67.00 Enterprise Login Engine (Mobile Optimized)
      */
     document.addEventListener("DOMContentLoaded", () => {
         
@@ -464,7 +486,7 @@
             pwInput.addEventListener('blur', () => { capsLockWarning.classList.remove('active'); });
         }
 
-        // 4. Secure Core Engine Binding
+        // 4. Secure Core Engine Binding (auth.js V59.00+)
         if (typeof Y2C_AuthEngine !== 'undefined') {
             Y2C_AuthEngine.bindLoginForm('loginForm');
         } else {
@@ -473,6 +495,21 @@
             if (container) {
                 container.innerHTML = `<div class="bg-white/95 backdrop-blur-md border border-gray-200 border-l-4 border-l-[#E3000F] text-[#111827] p-4 rounded-xl shadow-lg flex items-center gap-3 font-bold text-[13.5px]"><span class="text-[#E3000F]">⚠️ 보안 통신 모듈(auth.js) 결함: 서버 환경설정을 확인하십시오.</span></div>`;
             }
+        }
+
+        // 5. 🚨 비상 세션 초기화 (Reset Session / Logout)
+        const indexLogoutBtn = document.getElementById('indexLogoutBtn');
+        if (indexLogoutBtn) {
+            indexLogoutBtn.addEventListener('click', () => {
+                if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) {
+                    Y2C_AuthEngine.logout();
+                } else {
+                    // Fallback absolute clearance
+                    const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
+                    keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
+                    window.location.reload();
+                }
+            });
         }
     });
     </script>
