@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V72.00 Enterprise Admin GRAND FINALE - AUTO-MAPPER RESTORED & 10X SWR 🌟
-  [CRITICAL FIX 1] Auto-Mapper Revived: Injected Numeric Extraction Logic to perfectly match Vendor Codes (e.g. 70808SJ -> 70808).
-  [CRITICAL FIX 2] Promise Chain Detonation Prevented: Added `.catch(e => null)` to `Promise.all` to prevent a single 404 error from hanging the entire dashboard.
+  🌟 V73.00 Enterprise Admin GRAND FINALE - PHANTOM CODE RESOLVED 🌟
+  [CRITICAL FIX 1] Master Cross-Check: Explicitly validates AI/Cache mapped `hqCode` against the actual loaded `AppState.catalogItems` to prevent phantom code commits.
+  [CRITICAL FIX 2] Empty Master DB Block: Rejects Excel drop immediately if Master Items failed to load (404/Latency).
   [ACCELERATOR] SWR Engine: Admin tabs load instantly via IndexedDB Cache. Virtual DOM Chunking handles massive Excel arrays.
   [MOBILE OPTIMIZED] 100dvh + overflow-y-auto, `safe-area-inset`, and "RESET SESSION" button merged.
-  [RESTORED] Y2C Dual-Logo Header, Global Logistics Tracker, Franchise DB intact.
+  [RESTORED] Y2C Dual-Logo Header, Numeric Regex Auto-Mapper, Global Logistics Tracker intact.
 -->
 <html lang="en">
 <head>
@@ -123,7 +123,7 @@
     <style>
         :root { --sinjeon-pink: #E3000F; --premium-charcoal: #111827; --bg-light: #F8F9FA; --input-bg: #f8fafc; }
         
-        /* 🚨 [모바일 록다운] 100dvh 적용으로 스크롤 하단 짤림 방지 및 키보드 스퀴즈 방어 */
+        /* 🚨 [UI 록다운] 100dvh 적용으로 스크롤 하단 짤림 방지 및 모바일 키보드 스퀴즈 방어 */
         html, body { 
             overscroll-behavior-y: none; 
             background-color: var(--bg-light) !important; 
@@ -417,7 +417,7 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- 📦 SECTION 3: INBOUND (EXCEL) - PRICE TRACKER & AI AUTO-MAPPER -->
+        <!-- 📦 SECTION 3: INBOUND (EXCEL) - PRICE TRACKER -->
         <!-- ========================================== -->
         <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-8 relative">
             <header class="mb-8">
@@ -671,9 +671,9 @@
 
     <script>
     /**
-     * 🌟 V72.00 Enterprise Admin Quad-Core Integration Logic (AI Auto-Mapper Restored)
-     * [CRITICAL FIX 1] Auto-Mapper Revived: Injected Numeric Extraction Logic to perfectly match Vendor Codes.
-     * [CRITICAL FIX 2] Promise Chain Detonation Prevented: Added `.catch(e => null)` to `Promise.all`
+     * 🌟 V73.00 Enterprise Admin Quad-Core Integration Logic (AI Auto-Mapper Restored)
+     * [CRITICAL FIX 1] Master Cross-Check: Explicitly validates AI/Cache mapped `hqCode` against the actual loaded `AppState.catalogItems` to prevent phantom code commits.
+     * [CRITICAL FIX 2] Empty Master DB Block: Rejects Excel drop immediately if Master Items failed to load (404/Latency).
      * [ACCELERATOR] SWR Cached Loading for Master, Sales, and Orders.
      * [ACCELERATOR] Y2C_Accelerator Asynchronous Chunking Engine injected for heavy Excel parsing.
      */
@@ -1603,6 +1603,11 @@
             if(!files || files.length === 0) return;
             const file = files[0];
             
+            if (AppState.catalogItems.length === 0) {
+                Y2C_AuthEngine.showToast("마스터 상품 DB가 아직 로드되지 않았거나 통신에 실패했습니다. 새로고침 후 다시 시도하십시오.", "error");
+                if(fileInput) fileInput.value = ''; return;
+            }
+
             if (!inboundRegionSelector || !inboundRegionSelector.value) {
                 Y2C_AuthEngine.showToast("입고될 타겟 지역(Target Hub)을 먼저 선택해 주십시오.", "error");
                 inboundRegionSelector.classList.add('border-[#E3000F]', 'animate-pulse');
@@ -1688,6 +1693,16 @@
                 if (!hqCode && item.rawName) {
                     hqCode = AdvancedAutoMapper.findBestMatch(item.rawCode, item.rawName, AppState.catalogItems);
                     if (hqCode) isAiMapped = true;
+                }
+
+                // 🚨 [CRITICAL FIX] 2차 무결성 검증: 찾은 hqCode가 현재 카탈로그 마스터에 실존하는지 확인하여 유령 품번 완전 차단
+                if (hqCode) {
+                    const isExist = AppState.catalogItems.some(c => c.code === hqCode);
+                    if (!isExist) {
+                        console.warn(`[Y2C Excel Mapper] Phantom Code Detected: ${hqCode} for Vendor Code ${item.rawCode}. Rejecting.`);
+                        hqCode = null;
+                        isAiMapped = false;
+                    }
                 }
 
                 displayRows.push({
