@@ -74,6 +74,12 @@
         CONSTANTS: {
             MAX_QTY_LIMIT: 9999, 
             MAX_FILE_SIZE_MB: 10
+        },
+        APP: {
+            VERSION: APP_VERSION,
+            ENVIRONMENT: "PRODUCTION",
+            COMPANY: "SINJEON CANADA / Y2C HOLDINGS LTD.",
+            SUPPORT_EMAIL: "admin@sinjeoncanada.com"
         }
     };
 
