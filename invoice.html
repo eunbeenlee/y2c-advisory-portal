@@ -340,6 +340,7 @@
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
                     <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
         </div>
@@ -354,7 +355,7 @@
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
 
-    <!-- 🚨 권한 기반 라우팅 해제 -->
+    <!-- 🚨 권한 기반 라우팅 동적으로 해제 -->
     <script>
         (function() {
             var role = window.__INITIAL_ROLE__;
@@ -952,7 +953,7 @@
                 }
             } catch (err) { 
                 if (AppState.clients.length === 0) {
-                    clientSel.innerHTML = '<option value="" disabled selected>⚠ 서버 통신 실패 (새로고침 요망)</option>';
+                    clientSel.innerHTML = '<option value="" disabled selected>⚠️ 서버 통신 실패 (새로고침 요망)</option>';
                     clientSel.classList.add('border-[#E3000F]', 'text-[#E3000F]');
                     Y2C_AuthEngine.showToast("가맹점 목록을 불러오지 못했습니다. 네트워크를 확인하고 새로고침 하십시오.", "error"); 
                 }
