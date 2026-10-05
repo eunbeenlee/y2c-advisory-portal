@@ -728,7 +728,7 @@
             dashboardLockTimer = setTimeout(() => {
                 isFetchingDashboard = false;
                 resetRefreshButton();
-            }, 35000);
+            }, 45000); // V63 Auth Engine 타임아웃과 동기화
 
             const cacheKey = `DASHBOARD_DATA_${targetYear}_${targetClient}`;
 
@@ -794,6 +794,16 @@
             if (eTotal) eTotal.textContent = formatCurrency(safeYtdTotal);
             if (ePos) ePos.textContent = formatCurrency(safeYtdPos);
             if (eDel) eDel.textContent = formatCurrency(safeYtdDel);
+
+            // Channel Share Calculation
+            if (safeYtdTotal > 0) {
+                const posPercent = Math.round((safeYtdPos / safeYtdTotal) * 100);
+                const delPercent = 100 - posPercent;
+                const posShareEl = document.getElementById('kpiPosShare');
+                const delShareEl = document.getElementById('kpiDelShare');
+                if (posShareEl) posShareEl.textContent = `Share: ${posPercent}%`;
+                if (delShareEl) delShareEl.textContent = `Share: ${delPercent}%`;
+            }
 
             let rawSales = Array.isArray(data.monthlySales) ? data.monthlySales : [];
             const paddedSales = [];
@@ -986,7 +996,8 @@
                 return st !== "CANCELED" && st !== "COMPLETED";
             });
 
-            document.getElementById('kpiActiveCargo').innerText = activeShipments.length;
+            const kpiActiveCargo = document.getElementById('kpiActiveCargo');
+            if (kpiActiveCargo) kpiActiveCargo.innerText = activeShipments.length;
 
             if (activeShipments.length === 0) {
                 Y2C_Accelerator.renderReactively('logisticsTrackerContainer', `
