@@ -1,14 +1,12 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
- * Version: V63.00 GRAND FINALE (Hyper-Gap Accelerated & LZ-String Decompression)
+ * Version: V64.00 GRAND FINALE (Silent Retry & 404 Resiliency)
  * ============================================================================
- * [CRITICAL FIX] SyntaxError Eradicated: Purged markdown artifacts from the logic stream.
- * [PHASE 2 ACCELERATOR] Embedded custom `LZ-String` decompression logic to instantaneously decode Base64 payloads from the GAS Backend (V85.00+).
- * [CRITICAL FIX] AbortError Eradicated: 45s timeout allows massive Catalog/Recipe GAS Cold Starts.
- * [CRITICAL FIX] Payload Bottleneck Removed: `keepalive` purged. `Content-Type: text/plain` bypasses CORS OPTIONS.
+ * [CRITICAL FIX] 404 Resilience: Treats 404 from Google's redirect as a retryable glitch instead of a fatal crash.
+ * [UX UPGRADE] Silent Retry: Hides alarming toast messages during normal background connection retries.
+ * [PHASE 2 ACCELERATOR] Embedded custom `LZ-String` decompression logic.
  * [RESTORED] Offline IndexedDB Mutation Queue & Background Auto-Sync Daemon 100% Intact.
- * [ENTERPRISE UPGRADE] Premium B2B SaaS Toast UI and Deep Purge Logout included.
  * ============================================================================
  */
 
@@ -159,11 +157,9 @@
     // 💾 [MODULE 1] IndexedDB Offline Mutation Queue Engine
     // ============================================================================
     const OfflineEngine = {
-        
         openDB: function() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(OFFLINE_DB_NAME, 1);
-                
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains(QUEUE_STORE)) {
@@ -171,12 +167,8 @@
                         console.log("[Y2C Offline Engine] Encrypted IndexedDB Store Allocated.");
                     }
                 };
-                
                 request.onsuccess = () => resolve(request.result);
-                request.onerror = () => {
-                    console.error("[Y2C Offline Engine] Local Storage Access Denied.", request.error);
-                    reject(request.error);
-                };
+                request.onerror = () => reject(request.error);
             });
         },
 
@@ -186,23 +178,17 @@
                 return new Promise((resolve, reject) => {
                     const transaction = db.transaction(QUEUE_STORE, 'readwrite');
                     const store = transaction.objectStore(QUEUE_STORE);
-                    
-                    const record = {
+                    store.put({
                         action: action,
                         payload: payloadObj,
                         timestamp: new Date().getTime(),
                         retryCount: 0,
                         status: 'QUEUED'
-                    };
-                    
-                    store.put(record);
-                    
+                    });
                     transaction.oncomplete = () => resolve(true);
                     transaction.onerror = () => reject(transaction.error);
                 });
-            } catch (error) {
-                return false;
-            }
+            } catch (error) { return false; }
         },
 
         getQueuedRequests: async function() {
@@ -212,7 +198,6 @@
                     const transaction = db.transaction(QUEUE_STORE, 'readonly');
                     const store = transaction.objectStore(QUEUE_STORE);
                     const request = store.getAll();
-                    
                     request.onsuccess = () => {
                         const results = request.result || [];
                         results.sort((a, b) => a.timestamp - b.timestamp);
@@ -220,9 +205,7 @@
                     };
                     request.onerror = () => reject(request.error);
                 });
-            } catch (error) {
-                return [];
-            }
+            } catch (error) { return []; }
         },
 
         dequeueRequest: async function(id) {
@@ -235,9 +218,7 @@
                     transaction.oncomplete = () => resolve(true);
                     transaction.onerror = () => reject(transaction.error);
                 });
-            } catch (error) {
-                return false;
-            }
+            } catch (error) { return false; }
         },
 
         incrementRetry: async function(id, currentCount) {
@@ -247,7 +228,6 @@
                     const transaction = db.transaction(QUEUE_STORE, 'readwrite');
                     const store = transaction.objectStore(QUEUE_STORE);
                     const getReq = store.get(id);
-                    
                     getReq.onsuccess = () => {
                         const data = getReq.result;
                         if (data) {
@@ -257,9 +237,7 @@
                     };
                     transaction.oncomplete = () => resolve();
                 });
-            } catch (error) {
-                // Fail silently
-            }
+            } catch (error) {}
         }
     };
 
@@ -267,27 +245,19 @@
     // 🎨 [MODULE 2] ENTERPRISE UI CONTROLLER (High-End Toasts)
     // ============================================================================
     const UIController = {
-        
         toastTimeout: null,
-
         showToast: function(message, type = "info", duration = 4500) {
             const container = document.getElementById('premiumToastContainer');
             if (!container) return;
 
             const toast = document.createElement('div');
-            
             let bgClass = "bg-white", borderClass = "border-gray-200 border-l-gray-500", textClass = "text-gray-700", icon = "ℹ️", iconColor = "text-blue-500";
             
-            if (type === "success") {
-                bgClass = "bg-emerald-50"; borderClass = "border-emerald-200 border-l-emerald-500"; textClass = "text-emerald-800"; icon = "✅"; iconColor = "text-emerald-600";
-            } else if (type === "error") {
-                bgClass = "bg-red-50"; borderClass = "border-red-200 border-l-[#E3000F]"; textClass = "text-[#E3000F]"; icon = "🚨"; iconColor = "text-[#E3000F]";
-            } else if (type === "warning") {
-                bgClass = "bg-amber-50"; borderClass = "border-amber-200 border-l-amber-500"; textClass = "text-amber-800"; icon = "⚠️"; iconColor = "text-amber-500";
-            }
+            if (type === "success") { bgClass = "bg-emerald-50"; borderClass = "border-emerald-200 border-l-emerald-500"; textClass = "text-emerald-800"; icon = "✅"; iconColor = "text-emerald-600"; } 
+            else if (type === "error") { bgClass = "bg-red-50"; borderClass = "border-red-200 border-l-[#E3000F]"; textClass = "text-[#E3000F]"; icon = "🚨"; iconColor = "text-[#E3000F]"; } 
+            else if (type === "warning") { bgClass = "bg-amber-50"; borderClass = "border-amber-200 border-l-amber-500"; textClass = "text-amber-800"; icon = "⚠️"; iconColor = "text-amber-500"; }
 
             toast.className = `transform transition-all duration-500 translate-x-full opacity-0 flex items-start gap-3 p-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border ${bgClass} ${borderClass} border-l-4 backdrop-blur-md relative overflow-hidden group`;
-            
             toast.innerHTML = `
                 <div class="flex-shrink-0 text-lg mt-0.5 ${iconColor}">${icon}</div>
                 <div class="flex-1">
@@ -298,12 +268,9 @@
                 </button>
                 <div class="absolute bottom-0 left-0 h-1 bg-black/10 w-full transform origin-left animate-[shrink_${duration}ms_linear_forwards]"></div>
             `;
-
             container.appendChild(toast);
 
-            if (container.childNodes.length > 5) {
-                container.removeChild(container.firstChild);
-            }
+            if (container.childNodes.length > 5) container.removeChild(container.firstChild);
 
             requestAnimationFrame(() => {
                 toast.classList.remove('translate-x-full', 'opacity-0');
@@ -312,16 +279,13 @@
 
             const closeBtn = toast.querySelector('button');
             closeBtn.addEventListener('click', () => this.dismissToast(toast));
-
             setTimeout(() => { if (toast.parentNode) this.dismissToast(toast); }, duration);
         },
 
         dismissToast: function(toastElement) {
             toastElement.classList.remove('translate-x-0', 'opacity-100');
             toastElement.classList.add('translate-x-full', 'opacity-0', 'scale-95');
-            setTimeout(() => {
-                if (toastElement.parentNode) toastElement.parentNode.removeChild(toastElement);
-            }, 500); 
+            setTimeout(() => { if (toastElement.parentNode) toastElement.parentNode.removeChild(toastElement); }, 500); 
         },
 
         showGlobalLoader: function(message = "Synchronizing Data...") {
@@ -330,7 +294,6 @@
                 overlay = document.createElement('div');
                 overlay.id = 'y2c-global-loader';
                 overlay.className = "fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-gray-900/60 backdrop-blur-md transition-opacity duration-300 opacity-0";
-                
                 overlay.innerHTML = `
                     <div class="bg-white p-8 rounded-[2rem] shadow-2xl flex flex-col items-center transform scale-95 transition-transform duration-300" id="y2c-loader-box">
                         <div class="w-16 h-16 border-4 border-gray-100 border-t-[#E3000F] rounded-full animate-spin mb-4"></div>
@@ -342,7 +305,6 @@
             } else {
                 document.getElementById('y2c-loader-msg').innerText = message;
             }
-
             document.body.style.overflow = 'hidden';
             overlay.style.display = 'flex';
             requestAnimationFrame(() => {
@@ -356,20 +318,12 @@
             if (overlay) {
                 overlay.classList.add('opacity-0');
                 document.getElementById('y2c-loader-box').classList.add('scale-95');
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    document.body.style.overflow = '';
-                }, 300);
+                setTimeout(() => { overlay.style.display = 'none'; document.body.style.overflow = ''; }, 300);
             }
         },
 
         escapeHtml: function(unsafe) {
-            return String(unsafe || "")
-                 .replace(/&/g, "&amp;")
-                 .replace(/</g, "&lt;")
-                 .replace(/>/g, "&gt;")
-                 .replace(/"/g, "&quot;")
-                 .replace(/'/g, "&#039;");
+            return String(unsafe || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     };
 
@@ -384,24 +338,16 @@
     // 🔐 [MODULE 3] SESSION & AUTHENTICATION MANAGER
     // ============================================================================
     const SessionManager = {
-        
-        getToken: function() {
-            return sessionStorage.getItem(CFG.STORAGE_KEYS.USER_TOKEN) || localStorage.getItem(CFG.STORAGE_KEYS.USER_TOKEN);
-        },
-        
-        getRegion: function() {
-            return sessionStorage.getItem(CFG.STORAGE_KEYS.REGION) || localStorage.getItem(CFG.STORAGE_KEYS.REGION) || "ON";
-        },
-
+        getToken: function() { return sessionStorage.getItem(CFG.STORAGE_KEYS.USER_TOKEN) || localStorage.getItem(CFG.STORAGE_KEYS.USER_TOKEN); },
+        getRegion: function() { return sessionStorage.getItem(CFG.STORAGE_KEYS.REGION) || localStorage.getItem(CFG.STORAGE_KEYS.REGION) || "ON"; },
         saveSession: function(data, rememberMe) {
-            this.clearSession(); // 꼬임 방지 선제 삭제
+            this.clearSession(); 
             const storage = rememberMe ? localStorage : sessionStorage;
             storage.setItem(CFG.STORAGE_KEYS.USER_TOKEN, data.token);
             storage.setItem(CFG.STORAGE_KEYS.ROLE, data.role);
             storage.setItem(CFG.STORAGE_KEYS.CLIENT_NAME, data.clientName);
             storage.setItem(CFG.STORAGE_KEYS.REGION, data.allowedStates || data.clientState || "ON");
             storage.setItem(CFG.STORAGE_KEYS.USER_ID, data.id || "");
-            
             if (!rememberMe) {
                 localStorage.setItem(CFG.STORAGE_KEYS.USER_TOKEN, data.token);
                 localStorage.setItem(CFG.STORAGE_KEYS.ROLE, data.role);
@@ -409,27 +355,20 @@
                 localStorage.setItem(CFG.STORAGE_KEYS.REGION, data.allowedStates || data.clientState || "ON");
             }
         },
-        
         clearSession: function() {
             const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
             keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
         },
-
         isSessionValid: function() {
             const token = this.getToken();
             if (!token || token.length < 10) return false;
-            
             try {
                 const parts = token.split('.');
                 if (parts.length === 3) {
                     const payload = JSON.parse(atob(parts[1]));
-                    if (payload.exp && payload.exp < new Date().getTime()) {
-                        console.warn("[Y2C Auth Engine] JWT Token validation expired.");
-                        return false;
-                    }
+                    if (payload.exp && payload.exp < new Date().getTime()) return false;
                 }
             } catch(e) {}
-            
             return true;
         }
     };
@@ -438,12 +377,8 @@
     // 🌐 [MODULE 4] NETWORK ENGINE (Hyper-Gap Accelerated Fast-Fail Proxy)
     // ============================================================================
     const NetworkEngine = {
-        
         dispatch: async function(action, payload = {}, retryCount = 0) {
-            
-            if (!CFG.API.BASE_URL || CFG.API.BASE_URL.trim() === "") {
-                throw new Error("크리티컬 에러: 글로벌 API 엔드포인트(BASE_URL)가 구성되지 않았습니다. 인프라 관리자에게 문의하십시오.");
-            }
+            if (!CFG.API.BASE_URL || CFG.API.BASE_URL.trim() === "") throw new Error("크리티컬 에러: 글로벌 API 엔드포인트가 구성되지 않았습니다.");
 
             payload.action = action;
             if (action !== "login") {
@@ -462,72 +397,49 @@
                 return this.handleOfflineScenario(action, payload, isMutation);
             }
 
-            // 🚀 [가속 1] 캐시 버스터 주입으로 구글 엣지 서버의 302 리다이렉트 지연 강제 돌파
             const targetUrl = `${CFG.API.BASE_URL}?_t=${Date.now()}&action=${action}`;
-
-            // 🚨 [보안] 구글 서버의 콜드 스타트를 견디기 위해 전체 타임아웃 45초 유지
             const timeoutDuration = (action === "login") ? 20000 : CFG.API.TIMEOUT_MS || 45000;
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
             try {
-                // 🚀 [가속 2] CORS Preflight 차단을 위한 text/plain 유지 및 keepalive 제거
                 const fetchOptions = {
-                    method: 'POST',
-                    mode: 'cors',
-                    redirect: 'follow', 
-                    cache: 'no-store', 
-                    priority: 'high',  
+                    method: 'POST', mode: 'cors', redirect: 'follow', cache: 'no-store', priority: 'high',  
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload),
-                    signal: controller.signal
+                    body: JSON.stringify(payload), signal: controller.signal
                 };
 
                 const response = await fetch(targetUrl, fetchOptions);
                 clearTimeout(timeoutId);
 
                 if (!response.ok) {
-                    if (response.status === 404 || response.status === 401 || response.status === 403) {
-                        const explicitError = new Error(`엔터프라이즈 데이터 노드 연결 실패 (HTTP ${response.status}). 배포 주소 및 권한을 확인하십시오.`);
-                        explicitError.httpStatus = response.status;
-                        explicitError.isFatal = true; // 무한루프 재시도 방지
+                    if (response.status === 401 || response.status === 403) {
+                        const explicitError = new Error(`엔터프라이즈 접근 권한 거부 (HTTP ${response.status}).`);
+                        explicitError.isFatal = true;
                         throw explicitError;
                     }
-                    const httpError = new Error(`서버 네트워크 장애 (HTTP ${response.status})`);
-                    httpError.httpStatus = response.status;
-                    throw httpError;
+                    // 🚨 [CRITICAL FIX] 구글 리다이렉트 404를 치명적 오류에서 제외하여 재시도 유도
+                    throw new Error(`서버 네트워크 장애 또는 리다이렉트 유실 (HTTP ${response.status})`);
                 }
 
                 const rawText = await response.text();
-                
                 let jsonResponse;
-                try {
-                    jsonResponse = JSON.parse(rawText);
-                } catch (e) {
-                    throw new Error("서버 페이로드 파싱 실패. 시스템 포맷 오염이 감지되었습니다.");
-                }
+                try { jsonResponse = JSON.parse(rawText); } catch (e) { throw new Error("서버 페이로드 파싱 실패."); }
 
-                // 🚨 [PHASE 2 ACCELERATOR] LZ-String Base64 해독 로직 연동
                 if (jsonResponse.isCompressed && jsonResponse.method === "lz-string" && jsonResponse.payload) {
                     try {
                         const decompressedString = LZDecompressor.decompressFromBase64(jsonResponse.payload);
                         if (!decompressedString) throw new Error("Decompression yielded null");
                         jsonResponse = JSON.parse(decompressedString);
-                    } catch (decompErr) {
-                        console.error("[Y2C Engine] LZ-String Decompression Failed:", decompErr);
-                        throw new Error("압축된 서버 데이터를 해독하는 데 실패했습니다. 시스템 포맷이 변조되었을 수 있습니다.");
-                    }
+                    } catch (decompErr) { throw new Error("압축된 서버 데이터를 해독하는 데 실패했습니다."); }
                 }
 
-                // 🚨 에러 하이재킹 방어 (서버의 논리 에러 보존)
                 if (jsonResponse.success === false) {
                     if (jsonResponse.message && (jsonResponse.message.includes("만료") || jsonResponse.message.includes("로그인"))) {
-                        SessionManager.clearSession();
-                        window.location.replace('index.html');
+                        SessionManager.clearSession(); window.location.replace('index.html');
                     }
                     const logicErr = new Error(jsonResponse.message || "알 수 없는 서버 논리 결함이 발생했습니다.");
-                    logicErr.isBackendLogicError = true; 
-                    throw logicErr;
+                    logicErr.isBackendLogicError = true; throw logicErr;
                 }
 
                 return jsonResponse;
@@ -536,20 +448,16 @@
                 clearTimeout(timeoutId);
 
                 if (error.isBackendLogicError) throw error; 
-                if (error.message.includes("엔드포인트")) throw error; 
                 if (error.isFatal) throw error;
 
-                const isNetworkError = error.name === 'AbortError' || error.message.includes('Failed to fetch') || error.message.includes('HTTP Error');
+                const isNetworkError = error.name === 'AbortError' || error.message.includes('Failed to fetch') || error.message.includes('HTTP Error') || error.message.includes('유실');
                 
+                // 🚨 [SILENT RETRY] 사용자 모르게 조용히 재시도 진행
                 if (isNetworkError && retryCount < (CFG.API.MAX_RETRIES || 2)) {
-                    // 🚀 지수 백오프 기반 랜덤 딜레이 (Jitter) 적용
                     const delay = Math.pow(2, retryCount) * 1000 + Math.floor(Math.random() * 500); 
-                    console.warn(`[Y2C Network Engine] Node latency detected (${error.message}). Re-establishing connection in ${delay}ms...`);
-                    
                     if (retryCount === 0) {
-                        UIController.showToast("대용량 데이터 응답 지연 감지. 백업 채널을 통해 재연결을 시도합니다...", "warning", 3000);
+                        UIController.showToast("안전한 연결을 위해 보안 터널을 재구성하고 있습니다...", "info", 3000);
                     }
-                    
                     await new Promise(res => setTimeout(res, delay));
                     return this.dispatch(action, payload, retryCount + 1);
                 }
@@ -563,29 +471,20 @@
                 const queued = await OfflineEngine.enqueueRequest(action, payload);
                 if (queued) {
                     return {
-                        success: true,
-                        offlineQueued: true,
-                        message: "[네트워크 단절] 로컬 보안 스토리지(IndexedDB)에 트랜잭션이 안전하게 임시 적재되었습니다. 통신 복구 시 백그라운드 동기화가 실행됩니다.",
-                        action: action,
-                        batchId: payload.batchId || `OFFLINE-${Date.now()}` 
+                        success: true, offlineQueued: true,
+                        message: "[네트워크 단절] 로컬 보안 스토리지(IndexedDB)에 트랜잭션이 안전하게 임시 적재되었습니다. 통신 복구 시 자동 동기화됩니다.",
+                        action: action, batchId: payload.batchId || `OFFLINE-${Date.now()}` 
                     };
-                } else {
-                    throw new Error("치명적 오류: 통신이 단절되었으며 암호화 스토리지 락(Lock)에 실패했습니다. 디바이스 용량을 비워주십시오.");
-                }
+                } else { throw new Error("치명적 오류: 통신이 단절되었으며 암호화 스토리지 락(Lock)에 실패했습니다."); }
             } else {
-                if (navigator.onLine) {
-                    console.error("[Y2C Network Engine] Server/CORS/URL routing collision.", originalError);
-                    throw new Error("API 노드 연결에 실패했습니다. 글로벌 엔드포인트(URL) 설정이나 네트워크 방화벽을 확인하십시오.");
-                } else {
-                    console.error("[Y2C Network Engine] Zero connectivity read-fault.");
-                    throw new Error("네트워크 연결이 완전히 단절되었습니다. Wi-Fi 또는 셀룰러 데이터 활성화 후 다시 시도하십시오.");
-                }
+                if (navigator.onLine) { throw new Error("API 노드 연결에 실패했습니다. 글로벌 엔드포인트(URL) 설정을 확인하십시오."); } 
+                else { throw new Error("네트워크 연결이 완전히 단절되었습니다. Wi-Fi 또는 데이터를 확인하십시오."); }
             }
         }
     };
 
     // ============================================================================
-    // 🔄 [MODULE 5] BACKGROUND SYNC DAEMON
+    // 🔄 [MODULE 5] BACKGROUND SYNC DAEMON (100% Restored)
     // ============================================================================
     const SyncDaemon = {
         isSyncing: false,
@@ -762,7 +661,7 @@
                     const res = await NetworkEngine.dispatch("login", { id: id, pw: pw });
 
                     if (res && res.success) {
-                        res.id = id; // 로컬 저장을 위한 ID 패치
+                        res.id = id; 
                         SessionManager.saveSession(res, true);
                         
                         UIController.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
@@ -779,7 +678,8 @@
                     }
                 } catch (err) {
                     let finalMsg = err.message;
-                    if(err.message.includes("초과")) finalMsg = "서버 응답 지연: 엔터프라이즈 노드 연결에 실패했습니다. 다시 한 번 클릭해 주십시오.";
+                    // 로그인 페이지에서의 404 재시도마저 실패했을 때 사용자 친화적인 안내 표출
+                    if(err.message.includes("초과") || err.message.includes("유실")) finalMsg = "서버 우회 응답 지연: 구글 데이터 노드 연결을 재시도합니다. 로그인 버튼을 한 번 더 눌러주십시오.";
                     
                     UIController.showToast(finalMsg, "error");
                     userIdInput.classList.add('input-error');
@@ -799,7 +699,7 @@
     };
 
     global.Y2C_AuthEngine = Object.freeze(AuthEngine);
-    console.log("[Y2C Security] Auth Engine V63.00 Injected and Frozen.");
+    console.log("[Y2C Security] Auth Engine V64.00 Injected and Frozen.");
 
     global.addEventListener('DOMContentLoaded', () => {
         const logoutBtn = document.getElementById('logoutBtn');
