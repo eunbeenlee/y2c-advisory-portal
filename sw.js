@@ -1,9 +1,10 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - PWA Hyper-Cache Engine (Service Worker)
- * Version: V87.00 GRAND FINALE (PWA & Offline Optimized)
+ * Version: V88.00 GRAND FINALE (PWA, Offline Optimized & Deep Nuke Ready)
  * ============================================================================
- * [CRITICAL FIX] 302 Redirect Bypass: Online GAS requests completely bypass SW to eliminate 404 CORS login latency.
+ * [CRITICAL FIX 1] Deep Nuke Integration: Added `FORCE_NUKE` message listener to aggressively wipe all caches when commanded by auth.js.
+ * [CRITICAL FIX 2] 302 Redirect Bypass: Online GAS requests completely bypass SW to eliminate 404 CORS login latency.
  * [ACCELERATOR] Cache-First Strategy & LRU Dynamic Caching: Limits dynamic assets to 100 items to prevent RAM bloat.
  * [CLEANUP] Advanced Cache Invalidations: Automatically purges ghost caches from older versions.
  * [RESTORED] IndexedDB Mutation Queue, Background Sync & High-End Offline UI 100% intact.
@@ -12,10 +13,10 @@
 
 "use strict";
 
-const CACHE_VERSION = 'V87_00';
+const CACHE_VERSION = 'V88_00';
 const STATIC_CACHE = `Y2C_ENTERPRISE_STATIC_${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `Y2C_ENTERPRISE_DYNAMIC_${CACHE_VERSION}`;
-const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V87';
+const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V88';
 const QUEUE_STORE = 'mutation_queue';
 
 // 🌟 오프라인 코어 자산 (최소 부팅에 필요한 필수 파일들)
@@ -324,5 +325,25 @@ async function flushQueue() {
     }
 }
 
-self.addEventListener('sync', event => { if (event.tag === 'y2c-flush-queue') event.waitUntil(flushQueue()); });
-self.addEventListener('message', event => { if (event.data && event.data.type === 'FLUSH_QUEUE') flushQueue(); });
+// ============================================================================
+// 💣 [MODULE 6] Deep Nuke Action Listener
+// ============================================================================
+self.addEventListener('sync', event => { 
+    if (event.tag === 'y2c-flush-queue') event.waitUntil(flushQueue()); 
+});
+
+self.addEventListener('message', event => { 
+    if (event.data && event.data.type === 'FLUSH_QUEUE') {
+        flushQueue(); 
+    } 
+    // 🚨 프론트엔드(auth.js)에서 하달되는 모든 캐시 강제 소각 명령을 수신하여 즉각 수행
+    else if (event.data && event.data.type === 'FORCE_NUKE') {
+        caches.keys().then(keys => {
+            keys.forEach(key => {
+                if (key.includes('Y2C')) {
+                    caches.delete(key).then(() => console.log(`[Y2C SW Engine] Deep Nuke executed: Destroyed ${key}`));
+                }
+            });
+        });
+    }
+});
