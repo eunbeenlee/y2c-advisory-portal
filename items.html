@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V82.00 Enterprise Catalog GRAND FINALE - GOOGLE CDN & VIRTUAL DOM ACCELERATED 🌟
-  [PHASE 4 ACCELERATOR] Google Drive Image CDN Pipeline: Automatically intercepts Google Drive URLs and converts them to `lh3.googleusercontent.com` WebP thumbnails (1/100th size).
+  🌟 V84.00 Enterprise Catalog GRAND FINALE - STRICT INVENTORY CONTROL 🌟
+  [CRITICAL FIX 1] Stock Boundary Lockdown: Restricts manual and button inputs to exact `localStock`. Out of stock items are completely disabled.
+  [CRITICAL FIX 2] Optimistic UI Updates: Instantly deducts stock from local IndexedDB cache immediately after order success (No more refresh lag).
+  [PHASE 4 ACCELERATOR] Google Drive Image CDN Pipeline: Automatically intercepts Google Drive URLs and converts them to `lh3.googleusercontent.com` WebP thumbnails.
   [PHASE 3 ACCELERATOR] Virtual DOM Rendering: Injected `IntersectionObserver` paradigm to lazy-render massive item arrays. Scroll Jank eradicated.
-  [CRITICAL FIX] 404 Deadlock UX Upgrade: Explicit, high-end error boundary injected for fresh-cache failures.
   [MOBILE OPTIMIZED] 100dvh, safe-area-inset, Reset Session, SWR Architecture 100% Intact.
 -->
 <html lang="en">
@@ -186,9 +187,14 @@
         .enterprise-table td { padding: 10px 20px; font-size: 13px; color: #1e293b; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; white-space: nowrap; }
         .enterprise-table tr:hover td { background: #f8fafc; }
 
-        .qty-input { width: 70px; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 6px 4px; transition: all 0.2s; outline: none; }
+        /* 🚨 개선된 장바구니 수량 조절 버튼 UI */
+        .qty-input-wrapper { display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .qty-input { width: 64px; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 14px; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 6px 4px; transition: all 0.2s; outline: none; }
         .qty-input:focus { border-color: var(--sinjeon-pink); box-shadow: 0 0 0 3px rgba(227, 0, 15, 0.1); }
         .qty-input:disabled { background: #f1f5f9; color: #94a3b8; border-color: #f1f5f9; cursor: not-allowed; }
+        .qty-btn { width: 32px; height: 32px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; color: #475569; transition: all 0.2s; cursor: pointer; }
+        .qty-btn:hover:not(:disabled) { background: #e2e8f0; color: #0f172a; }
+        .qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
         @media print { .no-print { display: none !important; } }
@@ -478,11 +484,11 @@
 
     <script>
     /**
-     * 🌟 V82.00 Enterprise Catalog Engine (GOOGLE CDN & VIRTUAL DOM ACCELERATED)
-     * [PHASE 4 ACCELERATOR] Google Drive Image CDN Pipeline: Intercepts GDrive URLs & converts to 10KB WebP via lh3.googleusercontent.com.
-     * [PHASE 3 ACCELERATOR] Virtual DOM Rendering: Injected `IntersectionObserver` paradigm to lazy-render massive item arrays.
-     * [MOBILE] 100dvh + overflow-y-auto injected to completely eradicate Virtual Keyboard squish bugs.
-     * [ACCELERATOR] IndexedDB SWR Architecture eliminates white screens by pre-rendering cached data in 0.1s.
+     * 🌟 V84.00 Enterprise Catalog Engine (STRICT INVENTORY CONTROL)
+     * [CRITICAL FIX 1] Stock Boundary Lockdown: Restricts manual and button inputs to exact `localStock`. Out of stock items are completely disabled.
+     * [CRITICAL FIX 2] Optimistic UI Updates: Instantly deducts stock from local IndexedDB cache immediately after order success.
+     * [PHASE 4 ACCELERATOR] Google Drive Image CDN Pipeline.
+     * [PHASE 3 ACCELERATOR] Virtual DOM Rendering.
      */
     document.addEventListener("DOMContentLoaded", () => {
         if (typeof Y2C_AuthEngine === 'undefined') { console.error("CRITICAL: Y2C_AuthEngine missing."); return; }
@@ -758,7 +764,7 @@
                     document.getElementById(tbodyId).innerHTML = `
                         <tr>
                             <td colspan="6" class="py-16 text-center bg-red-50/20 border-y border-red-100">
-                                <div class="text-4xl mb-4 opacity-80">⚠️️</div>
+                                <div class="text-4xl mb-4 opacity-80">⚠️</div>
                                 <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">엔터프라이즈 데이터 노드 연결 실패</h4>
                                 <p class="text-gray-500 font-medium text-[11px] mb-4">
                                     [404 NOT FOUND] 배포 주소(URL) 또는 권한이 유효하지 않습니다.<br>
@@ -914,6 +920,11 @@
 
                 const currentCartQty = AppState.cart[code] || 0;
                 
+                // 🚨 [CRITICAL FIX 1] 재고 0개 시 버튼 비활성화 (Out of Stock Lockdown)
+                const isOutOfStock = localStock <= 0;
+                const btnState = isOutOfStock ? "disabled" : "";
+                const inputState = isOutOfStock ? "disabled" : "";
+
                 html += `
                 <tr class="hover:bg-red-50/10 transition-colors virtual-row">
                     <td class="w-32 font-mono text-[11px] font-bold text-gray-500 border-r border-gray-100">${code}</td>
@@ -937,9 +948,9 @@
                     <td class="w-40 text-center">
                         ${AppState.role === "PARTNER" ? `
                             <div class="qty-input-wrapper mx-auto">
-                                <button type="button" class="qty-btn" onclick="updateCart('${item.code}', -1)">−</button>
-                                <input type="text" id="qty_${item.code}" value="${currentCartQty}" class="qty-input" oninput="manualUpdateCart('${item.code}', this.value)" autocomplete="off">
-                                <button type="button" class="qty-btn" onclick="updateCart('${item.code}', 1)">+</button>
+                                <button type="button" class="qty-btn" onclick="updateCart('${item.code}', -1)" ${btnState}>−</button>
+                                <input type="text" id="qty_${item.code}" value="${currentCartQty}" class="qty-input ${isOutOfStock ? 'bg-gray-100' : ''}" oninput="manualUpdateCart('${item.code}', this.value)" autocomplete="off" ${inputState}>
+                                <button type="button" class="qty-btn" onclick="updateCart('${item.code}', 1)" ${btnState}>+</button>
                             </div>
                         ` : `
                             <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">READ ONLY</span>
@@ -992,14 +1003,29 @@
             });
         }
 
-        // ==========================================
-        // 🛒 장바구니 제어 로직 (PARTNER Only)
-        // ==========================================
+        // ============================================================================
+        // 🛒 [CRITICAL FIX 1] 엄격한 장바구니 제어 로직 (Stock Clamping)
+        // ============================================================================
         window.updateCart = function(code, delta) {
+            const item = AppState.catalogItems.find(i => i.code === code);
+            if (!item) return;
+
+            let localStock = 0;
+            if (item.stockBreakdown) localStock = parseStrictDecimal(item.stockBreakdown[AppState.currentHub]);
+            else if (item.regionalStock !== undefined) localStock = parseStrictDecimal(item.regionalStock);
+            else if (item.stock !== undefined) localStock = parseStrictDecimal(item.stock);
+
+            if (localStock <= 0) return; // 품절 방어
+
             let cur = AppState.cart[code] || 0;
             cur += delta;
             if (cur < 0) cur = 0;
-            if (cur > 9999) cur = 9999;
+            
+            // 🚨 재고 초과 록다운
+            if (cur > localStock) {
+                cur = localStock;
+                Y2C_AuthEngine.showToast(`[재고 초과] 현재 ${localStock}개까지만 발주 가능합니다.`, "warning", 2000);
+            }
             
             AppState.cart[code] = cur;
             const inputEl = document.getElementById(`qty_${code}`);
@@ -1014,11 +1040,29 @@
         };
 
         window.manualUpdateCart = function(code, val) {
+            const item = AppState.catalogItems.find(i => i.code === code);
+            if (!item) return;
+
+            let localStock = 0;
+            if (item.stockBreakdown) localStock = parseStrictDecimal(item.stockBreakdown[AppState.currentHub]);
+            else if (item.regionalStock !== undefined) localStock = parseStrictDecimal(item.regionalStock);
+            else if (item.stock !== undefined) localStock = parseStrictDecimal(item.stock);
+
+            if (localStock <= 0) {
+                document.getElementById(`qty_${code}`).value = 0;
+                return;
+            }
+
             // 특수문자, 문자열 강제 소거 정규식
             let cleanVal = String(val).replace(/[^0-9]/g, '');
             let cur = parseInt(cleanVal, 10);
             if (isNaN(cur) || cur < 0) cur = 0;
-            if (cur > 9999) cur = 9999;
+            
+            // 🚨 재고 초과 록다운
+            if (cur > localStock) {
+                cur = localStock;
+                Y2C_AuthEngine.showToast(`[재고 초과] 현재 ${localStock}개까지만 발주 가능합니다.`, "warning", 2000);
+            }
             
             AppState.cart[code] = cur;
             const inputEl = document.getElementById(`qty_${code}`);
@@ -1062,9 +1106,9 @@
             }
         }
 
-        // ==========================================
-        // 🚀 최종 발주 전송 로직
-        // ==========================================
+        // ============================================================================
+        // 🚀 [CRITICAL FIX 2] Optimistic UI Update (재고 즉각 차감 로직)
+        // ============================================================================
         const btnSubmitCart = document.getElementById('btnSubmitCart');
         if (btnSubmitCart) {
             btnSubmitCart.addEventListener('click', async () => {
@@ -1089,9 +1133,31 @@
                     
                     if (res && res.success) {
                         Y2C_AuthEngine.showToast("발주서가 성공적으로 전송되었습니다.", "success");
+                        
+                        // 🚨 [Optimistic Update] 통신 성공 즉시 로컬 캐시에서 재고 차감 및 0.1초 리렌더링
+                        payloadItems.forEach(pi => {
+                            const item = AppState.catalogItems.find(i => i.code === pi.code);
+                            if (item) {
+                                if (item.stockBreakdown && item.stockBreakdown[AppState.currentHub] !== undefined) {
+                                    item.stockBreakdown[AppState.currentHub] -= pi.qty;
+                                } else if (item.regionalStock !== undefined) {
+                                    item.regionalStock -= pi.qty;
+                                } else if (item.stock !== undefined) {
+                                    item.stock -= pi.qty;
+                                }
+                            }
+                        });
+                        
+                        // 업데이트된 캐시를 IndexedDB에 덮어쓰기
+                        const cacheKey = `CATALOG_ITEMS_${AppState.currentHub}`;
+                        await SWR_DB.set(cacheKey, AppState.catalogItems);
+                        
                         AppState.cart = {}; 
                         recalcCart();
-                        fetchCatalogFast(); // 재고 갱신
+                        initVirtualScroll(); // 바뀐 재고로 화면 즉시 갱신
+                        
+                        // 화면을 새로고침한 뒤 백그라운드에서 진짜 DB를 조용히 긁어옴
+                        fetchCatalogFast(); 
                     }
                 } catch (e) {
                     Y2C_AuthEngine.showToast(e.message, "error");
