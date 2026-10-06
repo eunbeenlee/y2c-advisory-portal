@@ -1,10 +1,10 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
- * Version: V64.00 GRAND FINALE (Silent Retry & 404 Resiliency)
+ * Version: V65.00 GRAND FINALE (Zombie Worker Nuke & Silent Retry)
  * ============================================================================
- * [CRITICAL FIX] 404 Resilience: Treats 404 from Google's redirect as a retryable glitch instead of a fatal crash.
- * [UX UPGRADE] Silent Retry: Hides alarming toast messages during normal background connection retries.
+ * [CRITICAL FIX 1] Auto-Kill Rogue Workers: Injected a self-destruct sequence to purge old service workers blocking Google GAS 302 redirects.
+ * [CRITICAL FIX 2] 404 Resilience & Silent Retry: Treats 404 from Google's redirect as a retryable glitch and hides alarming toast messages during background retries.
  * [PHASE 2 ACCELERATOR] Embedded custom `LZ-String` decompression logic.
  * [RESTORED] Offline IndexedDB Mutation Queue & Background Auto-Sync Daemon 100% Intact.
  * ============================================================================
@@ -12,6 +12,18 @@
 
 (function(global) {
     "use strict";
+
+    // 🚨 [핵심 방어막] 로그인 통신을 가로막는 좀비 서비스 워커 강제 학살 (Auto-Kill)
+    // 과거 버전의 sw.js가 구글 302 리다이렉트를 가로채 404 에러를 유발하는 것을 원천 차단합니다.
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+                registration.unregister().then(() => console.log("[Y2C Security] Rogue Service Worker Terminated to prevent CORS collision."));
+            }
+        }).catch(function(err) {
+            console.warn("[Y2C Security] Service Worker cleanup failed: ", err);
+        });
+    }
 
     // 🚨 1. 시스템 설정 무결성 검증 (config.js 로드 확인 및 Fallback)
     if (typeof global.SYSTEM_CONFIG === 'undefined') {
@@ -157,6 +169,7 @@
     // 💾 [MODULE 1] IndexedDB Offline Mutation Queue Engine
     // ============================================================================
     const OfflineEngine = {
+        
         openDB: function() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(OFFLINE_DB_NAME, 1);
@@ -264,6 +277,7 @@
     // 🎨 [MODULE 2] ENTERPRISE UI CONTROLLER (High-End Toasts)
     // ============================================================================
     const UIController = {
+        
         toastTimeout: null,
 
         showToast: function(message, type = "info", duration = 4500) {
@@ -380,12 +394,15 @@
     // 🔐 [MODULE 3] SESSION & AUTHENTICATION MANAGER
     // ============================================================================
     const SessionManager = {
+        
         getToken: function() {
             return sessionStorage.getItem(CFG.STORAGE_KEYS.USER_TOKEN) || localStorage.getItem(CFG.STORAGE_KEYS.USER_TOKEN);
         },
+        
         getRegion: function() {
             return sessionStorage.getItem(CFG.STORAGE_KEYS.REGION) || localStorage.getItem(CFG.STORAGE_KEYS.REGION) || "ON";
         },
+
         saveSession: function(data, rememberMe) {
             this.clearSession(); // 꼬임 방지 선제 삭제
             const storage = rememberMe ? localStorage : sessionStorage;
@@ -402,13 +419,16 @@
                 localStorage.setItem(CFG.STORAGE_KEYS.REGION, data.allowedStates || data.clientState || "ON");
             }
         },
+        
         clearSession: function() {
             const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
             keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
         },
+
         isSessionValid: function() {
             const token = this.getToken();
             if (!token || token.length < 10) return false;
+            
             try {
                 const parts = token.split('.');
                 if (parts.length === 3) {
@@ -419,6 +439,7 @@
                     }
                 }
             } catch(e) {}
+            
             return true;
         }
     };
@@ -427,7 +448,9 @@
     // 🌐 [MODULE 4] NETWORK ENGINE (Hyper-Gap Accelerated Fast-Fail Proxy)
     // ============================================================================
     const NetworkEngine = {
+        
         dispatch: async function(action, payload = {}, retryCount = 0) {
+            
             if (!CFG.API.BASE_URL || CFG.API.BASE_URL.trim() === "") {
                 throw new Error("크리티컬 에러: 글로벌 API 엔드포인트(BASE_URL)가 구성되지 않았습니다. 인프라 관리자에게 문의하십시오.");
             }
@@ -531,12 +554,13 @@
 
                 const isNetworkError = error.name === 'AbortError' || error.message.includes('Failed to fetch') || error.message.includes('HTTP Error') || error.message.includes('유실');
                 
-                // 🚨 [UX UPGRADE] Silent Retry: 사용자 모르게 조용히 재시도를 진행하여 404 리다이렉트 지연을 매끄럽게 통과함
+                // 🚨 [UX UPGRADE] Silent Retry: 사용자 모르게 조용히 재시도를 진행하여 불필요한 토스트 알림을 억제합니다.
                 if (isNetworkError && retryCount < (CFG.API.MAX_RETRIES || 2)) {
                     const delay = Math.pow(2, retryCount) * 1000 + Math.floor(Math.random() * 500); 
-                    if (retryCount === 0) {
-                        UIController.showToast("안전한 연결을 위해 보안 터널을 재구성하고 있습니다...", "info", 3000);
-                    }
+                    
+                    // 재시도 시 UI에 경고를 띄우지 않고 콘솔에만 기록하여 UX를 향상시킵니다.
+                    console.warn(`[Y2C Network Engine] Background retry initiated. Latency detected (${error.message}). Re-establishing connection in ${delay}ms...`);
+                    
                     await new Promise(res => setTimeout(res, delay));
                     return this.dispatch(action, payload, retryCount + 1);
                 }
@@ -749,7 +773,7 @@
                     const res = await NetworkEngine.dispatch("login", { id: id, pw: pw });
 
                     if (res && res.success) {
-                        res.id = id; // 로컬 저장을 위한 ID 패치
+                        res.id = id; 
                         SessionManager.saveSession(res, true);
                         
                         UIController.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
@@ -786,7 +810,7 @@
     };
 
     global.Y2C_AuthEngine = Object.freeze(AuthEngine);
-    console.log("[Y2C Security] Auth Engine V64.00 Injected and Frozen.");
+    console.log("[Y2C Security] Auth Engine V65.00 Injected and Frozen.");
 
     global.addEventListener('DOMContentLoaded', () => {
         const logoutBtn = document.getElementById('logoutBtn');
