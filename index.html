@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V67.00 Enterprise Login Gateway GRAND FINALE - MOBILE OPTIMIZED EDITION 🌟
-  [CRITICAL FIX 1] Mobile Virtual Keyboard Squish Bug Resolved: Changed `overflow-hidden` to `overflow-y-auto` with `100dvh`.
-  [CRITICAL FIX 2] Session Safe-Escape: Added "RESET SESSION (LOGOUT)" button to flush ghost/expired tokens.
+  🌟 V68.00 Enterprise Login Gateway GRAND FINALE - DEEP NUKE & MOBILE OPTIMIZED EDITION 🌟
+  [CRITICAL FIX 1] Deep Nuke Fallback: `RESET SESSION` button now aggressively forces unregistration of rogue Service Workers and wipes all `Y2C` caches even if `auth.js` fails to load.
+  [CRITICAL FIX 2] Mobile Virtual Keyboard Squish Bug Resolved: Changed `overflow-hidden` to `overflow-y-auto` with `100dvh`.
+  [UX UPGRADE 1] Input Sanity Trim: Automatically trims trailing whitespaces on ID input blur to prevent accidental 404/Auth errors.
+  [UX UPGRADE 2] Zero-latency routing now features a micro fade-out transition to prevent screen flashing.
   [RESTORED 1] Original Y2C Dual-Logo UI exactly restored based on client's architectural request.
   [RESTORED 2] Inner-Floating Labels & Magnetic 3D Button (.btn-hip) 100% loss-less recovered.
   [RESTORED 3] Cinematic Entry Animations & Background Glow Shimmer strictly preserved.
-  [ARCHITECTURE] Zero-latency routing. Network payload completely delegated to external `auth.js` V59+.
 -->
 <html lang="en">
 <head>
@@ -57,6 +58,7 @@
     <!-- 🌟 FOUC Absolute Fail-Safe -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
+        .fade-out-route { opacity: 0 !important; transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; pointer-events: none; }
     </style>
     <script>
         document.documentElement.classList.add('fouc-lock');
@@ -277,7 +279,7 @@
 
 <body id="mainBody" class="selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
-    <!-- 🌟 제로 레이턴시 라우팅 (Zero-Latency Routing) -->
+    <!-- 🌟 제로 레이턴시 라우팅 (Zero-Latency Routing) & Fade-out UX -->
     <script>
         (function() {
             try {
@@ -285,6 +287,8 @@
                 var _sysToken = String(localStorage.getItem("y2c_token") || sessionStorage.getItem("y2c_token") || "").trim();
                 
                 if (_sysRole && _sysRole !== "NULL" && _sysToken && _sysToken.length > 10) {
+                    // 로그인 세션이 존재하면 즉각적으로 페이드아웃 후 무지연 라우팅 실행
+                    document.documentElement.classList.add('fade-out-route');
                     if (_sysRole === "VENDOR" || _sysRole === "MASTER") { window.location.replace("admin.html"); } 
                     else if (_sysRole === "PARTNER") { window.location.replace("dashboard.html"); } 
                     else { window.location.replace("items.html"); }
@@ -407,11 +411,11 @@
                 </p>
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V67.00
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V68.00
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches and session tokens.">
+                    <!-- 🚨 [CRITICAL FIX] 세션 초기화 및 Deep Nuke 강제 실행 버튼 -->
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches, zombie workers, and session tokens.">
                         RESET SESSION
                     </button>
                 </div>
@@ -438,7 +442,7 @@
 
     <script>
     /**
-     * 🌟 V67.00 Enterprise Login Engine (Mobile Optimized)
+     * 🌟 V68.00 Enterprise Login Engine (Deep Nuke & Mobile Optimized)
      */
     document.addEventListener("DOMContentLoaded", () => {
         
@@ -486,7 +490,15 @@
             pwInput.addEventListener('blur', () => { capsLockWarning.classList.remove('active'); });
         }
 
-        // 4. Secure Core Engine Binding (auth.js V59.00+)
+        // 4. [UX UPGRADE] Input Whitespace Auto-Trim
+        const userIdInput = document.getElementById('userId');
+        if(userIdInput) {
+            userIdInput.addEventListener('blur', (e) => {
+                e.target.value = e.target.value.trim();
+            });
+        }
+
+        // 5. Secure Core Engine Binding (auth.js V66.00+)
         if (typeof Y2C_AuthEngine !== 'undefined') {
             Y2C_AuthEngine.bindLoginForm('loginForm');
         } else {
@@ -497,17 +509,32 @@
             }
         }
 
-        // 5. 🚨 비상 세션 초기화 (Reset Session / Logout)
+        // 6. 🚨 비상 세션 초기화 및 Deep Nuke 실행 (Reset Session / Fallback Logout)
         const indexLogoutBtn = document.getElementById('indexLogoutBtn');
         if (indexLogoutBtn) {
             indexLogoutBtn.addEventListener('click', () => {
                 if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) {
                     Y2C_AuthEngine.logout();
                 } else {
-                    // Fallback absolute clearance
+                    // Fallback absolute clearance (Storage)
                     const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
                     keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
-                    window.location.reload();
+                    
+                    // 🚨 Fallback Deep Nuke (Service Worker & Cache)
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                            for(let registration of registrations) { registration.unregister(); }
+                        });
+                    }
+                    if ('caches' in window) {
+                        caches.keys().then(names => {
+                            for (let name of names) { 
+                                if (name.includes('Y2C')) caches.delete(name); 
+                            }
+                        });
+                    }
+                    
+                    setTimeout(() => { window.location.reload(); }, 500);
                 }
             });
         }
