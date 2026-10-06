@@ -3,7 +3,7 @@
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
  * Version: V63.00 GRAND FINALE (Hyper-Gap Accelerated & LZ-String Decompression)
  * ============================================================================
- * [CRITICAL FIX] SyntaxError Eradicated: Purged markdown artifacts ('**') from the logic stream.
+ * [CRITICAL FIX] SyntaxError Eradicated: Purged markdown artifacts from the logic stream.
  * [PHASE 2 ACCELERATOR] Embedded custom `LZ-String` decompression logic to instantaneously decode Base64 payloads from the GAS Backend (V85.00+).
  * [CRITICAL FIX] AbortError Eradicated: 45s timeout allows massive Catalog/Recipe GAS Cold Starts.
  * [CRITICAL FIX] Payload Bottleneck Removed: `keepalive` purged. `Content-Type: text/plain` bypasses CORS OPTIONS.
