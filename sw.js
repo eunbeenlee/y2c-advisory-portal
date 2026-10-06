@@ -1,21 +1,22 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - PWA Hyper-Cache Engine (Service Worker)
- * Version: V78.00 GRAND FINALE (PWA & Offline Optimized)
+ * Version: V85.00 GRAND FINALE (PWA & Offline Optimized)
  * ============================================================================
+ * [CRITICAL SYNC] Aligned CACHE_VERSION with Backend V85.00+ and AuthEngine V63.00+.
  * [ACCELERATOR] Cache-First Strategy & LRU Dynamic Caching: Limits dynamic assets to 100 items to prevent RAM bloat.
  * [SECURITY] Network-Only API Handling: Protects all POST requests to Google Apps Script.
- * [CLEANUP] Advanced Cache Invalidations: Automatically purges ghost caches from V1 to V77.
+ * [CLEANUP] Advanced Cache Invalidations: Automatically purges ghost caches from older versions.
  * [RESTORED] IndexedDB Mutation Queue, Background Sync & High-End Offline UI intact.
  * ============================================================================
  */
 
 "use strict";
 
-const CACHE_VERSION = 'V78_00';
+const CACHE_VERSION = 'V85_00';
 const STATIC_CACHE = `Y2C_ENTERPRISE_STATIC_${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `Y2C_ENTERPRISE_DYNAMIC_${CACHE_VERSION}`;
-const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V78';
+const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V85';
 const QUEUE_STORE = 'mutation_queue';
 
 // 🌟 오프라인 코어 자산 (최소 부팅에 필요한 필수 파일들)
@@ -296,6 +297,8 @@ async function flushQueue() {
     try {
         const queue = await getQueuedRequests();
         if (queue.length === 0) return;
+
+        console.log(`[Y2C Sync Daemon] Waking up. Found ${queue.length} pending mutation(s).`);
 
         for (const requestData of queue) {
             // 포이즌 필(Poison Pill) 방어: 5회 이상 실패한 요청은 영구 파기
