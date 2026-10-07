@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V74.00 Enterprise Advisory Invoice GRAND FINALE - MOBILE OPTIMIZED & SWR ACCELERATED 🌟
+  🌟 V75.00 Enterprise Advisory Invoice GRAND FINALE - ZERO-LOSS GENERATION & UX SYNC 🌟
+  [CRITICAL FIX 1] Phantom 0-Reversion Immunity: Injected `(r.pos + r.delivery)` fallback calculation in `renderMonthlyBreakdown` to completely eradicate the bug where months with valid data were skipped during invoice generation due to delayed backend total calculations.
+  [CRITICAL FIX 2] Header Layout Collision Fix: Synchronized the exact Flexbox/Truncation architecture from `admin.html` V88 to permanently prevent text overlapping on the navigation bar.
+  [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache, synced with `Y2C_Admin_Cache_V80`.
   [MOBILE OPTIMIZED] 100dvh + overflow-y-auto injected to completely eradicate Virtual Keyboard squish bugs.
-  [MOBILE OPTIMIZED] `safe-area-inset-bottom` injected to floating bar and mobile nav to prevent iOS Notch clipping.
-  [MOBILE OPTIMIZED] Session Safe-Escape: Added "RESET SESSION" button to footer.
-  [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache.
-  [CRITICAL FIX] FOUC Deadlock & I18N ReferenceError Prevented perfectly.
   [PRESERVED] PDF Export Engine (html2pdf clipping immunity), Dual-Logo Header, Dynamic Fee Toggles.
 -->
 <html lang="en">
@@ -175,12 +174,18 @@
         .nav-link.active { color: var(--sinjeon-pink); }
         .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background-color: var(--sinjeon-pink); border-radius: 3px 3px 0 0; }
 
+        /* 🚨 Header Truncation Sync (V88 Match) */
+        .truncate-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; display: inline-block; vertical-align: bottom; }
+        @media (min-width: 640px) { .truncate-text { max-width: 200px; } }
+        @media (min-width: 768px) { .truncate-text { max-width: 320px; } }
+
         /* Animations */
         .app-shell-enter { opacity: 0; transform: translateY(12px); animation: appShellFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; will-change: transform, opacity; }
         @keyframes appShellFadeIn { to { opacity: 1; transform: translateY(0); } }
         .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
         
-        #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+        #premiumToastContainer { position: fixed; top: auto; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; align-items: center; width: 90%; max-width: 420px; }
+        #premiumToastContainer > div { width: 100%; justify-content: center; }
 
         /* ==========================================================
             🌟 A4 Commercial Invoice Paper Architecture (Formal Grade)
@@ -297,12 +302,12 @@
         </div>
     </noscript>
 
-    <!-- 🌟 프리미엄 헤더 (Dual Logo Synchronized) -->
+    <!-- 🌟 프리미엄 헤더 (Dual Logo Synchronized & V88 Truncation Layout) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
-
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
-                <div class="flex items-center gap-2">
+            <!-- 🚨 [CRITICAL FIX] Header Layout Collision Fix (shrink-0 -> min-w-0, text truncation, adjusted gaps) -->
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0 w-auto lg:w-[260px] xl:w-[320px] min-w-0">
+                <div class="flex items-center gap-2 shrink-0">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
                         <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
@@ -314,22 +319,23 @@
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
                 </div>
-                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
-                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
-                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
+                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200 min-w-0">
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap truncate" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
+                    <span class="text-[8px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden 2xl:inline-block shrink-0">Operated by Y2C</span>
                 </div>
             </div>
 
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
+            <!-- 🚨 줄어든 영역에서도 메뉴가 겹치지 않게 gap 축소 및 truncate 적용 -->
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-2 xl:gap-5 px-2 min-w-0 overflow-hidden">
+                <a href="dashboard.html" id="navDashboard" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_dashboard">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_recipes">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_admin">Master DB</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link active text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
-            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-2">
+            <div class="hidden lg:flex items-center justify-end gap-2 sm:gap-3 shrink-0 w-auto">
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-1">
                     <button onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">EN</button>
                     <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
@@ -339,14 +345,14 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[8px] sm:text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
                     <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- 🚨 모바일 노치(Home Bar) 가림 보호망 -->
+    <!-- 🚨 모바일 네비게이션 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
@@ -396,8 +402,7 @@
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
                     <div class="relative">
-                        <!-- 🚨 에러 발생 시 UI 피드백을 위해 id 부여 -->
-                        <select id="invClientSelector" class="premium-input bg-gray-50 cursor-pointer appearance-none">
+                        <select id="invClientSelector" class="premium-input bg-gray-50 cursor-pointer appearance-none text-ellipsis pr-8">
                             <option value="">Loading Database...</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
@@ -407,7 +412,7 @@
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
                     <div class="relative">
-                        <select id="invYearSelector" class="premium-input bg-gray-50 cursor-pointer appearance-none"></select>
+                        <select id="invYearSelector" class="premium-input bg-gray-50 cursor-pointer appearance-none text-ellipsis pr-8"></select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
                     </div>
                 </div>
@@ -435,14 +440,14 @@
                     <div class="mb-4">
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Advisory Fee (자문료)</label>
                         <div class="relative">
-                            <select id="invAdvisoryRate" class="premium-input bg-white cursor-pointer border-[#D4AF37] text-gray-700 appearance-none"></select>
+                            <select id="invAdvisoryRate" class="premium-input bg-white cursor-pointer border-[#D4AF37] text-gray-700 appearance-none text-ellipsis pr-8"></select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
                         </div>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Advertising Fee (광고비)</label>
                         <div class="relative">
-                            <select id="invAdFeeRate" class="premium-input bg-white cursor-pointer border-[#D4AF37] text-gray-700 appearance-none"></select>
+                            <select id="invAdFeeRate" class="premium-input bg-white cursor-pointer border-[#D4AF37] text-gray-700 appearance-none text-ellipsis pr-8"></select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
                         </div>
                     </div>
@@ -469,7 +474,7 @@
                         <!-- 🌟 Header: Official Y2C Holdings Premium Branding -->
                         <div class="flex justify-between items-start border-b-[3px] border-gray-800 pb-6 mb-8 avoid-page-break">
                             <div class="flex items-center gap-6">
-                                <!-- 🚨 [CRITICAL FIX 3] y2c_holdings_logo.png 렌더링 엔진 -->
+                                <!-- 🚨 [CRITICAL FIX] y2c_holdings_logo.png 렌더링 엔진 -->
                                 <div class="y2c-logo-container">
                                     <!-- 로고의 네이티브 비율(Aspect Ratio) 100% 보존 -->
                                     <img src="y2c_holdings_logo.png" alt="Y2C Holdings Inc." onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
@@ -680,11 +685,10 @@
 
     <script>
     /**
-     * 🌟 V74.00 Enterprise Commercial Invoice Logic (MOBILE OPTIMIZED & SWR)
-     * [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache.
-     * [CRITICAL FIX] Mobile 100dvh + Safe Area Inset + Reset Session Button completely unified.
-     * [ARCHITECTURE] Side-by-Side UI, Full PDF Pagination Control, Vertical HQ_Info Hard-Fallback.
-     * [FINANCE] Exact Monthly Breakdown (Advisory & Ad Fees) directly from `get_sales_records`.
+     * 🌟 V75.00 Enterprise Commercial Invoice Logic (ZERO-LOSS GENERATOR)
+     * [CRITICAL FIX 1] Phantom 0-Reversion Immunity: Implicit `total = pos + delivery` fallback correctly preserves months with uncalculated totals.
+     * [CRITICAL FIX 2] Client Name Fallback: Properly displays "Y2C_HQ" instead of "Unknown" when fallback is necessary.
+     * [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache (`Y2C_Admin_Cache_V80` synchronized).
      */
     document.addEventListener('DOMContentLoaded', () => {
         
@@ -705,9 +709,12 @@
             swiftCode: "PUSBKR2P"
         };
 
+        const rawClientName = sessionStorage.getItem("y2c_client") || localStorage.getItem("y2c_client") || "Unknown";
+        
         const AppState = {
             role: window.__INITIAL_ROLE__,
-            clientName: sessionStorage.getItem("y2c_client") || "Unknown",
+            // 🚨 Client Name Fallback to Y2C_HQ if MASTER and unknown
+            clientName: (rawClientName === "Unknown" && window.__INITIAL_ROLE__ === "MASTER") ? "Y2C_HQ" : rawClientName,
             clients: [],
             isSubmitting: false,
             taxRates: {
@@ -776,7 +783,7 @@
             if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) {
                 Y2C_AuthEngine.logout();
             } else {
-                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
+                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang", "y2c_active_tab", "y2c_sales_year", "y2c_sales_client"];
                 keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
                 window.location.replace("index.html");
             }
@@ -791,8 +798,9 @@
         // ==========================================
         // 🚀 [ACCELERATION] IndexedDB Caching (SWR 엔진 코어)
         // ==========================================
+        // 🚨 Y2C_Admin_Cache_V80 으로 동기화하여 admin.html과 클라이언트 캐시 풀 공유
         const SWR_DB = {
-            name: 'Y2C_Admin_Cache_V65', // admin.html과 캐시 공유
+            name: 'Y2C_Admin_Cache_V80', 
             version: 1,
             storeName: 'cacheStore',
             isSupported: !!window.indexedDB,
@@ -970,7 +978,7 @@
         }
 
         // ==========================================
-        // 📊 정밀 정산 로직 (Concurrent API Engine)
+        // 📊 정밀 정산 로직 (Concurrent API Engine & Phantom 0 Fix)
         // ==========================================
         if (btnGen) {
             btnGen.addEventListener('click', async () => {
@@ -993,8 +1001,8 @@
                 try {
                     // 🌟 월별 내역과 본사 정보를 얻기 위해 두 개의 API를 동시(병렬) 호출
                     const [invRes, salesRes] = await Promise.all([
-                        Y2C_AuthEngine.request("get_invoice", { targetYear: year, clientName: client, startMonth: sM, endMonth: eM }).catch(e => { console.warn(e); return null; }),
-                        Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client }).catch(e => { console.warn(e); return null; })
+                        Y2C_AuthEngine.request("get_invoice", { targetYear: year, clientName: client, startMonth: sM, endMonth: eM }).catch(e => { console.warn(e); return { success: false, message: e.message }; }),
+                        Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client }).catch(e => { console.warn(e); return { success: false, message: e.message }; })
                     ]);
                     
                     if (invRes && salesRes && invRes.success && salesRes.success) {
@@ -1008,7 +1016,7 @@
                         
                         Y2C_AuthEngine.showToast("상세 인보이스가 성공적으로 렌더링되었습니다.", "success");
                     } else {
-                        throw new Error("서버와의 통신이 원활하지 않습니다. 다시 시도해 주십시오.");
+                        throw new Error(invRes.message || salesRes.message || "서버와의 통신이 원활하지 않습니다. 다시 시도해 주십시오.");
                     }
                 } catch (e) {
                     Y2C_AuthEngine.showToast(e.message, "error");
@@ -1059,40 +1067,45 @@
             for (let m = params.startMonth; m <= params.endMonth; m++) {
                 const mRecord = salesRecords.find(r => r.month === m);
                 
-                if (mRecord && mRecord.exists && mRecord.total > 0) {
-                    validMonthsCount++;
-                    const gross = mRecord.total;
+                if (mRecord && mRecord.exists) {
+                    // 🚨 [CRITICAL FIX] Phantom 0-Reversion Immunity Fallback Calculation
+                    // 구글 서버 지연으로 Total이 0이더라도 POS나 Delivery값이 있으면 강제 연산하여 누락 방지
+                    const gross = mRecord.total > 0 ? mRecord.total : ((mRecord.pos || 0) + (mRecord.delivery || 0));
                     
-                    const advFee = Math.round(gross * advRate * 100) / 100;
-                    const adfFee = Math.round(gross * adfRate * 100) / 100;
-                    totalFees += (advFee + adfFee);
-                    
-                    const monthLabel = `${mNames[m-1]} ${params.targetYear}`;
-                    
-                    // 자문료 라인 추가
-                    if (advRate > 0) {
-                        linesHtml += `
-                        <tr>
-                            <td>
-                                <p class="font-bold text-[#111827]">${monthLabel} - Advisory & Management Fee</p>
-                            </td>
-                            <td class="text-right font-mono text-gray-500">${formatCurrency(gross)}</td>
-                            <td class="text-right font-mono text-gray-800">${formatPercent(advRate)}</td>
-                            <td class="text-right font-mono font-black text-[#111827]">${formatCurrency(advFee)}</td>
-                        </tr>`;
-                    }
-                    
-                    // 광고비 라인 추가
-                    if (adfRate > 0) {
-                        linesHtml += `
-                        <tr>
-                            <td>
-                                <p class="font-bold text-[#111827]">${monthLabel} - Local Advertising Contribution</p>
-                            </td>
-                            <td class="text-right font-mono text-gray-500">${formatCurrency(gross)}</td>
-                            <td class="text-right font-mono text-gray-800">${formatPercent(adfRate)}</td>
-                            <td class="text-right font-mono font-black text-[#111827]">${formatCurrency(adfFee)}</td>
-                        </tr>`;
+                    if (gross > 0) {
+                        validMonthsCount++;
+                        
+                        const advFee = Math.round(gross * advRate * 100) / 100;
+                        const adfFee = Math.round(gross * adfRate * 100) / 100;
+                        totalFees += (advFee + adfFee);
+                        
+                        const monthLabel = `${mNames[m-1]} ${params.targetYear}`;
+                        
+                        // 자문료 라인 추가
+                        if (advRate > 0) {
+                            linesHtml += `
+                            <tr>
+                                <td>
+                                    <p class="font-bold text-[#111827]">${monthLabel} - Advisory & Management Fee</p>
+                                </td>
+                                <td class="text-right font-mono text-gray-500">${formatCurrency(gross)}</td>
+                                <td class="text-right font-mono text-gray-800">${formatPercent(advRate)}</td>
+                                <td class="text-right font-mono font-black text-[#111827]">${formatCurrency(advFee)}</td>
+                            </tr>`;
+                        }
+                        
+                        // 광고비 라인 추가
+                        if (adfRate > 0) {
+                            linesHtml += `
+                            <tr>
+                                <td>
+                                    <p class="font-bold text-[#111827]">${monthLabel} - Local Advertising Contribution</p>
+                                </td>
+                                <td class="text-right font-mono text-gray-500">${formatCurrency(gross)}</td>
+                                <td class="text-right font-mono text-gray-800">${formatPercent(adfRate)}</td>
+                                <td class="text-right font-mono font-black text-[#111827]">${formatCurrency(adfFee)}</td>
+                            </tr>`;
+                        }
                     }
                 }
             }
