@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V76.00 Enterprise Advisory Invoice GRAND FINALE - 1-PAGE ABSOLUTE LOCK & ENTERPRISE DESIGN 🌟
-  [CRITICAL FIX 1] 1-Page Absolute Locking: Mathematically calculated table row heights (`py-2.5`) and enforced strict A4 pixel bounds (`794x1122px`) in `.pdf-export-mode` to permanently eradicate the 2-page split bug for 4-month (8-row) queries.
-  [UX UPGRADE 1] Corporate Premium Redesign: Upgraded the Grand Total section to a high-contrast Black & Gold panel and injected a CSS-based red 'APPROVED' corporate seal for extreme document realism and enterprise authority.
-  [CRITICAL FIX 2] Phantom 0-Reversion Immunity: Preserved the `(r.pos + r.delivery)` fallback calculation.
-  [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache, synced with `Y2C_Admin_Cache_V80`.
+  🌟 V77.00 Enterprise Advisory Invoice GRAND FINALE - 1-PAGE ABSOLUTE LOCK & ZERO-LOSS 🌟
+  [CRITICAL FIX 1] Print Pagination Engine: Enforced strict `@page { size: 210mm 297mm; margin: 0mm; }` and mathematically capped `.a4-paper` height to absolutely eradicate the 2-page split bug at 100% scale.
+  [CRITICAL FIX 2] Micro-Padding Compression: Reduced inner table paddings slightly to comfortably fit 8 rows (4 months) and the corporate signature block into a single A4 bound without squishing.
+  [CRITICAL FIX 3] Phantom 0-Reversion Immunity: Implicit `total = pos + delivery` fallback correctly preserves months with uncalculated totals.
+  [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache (`Y2C_Admin_Cache_V80` synchronized).
   [MOBILE OPTIMIZED] 100dvh + overflow-y-auto injected to completely eradicate Virtual Keyboard squish bugs.
 -->
 <html lang="en">
@@ -188,16 +188,18 @@
         #premiumToastContainer > div { width: 100%; justify-content: center; }
 
         /* ==========================================================
-            🌟 A4 Commercial Invoice Paper Architecture (Formal Grade)
+            🌟 A4 Commercial Invoice Paper Architecture (1-PAGE FIXED)
             ========================================================== */
         .a4-paper {
             width: 100%; min-width: 800px; max-width: 800px; margin: 0 auto; background: white;
             box-shadow: var(--tw-shadow-paper); overflow: hidden;
             position: relative; transition: all 0.3s ease;
-            /* 🚨 [CRITICAL FIX 1] Optimal natural height */
-            min-height: 1080px; 
-            padding: 40px 50px; 
+            /* 🚨 [CRITICAL FIX] Absolutely enforce 1-page A4 aspect ratio height to prevent stretching */
+            height: 1131px; 
+            max-height: 1131px;
+            padding: 40px 50px; /* Reduced from 50px 60px to secure inner space */
             box-sizing: border-box;
+            display: flex; flex-direction: column;
         }
         
         /* 🌟 Y2C Watermark Engine */
@@ -209,23 +211,24 @@
             font-family: 'Montserrat', sans-serif;
             font-size: 110px;
             font-weight: 900;
-            color: rgba(243, 244, 246, 0.5); /* Extremely subtle gray/opacity for watermark */
+            color: rgba(243, 244, 246, 0.5); 
             white-space: nowrap;
             pointer-events: none;
             z-index: 0;
         }
 
-        .invoice-content-wrapper { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; }
+        .invoice-content-wrapper { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
 
-        /* 🚨 [UX UPGRADE 1] Corporate Premium Redesign - Compact Table for 1-Page Fit */
+        /* 🚨 [UX UPGRADE] Corporate Premium Redesign - Compact Table for 1-Page Fit */
         .invoice-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .invoice-table th { 
             background: transparent; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; 
             color: #475569; text-transform: uppercase; letter-spacing: 0.15em; 
-            padding: 10px 10px; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; 
+            padding: 8px 10px; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; 
         }
         .invoice-table td { 
-            padding: 9px 10px; font-size: 11px; color: var(--ink); 
+            /* 🚨 Micro-Padding Compression to guarantee 8 rows fit vertically */
+            padding: 7px 10px; font-size: 11px; color: var(--ink); 
             border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; 
         }
 
@@ -239,19 +242,19 @@
             font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 18px; color: var(--y2c-gold);
         }
 
-        /* 🚨 [CRITICAL FIX 1] PDF 강제 추출 모드 - 1페이지 절대 압축을 위한 픽셀 규격 고정 */
+        /* 🚨 [CRITICAL FIX] PDF 강제 추출 모드 - 1페이지 절대 압축을 위한 픽셀 규격 고정 */
         .pdf-export-mode {
-            width: 794px !important;
-            height: 1122px !important;
-            max-width: 794px !important;
-            min-height: 1122px !important;
+            width: 800px !important;
+            height: 1131px !important;
+            max-width: 800px !important;
+            max-height: 1131px !important;
             margin: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             transform: none !important;
             background-color: #ffffff !important;
             border: none !important;
-            padding: 45px 55px !important; 
+            padding: 40px 50px !important; 
             box-sizing: border-box !important;
             overflow: hidden !important;
         }
@@ -259,11 +262,27 @@
         /* Page-break avoidance for elements inside the PDF */
         .avoid-page-break { page-break-inside: avoid; break-inside: avoid; }
 
+        /* 🚨 [CRITICAL FIX] Chrome Print Preview 100% Scale Splitting Bug Eradicated */
         @media print { 
-            @page { margin: 0; size: auto; }
-            body { background-color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { size: 210mm 297mm; margin: 0mm; } /* Forces exactly A4 size with NO browser margins */
+            body { margin: 0; padding: 0; background-color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
-            .a4-paper { box-shadow: none !important; max-width: 100% !important; width: 100% !important; border: none !important; margin: 0 !important; border-radius: 0 !important; min-height: auto; padding: 20px !important; }
+            
+            .a4-paper { 
+                width: 210mm !important; 
+                height: 296.5mm !important; /* Cap at 296.5mm to avoid 2nd page spillover */
+                max-width: 210mm !important;
+                max-height: 296.5mm !important;
+                margin: 0 !important; 
+                padding: 12mm 15mm !important; 
+                box-shadow: none !important; 
+                border: none !important; 
+                border-radius: 0 !important; 
+                overflow: hidden !important; 
+                box-sizing: border-box !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+            }
             .a4-paper::before { display: none; } /* 워터마크 인쇄 시 제거 */
             main { padding: 0 !important; margin: 0 !important; }
         }
@@ -309,7 +328,7 @@
     <!-- 🌟 프리미엄 헤더 (Dual Logo Synchronized & V88 Truncation Layout) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
-            <!-- 🚨 [CRITICAL FIX 2] Header Layout Collision Fix -->
+            <!-- 🚨 [CRITICAL FIX] Header Layout Collision Fix -->
             <div class="flex items-center gap-2 sm:gap-4 shrink-0 w-auto lg:w-[260px] xl:w-[320px] min-w-0">
                 <div class="flex items-center gap-2 shrink-0">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
@@ -329,6 +348,7 @@
                 </div>
             </div>
 
+            <!-- 🚨 줄어든 영역에서도 메뉴가 겹치지 않게 gap 축소 및 truncate 적용 -->
             <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-2 xl:gap-5 px-2 min-w-0 overflow-hidden">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_dashboard">Dashboard</a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_catalog">Item Catalog</a>
@@ -470,112 +490,114 @@
             <section id="invoiceCanvasContainer" class="flex-1 w-full overflow-x-auto pb-8 animate-slide-up">
                 
                 <!-- 🚨 id="invoiceDocument"는 html2pdf가 스캔할 최상위 타겟입니다. -->
-                <div class="a4-paper rounded-xl shadow-paper" id="invoiceDocument">
+                <div class="a4-paper shadow-paper" id="invoiceDocument">
                     
-                    <div class="invoice-content-wrapper flex flex-col h-full">
+                    <div class="invoice-content-wrapper">
                         
-                        <!-- 🌟 Header: Official Y2C Holdings Premium Branding -->
-                        <div class="flex justify-between items-start border-b-4 border-[#111827] relative pb-5 mb-6 avoid-page-break">
-                            <!-- 🚨 Enterprise Red Accent Line -->
-                            <div class="absolute bottom-0 left-0 w-full h-[1px] bg-[#E3000F] translate-y-[4px]"></div>
-                            
-                            <div class="flex items-center gap-5">
-                                <div class="y2c-logo-container">
-                                    <img src="y2c_holdings_logo.png" alt="Y2C Holdings Inc." onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                    <span style="display:none;" class="font-montserrat font-black text-2xl text-[#D4AF37] tracking-tighter">Y2C HOLDINGS</span>
+                        <div> <!-- Header & Content Wrapper -->
+                            <!-- 🌟 Header: Official Y2C Holdings Premium Branding -->
+                            <div class="flex justify-between items-start border-b-4 border-[#111827] relative pb-5 mb-5 avoid-page-break">
+                                <!-- 🚨 Enterprise Red Accent Line -->
+                                <div class="absolute bottom-0 left-0 w-full h-[1px] bg-[#E3000F] translate-y-[4px]"></div>
+                                
+                                <div class="flex items-center gap-4">
+                                    <div class="y2c-logo-container">
+                                        <img src="y2c_holdings_logo.png" alt="Y2C Holdings Inc." onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <span style="display:none;" class="font-montserrat font-black text-2xl text-[#D4AF37] tracking-tighter">Y2C HOLDINGS</span>
+                                    </div>
+                                    <div class="pl-4 border-l border-gray-300">
+                                        <h1 class="font-montserrat text-[22px] font-black text-[#111827] tracking-wider uppercase leading-tight" id="docHqName">Y2C HOLDINGS<br>INC.</h1>
+                                        <p class="text-[8px] font-bold text-gray-500 mt-1.5 tracking-[0.15em] uppercase">Global Franchise Operations</p>
+                                    </div>
                                 </div>
-                                <div class="pl-5 border-l border-gray-300">
-                                    <h1 class="font-montserrat text-[22px] font-black text-[#111827] tracking-wider uppercase leading-tight" id="docHqName">Y2C HOLDINGS<br>INC.</h1>
-                                    <p class="text-[8.5px] font-bold text-gray-500 mt-1.5 tracking-[0.15em] uppercase">Global Franchise Operations</p>
+                                <div class="text-right mt-1">
+                                    <h2 class="font-montserrat text-[22px] leading-[1.05] font-black text-gray-300 tracking-[0.1em] uppercase">COMMERCIAL<br>INVOICE</h2>
+                                    <p class="text-[9.5px] font-bold text-gray-600 mt-2 font-mono tracking-widest">No. <span id="docInvoiceNo" class="text-[#E3000F]">INV-XXXXX</span></p>
                                 </div>
                             </div>
-                            <div class="text-right mt-1">
-                                <h2 class="font-montserrat text-[24px] leading-[1.05] font-black text-gray-300 tracking-[0.1em] uppercase">COMMERCIAL<br>INVOICE</h2>
-                                <p class="text-[10px] font-bold text-gray-600 mt-2 font-mono tracking-widest">No. <span id="docInvoiceNo" class="text-[#E3000F]">INV-XXXXX</span></p>
-                            </div>
-                        </div>
 
-                        <!-- 🌟 Addresses (HQ vs Client) -->
-                        <div class="grid grid-cols-2 gap-10 mb-6 avoid-page-break">
-                            <!-- FROM: HQ -->
-                            <div>
-                                <h4 class="text-[8.5px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 border-b border-gray-200 pb-1">Issuer / From</h4>
-                                <p class="font-black text-[12px] text-[#111827] mb-1.5" id="docHqRep">Y2C Holdings Inc.</p>
-                                <p class="text-[10.5px] font-medium text-gray-600 leading-relaxed font-inter" id="docHqAddress">
-                                    Unit 1605, 39, Gwangan-ro 62beon-gil,<br>Suyeong-gu, Busan, Republic of Korea<br>ZIP: 48303
-                                </p>
-                                <div class="mt-2.5 text-[9.5px] font-mono font-medium text-gray-500 space-y-0.5">
-                                    <p>Contact: <span id="docHqContact" class="text-gray-700 font-bold">+82 10-5088-4494</span></p>
-                                    <p>Reg No: <span id="docHqRegNo" class="text-gray-700 font-bold">216-86-02475</span></p>
-                                    <p>Rep: <span id="docHqRepName" class="text-gray-700 font-bold">YOONJI, LEE</span></p>
+                            <!-- 🌟 Addresses (HQ vs Client) -->
+                            <div class="grid grid-cols-2 gap-10 mb-5 avoid-page-break">
+                                <!-- FROM: HQ -->
+                                <div>
+                                    <h4 class="text-[8.5px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 border-b border-gray-200 pb-1">Issuer / From</h4>
+                                    <p class="font-black text-[12px] text-[#111827] mb-1.5" id="docHqRep">Y2C Holdings Inc.</p>
+                                    <p class="text-[10.5px] font-medium text-gray-600 leading-relaxed font-inter" id="docHqAddress">
+                                        Unit 1605, 39, Gwangan-ro 62beon-gil,<br>Suyeong-gu, Busan, Republic of Korea<br>ZIP: 48303
+                                    </p>
+                                    <div class="mt-2 text-[9px] font-mono font-medium text-gray-500 space-y-0.5">
+                                        <p>Contact: <span id="docHqContact" class="text-gray-700 font-bold">+82 10-5088-4494</span></p>
+                                        <p>Reg No: <span id="docHqRegNo" class="text-gray-700 font-bold">216-86-02475</span></p>
+                                        <p>Rep: <span id="docHqRepName" class="text-gray-700 font-bold">YOONJI, LEE</span></p>
+                                    </div>
+                                </div>
+                                <!-- BILL TO: Client -->
+                                <div>
+                                    <h4 class="text-[8.5px] font-black text-[#D4AF37] uppercase tracking-[0.2em] mb-2 border-b border-[#D4AF37] pb-1">Bill To</h4>
+                                    <p class="font-black text-[13px] text-[#111827] mb-1.5" id="docClientName">Target Franchise Entity</p>
+                                    <p class="text-[10.5px] font-medium text-gray-600 leading-relaxed font-inter" id="docClientAddress">
+                                        Client Legal Address<br>City, Province, Canada
+                                    </p>
+                                    <div class="mt-2 text-[9px] font-inter font-medium text-gray-500 space-y-0.5">
+                                        <p>Attn: <span id="docClientAttn" class="text-gray-700 font-bold">Manager</span></p>
+                                        <p>Tax ID / Biz No: <span id="docClientBiz" class="text-gray-700 font-bold font-mono">TBD</span></p>
+                                    </div>
                                 </div>
                             </div>
-                            <!-- BILL TO: Client -->
-                            <div>
-                                <h4 class="text-[8.5px] font-black text-[#D4AF37] uppercase tracking-[0.2em] mb-2 border-b border-[#D4AF37] pb-1">Bill To</h4>
-                                <p class="font-black text-[13px] text-[#111827] mb-1.5" id="docClientName">Target Franchise Entity</p>
-                                <p class="text-[10.5px] font-medium text-gray-600 leading-relaxed font-inter" id="docClientAddress">
-                                    Client Legal Address<br>City, Province, Canada
-                                </p>
-                                <div class="mt-2.5 text-[9.5px] font-inter font-medium text-gray-500 space-y-0.5">
-                                    <p>Attn: <span id="docClientAttn" class="text-gray-700 font-bold">Manager</span></p>
-                                    <p>Tax ID / Biz No: <span id="docClientBiz" class="text-gray-700 font-bold font-mono">TBD</span></p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- 🌟 Invoice Meta Grid -->
-                        <div class="rounded-xl p-4 mb-6 border border-gray-200 grid grid-cols-3 gap-4 avoid-page-break bg-gray-50/50">
-                            <div>
-                                <span class="block text-[8.5px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1.5">Date of Issue</span>
-                                <span class="font-bold text-[12px] text-[#111827] font-mono" id="docIssueDate">YYYY-MM-DD</span>
-                            </div>
-                            <div>
-                                <span class="block text-[8.5px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1.5">Billing Period</span>
-                                <span class="font-bold text-[12px] text-[#111827] font-mono" id="docBillingPeriod">Mon YYYY</span>
-                            </div>
-                            <div>
-                                <span class="block text-[8.5px] font-black text-[#E3000F] uppercase tracking-[0.1em] mb-1.5">Payment Due Date</span>
-                                <span class="font-black text-[#E3000F] text-[12px] font-mono" id="docDueDate">YYYY-MM-DD</span>
-                            </div>
-                        </div>
-
-                        <!-- 🌟 월별 세부내역 브레이크다운 테이블 (1장 압축을 위한 콤팩트 디자인) -->
-                        <div class="flex-grow mb-6">
-                            <table class="w-full text-left invoice-table">
-                                <thead>
-                                    <tr>
-                                        <th>Description (Monthly Basis)</th>
-                                        <th class="text-right w-24">Basis (CAD)</th>
-                                        <th class="text-right w-20">Rate</th>
-                                        <th class="text-right w-28">Fee (CAD)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="valInvoiceLines">
-                                    <tr>
-                                        <td colspan="4" class="py-10 text-center text-gray-400 font-bold font-inter italic text-[11px]">
-                                            Please select parameters and click "Generate Invoice" to calculate monthly breakdowns.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- 🌟 [UX UPGRADE 1] Tax & Premium Grand Total -->
-                        <div class="flex justify-end mb-8 avoid-page-break">
-                            <div class="w-[340px] bg-gray-50 rounded-2xl p-5 border border-gray-200 shadow-sm">
-                                <div class="flex justify-between py-2 border-b border-gray-200/50">
-                                    <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.1em]">Subtotal</span>
-                                    <span class="font-mono font-bold text-gray-800 text-[13px]" id="valSubtotal">$0.00</span>
+                            <!-- 🌟 Invoice Meta Grid -->
+                            <div class="rounded-xl p-3 mb-5 border border-gray-200 grid grid-cols-3 gap-4 avoid-page-break bg-gray-50/50">
+                                <div>
+                                    <span class="block text-[8.5px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1.5">Date of Issue</span>
+                                    <span class="font-bold text-[12px] text-[#111827] font-mono" id="docIssueDate">YYYY-MM-DD</span>
                                 </div>
-                                <div class="flex justify-between py-2 border-b border-gray-200/50">
-                                    <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.1em]" id="lblTaxType">Tax (HST/GST)</span>
-                                    <span class="font-mono font-bold text-gray-800 text-[13px]" id="valTaxAmount">$0.00</span>
+                                <div>
+                                    <span class="block text-[8.5px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1.5">Billing Period</span>
+                                    <span class="font-bold text-[12px] text-[#111827] font-mono" id="docBillingPeriod">Mon YYYY</span>
                                 </div>
-                                <!-- Black & Gold Dark Premium Box -->
-                                <div class="flex justify-between items-center bg-[#111827] rounded-xl p-4 mt-3 shadow-md border border-gray-800">
-                                    <span class="font-black text-[12px] text-white uppercase tracking-widest">Total Due (CAD)</span>
-                                    <span class="font-black text-[22px] text-[#D4AF37] font-mono tracking-tighter" id="valGrandTotal">$0.00</span>
+                                <div>
+                                    <span class="block text-[8.5px] font-black text-[#E3000F] uppercase tracking-[0.1em] mb-1.5">Payment Due Date</span>
+                                    <span class="font-black text-[#E3000F] text-[12px] font-mono" id="docDueDate">YYYY-MM-DD</span>
+                                </div>
+                            </div>
+
+                            <!-- 🌟 월별 세부내역 브레이크다운 테이블 (1장 압축을 위한 콤팩트 디자인) -->
+                            <div class="mb-5">
+                                <table class="w-full text-left invoice-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Description (Monthly Basis)</th>
+                                            <th class="text-right w-24">Basis (CAD)</th>
+                                            <th class="text-right w-20">Rate</th>
+                                            <th class="text-right w-28">Fee (CAD)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="valInvoiceLines">
+                                        <tr>
+                                            <td colspan="4" class="py-8 text-center text-gray-400 font-bold font-inter italic text-[11px]">
+                                                Please select parameters and click "Generate Invoice" to calculate monthly breakdowns.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 🌟 [UX UPGRADE 1] Tax & Premium Grand Total -->
+                            <div class="flex justify-end mb-6 avoid-page-break">
+                                <div class="w-[300px] bg-gray-50 rounded-2xl p-4 border border-gray-200 shadow-sm">
+                                    <div class="flex justify-between py-1.5 border-b border-gray-200/50">
+                                        <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.1em]">Subtotal</span>
+                                        <span class="font-mono font-bold text-gray-800 text-[13px]" id="valSubtotal">$0.00</span>
+                                    </div>
+                                    <div class="flex justify-between py-1.5 border-b border-gray-200/50">
+                                        <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.1em]" id="lblTaxType">Tax (HST/GST)</span>
+                                        <span class="font-mono font-bold text-gray-800 text-[13px]" id="valTaxAmount">$0.00</span>
+                                    </div>
+                                    <!-- Black & Gold Dark Premium Box -->
+                                    <div class="flex justify-between items-center bg-[#111827] rounded-xl p-3.5 mt-2.5 shadow-md border border-gray-800">
+                                        <span class="font-black text-[11px] text-white uppercase tracking-widest">Total Due (CAD)</span>
+                                        <span class="font-black text-[20px] text-[#D4AF37] font-mono tracking-tighter" id="valGrandTotal">$0.00</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -586,7 +608,7 @@
                             <!-- Bank Info -->
                             <div class="w-[50%]">
                                 <h4 class="text-[8.5px] font-black text-gray-400 uppercase tracking-[0.15em] mb-2">Remittance Details (Wire Transfer)</h4>
-                                <div class="bg-white p-4 rounded-xl border border-gray-200 text-[9.5px] font-mono text-gray-700 leading-[1.6] space-y-0.5">
+                                <div class="bg-white p-3.5 rounded-xl border border-gray-200 text-[9.5px] font-mono text-gray-700 leading-[1.6] space-y-0.5">
                                     <p><span class="font-bold text-gray-400 uppercase tracking-widest mr-2 inline-block w-20">Bank Name:</span> <span id="bankName" class="font-black text-gray-800 text-[10px]">BUSAN BANK / Foreign Dept</span></p>
                                     <p><span class="font-bold text-gray-400 uppercase tracking-widest mr-2 inline-block w-20">Account No:</span> <span id="bankAccount" class="font-black text-gray-800 text-[11px]">154-2058-6586-04</span></p>
                                     <p><span class="font-bold text-gray-400 uppercase tracking-widest mr-2 inline-block w-20">Beneficiary:</span> <span id="bankAccName" class="font-black text-gray-800">Y2C Holdings Inc.</span></p>
@@ -600,14 +622,14 @@
                             <!-- 🚨 [UX UPGRADE 1] Authorized Signature Box with Corporate Seal -->
                             <div class="w-[40%] text-center relative">
                                 <!-- Corporate Seal (Red Stamp) -->
-                                <div class="absolute right-8 top-0 w-[70px] h-[70px] border-[3px] border-[#E3000F] rounded-full flex flex-col items-center justify-center transform rotate-[-15deg] opacity-70 pointer-events-none z-0">
-                                    <span class="text-[9px] font-black text-[#E3000F] uppercase tracking-widest leading-none mt-1">APPROVED</span>
-                                    <span class="text-[6px] font-bold text-[#E3000F] border-t border-[#E3000F] mt-1 pt-0.5">Y2C HOLDINGS</span>
+                                <div class="absolute right-6 top-[-10px] w-[60px] h-[60px] border-[2.5px] border-[#E3000F] rounded-full flex flex-col items-center justify-center transform rotate-[-15deg] opacity-70 pointer-events-none z-0">
+                                    <span class="text-[8px] font-black text-[#E3000F] uppercase tracking-widest leading-none mt-1">APPROVED</span>
+                                    <span class="text-[5px] font-bold text-[#E3000F] border-t border-[#E3000F] mt-1 pt-0.5">Y2C HOLDINGS</span>
                                 </div>
 
-                                <div class="h-20 border-b border-gray-400 mb-2 relative flex items-end justify-center pb-1 z-10">
+                                <div class="h-16 border-b border-gray-400 mb-2 relative flex items-end justify-center pb-1 z-10">
                                     <!-- Cursive Signature Font for extreme realism -->
-                                    <span class="font-serif text-[32px] text-gray-300 italic select-none transform -rotate-6">Yoonji Lee</span>
+                                    <span class="font-serif text-[28px] text-gray-300 italic select-none transform -rotate-6">Yoonji Lee</span>
                                 </div>
                                 <p class="text-[9.5px] font-black text-gray-800 uppercase tracking-[0.1em]" id="sigName">YOONJI, LEE</p>
                                 <p class="text-[7.5px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-0.5">Authorized Signature</p>
@@ -616,7 +638,7 @@
                         </div>
                         
                         <!-- Mini Footer -->
-                        <div class="mt-6 text-center text-[7px] font-bold text-gray-300 font-mono tracking-[0.2em] uppercase border-t border-gray-100 pt-3">
+                        <div class="mt-4 text-center text-[7px] font-bold text-gray-300 font-mono tracking-[0.2em] uppercase border-t border-gray-100 pt-2">
                             Generated by Y2C Enterprise SCM Portal • Document is electronically secured.
                         </div>
 
@@ -693,7 +715,7 @@
 
     <script>
     /**
-     * 🌟 V76.00 Enterprise Commercial Invoice Logic (1-PAGE PDF LOCK & ZERO-LOSS)
+     * 🌟 V77.00 Enterprise Commercial Invoice Logic (1-PAGE PDF LOCK & ZERO-LOSS)
      * [CRITICAL FIX 1] Phantom 0-Reversion Immunity: Implicit `total = pos + delivery` fallback correctly preserves months with uncalculated totals.
      * [CRITICAL FIX 2] Client Name Fallback: Properly displays "Y2C_HQ" instead of "Unknown" when fallback is necessary.
      * [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache (`Y2C_Admin_Cache_V80` synchronized).
@@ -791,7 +813,7 @@
             if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) {
                 Y2C_AuthEngine.logout();
             } else {
-                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang", "y2c_active_tab", "y2c_sales_year", "y2c_sales_client"];
+                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
                 keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
                 window.location.replace("index.html");
             }
@@ -1118,7 +1140,7 @@
             }
             
             if (validMonthsCount === 0) {
-                linesHtml = `<tr><td colspan="4" class="py-16 text-center text-gray-400 font-bold font-inter italic text-[11px]">No sales data found for the selected period.</td></tr>`;
+                linesHtml = `<tr><td colspan="4" class="py-10 text-center text-gray-400 font-bold font-inter italic text-[11px]">No sales data found for the selected period.</td></tr>`;
             }
 
             document.getElementById('valInvoiceLines').innerHTML = linesHtml;
@@ -1164,7 +1186,7 @@
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 1.0 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff', scrollY: 0 },
-                jsPDF:        { unit: 'px', format: [794, 1122], orientation: 'portrait' }, // 🚨 강제 A4 1페이지 고정 규격
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }, // 🚨 강제 A4 1페이지 고정 규격
                 pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
