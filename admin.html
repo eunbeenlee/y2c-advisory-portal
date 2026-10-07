@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V84.00 Enterprise Admin GRAND FINALE - ENTERPRISE UX & EXCEL-LIKE DATA ENTRY 🌟
-  [CRITICAL FIX 1] Header Layout Collision: Resolved the overlapping text issue between the Logo, "OPERATED BY Y2C", and Navigation links on tablet/desktop breakpoints.
-  [UX UPGRADE 1] Live 'UNSAVED' Tracking: Badges now instantly switch to a pulsing amber "UNSAVED" state upon user input, tracking modified rows before commit.
-  [UX UPGRADE 2] Excel-like Tab Indexing: Injected dynamic `tabindex` to allow vertical seamless keyboard navigation (Jan POS -> Feb POS, etc.) for mass data entry.
-  [UX UPGRADE 3] Toast Position Polishing: Elevated the mobile toast container to `bottom: 100px` to prevent overlap with the Magnetic Bottom Save Bar.
+  🌟 V85.00 Enterprise Admin GRAND FINALE - RESPONSIVE UI & RETRY FEEDBACK EVOLUTION 🌟
+  [CRITICAL FIX 1] Header Layout Collision Fix: Mathematically recalibrated Flexbox gaps, padding, and min-widths on the top navigation bar to permanently prevent text overlapping on tablet/desktop breakpoints (e.g., 1319px).
+  [CRITICAL FIX 2] Dynamic Loading Feedback: `salesClientSelector` now dynamically displays "-- Connecting to Node... --" during background silent retries instead of a frozen "-- Loading --" state.
+  [UX UPGRADE 1] Live 'UNSAVED' Tracking: Badges instantly update to amber on typing.
+  [UX UPGRADE 2] Excel-like Tab Indexing: Users can hit 'Tab' to rapidly move down a column.
   [RESTORED] State Memory Engine, DOM Non-Destructive Saving, HQ Procurement, and Excel Worker threading 100% intact.
 -->
 <html lang="en">
@@ -181,12 +181,9 @@
 
         .tracking-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-family: 'JetBrains Mono', monospace; }
 
-        /* 🚨 [UX UPGRADE] Adaptive Toast Positioning (모바일 환경 하단 중앙 배치 상향 조정) */
-        #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
-        @media (max-width: 768px) {
-            #premiumToastContainer { top: auto; bottom: 100px; left: 50%; transform: translateX(-50%); right: auto; width: 90%; max-width: 400px; align-items: center; }
-            #premiumToastContainer > div { width: 100%; justify-content: center; }
-        }
+        /* 🚨 [UX UPGRADE] Adaptive Toast Positioning (전역 하단 중앙 고정) */
+        #premiumToastContainer { position: fixed; top: auto; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; align-items: center; width: 90%; max-width: 420px; }
+        #premiumToastContainer > div { width: 100%; justify-content: center; }
 
         @media print { .no-print { display: none !important; } body { background: white !important; } }
     </style>
@@ -227,8 +224,8 @@
     <!-- 🌟 프리미엄 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
-            <!-- 🚨 [CRITICAL FIX] Header Layout Collision Fix (shrink-0 -> min-w-0, text truncation) -->
-            <div class="flex items-center gap-3 sm:gap-4 w-auto lg:w-[360px] min-w-0">
+            <!-- 🚨 [CRITICAL FIX 1] Header Layout Collision Fix (shrink-0 -> min-w-0, text truncation, adjusted gaps) -->
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0 w-auto lg:w-[260px] xl:w-[320px] min-w-0">
                 <div class="flex items-center gap-2 shrink-0">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
                         <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
@@ -243,20 +240,21 @@
                 </div>
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200 min-w-0">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap truncate" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
-                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden 2xl:inline-block shrink-0">Operated by Y2C</span>
+                    <span class="text-[8px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden 2xl:inline-block shrink-0">Operated by Y2C</span>
                 </div>
             </div>
 
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
+            <!-- 🚨 줄어든 영역에서도 메뉴가 겹치지 않게 gap 축소 및 truncate 적용 -->
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-2 xl:gap-5 px-2 min-w-0 overflow-hidden">
+                <a href="dashboard.html" id="navDashboard" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_dashboard">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_recipes">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link active text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_admin">Master DB</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
-            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
-                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-2">
+            <div class="hidden lg:flex items-center justify-end gap-2 sm:gap-3 shrink-0 w-auto">
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-1">
                     <button onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">EN</button>
                     <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
@@ -266,7 +264,7 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[8px] sm:text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
                     <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
@@ -921,6 +919,7 @@
         async function fetchMasterDataFast() {
             if (AppState.role === "VENDOR") return;
             const cacheKey = 'MASTER_DATA_CACHE';
+            const clientSel = document.getElementById('salesClientSelector');
 
             try {
                 const cached = await SWR_DB.get(cacheKey);
@@ -932,6 +931,11 @@
             } catch(e) {}
 
             try {
+                // 🚨 Dynamic Loading Feedback: 드롭다운 무한 로딩 상태 해결을 위한 연결 중 메시지
+                if (clientSel && AppState.cachedClients.length === 0) {
+                    clientSel.innerHTML = `<option value="">-- Connecting to Node... --</option>`;
+                }
+
                 const res = await Y2C_AuthEngine.request("get_master_data");
                 if (res && res.success) {
                     const freshData = res.clients || [];
@@ -943,6 +947,7 @@
                     }
                 }
             } catch (err) {
+                if(clientSel) clientSel.innerHTML = `<option value="">-- Connection Failed --</option>`;
                 if(AppState.cachedClients.length === 0) {
                     Y2C_Accelerator.renderReactively('masterTableBody', `
                         <tr>
@@ -960,7 +965,7 @@
                 const activeTab = sessionStorage.getItem('y2c_active_tab');
                 const ySel = document.getElementById('salesYearSelector')?.value;
                 const cSel = document.getElementById('salesClientSelector')?.value;
-                if (activeTab === 'tab-sales' && ySel && cSel) {
+                if (activeTab === 'tab-sales' && ySel && cSel && cSel !== "") {
                     loadSalesGridFast();
                 }
             }
@@ -1077,7 +1082,10 @@
 
         function populateSalesClientSelector() {
             const sel = document.getElementById('salesClientSelector');
-            if(!sel || AppState.cachedClients.length === 0) return;
+            if(!sel || AppState.cachedClients.length === 0) {
+                if(sel) sel.innerHTML = `<option value="">-- No Franchise Data --</option>`;
+                return;
+            }
             
             const savedClient = sessionStorage.getItem('y2c_sales_client');
             sel.innerHTML = `<option value="">-- Select Franchise --</option>`;
@@ -1253,7 +1261,7 @@
                         }
                     });
 
-                    // 🚨 [UX UPGRADE] Inline Button Success Feedback
+                    // 🚨 [UX UPGRADE 2] Inline Button Success Feedback
                     btns.forEach(b => { b.innerHTML = "✅ SYNC COMPLETED"; b.classList.add('btn-success'); });
                     setTimeout(() => {
                         btns.forEach(b => { b.innerHTML = originalHtml; b.classList.remove('btn-success'); b.disabled = false; });
