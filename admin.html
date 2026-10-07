@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V85.00 Enterprise Admin GRAND FINALE - RESPONSIVE UI & RETRY FEEDBACK EVOLUTION 🌟
-  [CRITICAL FIX 1] Header Layout Collision Fix: Mathematically recalibrated Flexbox gaps, padding, and min-widths on the top navigation bar to permanently prevent text overlapping on tablet/desktop breakpoints (e.g., 1319px).
-  [CRITICAL FIX 2] Dynamic Loading Feedback: `salesClientSelector` now dynamically displays "-- Connecting to Node... --" during background silent retries instead of a frozen "-- Loading --" state.
-  [UX UPGRADE 1] Live 'UNSAVED' Tracking: Badges instantly update to amber on typing.
-  [UX UPGRADE 2] Excel-like Tab Indexing: Users can hit 'Tab' to rapidly move down a column.
-  [RESTORED] State Memory Engine, DOM Non-Destructive Saving, HQ Procurement, and Excel Worker threading 100% intact.
+  🌟 V86.00 Enterprise Admin GRAND FINALE - ACCELERATION & ZERO-BUG UX EVOLUTION 🌟
+  [CRITICAL FIX 1] Target Franchise Expansion: Increased width of the franchise selector (`w-[22rem]`) to prevent severe text truncation of long corporate names.
+  [ACCELERATOR 1] Network Core Preloading: Injected `<link rel="preload">` for `auth.js` and `config.js` to execute network policies instantaneously.
+  [ACCELERATOR 2] Web Worker Prefetching: Added `<link rel="prefetch">` for `excel-worker.js` to eliminate cold-start delay during mass inbound uploads.
+  [UX UPGRADE 1] Load Ledger Feedback: Added instantaneous visual feedback (`LOADING...`) to the Load Ledger button to prevent double-clicks and reduce perceived latency.
+  [RESTORED] State Memory Engine, DOM Non-Destructive Saving, HQ Procurement, and Hover Intent Prefetching 100% intact.
 -->
 <html lang="en">
 <head>
@@ -30,6 +30,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <!-- 🚀 가속: [V86 ACCELERATOR] 핵심 보안 통신 모듈 및 엑셀 워커 초고속 프리로드 -->
+    <link rel="preload" href="assets/js/config.js" as="script">
+    <link rel="preload" href="assets/js/auth.js" as="script">
+    <link rel="prefetch" href="assets/js/excel-worker.js" as="script">
 
     <link rel="prefetch" href="dashboard.html" as="document">
     <link rel="prefetch" href="items.html" as="document">
@@ -224,7 +229,7 @@
     <!-- 🌟 프리미엄 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
-            <!-- 🚨 [CRITICAL FIX 1] Header Layout Collision Fix (shrink-0 -> min-w-0, text truncation, adjusted gaps) -->
+            <!-- 🚨 [CRITICAL FIX] Header Layout Collision Fix (shrink-0 -> min-w-0, text truncation, adjusted gaps) -->
             <div class="flex items-center gap-2 sm:gap-4 shrink-0 w-auto lg:w-[260px] xl:w-[320px] min-w-0">
                 <div class="flex items-center gap-2 shrink-0">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
@@ -357,14 +362,16 @@
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
                         <select id="salesYearSelector" class="premium-input bg-white appearance-none"></select>
                     </div>
-                    <div class="w-full md:w-64">
+                    <!-- 🚨 [V86 가속 개선] 가맹점 드롭다운 넓이 대폭 확장 (w-64 -> w-[22rem]) -->
+                    <div class="w-full md:w-[22rem]">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
                         <select id="salesClientSelector" class="premium-input bg-white appearance-none text-ellipsis pr-8">
                             <option value="">-- Loading --</option>
                         </select>
                     </div>
-                    <div class="flex items-end">
-                        <button type="button" onclick="loadSalesGridFast()" class="btn-solid-red w-full h-[46px] px-8 rounded-xl font-black text-[12px] uppercase tracking-widest focus:outline-none">Load Ledger</button>
+                    <div class="flex items-end flex-1">
+                        <!-- 🚨 [V86 가속 피드백] 버튼 클릭 시 상태 표시를 위한 ID 할당 -->
+                        <button type="button" id="btnLoadLedger" onclick="loadSalesGridFast()" class="btn-solid-red w-full h-[46px] px-8 rounded-xl font-black text-[12px] uppercase tracking-widest focus:outline-none">Load Ledger</button>
                     </div>
                 </div>
 
@@ -654,11 +661,11 @@
 
     <script>
     /**
-     * 🌟 V84.00 Enterprise Admin Quad-Core Integration Logic (EXCEL-LIKE ENTRY EVOLUTION)
-     * [CRITICAL FIX 1] Header Layout Collision Fixed: Prevented overlap on tablet/desktop views.
+     * 🌟 V86.00 Enterprise Admin Quad-Core Integration Logic (ACCELERATED UX)
+     * [ACCELERATOR 1] Network preloading applied to critical scripts.
+     * [CRITICAL FIX 1] Target Franchise dropdown width expanded to eradicate text truncation.
      * [UX UPGRADE 1] Live 'UNSAVED' Tracking: Badges instantly update to amber on typing.
-     * [UX UPGRADE 2] Excel-like Tab Indexing: Users can hit 'Tab' to rapidly move down a column.
-     * [UX UPGRADE 3] Toast Position Polishing: Moved mobile toasts to `bottom: 100px` to clear action bar.
+     * [UX UPGRADE 2] Load Ledger Button UX Feedback: Displays 'LOADING...' instantaneously upon click to reassure users during potential latency.
      */
     document.addEventListener("DOMContentLoaded", () => {
 
@@ -931,7 +938,7 @@
             } catch(e) {}
 
             try {
-                // 🚨 Dynamic Loading Feedback: 드롭다운 무한 로딩 상태 해결을 위한 연결 중 메시지
+                // 🚨 Dynamic Loading Feedback: 연결 지연 시 상태 안내 
                 if (clientSel && AppState.cachedClients.length === 0) {
                     clientSel.innerHTML = `<option value="">-- Connecting to Node... --</option>`;
                 }
@@ -1113,6 +1120,12 @@
             }
 
             AppState.isSubmitting = true;
+            
+            // 🚨 [V86 ACCELERATOR] Load Ledger 버튼 즉각 시각화 엔진
+            const btnLoad = document.getElementById('btnLoadLedger');
+            const origBtnText = btnLoad ? btnLoad.innerHTML : "Load Ledger";
+            if (btnLoad) { btnLoad.disabled = true; btnLoad.innerHTML = `<span class="animate-pulse">LOADING...</span>`; }
+
             const cacheKey = `SALES_DATA_${year}_${client}`;
             let isCached = false;
 
@@ -1138,6 +1151,7 @@
                 if(!isCached) Y2C_Accelerator.renderReactively('salesGridBody', `<tr><td colspan="5" class="py-10 text-center text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`);
             } finally {
                 AppState.isSubmitting = false;
+                if (btnLoad) { btnLoad.disabled = false; btnLoad.innerHTML = origBtnText; }
             }
         };
 
