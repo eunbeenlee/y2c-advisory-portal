@@ -879,4 +879,913 @@
 
         function populateHubDropdown() {
             const selectEl = document.getElementById("procHubSelect"); 
-            const inboundEl = document.getElementById("inbound
+            const inboundEl = document.getElementById("inboundRegionSelector"); 
+            const allowed = getAuthorizedRegions();
+
+            if (allowed.length === 0) {
+                if(selectEl) { selectEl.innerHTML = `<option value="" disabled selected>No Authorized Regions</option>`; selectEl.disabled = true; }
+                if(inboundEl) { inboundEl.innerHTML = `<option value="" disabled selected>No Authorized Regions</option>`; inboundEl.disabled = true; }
+                return;
+            }
+
+            if(selectEl) {
+                selectEl.innerHTML = "";
+                allowed.forEach(reg => {
+                    const opt = document.createElement('option'); opt.value = reg; opt.innerText = reg + " Hub";
+                    selectEl.appendChild(opt);
+                });
+                selectEl.value = allowed[0]; 
+            }
+
+            if(inboundEl) {
+                inboundEl.innerHTML = `<option value="" disabled selected>-- Select Hub Region for Inbound --</option>`;
+                allowed.forEach(reg => {
+                    const opt = document.createElement('option'); opt.value = reg; opt.innerText = "Hub: " + reg;
+                    inboundEl.appendChild(opt);
+                });
+                if(AppState.role !== "MASTER" && allowed.length === 1) inboundEl.value = allowed[0];
+            }
+        }
+        populateHubDropdown();
+
+        // ==========================================
+        // 🚀 [CORE 1] 프랜차이즈 DB 마스터 (SWR)
+        // ==========================================
+        async function fetchMasterDataFast() {
+            if (AppState.role === "VENDOR") return;
+            const cacheKey = 'MASTER_DATA_CACHE';
+
+            try {
+                const cached = await SWR_DB.get(cacheKey);
+                if (cached && cached.data) {
+                    AppState.cachedClients = cached.data;
+                    renderMasterDataFast();
+                    populateSalesClientSelector();
+                }
+            } catch(e) {}
+
+            try {
+                const res = await Y2C_AuthEngine.request("get_master_data");
+                if (res && res.success) {
+                    const freshData = res.clients || [];
+                    if (JSON.stringify(AppState.cachedClients) !== JSON.stringify(freshData)) {
+                        AppState.cachedClients = freshData;
+                        await SWR_DB.set(cacheKey, freshData);
+                        renderMasterDataFast();
+                        populateSalesClientSelector();
+                    }
+                }
+            } catch (err) {
+                if(AppState.cachedClients.length === 0) {
+                    Y2C_Accelerator.renderReactively('masterTableBody', `
+                        <tr>
+                            <td colspan="8" class="text-center py-16 bg-red-50/20 border-y border-red-100">
+                                <div class="text-4xl mb-4 opacity-80">⚠️</div>
+                                <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">엔터프라이즈 데이터 노드 접근 실패</h4>
+                                <p class="text-gray-500 font-medium text-[11px] mb-4">${err.message}</p>
+                                <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">보안 세션 재연결 시도</button>
+                            </td>
+                        </tr>
+                    `);
+                }
+            }
+        }
+
+        function renderMasterDataFast() {
+            // 🚨 렌더링 전 스크롤 캡처 (Scroll Jank 방어)
+            const currentScrollY = window.scrollY;
+
+            if (AppState.cachedClients.length === 0) {
+                Y2C_Accelerator.renderReactively('masterTableBody', `<tr><td colspan="8" class="text-center py-10 text-gray-500 font-bold">등록된 가맹점 정보가 없습니다.</td></tr>`).then(() => {
+                    window.scrollTo(0, currentScrollY);
+                });
+                return;
+            }
+
+            let html = "";
+            const inputClass = "w-full bg-gray-50 focus:bg-white border border-gray-200 rounded-lg px-2 py-2 text-[12px] font-bold text-gray-800 outline-none transition-colors focus:border-[#E3000F] text-ellipsis";
+
+            Y2C_Accelerator.processInChunks(AppState.cachedClients, (c) => {
+                html += `
+                <tr class="hover:bg-red-50/10 transition-colors border-b border-gray-50">
+                    <td class="px-6 py-4 font-black text-[var(--premium-charcoal)]"><span class="truncate-text" title="${Y2C_AuthEngine.escapeHtml(c.name)}">${Y2C_AuthEngine.escapeHtml(c.name)}</span></td>
+                    <td class="px-2 py-4"><input type="text" id="state_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.state)}" class="${inputClass} text-center uppercase" maxlength="2"></td>
+                    <td class="px-2 py-4"><input type="text" id="city_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.city)}" class="${inputClass}"></td>
+                    <td class="px-2 py-4"><input type="text" id="addr_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.address)}" class="${inputClass}"></td>
+                    <td class="px-2 py-4"><input type="text" id="attn_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.attn)}" class="${inputClass}"></td>
+                    <td class="px-2 py-4"><input type="text" id="email_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.email)}" class="${inputClass}"></td>
+                    <td class="px-2 py-4"><input type="text" id="biz_${c.rowIdx}" value="${Y2C_AuthEngine.escapeHtml(c.bizId)}" class="${inputClass} font-mono"></td>
+                    <td class="px-4 py-4 text-center">
+                        <button type="button" onclick="saveClientData(${c.rowIdx})" id="saveBtn_${c.rowIdx}" class="bg-[var(--premium-charcoal)] hover:bg-[#E3000F] text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors w-full focus:outline-none">SAVE</button>
+                    </td>
+                </tr>`;
+            }, () => {
+                Y2C_Accelerator.renderReactively('masterTableBody', html).then(() => {
+                    // 🚨 렌더링 후 스크롤 복원
+                    window.scrollTo(0, currentScrollY);
+                });
+            }, 50);
+        }
+
+        window.saveClientData = async function(rowIdx) {
+            if (AppState.isSubmitting) return;
+
+            const stateEl = document.getElementById(`state_${rowIdx}`);
+            const cityEl = document.getElementById(`city_${rowIdx}`);
+            const addrEl = document.getElementById(`addr_${rowIdx}`);
+            const attnEl = document.getElementById(`attn_${rowIdx}`);
+            const emailEl = document.getElementById(`email_${rowIdx}`);
+            const bizEl = document.getElementById(`biz_${rowIdx}`);
+
+            if (!stateEl || !cityEl) return;
+
+            const btn = document.getElementById(`saveBtn_${rowIdx}`);
+            const originalHtml = btn.innerHTML;
+
+            AppState.isSubmitting = true;
+            btn.disabled = true;
+            btn.innerHTML = "⏳";
+            btn.classList.add('opacity-50');
+
+            try {
+                const payload = {
+                    client: {
+                        rowIdx: rowIdx,
+                        state: stateEl.value.trim().toUpperCase(),
+                        city: cityEl.value.trim(),
+                        address: addrEl.value.trim(),
+                        attn: attnEl.value.trim(),
+                        email: emailEl.value.trim(),
+                        bizId: bizEl.value.trim()
+                    }
+                };
+
+                const res = await Y2C_AuthEngine.request("update_master_data", payload);
+                if (res && res.success) {
+                    Y2C_AuthEngine.showToast("마스터 데이터 동기화 완료", "success");
+                    btn.innerHTML = "✅ SAVED";
+                    btn.classList.replace('bg-[var(--premium-charcoal)]', 'bg-emerald-600');
+                    setTimeout(() => { btn.innerHTML = originalHtml; btn.classList.replace('bg-emerald-600', 'bg-[var(--premium-charcoal)]'); }, 2000);
+                }
+            } catch (err) {
+                Y2C_AuthEngine.showToast(err.message, "error");
+                btn.innerHTML = originalHtml;
+            } finally {
+                AppState.isSubmitting = false;
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+            }
+        };
+
+        // ==========================================
+        // 🚀 [CORE 2] ERP Sales (SWR & UX Evolution)
+        // ==========================================
+        function populateSalesYearSelector() {
+            const sel = document.getElementById('salesYearSelector');
+            if(!sel) return;
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear + 1; y >= 2022; y--) {
+                const opt = document.createElement('option');
+                opt.value = y; opt.innerText = `${y} Fiscal Year`;
+                if(y === currentYear) opt.selected = true;
+                sel.appendChild(opt);
+            }
+        }
+
+        function populateSalesClientSelector() {
+            const sel = document.getElementById('salesClientSelector');
+            if(!sel || AppState.cachedClients.length === 0) return;
+            sel.innerHTML = `<option value="">-- Select Franchise --</option>`;
+            AppState.cachedClients.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name; opt.innerText = c.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        window.loadSalesGridFast = async function() {
+            if (AppState.isSubmitting) return;
+            const year = document.getElementById('salesYearSelector')?.value;
+            const client = document.getElementById('salesClientSelector')?.value;
+
+            if (!year || !client) {
+                Y2C_AuthEngine.showToast("연도와 가맹점을 모두 선택해 주십시오.", "warning");
+                return;
+            }
+
+            AppState.isSubmitting = true;
+            const cacheKey = `SALES_DATA_${year}_${client}`;
+            let isCached = false;
+
+            try {
+                const cachedRaw = await SWR_DB.get(cacheKey);
+                if (cachedRaw && cachedRaw.data) {
+                    renderSalesGrid(cachedRaw.data);
+                    isCached = true;
+                }
+            } catch(e){}
+
+            if(!isCached) {
+                Y2C_Accelerator.renderReactively('salesGridBody', `<tr><td colspan="5" class="py-16 text-center text-gray-500 font-bold"><span class="animate-pulse">🔄 로딩 중...</span></td></tr>`);
+            }
+
+            try {
+                const res = await Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client });
+                if (res && res.success) {
+                    await SWR_DB.set(cacheKey, res.records || []);
+                    renderSalesGrid(res.records || []);
+                }
+            } catch (err) {
+                if(!isCached) Y2C_Accelerator.renderReactively('salesGridBody', `<tr><td colspan="5" class="py-10 text-center text-[#E3000F] font-bold">⚠️ ${err.message}</td></tr>`);
+            } finally {
+                AppState.isSubmitting = false;
+            }
+        };
+
+        function renderSalesGrid(records) {
+            // 🚨 스크롤 메모리 캡처
+            const currentScrollY = window.scrollY;
+
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            let html = "";
+            const inputClass = "w-full max-w-[150px] mx-auto bg-gray-50 focus:bg-white border border-gray-200 rounded-lg px-3 py-2 text-center text-[13px] font-mono font-bold text-gray-800 outline-none transition-colors focus:border-[#E3000F]";
+
+            records.forEach(r => {
+                const mIdx = r.month;
+                const badgeHTML = r.exists 
+                    ? `<span class="px-2 py-1 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase transition-all duration-300">SAVED</span>` 
+                    : `<span class="px-2 py-1 text-[9px] font-black rounded bg-gray-100 text-gray-400 border border-gray-200 uppercase transition-all duration-300">EMPTY</span>`;
+
+                html += `
+                <tr class="hover:bg-red-50/10 border-b border-gray-50">
+                    <td class="px-6 py-4 font-black text-gray-700 font-inter">${monthNames[mIdx - 1]}</td>
+                    <td class="px-2 py-4 text-center"><input type="number" id="pos_${mIdx}" value="${r.pos > 0 ? r.pos : ''}" class="${inputClass}" oninput="recalcSalesRow(${mIdx})"></td>
+                    <td class="px-2 py-4 text-center"><input type="number" id="del_${mIdx}" value="${r.delivery > 0 ? r.delivery : ''}" class="${inputClass}" oninput="recalcSalesRow(${mIdx})"></td>
+                    <td class="px-6 py-4 text-right font-black font-mono text-[var(--premium-charcoal)]" id="tot_${mIdx}">${formatCurrency(r.total)}</td>
+                    <td class="px-4 py-4 text-center" id="salesBadge_${mIdx}">${badgeHTML}</td>
+                </tr>`;
+            });
+
+            Y2C_Accelerator.renderReactively('salesGridBody', html).then(() => {
+                recalculateSalesKPIs();
+                // 🚨 렌더링 완료 후 스크롤 복원 (Jank 방지)
+                window.scrollTo(0, currentScrollY);
+            });
+        }
+
+        // 🚨 실시간 합계 연산 엔진 (입력 즉시 UI 갱신)
+        window.recalcSalesRow = function(mIdx) {
+            const pos = parseFloat(document.getElementById(`pos_${mIdx}`)?.value || 0);
+            const del = parseFloat(document.getElementById(`del_${mIdx}`)?.value || 0);
+            const total = pos + del;
+            document.getElementById(`tot_${mIdx}`).innerText = formatCurrency(total);
+            recalculateSalesKPIs();
+        };
+
+        function recalculateSalesKPIs() {
+            let tPos = 0, tDel = 0;
+            for(let i=1; i<=12; i++) {
+                tPos += parseFloat(document.getElementById(`pos_${i}`)?.value || 0);
+                tDel += parseFloat(document.getElementById(`del_${i}`)?.value || 0);
+            }
+            document.getElementById('salesKpiPos').innerText = formatCurrency(tPos);
+            document.getElementById('salesKpiDelivery').innerText = formatCurrency(tDel);
+            document.getElementById('salesKpiTotal').innerText = formatCurrency(tPos + tDel);
+        }
+
+        // 🚨 [CRITICAL FIX 1] Non-Destructive DOM Saving (Data Loss Immunity)
+        window.saveSalesGridData = async function() {
+            if (AppState.isSubmitting) return;
+
+            const year = document.getElementById('salesYearSelector')?.value;
+            const client = document.getElementById('salesClientSelector')?.value;
+
+            if (!year || !client) {
+                Y2C_AuthEngine.showToast("연도와 가맹점을 선택하십시오.", "warning"); return;
+            }
+
+            const recordsToSave = [];
+            for (let m = 1; m <= 12; m++) {
+                const pos = parseFloat(document.getElementById(`pos_${m}`)?.value || 0);
+                const del = parseFloat(document.getElementById(`del_${m}`)?.value || 0);
+                const tot = pos + del;
+                recordsToSave.push({ month: m, pos: pos, delivery: del, total: tot, exists: (pos > 0 || del > 0) });
+            }
+
+            const btns = document.querySelectorAll('#saveAllSalesBtn'); 
+            const originalHtml = btns[0].innerHTML;
+            AppState.isSubmitting = true;
+            btns.forEach(b => { b.disabled = true; b.innerHTML = `<span class="animate-pulse">SYNCING...</span>`; });
+
+            try {
+                const payload = { year: year, clientName: client, records: recordsToSave };
+                const res = await Y2C_AuthEngine.request("save_sales_records", payload);
+                if (res && res.success) {
+                    Y2C_AuthEngine.showToast("매출 데이터가 완벽히 동기화되었습니다.", "success");
+                    
+                    // 🚨 1. 로컬 캐시 즉각 업데이트 (SWR Single Source of Truth)
+                    const cacheKey = `SALES_DATA_${year}_${client}`;
+                    await SWR_DB.set(cacheKey, recordsToSave);
+                    
+                    // 🚨 2. Micro-interactions: DOM 렌더링 파괴 없이 배지만 업데이트 (입력 커서 보존 및 0-Reversion 완전 타파)
+                    recordsToSave.forEach(r => {
+                        const badgeEl = document.getElementById(`salesBadge_${r.month}`);
+                        if(badgeEl) {
+                            if(r.exists) {
+                                badgeEl.innerHTML = `<span class="px-2 py-1 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase transition-all duration-300">SAVED</span>`;
+                                const posInput = document.getElementById(`pos_${r.month}`);
+                                const delInput = document.getElementById(`del_${r.month}`);
+                                if(posInput) posInput.classList.add('border-emerald-400', 'bg-emerald-50/20');
+                                if(delInput) delInput.classList.add('border-emerald-400', 'bg-emerald-50/20');
+                                setTimeout(() => {
+                                    if(posInput) posInput.classList.remove('border-emerald-400', 'bg-emerald-50/20');
+                                    if(delInput) delInput.classList.remove('border-emerald-400', 'bg-emerald-50/20');
+                                }, 1500);
+                            } else {
+                                badgeEl.innerHTML = `<span class="px-2 py-1 text-[9px] font-black rounded bg-gray-100 text-gray-400 border border-gray-200 uppercase transition-all duration-300">EMPTY</span>`;
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                Y2C_AuthEngine.showToast(err.message, "error");
+            } finally {
+                AppState.isSubmitting = false;
+                btns.forEach(b => { b.disabled = false; b.innerHTML = originalHtml; });
+            }
+        };
+
+        // ==========================================
+        // 🚀 [CORE 3 & 4] 조달, 아이템 데이터 및 VENDOR PRICE TRACKER 엔진 (SWR)
+        // ==========================================
+        async function fetchInitialDataFast() {
+            const cacheKeyProc = 'PROC_DATA_CACHE';
+            const cacheKeyItems = 'ITEMS_DATA_CACHE';
+
+            try {
+                const [cachedProc, cachedItems] = await Promise.all([ SWR_DB.get(cacheKeyProc), SWR_DB.get(cacheKeyItems) ]);
+
+                if (cachedProc && cachedProc.data) {
+                    AppState.hqOrders = cachedProc.data.hqOrders || [];
+                    AppState.mappings = cachedProc.data.mappings || [];
+                    if (AppState.role === "VENDOR") {
+                        const vInput = document.getElementById('procVendorName');
+                        if(vInput) { vInput.value = AppState.clientName; vInput.disabled = true; }
+                    }
+                    renderHqOrders();
+                }
+
+                if (cachedItems && cachedItems.data) {
+                    AppState.catalogItems = cachedItems.data.items || [];
+                }
+            } catch(e){}
+
+            try {
+                const [procRes, itemRes] = await Promise.all([
+                    Y2C_AuthEngine.request("get_procurement_data").catch(e => null),
+                    Y2C_AuthEngine.request("get_items").catch(e => null)
+                ]);
+
+                if (procRes && procRes.success) {
+                    AppState.hqOrders = procRes.hqOrders || [];
+                    AppState.mappings = procRes.mappings || [];
+                    await SWR_DB.set(cacheKeyProc, procRes);
+                    if (AppState.role === "VENDOR") {
+                        const vInput = document.getElementById('procVendorName');
+                        if(vInput) { vInput.value = AppState.clientName; vInput.disabled = true; }
+                    }
+                    renderHqOrders();
+                }
+
+                if (itemRes && itemRes.success) {
+                    AppState.catalogItems = itemRes.items || [];
+                    await SWR_DB.set(cacheKeyItems, itemRes);
+                }
+
+            } catch (err) {
+                if(AppState.hqOrders.length === 0) {
+                    Y2C_Accelerator.renderReactively('hqOrdersTableBody', `
+                        <tr>
+                            <td colspan="7" class="py-16 text-center bg-red-50/20 border-y border-red-100">
+                                <div class="text-4xl mb-4 opacity-80">⚠️</div>
+                                <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">서버 응답 지연 (Connection Failed)</h4>
+                                <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">데이터 다시 불러오기</button>
+                            </td>
+                        </tr>
+                    `);
+                }
+            }
+        }
+
+        function renderHqOrders() {
+            // 🚨 스크롤 메모리
+            const currentScrollY = window.scrollY;
+
+            if (AppState.hqOrders.length === 0) {
+                Y2C_Accelerator.renderReactively('hqOrdersTableBody', `<tr><td colspan="7" class="py-16 text-center text-gray-400 font-bold">진행 중인 글로벌 물류 발주 내역이 없습니다.</td></tr>`).then(()=> window.scrollTo(0, currentScrollY));
+                return;
+            }
+
+            let html = "";
+            const reversedOrders = [...AppState.hqOrders].reverse();
+
+            Y2C_Accelerator.processInChunks(reversedOrders, (order) => {
+                const st = String(order.status).toUpperCase();
+                let badgeClass = "status-badge status-pending"; let icon = "⏳";
+                if(st === "SHIPPED") { badgeClass = "status-badge status-shipped"; icon = "🚢"; }
+                if(st === "ARRIVED" || st === "RECEIVED") { badgeClass = "status-badge status-arrived"; icon = "✅"; }
+                if(st === "COMPLETED") { badgeClass = "status-badge status-completed"; icon = "📦"; }
+                if(st === "CANCELED") { badgeClass = "status-badge status-canceled"; icon = "❌"; }
+
+                let trackingHtml = "-";
+                if (order.shippingMethod && order.shippingMethod !== "-" && order.shippingMethod !== "NONE") {
+                    let sIcon = "📦";
+                    if (order.shippingMethod === "EMS" || order.shippingMethod === "AIR") sIcon = "✈️";
+                    if (order.shippingMethod === "OCEAN") sIcon = "🚢";
+                    if (order.shippingMethod === "LOCAL") sIcon = "🚚";
+
+                    trackingHtml = `
+                        <div class="flex flex-col items-center gap-1">
+                            <span class="tracking-badge">${sIcon} ${Y2C_AuthEngine.escapeHtml(order.shippingMethod)}</span>
+                            <span class="text-[10px] font-mono font-bold text-gray-400">${order.trackingNo && order.trackingNo !== "-" ? Y2C_AuthEngine.escapeHtml(order.trackingNo) : "Tracking Pending"}</span>
+                        </div>
+                    `;
+                }
+
+                let trClass = "border-b border-gray-50 transition-colors";
+                let actionAttr = "";
+
+                if (AppState.role === "MASTER") {
+                    trClass += " hover:bg-gray-50/80 cursor-pointer";
+                    actionAttr = `onclick="openStatusUpdateModal('${order.id}', '${st}', '${order.shippingMethod || 'NONE'}', '${order.trackingNo && order.trackingNo !== '-' ? order.trackingNo : ''}')"`;
+                }
+
+                html += `
+                <tr class="${trClass}" ${actionAttr} title="${AppState.role === 'MASTER' ? 'Click to update Status & Tracking' : ''}">
+                    <td class="px-6 py-4 font-mono font-bold text-[11px] text-gray-500 align-middle">${Y2C_AuthEngine.escapeHtml(order.id)}</td>
+                    <td class="px-6 py-4 text-xs text-[var(--premium-charcoal)] font-bold align-middle">${Y2C_AuthEngine.escapeHtml(order.date)}</td>
+                    <td class="px-6 py-4 font-bold text-[13px] text-[var(--premium-charcoal)] align-middle"><span class="truncate-text" title="${Y2C_AuthEngine.escapeHtml(order.vendor)}">${Y2C_AuthEngine.escapeHtml(order.vendor)}</span></td>
+                    <td class="px-6 py-4 font-black text-[11px] text-center text-[#E3000F] align-middle">${Y2C_AuthEngine.escapeHtml(order.region)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-600 align-middle"><span class="truncate-text" title="${Y2C_AuthEngine.escapeHtml(order.items)}">${Y2C_AuthEngine.escapeHtml(order.items)}</span></td>
+                    <td class="px-4 py-4 text-center align-middle">${trackingHtml}</td>
+                    <td class="px-6 py-4 text-center align-middle">
+                        <span class="${badgeClass} mb-1">${icon} ${Y2C_AuthEngine.escapeHtml(st)}</span>
+                        ${AppState.role === 'MASTER' ? `<div class="text-[9px] text-blue-500 font-bold underline mt-1">Update</div>` : ''}
+                    </td>
+                </tr>`;
+            }, () => {
+                Y2C_Accelerator.renderReactively('hqOrdersTableBody', html).then(()=> window.scrollTo(0, currentScrollY));
+            }, 30);
+        }
+
+        // ==========================================
+        // 🛒 조달 발주 (HQ PROCUREMENT) 카트 모달
+        // ==========================================
+        const modal = document.getElementById('itemSelectionModal');
+        const modalPanel = document.getElementById('itemModalPanel');
+        const backdrop = document.getElementById('itemModalBackdrop');
+        const btnOpen = document.getElementById('btnOpenItemModal');
+        const btnClose = document.getElementById('btnCloseModal');
+        const btnConfirm = document.getElementById('btnConfirmModal');
+
+        function openModal() {
+            document.body.style.overflow = 'hidden';
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modalPanel.classList.remove('scale-95', 'opacity-0'); modalPanel.classList.add('scale-100', 'opacity-100'); }, 10);
+            renderModalItems();
+        }
+
+        function closeModal() {
+            document.body.style.overflow = '';
+            modalPanel.classList.remove('scale-100', 'opacity-100'); modalPanel.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        if(btnOpen) btnOpen.addEventListener('click', openModal);
+        if(btnClose) btnClose.addEventListener('click', closeModal);
+        if(backdrop) backdrop.addEventListener('click', closeModal);
+
+        function renderModalItems() {
+            if (AppState.catalogItems.length === 0) {
+                Y2C_Accelerator.renderReactively('modalItemsList', `<p class="text-[#E3000F] font-bold p-4 text-center">아이템을 불러오지 못했습니다. 새로고침 해주세요.</p>`);
+                return;
+            }
+
+            let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">`;
+            AppState.catalogItems.forEach(item => {
+                const qty = AppState.cart[item.code] || 0;
+                html += `
+                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+                    <div class="flex flex-col flex-1 min-w-0 mr-2">
+                        <span class="text-[10px] font-mono text-gray-400">${item.code}</span>
+                        <span class="text-xs font-bold text-[var(--premium-charcoal)] leading-tight truncate-text" style="max-width: 100%;" title="${Y2C_AuthEngine.escapeHtml(item.name)}">${Y2C_AuthEngine.escapeHtml(item.name)}</span>
+                    </div>
+                    <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg h-8 w-24 shrink-0">
+                        <button type="button" onclick="updateModalCart('${item.code}', -1)" class="w-8 h-full flex justify-center items-center text-gray-500 hover:text-[#E3000F] focus:outline-none">-</button>
+                        <input type="number" id="modQty_${item.code}" value="${qty}" class="w-8 h-full text-center text-[12px] font-bold bg-transparent border-none p-0 outline-none" readonly>
+                        <button type="button" onclick="updateModalCart('${item.code}', 1)" class="w-8 h-full flex justify-center items-center text-gray-500 hover:text-[#E3000F] focus:outline-none">+</button>
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+            Y2C_Accelerator.renderReactively('modalItemsList', html);
+        }
+
+        window.updateModalCart = function(code, delta) {
+            let cur = AppState.cart[code] || 0; cur += delta; if(cur < 0) cur = 0;
+            AppState.cart[code] = cur;
+            document.getElementById(`modQty_${code}`).value = cur;
+            let typesCount = 0; for(let c in AppState.cart) { if(AppState.cart[c] > 0) typesCount++; }
+            document.getElementById('modalSelectedCount').innerText = typesCount;
+        }
+
+        if(btnConfirm) {
+            btnConfirm.addEventListener('click', () => {
+                let summaryStr = [];
+                for(let c in AppState.cart) { if(AppState.cart[c] > 0) summaryStr.push(`${c}: ${AppState.cart[c]}`); }
+                const summaryInput = document.getElementById('procItemsSummary');
+                if(summaryInput) { summaryInput.value = summaryStr.length > 0 ? summaryStr.join(', ') : ''; }
+                closeModal();
+            });
+        }
+
+        // 🚨 조달 발주 생성 로직
+        const btnSubmitProc = document.getElementById('btnSubmitProcurement');
+        if(btnSubmitProc) {
+            btnSubmitProc.addEventListener('click', async () => {
+                const vName = document.getElementById('procVendorName').value;
+                const hSelect = document.getElementById('procHubSelect');
+                const hub = hSelect ? hSelect.value : "";
+                const itemsStr = document.getElementById('procItemsSummary').value;
+
+                const sMethod = document.getElementById('procShippingMethod').value;
+                const tNo = document.getElementById('procTrackingNo').value.trim();
+
+                if(!vName || !hub || !itemsStr) { Y2C_AuthEngine.showToast("업체명, 타겟 허브, 발주 물품은 필수 입력 항목입니다.", "warning"); return; }
+
+                btnSubmitProc.disabled = true; btnSubmitProc.innerHTML = `<span class="animate-pulse">PROCESSING...</span>`;
+
+                const payload = {
+                    order: { 
+                        id: "HQ-" + Date.now().toString().slice(-6), 
+                        date: new Date().toISOString().split('T')[0], 
+                        vendor: vName, 
+                        region: hub, 
+                        items: itemsStr, 
+                        status: "HQ_PENDING", 
+                        eta: "-",
+                        shippingMethod: sMethod,
+                        trackingNo: tNo
+                    }
+                };
+
+                try {
+                    const res = await Y2C_AuthEngine.request("upsert_hq_order", payload);
+                    if(res && res.success) {
+                        Y2C_AuthEngine.showToast("글로벌 물류 발주가 성공적으로 서버에 전송되었습니다.", "success");
+                        AppState.cart = {}; 
+                        document.getElementById('procItemsSummary').value = ""; 
+                        document.getElementById('modalSelectedCount').innerText = "0";
+                        document.getElementById('procTrackingNo').value = "";
+                        document.getElementById('procShippingMethod').value = "NONE";
+
+                        const refreshRes = await Y2C_AuthEngine.request("get_procurement_data");
+                        if(refreshRes && refreshRes.success) { AppState.hqOrders = refreshRes.hqOrders || []; renderHqOrders(); }
+                    }
+                } catch(e) {
+                    Y2C_AuthEngine.showToast(e.message, "error");
+                } finally {
+                    btnSubmitProc.disabled = false; btnSubmitProc.innerHTML = `<span class="text-lg leading-none">+</span> ADD ORDER`;
+                }
+            });
+        }
+
+        // ==========================================
+        // 🚀 [NEW CORE] Status & Tracking Update Modal
+        // ==========================================
+        const statusModal = document.getElementById('statusUpdateModal');
+        const statusModalPanel = document.getElementById('statusModalPanel');
+
+        window.openStatusUpdateModal = function(orderId, currentStatus, currentMethod, currentTracking) {
+            document.body.style.overflow = 'hidden'; 
+
+            document.getElementById('statusModalOrderId').value = orderId;
+            document.getElementById('statusModalStatus').value = currentStatus;
+            document.getElementById('statusModalMethod').value = currentMethod || "NONE";
+            document.getElementById('statusModalTracking').value = currentTracking && currentTracking !== "null" ? currentTracking : "";
+
+            statusModal.classList.remove('hidden'); statusModal.classList.add('flex');
+            setTimeout(() => { statusModalPanel.classList.remove('scale-95', 'opacity-0'); statusModalPanel.classList.add('scale-100', 'opacity-100'); }, 10);
+        };
+
+        window.closeStatusUpdateModal = function() {
+            document.body.style.overflow = ''; 
+            statusModalPanel.classList.remove('scale-100', 'opacity-100'); statusModalPanel.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { statusModal.classList.add('hidden'); statusModal.classList.remove('flex'); }, 300);
+        };
+
+        const btnSubmitStatus = document.getElementById('btnSubmitStatusUpdate');
+        if (btnSubmitStatus) {
+            btnSubmitStatus.addEventListener('click', async () => {
+                const oId = document.getElementById('statusModalOrderId').value;
+                const newStatus = document.getElementById('statusModalStatus').value;
+                const newMethod = document.getElementById('statusModalMethod').value;
+                const newTracking = document.getElementById('statusModalTracking').value.trim();
+
+                if (AppState.isSubmitting) return;
+                AppState.isSubmitting = true;
+                const origHtml = btnSubmitStatus.innerHTML;
+                btnSubmitStatus.disabled = true;
+                btnSubmitStatus.innerHTML = "Saving...";
+
+                try {
+                    const payload = {
+                        orderId: oId,
+                        status: newStatus,
+                        shippingMethod: newMethod,
+                        trackingNo: newTracking || "-"
+                    };
+                    const res = await Y2C_AuthEngine.request("update_hq_order_status", payload);
+
+                    if (res && res.success) {
+                        Y2C_AuthEngine.showToast("물류 상태 및 트래킹 정보가 업데이트 되었습니다.", "success");
+                        closeStatusUpdateModal();
+                        const refreshRes = await Y2C_AuthEngine.request("get_procurement_data");
+                        if(refreshRes && refreshRes.success) { AppState.hqOrders = refreshRes.hqOrders || []; renderHqOrders(); }
+                    }
+                } catch(e) {
+                    Y2C_AuthEngine.showToast(e.message, "error");
+                } finally {
+                    AppState.isSubmitting = false;
+                    btnSubmitStatus.disabled = false;
+                    btnSubmitStatus.innerHTML = origHtml;
+                }
+            });
+        }
+
+        // ==========================================
+        // 🚀 [WEB WORKER MULTI-THREADING] 엑셀 처리 병렬 엔진
+        // ==========================================
+        let pendingStockUpdates = []; 
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('excelFileInput');
+        const btnSyncExcel = document.getElementById('btnSyncExcel');
+        const btnSyncExcelText = document.getElementById('btnSyncExcelText');
+        const inboundRegionSelector = document.getElementById('inboundRegionSelector');
+        const errorBadge = document.getElementById('excelErrorBadge');
+
+        if (dropZone && fileInput) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, preventDefaults, false); });
+            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+            ['dragenter', 'dragover'].forEach(eventName => { dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false); });
+            ['dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false); });
+
+            dropZone.addEventListener('drop', (e) => { let dt = e.dataTransfer; let files = dt.files; handleExcelFiles(files); });
+            fileInput.addEventListener('change', function(e) { handleExcelFiles(this.files); });
+        }
+
+        function handleExcelFiles(files) {
+            if(!files || files.length === 0) return;
+            const file = files[0];
+
+            if (AppState.catalogItems.length === 0) {
+                Y2C_AuthEngine.showToast("마스터 상품 DB가 아직 로드되지 않았거나 통신에 실패했습니다. 새로고침 후 다시 시도하십시오.", "error");
+                if(fileInput) fileInput.value = ''; return;
+            }
+
+            if (!inboundRegionSelector || !inboundRegionSelector.value) {
+                Y2C_AuthEngine.showToast("입고될 타겟 지역(Target Hub)을 먼저 선택해 주십시오.", "error");
+                inboundRegionSelector.classList.add('border-[#E3000F]', 'animate-pulse');
+                setTimeout(() => inboundRegionSelector.classList.remove('animate-pulse'), 1500);
+                if(fileInput) fileInput.value = ''; return;
+            }
+
+            if(!file.name.match(/\.(xlsx|xls)$/i)) {
+                Y2C_AuthEngine.showToast("엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.", "error");
+                if(fileInput) fileInput.value = ''; return;
+            }
+
+            document.getElementById('excelMetaText').innerText = "Processing massive file... please wait.";
+            document.getElementById('dropZone').classList.add('hidden');
+            document.getElementById('excelPreviewContainer').classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet, {raw: false});
+
+                    if(json.length === 0) throw new Error("엑셀 파일에 데이터가 비어있습니다.");
+
+                    processAndMapExcelData(json);
+                } catch(err) { 
+                    Y2C_AuthEngine.showToast("엑셀 파싱 실패: " + err.message, "error"); 
+                    document.getElementById('excelPreviewContainer').classList.add('hidden');
+                    document.getElementById('dropZone').classList.remove('hidden');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 🚨 엑셀 연산을 워커(백그라운드 스레드)로 위임
+        function processAndMapExcelData(jsonArray) {
+            if (!window.excelWorker) {
+                window.excelWorker = new Worker('assets/js/excel-worker.js');
+                window.excelWorker.onmessage = function(e) {
+                    if (e.data.status === 'SUCCESS') {
+                        window.currentExcelPreviewData = e.data.displayRows;
+                        window.currentExcelTempUpdates = e.data.tempUpdates; 
+                        renderAdvancedExcelPreviewFast();
+                    } else {
+                        Y2C_AuthEngine.showToast("엑셀 병렬 처리 실패: " + e.data.message, "error");
+                        document.getElementById('excelPreviewContainer').classList.add('hidden');
+                        document.getElementById('dropZone').classList.remove('hidden');
+                    }
+                };
+            }
+            const targetRegion = inboundRegionSelector.value.trim().replace("Hub: ", ""); 
+            window.excelWorker.postMessage({
+                action: 'PROCESS_EXCEL',
+                payload: {
+                    jsonArray: jsonArray,
+                    catalogItems: AppState.catalogItems,
+                    mappings: AppState.mappings,
+                    currentHub: targetRegion
+                }
+            });
+        }
+
+        window.renderAdvancedExcelPreviewFast = function() {
+            let html = "";
+            let errorCount = 0;
+            pendingStockUpdates = []; 
+
+            Y2C_Accelerator.processInChunks(window.currentExcelPreviewData, (row, idx) => {
+                let trClass = ""; let statusHtml = ""; let hqCodeHtml = ""; let priceHtml = "-";
+
+                if (row.status === "ERROR" && !row.ignored) {
+                    errorCount++; trClass = "bg-red-50";
+                    statusHtml = `
+                        <div class="flex flex-col gap-1 items-start">
+                            <span class="px-2 py-0.5 bg-[#E3000F] text-white text-[9px] font-black rounded uppercase tracking-widest border border-[#E3000F]">미등록 품번</span>
+                            <button type="button" onclick="ignoreExcelRow(${idx})" class="text-[9px] text-gray-500 hover:text-[#E3000F] font-bold underline font-inter transition-colors">Ignore Row</button>
+                        </div>`;
+
+                    let selectOptions = `<option value="" disabled selected>치환할 마스터 품목 선택</option>`;
+                    AppState.catalogItems.forEach(cat => { selectOptions += `<option value="${cat.code}">[${cat.code}] ${Y2C_AuthEngine.escapeHtml(cat.name)}</option>`; });
+                    hqCodeHtml = `<select onchange="resolveExcelMapping(${idx}, this.value)" class="w-full text-[11px] font-bold border border-red-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-[#E3000F]/20 bg-white text-[#E3000F] cursor-pointer shadow-sm font-inter text-ellipsis pr-6">${selectOptions}</select>`;
+
+                } else if (row.ignored) {
+                    trClass = "opacity-40 bg-gray-50";
+                    statusHtml = `
+                        <div class="flex flex-col gap-1 items-start">
+                            <span class="px-2 py-0.5 bg-gray-200 text-gray-500 text-[9px] font-black rounded uppercase tracking-widest border border-gray-300">제외됨</span>
+                            <button type="button" onclick="restoreExcelRow(${idx})" class="text-[9px] text-gray-500 hover:text-emerald-600 font-bold underline mt-1 font-inter transition-colors">Restore Row</button>
+                        </div>`;
+                    hqCodeHtml = `<span class="text-gray-400 font-mono text-xs font-bold">-</span>`;
+                } else {
+                    if (row.status === "AI_MAPPED") {
+                        statusHtml = `<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black rounded uppercase tracking-widest border border-blue-200" title="AI Auto-Substituted">AI 맵핑완료</span>`;
+                        hqCodeHtml = `<span class="font-mono font-bold text-blue-700 text-[12px] bg-blue-50 px-2 py-1 border border-blue-100 rounded">${row.hqCode}</span>`;
+                    } else {
+                        statusHtml = `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-black rounded uppercase tracking-widest border border-emerald-200">DB 매핑완료</span>`;
+                        hqCodeHtml = `<span class="font-mono font-bold text-emerald-700 text-[12px] bg-emerald-50 px-2 py-1 border border-emerald-100 rounded">${row.hqCode}</span>`;
+                    }
+
+                    const masterItem = AppState.catalogItems.find(c => c.code === row.hqCode);
+                    if (masterItem) {
+                        const mPrice = masterItem.price || 0;
+                        if (row.price !== null && !isNaN(row.price) && row.price > 0 && Math.abs(row.price - mPrice) > 0.01) {
+                            const isIncrease = row.price > mPrice;
+                            const diffColor = isIncrease ? "text-[#E3000F]" : "text-blue-600";
+                            priceHtml = `
+                                <div class="flex flex-col items-center">
+                                    <span class="text-[10px] text-gray-400 line-through mb-0.5">$${mPrice.toFixed(2)}</span>
+                                    <span class="text-[13px] font-black ${diffColor}">$${row.price.toFixed(2)}</span>
+                                    <span class="text-[8px] font-bold ${diffColor} bg-${isIncrease ? 'red' : 'blue'}-50 px-1 rounded mt-0.5">PRICE CHANGED</span>
+                                </div>`;
+                        } else {
+                            priceHtml = `<span class="text-[13px] font-bold text-gray-600">$${mPrice.toFixed(2)}</span>`;
+                        }
+                    }
+                }
+
+                html += `
+                    <tr class="${trClass}">
+                        <td class="w-24 text-center border-r border-gray-200/50">${statusHtml}</td>
+                        <td class="w-64 border-r border-gray-200/50">${hqCodeHtml}</td>
+                        <td class="w-64">
+                            <div class="text-[11px] font-mono text-gray-400 mb-0.5">${Y2C_AuthEngine.escapeHtml(row.rawCode)}</div>
+                            <div class="font-bold text-[13px] text-[var(--premium-charcoal)] truncate-text" title="${Y2C_AuthEngine.escapeHtml(row.rawName)}">${Y2C_AuthEngine.escapeHtml(row.rawName)}</div>
+                        </td>
+                        <td class="w-32 text-center font-mono align-middle">${priceHtml}</td>
+                        <td class="w-32 text-center font-mono text-[12px] text-gray-600 align-middle">${Y2C_AuthEngine.escapeHtml(row.exp)}</td>
+                        <td class="w-24 text-center font-black text-[#E3000F] text-[15px] bg-red-50/10 align-middle">${row.qty}</td>
+                    </tr>
+                `;
+            }, () => {
+                Y2C_Accelerator.renderReactively('excelTbody', html).then(() => {
+                    pendingStockUpdates = Object.values(window.currentExcelTempUpdates); 
+
+                    if (errorBadge) {
+                        if (errorCount > 0) {
+                            errorBadge.classList.remove('hidden'); errorBadge.innerText = `${errorCount} ERRORS DETECTED`;
+                            btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "Fix Errors to Commit";
+                        } else {
+                            errorBadge.classList.add('hidden'); btnSyncExcel.disabled = pendingStockUpdates.length === 0;
+                            if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
+                        }
+                    }
+
+                    document.getElementById('excelMetaText').innerText = `Processed ${window.currentExcelPreviewData.length} unique aggregated rows. Ready to commit.`;
+                });
+            }, 500); 
+        }
+
+        window.resolveExcelMapping = function(idx, newHqCode) {
+            if (!newHqCode) return;
+            window.currentExcelPreviewData[idx].hqCode = newHqCode;
+            window.currentExcelPreviewData[idx].status = "OK";
+
+            // 수동 매핑 시 tempUpdates에 추가
+            const row = window.currentExcelPreviewData[idx];
+            const targetRegion = inboundRegionSelector.value.trim().replace("Hub: ", ""); 
+            if (!window.currentExcelTempUpdates[newHqCode]) {
+                window.currentExcelTempUpdates[newHqCode] = { code: newHqCode, stockBreakdown: {}, expBreakdown: {} };
+                window.currentExcelTempUpdates[newHqCode].stockBreakdown[targetRegion] = 0;
+
+                const masterItem = AppState.catalogItems.find(c => c.code === newHqCode);
+                if (row.price !== null && !isNaN(row.price) && row.price > 0 && masterItem && Math.abs(row.price - masterItem.price) > 0.01) {
+                    window.currentExcelTempUpdates[newHqCode].newPrice = row.price;
+                }
+            }
+            window.currentExcelTempUpdates[newHqCode].stockBreakdown[targetRegion] += row.qty;
+            if (row.exp !== "-") {
+                let existingExp = window.currentExcelTempUpdates[newHqCode].expBreakdown[targetRegion];
+                if (existingExp) window.currentExcelTempUpdates[newHqCode].expBreakdown[targetRegion] += ` | ${row.exp}:${row.qty}`;
+                else window.currentExcelTempUpdates[newHqCode].expBreakdown[targetRegion] = `${row.exp}:${row.qty}`;
+            }
+
+            renderAdvancedExcelPreviewFast(); 
+        };
+
+        window.ignoreExcelRow = function(idx) {
+            window.currentExcelPreviewData[idx].ignored = true;
+            renderAdvancedExcelPreviewFast();
+        };
+
+        window.restoreExcelRow = function(idx) {
+            window.currentExcelPreviewData[idx].ignored = false;
+            renderAdvancedExcelPreviewFast();
+        };
+
+        if (btnSyncExcel) {
+            btnSyncExcel.addEventListener('click', async () => {
+                if (pendingStockUpdates.length === 0) { Y2C_AuthEngine.showToast("서버로 전송할 데이터가 없습니다.", "warning"); return; }
+                if (!confirm(`총 ${pendingStockUpdates.length}개 품목의 입고 데이터를 마스터 DB에 강제 병합(ADD)합니다. 단가가 변동된 항목은 마스터 DB의 가격표를 실시간으로 갱신합니다. 진행하시겠습니까?`)) return;
+
+                btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "COMMITTING...";
+
+                try {
+                    let hash = 0; const dataStr = JSON.stringify(pendingStockUpdates);
+                    for (let i = 0; i < dataStr.length; i++) { hash = ((hash << 5) - hash) + dataStr.charCodeAt(i); hash |= 0; }
+                    const syncId = `EXCEL-${new Date().toISOString().split('T')[0]}-${Math.abs(hash).toString(16).toUpperCase()}`;
+
+                    const payload = { mode: "ADD", syncId: syncId, stockUpdates: pendingStockUpdates };
+
+                    const res = await Y2C_AuthEngine.request("update_stock", payload, 0); 
+
+                    if (res && res.success) {
+                        Y2C_AuthEngine.showToast(`✅ ${pendingStockUpdates.length}개 품목의 재고 및 가격이 마스터 DB와 완벽히 동기화되었습니다.`, "success");
+                        document.getElementById('excelPreviewContainer').classList.add('hidden'); document.getElementById('dropZone').classList.remove('hidden');
+                        if(fileInput) fileInput.value = ''; parsedExcelData = null; pendingStockUpdates = [];
+
+                        fetchInitialDataFast();
+                    }
+                } catch (err) {
+                    if (err.message.includes("스레드") || err.message.includes("분산")) Y2C_AuthEngine.showToast("⏳ 백그라운드 처리 중입니다. 중복 제출을 방지합니다.", "warning");
+                    else if (err.message.includes("시간 초과") || err.message.includes("네트워크")) Y2C_AuthEngine.showToast("⏳ 대량 데이터 처리로 응답이 지연되었습니다. 새로고침 후 확인하십시오.", "warning");
+                    else Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
+                } finally {
+                    btnSyncExcel.disabled = false; if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
+                }
+            });
+        }
+
+        // ==========================================
+        // 🚀 초기 구동 파이프라인
+        // ==========================================
+        populateSalesYearSelector();
+
+        if (AppState.role === "VENDOR") switchTab("tab-procurement");
+        else switchTab("tab-franchise"); 
+
+        fetchMasterDataFast().then(() => fetchInitialDataFast());
+    });
+    </script>
+</body>
+</html>
