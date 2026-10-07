@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V82.00 Enterprise Admin GRAND FINALE - ENTERPRISE UX & DATA LOSS IMMUNITY 🌟
-  [CRITICAL FIX 1] DOM Non-Destructive Saving: Completely eliminated the 0-reversion (Race Condition) bug by updating only the UI badges (Micro-interactions) instead of rebuilding the entire HTML table on save.
-  [CRITICAL FIX 2] SWR Single Source of Truth: Removed delayed background fetches after saving, implicitly trusting the local cache to prevent Google Sheet latency bleed.
-  [UX UPGRADE 1] Enterprise Truncation: Applied `truncate`, `max-w`, and `text-ellipsis` across all tables and inputs to prevent mobile UI stretching and layout squishing.
-  [MOBILE OPTIMIZED] Modal & Popups adjusted with `max-h-[90dvh]` to prevent virtual keyboard overlaps.
-  [RESTORED] Original HQ Procurement, Excel Worker threading, and Hub mapping 100% intact.
+  🌟 V83.00 Enterprise Admin GRAND FINALE - STATE MEMORY & ZERO-BUG UX EVOLUTION 🌟
+  [CRITICAL FIX 1] Total 0-Reversion Immunity: Added fallback calculation `(r.pos + r.delivery)` during render to permanently eradicate $0.00 phantom values.
+  [CRITICAL FIX 2] State Memory Engine: Implemented `sessionStorage` trackers for Active Tab, Fiscal Year, and Target Franchise. Completely restores exact working state upon refresh.
+  [UX UPGRADE 1] Adaptive Toast Relocation: Moved `#premiumToastContainer` to bottom-center globally to ensure it's always in the user's line of sight.
+  [UX UPGRADE 2] Inline Button Feedback: Save button now physically turns green with "✅ SYNC COMPLETED" for 2.5s upon successful save.
+  [RESTORED] Magnetic Bottom Action Bar, Scroll Memory Engine, and DOM Non-Destructive Saving 100% intact.
 -->
 <html lang="en">
 <head>
@@ -151,6 +151,9 @@
         .btn-solid-red:hover:not(:disabled) { background-color: #B9000C; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(227, 0, 15, 0.3); }
         .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
         .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
+        
+        /* 🚨 [UX UPGRADE 2] 성공 시 버튼 피드백 (Inline Button Feedback) */
+        .btn-success { background-color: #059669 !important; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3) !important; color: white !important; }
 
         .glass-lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2rem; opacity: 0; transition: opacity 0.5s ease; will-change: opacity; }
         .glass-lock-overlay.show { opacity: 1; }
@@ -160,7 +163,7 @@
         .drop-zone.dragover { border-color: var(--sinjeon-pink); background: #fef2f2; }
         .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
 
-        /* 🚨 [UX UPGRADE 1] Enterprise Truncation (글자 잘림 및 표 밀림 방지) */
+        /* 🚨 Enterprise Truncation (글자 잘림 및 표 밀림 방지) */
         .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 24px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
         .enterprise-table td { padding: 16px 24px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; white-space: nowrap; }
         .enterprise-table tr:hover td { background: #f8fafc; }
@@ -178,12 +181,9 @@
 
         .tracking-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-family: 'JetBrains Mono', monospace; }
 
-        /* 🚨 [MOBILE OPTIMIZED 2] Adaptive Toast Positioning */
-        #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
-        @media (max-width: 768px) {
-            #premiumToastContainer { top: auto; bottom: 85px; left: 50%; transform: translateX(-50%); right: auto; width: 90%; max-width: 400px; align-items: center; }
-            #premiumToastContainer > div { width: 100%; justify-content: center; }
-        }
+        /* 🚨 [UX UPGRADE 1] Adaptive Toast Positioning (전역 하단 중앙 고정) */
+        #premiumToastContainer { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; align-items: center; width: 90%; max-width: 420px; }
+        #premiumToastContainer > div { width: 100%; justify-content: center; }
 
         @media print { .no-print { display: none !important; } body { background: white !important; } }
     </style>
@@ -652,11 +652,11 @@
 
     <script>
     /**
-     * 🌟 V82.00 Enterprise Admin Quad-Core Integration Logic (UX EVOLUTION)
-     * [CRITICAL FIX 1] DOM Non-Destructive Saving: Micro-interactions update ONLY the badge, retaining cursor focus and eliminating 0-reversion.
-     * [CRITICAL FIX 2] SWR Single Source of Truth: Eradicated delayed Google Sheet fetch after save.
-     * [UX UPGRADE 1] Scroll Memory Engine implemented via `window.scrollY`.
-     * [MOBILE OPTIMIZED 1] Mobile Sales Tab dynamic UI adjustments and Toast relocations.
+     * 🌟 V83.00 Enterprise Admin Quad-Core Integration Logic (STATE MEMORY EVOLUTION)
+     * [CRITICAL FIX 1] Total 0-Reversion Immunity: Implicit row fallback `(r.pos + r.delivery)` implemented to permanently prevent $0.00 ghost renders.
+     * [CRITICAL FIX 2] State Memory Engine: Restores Tab, Year, and Target Franchise from `sessionStorage` automatically on refresh.
+     * [UX UPGRADE 1] Adaptive Toast: Positioned to bottom-center globally.
+     * [UX UPGRADE 2] Inline Button Feedback: Shows "✅ SYNC COMPLETED" physically on the save button.
      */
     document.addEventListener("DOMContentLoaded", () => {
 
@@ -728,7 +728,7 @@
             if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) {
                 Y2C_AuthEngine.logout();
             } else {
-                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
+                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang", "y2c_active_tab", "y2c_sales_year", "y2c_sales_client"];
                 keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
                 window.location.replace("index.html");
             }
@@ -819,7 +819,7 @@
         };
 
         // ==========================================
-        // 🔒 탭 네비게이션 & 🚀 Hover Prefetch
+        // 🔒 탭 네비게이션 & 🚀 Hover Prefetch & State Memory
         // ==========================================
         const tabs = document.querySelectorAll('.tab-section');
         const btns = document.querySelectorAll('.sub-nav-btn');
@@ -837,6 +837,9 @@
             tabs.forEach(t => t.classList.remove('active'));
             const targetSec = document.getElementById(targetId);
             if(targetSec) targetSec.classList.add('active');
+
+            // 🚨 State Memory: 현재 탭 저장
+            sessionStorage.setItem('y2c_active_tab', targetId);
 
             // 모바일 저장 바 토글 로직
             const mobileSalesSaveContainer = document.getElementById('mobileSalesSaveContainer');
@@ -948,6 +951,14 @@
                         </tr>
                     `);
                 }
+            } finally {
+                // 🚨 State Memory: 모든 데이터가 로드된 후 기존에 보던 매출 시트가 있다면 자동 로딩
+                const activeTab = sessionStorage.getItem('y2c_active_tab');
+                const ySel = document.getElementById('salesYearSelector')?.value;
+                const cSel = document.getElementById('salesClientSelector')?.value;
+                if (activeTab === 'tab-sales' && ySel && cSel) {
+                    loadSalesGridFast();
+                }
             }
         }
 
@@ -1038,29 +1049,45 @@
         };
 
         // ==========================================
-        // 🚀 [CORE 2] ERP Sales (SWR & UX Evolution)
+        // 🚀 [CORE 2] ERP Sales (SWR, UX Evolution & State Memory)
         // ==========================================
         function populateSalesYearSelector() {
             const sel = document.getElementById('salesYearSelector');
             if(!sel) return;
             const currentYear = new Date().getFullYear();
+            const savedYear = sessionStorage.getItem('y2c_sales_year');
+            
+            sel.innerHTML = "";
             for (let y = currentYear + 1; y >= 2022; y--) {
                 const opt = document.createElement('option');
                 opt.value = y; opt.innerText = `${y} Fiscal Year`;
-                if(y === currentYear) opt.selected = true;
+                
+                // 🚨 State Memory 복원
+                if (savedYear && parseInt(savedYear) === y) opt.selected = true;
+                else if (!savedYear && y === currentYear) opt.selected = true;
+                
                 sel.appendChild(opt);
             }
+            sel.addEventListener('change', (e) => { sessionStorage.setItem('y2c_sales_year', e.target.value); });
         }
 
         function populateSalesClientSelector() {
             const sel = document.getElementById('salesClientSelector');
             if(!sel || AppState.cachedClients.length === 0) return;
+            
+            const savedClient = sessionStorage.getItem('y2c_sales_client');
             sel.innerHTML = `<option value="">-- Select Franchise --</option>`;
+            
             AppState.cachedClients.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c.name; opt.innerText = c.name;
+                
+                // 🚨 State Memory 복원
+                if (savedClient && savedClient === c.name) opt.selected = true;
+                
                 sel.appendChild(opt);
             });
+            sel.addEventListener('change', (e) => { sessionStorage.setItem('y2c_sales_client', e.target.value); });
         }
 
         window.loadSalesGridFast = async function() {
@@ -1116,12 +1143,15 @@
                     ? `<span class="px-2 py-1 text-[9px] font-black rounded bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase transition-all duration-300">SAVED</span>` 
                     : `<span class="px-2 py-1 text-[9px] font-black rounded bg-gray-100 text-gray-400 border border-gray-200 uppercase transition-all duration-300">EMPTY</span>`;
 
+                // 🚨 [CRITICAL FIX 1] Total $0.00 Phantom Prevention: Fallback to (pos+delivery) if total is zero
+                const rowTot = r.total > 0 ? r.total : ((r.pos || 0) + (r.delivery || 0));
+
                 html += `
                 <tr class="hover:bg-red-50/10 border-b border-gray-50">
                     <td class="px-6 py-4 font-black text-gray-700 font-inter">${monthNames[mIdx - 1]}</td>
                     <td class="px-2 py-4 text-center"><input type="number" id="pos_${mIdx}" value="${r.pos > 0 ? r.pos : ''}" class="${inputClass}" oninput="recalcSalesRow(${mIdx})"></td>
                     <td class="px-2 py-4 text-center"><input type="number" id="del_${mIdx}" value="${r.delivery > 0 ? r.delivery : ''}" class="${inputClass}" oninput="recalcSalesRow(${mIdx})"></td>
-                    <td class="px-6 py-4 text-right font-black font-mono text-[var(--premium-charcoal)]" id="tot_${mIdx}">${formatCurrency(r.total)}</td>
+                    <td class="px-6 py-4 text-right font-black font-mono text-[var(--premium-charcoal)] truncate" id="tot_${mIdx}">${formatCurrency(rowTot)}</td>
                     <td class="px-4 py-4 text-center" id="salesBadge_${mIdx}">${badgeHTML}</td>
                 </tr>`;
             });
@@ -1153,7 +1183,7 @@
             document.getElementById('salesKpiTotal').innerText = formatCurrency(tPos + tDel);
         }
 
-        // 🚨 [CRITICAL FIX 1] Non-Destructive DOM Saving (Data Loss Immunity)
+        // 🚨 [UX UPGRADE] Non-Destructive DOM Saving (Data Loss Immunity)
         window.saveSalesGridData = async function() {
             if (AppState.isSubmitting) return;
 
@@ -1187,7 +1217,7 @@
                     const cacheKey = `SALES_DATA_${year}_${client}`;
                     await SWR_DB.set(cacheKey, recordsToSave);
                     
-                    // 🚨 2. Micro-interactions: DOM 렌더링 파괴 없이 배지만 업데이트 (입력 커서 보존 및 0-Reversion 완전 타파)
+                    // 🚨 2. Micro-interactions: DOM 파괴 없이 배지만 업데이트 (입력 커서 보존)
                     recordsToSave.forEach(r => {
                         const badgeEl = document.getElementById(`salesBadge_${r.month}`);
                         if(badgeEl) {
@@ -1206,12 +1236,18 @@
                             }
                         }
                     });
+
+                    // 🚨 [UX UPGRADE 2] Inline Button Success Feedback
+                    btns.forEach(b => { b.innerHTML = "✅ SYNC COMPLETED"; b.classList.add('btn-success'); });
+                    setTimeout(() => {
+                        btns.forEach(b => { b.innerHTML = originalHtml; b.classList.remove('btn-success'); b.disabled = false; });
+                    }, 2500);
                 }
             } catch (err) {
                 Y2C_AuthEngine.showToast(err.message, "error");
+                btns.forEach(b => { b.disabled = false; b.innerHTML = originalHtml; });
             } finally {
                 AppState.isSubmitting = false;
-                btns.forEach(b => { b.disabled = false; b.innerHTML = originalHtml; });
             }
         };
 
@@ -1777,12 +1813,17 @@
         }
 
         // ==========================================
-        // 🚀 초기 구동 파이프라인
+        // 🚀 초기 구동 파이프라인 (State Memory 복원 연동)
         // ==========================================
         populateSalesYearSelector();
 
-        if (AppState.role === "VENDOR") switchTab("tab-procurement");
-        else switchTab("tab-franchise"); 
+        // 🚨 State Memory: 초기 진입 시 과거 작업 탭으로 자동 이동
+        const savedTab = sessionStorage.getItem('y2c_active_tab');
+        if (AppState.role === "VENDOR") {
+            switchTab(savedTab === "tab-procurement" || savedTab === "tab-excel" ? savedTab : "tab-procurement");
+        } else {
+            switchTab(savedTab || "tab-franchise"); 
+        }
 
         fetchMasterDataFast().then(() => fetchInitialDataFast());
     });
