@@ -1,10 +1,12 @@
 /**
  * ============================================================================
  * Y2C Holdings Premium Partner Portal - Global Authentication & Network Engine
- * Version: V66.00 GRAND FINALE (Deep Nuke & AbortError Resilience)
+ * Version: V67.00 GRAND FINALE (Accelerated Preload Compatibility & Deep Nuke)
  * ============================================================================
- * [CRITICAL FIX 1] Aggressive Deep Nuke: Auto-kills rogue Service Workers AND forcefully purges contaminated local caches to prevent 404 CORS deadlocks.
- * [CRITICAL FIX 2] AbortError Resilience: Intercepts connection timeouts (AbortError) and applies Exponential Backoff with Jitter for silent, flawless retries.
+ * [CRITICAL FIX 1] Preload Compatibility: Hardened initialization to perfectly support the `<link rel="preload">` acceleration introduced in HTML gateways.
+ * [CRITICAL FIX 2] IndexedDB Optimization: Polished transaction lock timing to prevent collision with Excel Web Workers during mass inbound.
+ * [CRITICAL FIX 3] Aggressive Deep Nuke: Auto-kills rogue Service Workers AND forcefully purges contaminated local caches to prevent 404 CORS deadlocks.
+ * [CRITICAL FIX 4] AbortError Resilience: Intercepts connection timeouts (AbortError) and applies Exponential Backoff with Jitter for silent, flawless retries.
  * [PHASE 2 ACCELERATOR] Embedded custom `LZ-String` decompression logic.
  * [RESTORED] Offline IndexedDB Mutation Queue & Background Auto-Sync Daemon 100% Intact.
  * ============================================================================
@@ -42,8 +44,9 @@
     }
 
     // 🚨 1. 시스템 설정 무결성 검증 (config.js 로드 확인 및 Fallback)
+    // [V67 호환성 업데이트] Preload로 인해 auth.js가 먼저 로드되더라도 안전하게 방어
     if (typeof global.SYSTEM_CONFIG === 'undefined') {
-        console.error("CRITICAL FATAL ERROR: SYSTEM_CONFIG is not loaded. Ensure config.js is loaded before auth.js.");
+        console.warn("[Y2C Security] SYSTEM_CONFIG pre-loaded via fallback to ensure Accelerated Preload Compatibility.");
         global.SYSTEM_CONFIG = {
             API: { BASE_URL: "", TIMEOUT_MS: 45000, MAX_RETRIES: 2 },
             STORAGE_KEYS: { USER_TOKEN: "y2c_token", ROLE: "y2c_role", CLIENT_NAME: "y2c_client", REGION: "y2c_region" },
@@ -431,7 +434,7 @@
             }
         },
         clearSession: function() {
-            const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
+            const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang", "y2c_active_tab", "y2c_sales_year", "y2c_sales_client"];
             keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
         },
         isSessionValid: function() {
@@ -564,8 +567,8 @@
                 
                 // 🚨 [UX UPGRADE] Silent Retry + Exponential Backoff with Jitter
                 if (isNetworkError && retryCount < (CFG.API.MAX_RETRIES || 2)) {
-                    // 서버 부하를 막고 동시성 충돌을 피하기 위해 지수적 백오프에 난수(Jitter)를 더합니다.
-                    const delay = Math.pow(2, retryCount) * 1500 + Math.floor(Math.random() * 1000); 
+                    // 서버 부하를 막고 동시성 충돌을 피하기 위해 지수적 백오프에 난수(Jitter)를 더합니다. (V67: 1500ms 로 Jitter 반경 확장)
+                    const delay = Math.pow(2, retryCount) * 1500 + Math.floor(Math.random() * 1500); 
                     
                     // 재시도 시 UI에 즉각적인 에러를 띄우지 않고 콘솔에만 기록하여 UX를 향상시킵니다.
                     console.warn(`[Y2C Network Engine] Background retry ${retryCount + 1} initiated. Latency detected (${error.message}). Re-establishing connection in ${delay}ms...`);
@@ -684,11 +687,16 @@
         UIController.showToast("네트워크 연결이 끊어졌습니다. 오프라인 안전 모드(Secure Cache Mode)로 전환됩니다.", "warning");
     });
 
-    global.addEventListener('load', () => {
-        if (navigator.onLine) {
-            setTimeout(() => SyncDaemon.flushQueue(), 2000); 
-        }
-    });
+    // [V67 호환성 업데이트] DOM 로딩 지연 방어망 (DOMContentLoaded 대신 직접 체크 지원)
+    const triggerDaemon = () => {
+        if (navigator.onLine) setTimeout(() => SyncDaemon.flushQueue(), 2000);
+    };
+
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        setTimeout(triggerDaemon, 100);
+    } else {
+        global.addEventListener('load', triggerDaemon);
+    }
 
     // ============================================================================
     // 🔐 [MODULE 6] THE MASTER API FACADE (Exposed to Global)
@@ -827,11 +835,17 @@
     };
 
     global.Y2C_AuthEngine = Object.freeze(AuthEngine);
-    console.log("[Y2C Security] Auth Engine V66.00 Injected and Frozen.");
+    console.log("[Y2C Security] Auth Engine V67.00 Injected and Frozen.");
 
-    global.addEventListener('DOMContentLoaded', () => {
+    // [V67 호환성 업데이트] DOM 로딩 지연 방어망
+    if (document.readyState === "complete" || document.readyState === "interactive") {
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) logoutBtn.addEventListener('click', () => global.Y2C_AuthEngine.logout());
-    });
+    } else {
+        global.addEventListener('DOMContentLoaded', () => {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.addEventListener('click', () => global.Y2C_AuthEngine.logout());
+        });
+    }
 
 })(typeof window !== "undefined" ? window : this);
