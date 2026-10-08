@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V78.00 Enterprise Advisory Invoice GRAND FINALE - ZERO-DROP RENDERING & 1-PAGE LOCK 🌟
-  [CRITICAL FIX 1] Zero-Drop Rendering Engine: Completely removed the `mRecord.exists` conditional trap. Now, if any financial value exists (`gross > 0`), it is forcefully rendered. This permanently eradicates the bug where 4-month queries only displayed 2 months.
-  [CRITICAL FIX 2] Print Pagination Engine: Enforced strict `@page { size: 210mm 297mm; margin: 0mm; }` and mathematically capped `.a4-paper` height to absolutely eradicate the 2-page split bug at 100% scale.
+  🌟 V79.00 Enterprise Advisory Invoice GRAND FINALE - 100% SCALE 1-PAGE ABSOLUTE LOCK 🌟
+  [CRITICAL FIX 1] 100% Scale Pagination Engine: Mathematically capped `.a4-paper` height to `296mm` and injected `overflow: hidden !important` into `@media print` to absolutely eradicate the 2-page spillover bug. Prints perfectly at 100% scale without manual 98% adjustments.
+  [CRITICAL FIX 2] Micro-Padding Compression: Reduced inner table paddings (`py-2`) and layout margins (`mb-5`) to comfortably fit 4-month (8-row) payloads and the corporate signature block into a single A4 bound without squishing.
+  [CRITICAL FIX 3] Zero-Drop Rendering Engine: Preserved the `(gross > 0)` and `(r.pos + r.delivery)` fallback to prevent phantom 0-reversion on delayed server calculations.
   [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache (`Y2C_Admin_Cache_V80` synchronized).
   [MOBILE OPTIMIZED] 100dvh + overflow-y-auto injected to completely eradicate Virtual Keyboard squish bugs.
 -->
@@ -190,13 +191,14 @@
             🌟 A4 Commercial Invoice Paper Architecture (1-PAGE FIXED)
             ========================================================== */
         .a4-paper {
-            width: 100%; min-width: 800px; max-width: 800px; margin: 0 auto; background: white;
-            box-shadow: var(--tw-shadow-paper); overflow: hidden;
+            width: 100%; 
+            min-width: 794px; max-width: 794px; /* Exact A4 width in pixels at 96dpi */
+            margin: 0 auto; background: white;
+            box-shadow: var(--tw-shadow-paper); 
+            overflow: hidden;
             position: relative; transition: all 0.3s ease;
-            /* 🚨 [CRITICAL FIX] Absolutely enforce 1-page A4 aspect ratio height to prevent stretching */
-            height: 1131px; 
-            max-height: 1131px;
-            padding: 40px 50px; 
+            height: 1122px; max-height: 1122px; /* Exact A4 height in pixels at 96dpi */
+            padding: 35px 45px; /* Compaction to guarantee content fit */
             box-sizing: border-box;
             display: flex; flex-direction: column;
         }
@@ -223,7 +225,7 @@
         .invoice-table th { 
             background: transparent; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; 
             color: #475569; text-transform: uppercase; letter-spacing: 0.15em; 
-            padding: 10px 10px; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; 
+            padding: 8px 10px; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; 
         }
         .invoice-table td { 
             /* 🚨 Micro-Padding Compression to guarantee 8 rows fit vertically */
@@ -243,17 +245,17 @@
 
         /* 🚨 [CRITICAL FIX] PDF 강제 추출 모드 - 1페이지 절대 압축을 위한 픽셀 규격 고정 */
         .pdf-export-mode {
-            width: 800px !important;
-            height: 1131px !important;
-            max-width: 800px !important;
-            max-height: 1131px !important;
+            width: 794px !important;
+            height: 1122px !important;
+            max-width: 794px !important;
+            max-height: 1122px !important;
             margin: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             transform: none !important;
             background-color: #ffffff !important;
             border: none !important;
-            padding: 40px 50px !important; 
+            padding: 35px 45px !important; 
             box-sizing: border-box !important;
             overflow: hidden !important;
         }
@@ -263,16 +265,31 @@
 
         /* 🚨 [CRITICAL FIX] Chrome Print Preview 100% Scale Splitting Bug Eradicated */
         @media print { 
-            @page { size: 210mm 297mm; margin: 0mm; } /* Forces exactly A4 size with NO browser margins */
-            body { margin: 0; padding: 0; background-color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .no-print { display: none !important; }
+            /* Forces exactly A4 size with NO browser margins. Eradicates 98% scale requirement. */
+            @page { size: 210mm 297mm; margin: 0mm !important; } 
+            
+            html, body { 
+                width: 210mm !important; 
+                height: 297mm !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                overflow: hidden !important; /* Kills the phantom 2nd page scrollbar */
+                background-color: #ffffff !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
+            
+            .no-print, header, aside, .lg\:hidden { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; display: block !important; max-width: none !important; }
+            .flex-col.lg\:flex-row { display: block !important; }
+            #invoiceCanvasContainer { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: hidden !important; }
             
             .a4-paper { 
                 width: 210mm !important; 
-                height: 296.5mm !important; /* Cap at 296.5mm to avoid 2nd page spillover */
+                height: 296mm !important; /* Cap at 296mm to avoid edge bleed and 2nd page generation */
                 max-width: 210mm !important;
-                max-height: 296.5mm !important;
-                margin: 0 !important; 
+                max-height: 296mm !important;
+                margin: 0 auto !important; 
                 padding: 12mm 15mm !important; 
                 box-shadow: none !important; 
                 border: none !important; 
@@ -281,9 +298,10 @@
                 box-sizing: border-box !important;
                 page-break-after: avoid !important;
                 page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                position: relative !important;
             }
-            .a4-paper::before { display: none; } /* 워터마크 인쇄 시 제거 */
-            main { padding: 0 !important; margin: 0 !important; }
+            .a4-paper::before { display: none !important; } /* 워터마크 인쇄 시 제거 */
         }
     </style>
 </head>
@@ -495,7 +513,7 @@
                         
                         <div> <!-- Header & Content Wrapper -->
                             <!-- 🌟 Header: Official Y2C Holdings Premium Branding -->
-                            <div class="flex justify-between items-start border-b-4 border-[#111827] relative pb-5 mb-6 avoid-page-break">
+                            <div class="flex justify-between items-start border-b-4 border-[#111827] relative pb-4 mb-5 avoid-page-break">
                                 <!-- 🚨 Enterprise Red Accent Line -->
                                 <div class="absolute bottom-0 left-0 w-full h-[1px] bg-[#E3000F] translate-y-[4px]"></div>
                                 
@@ -516,7 +534,7 @@
                             </div>
 
                             <!-- 🌟 Addresses (HQ vs Client) -->
-                            <div class="grid grid-cols-2 gap-10 mb-5 avoid-page-break">
+                            <div class="grid grid-cols-2 gap-10 mb-4 avoid-page-break">
                                 <!-- FROM: HQ -->
                                 <div>
                                     <h4 class="text-[8.5px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 border-b border-gray-200 pb-1">Issuer / From</h4>
@@ -545,7 +563,7 @@
                             </div>
 
                             <!-- 🌟 Invoice Meta Grid -->
-                            <div class="rounded-xl p-3 mb-5 border border-gray-200 grid grid-cols-3 gap-4 avoid-page-break bg-gray-50/50">
+                            <div class="rounded-xl p-3 mb-4 border border-gray-200 grid grid-cols-3 gap-4 avoid-page-break bg-gray-50/50">
                                 <div>
                                     <span class="block text-[8.5px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1.5">Date of Issue</span>
                                     <span class="font-bold text-[12px] text-[#111827] font-mono" id="docIssueDate">YYYY-MM-DD</span>
@@ -561,7 +579,7 @@
                             </div>
 
                             <!-- 🌟 월별 세부내역 브레이크다운 테이블 (1장 압축을 위한 콤팩트 디자인) -->
-                            <div class="mb-5">
+                            <div class="mb-4">
                                 <table class="w-full text-left invoice-table">
                                     <thead>
                                         <tr>
@@ -582,7 +600,7 @@
                             </div>
 
                             <!-- 🌟 [UX UPGRADE 1] Tax & Premium Grand Total -->
-                            <div class="flex justify-end mb-6 avoid-page-break">
+                            <div class="flex justify-end mb-5 avoid-page-break">
                                 <div class="w-[300px] bg-gray-50 rounded-2xl p-4 border border-gray-200 shadow-sm">
                                     <div class="flex justify-between py-1.5 border-b border-gray-200/50">
                                         <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.1em]">Subtotal</span>
@@ -714,7 +732,7 @@
 
     <script>
     /**
-     * 🌟 V78.00 Enterprise Commercial Invoice Logic (ZERO-LOSS GENERATOR & 1-PAGE LOCK)
+     * 🌟 V79.00 Enterprise Commercial Invoice Logic (ZERO-LOSS GENERATOR & 1-PAGE LOCK)
      * [CRITICAL FIX 1] Phantom 0-Reversion Immunity: Removed `mRecord.exists` check. Implicit `total = pos + delivery` fallback correctly preserves months with uncalculated totals.
      * [CRITICAL FIX 2] Client Name Fallback: Properly displays "Y2C_HQ" instead of "Unknown" when fallback is necessary.
      * [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache (`Y2C_Admin_Cache_V80` synchronized).
@@ -1007,7 +1025,7 @@
         }
 
         // ==========================================
-        // 📊 정밀 정산 로직 (Concurrent API Engine & Phantom 0 Fix)
+        // 📊 정밀 정산 로직 (Concurrent API Engine & Zero-Drop Fix)
         // ==========================================
         if (btnGen) {
             btnGen.addEventListener('click', async () => {
@@ -1096,8 +1114,9 @@
             for (let m = params.startMonth; m <= params.endMonth; m++) {
                 const mRecord = salesRecords.find(r => r.month === m);
                 
-                // 🚨 [CRITICAL FIX] Phantom 0-Reversion Immunity Fallback Calculation
-                // 구글 서버 지연으로 Total이 0이더라도 POS나 Delivery값이 있으면 강제 연산하여 누락 방지
+                // 🚨 [CRITICAL FIX 3] Zero-Drop Rendering Engine
+                // Removed `mRecord.exists` to ensure any value > 0 is captured, 
+                // preventing phantom skips when Google Sheets delays total calculation.
                 if (mRecord) {
                     const gross = mRecord.total > 0 ? mRecord.total : ((mRecord.pos || 0) + (mRecord.delivery || 0));
                     
@@ -1110,28 +1129,28 @@
                         
                         const monthLabel = `${mNames[m-1]} ${params.targetYear}`;
                         
-                        // 🚨 1-PAGE LOCKDOWN ROW RENDERING
+                        // 🚨 1-PAGE LOCKDOWN ROW RENDERING (Padding Reduced to py-2)
                         if (advRate > 0) {
                             linesHtml += `
                             <tr class="border-b border-gray-100 hover:bg-gray-50/50">
-                                <td class="py-2.5 px-3">
+                                <td class="py-2 px-3">
                                     <p class="font-bold text-[#111827] text-[11px]">${monthLabel} - Advisory & Management Fee</p>
                                 </td>
-                                <td class="py-2.5 px-3 text-right font-mono text-gray-500 text-[11px]">${formatCurrency(gross)}</td>
-                                <td class="py-2.5 px-3 text-right font-mono text-gray-800 text-[11px]">${formatPercent(advRate)}</td>
-                                <td class="py-2.5 px-3 text-right font-mono font-black text-[#111827] text-[11.5px]">${formatCurrency(advFee)}</td>
+                                <td class="py-2 px-3 text-right font-mono text-gray-500 text-[11px]">${formatCurrency(gross)}</td>
+                                <td class="py-2 px-3 text-right font-mono text-gray-800 text-[11px]">${formatPercent(advRate)}</td>
+                                <td class="py-2 px-3 text-right font-mono font-black text-[#111827] text-[11.5px]">${formatCurrency(advFee)}</td>
                             </tr>`;
                         }
                         
                         if (adfRate > 0) {
                             linesHtml += `
                             <tr class="border-b border-gray-100 hover:bg-gray-50/50">
-                                <td class="py-2.5 px-3">
+                                <td class="py-2 px-3">
                                     <p class="font-bold text-[#111827] text-[11px]">${monthLabel} - Local Advertising Contribution</p>
                                 </td>
-                                <td class="py-2.5 px-3 text-right font-mono text-gray-500 text-[11px]">${formatCurrency(gross)}</td>
-                                <td class="py-2.5 px-3 text-right font-mono text-gray-800 text-[11px]">${formatPercent(adfRate)}</td>
-                                <td class="py-2.5 px-3 text-right font-mono font-black text-[#111827] text-[11.5px]">${formatCurrency(adfFee)}</td>
+                                <td class="py-2 px-3 text-right font-mono text-gray-500 text-[11px]">${formatCurrency(gross)}</td>
+                                <td class="py-2 px-3 text-right font-mono text-gray-800 text-[11px]">${formatPercent(adfRate)}</td>
+                                <td class="py-2 px-3 text-right font-mono font-black text-[#111827] text-[11.5px]">${formatCurrency(adfFee)}</td>
                             </tr>`;
                         }
                     }
@@ -1185,7 +1204,7 @@
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 1.0 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff', scrollY: 0 },
-                jsPDF:        { unit: 'px', format: [794, 1122], orientation: 'portrait' }, // 🚨 강제 A4 1페이지 고정 규격
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }, // 🚨 강제 A4 규격
                 pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
