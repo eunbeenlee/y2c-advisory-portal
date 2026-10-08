@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V69.00 Enterprise Login Gateway GRAND FINALE - ACCELERATED & RESPONSIVE UX EDITION 🌟
-  [CRITICAL FIX 1] Core Engine Preloading: Injected `<link rel="preload">` for `auth.js` and `config.js` to execute network policies instantaneously.
-  [CRITICAL FIX 2] Retry Visualization Engine: Enhanced the loading spinner logic to display "BYPASSING LATENCY..." to provide UX peace-of-mind during background silent retries.
-  [CRITICAL FIX 3] Deep Nuke Fallback: `RESET SESSION` button aggressively forces unregistration of rogue Service Workers and wipes all `Y2C` caches.
-  [CRITICAL FIX 4] Mobile Virtual Keyboard Squish Bug Resolved: `overflow-y-auto` with `100dvh`.
+  🌟 V70.00 Enterprise Login Gateway GRAND FINALE - ZERO-CRASH & RESPONSIVE UX EDITION 🌟
+  [CRITICAL FIX 1] ReferenceError Eradication: Added explicit `const userPwInput = document.getElementById('userPw');` declaration to permanently prevent the `userPwInput is not defined` crash during form submission.
+  [CRITICAL FIX 2] Core Engine Preloading: Injected `<link rel="preload">` for `auth.js` and `config.js` to execute network policies instantaneously.
+  [CRITICAL FIX 3] Retry Visualization Engine: Enhanced the loading spinner logic to display "BYPASSING LATENCY..." to provide UX peace-of-mind during background silent retries.
+  [CRITICAL FIX 4] Deep Nuke Fallback: `RESET SESSION` button aggressively forces unregistration of rogue Service Workers and wipes all `Y2C` caches.
+  [CRITICAL FIX 5] Mobile Virtual Keyboard Squish Bug Resolved: `overflow-y-auto` with `100dvh`.
   [UX UPGRADE 1] Input Sanity Trim: Automatically trims trailing whitespaces on ID input blur to prevent accidental 404/Auth errors.
   [UX UPGRADE 2] Zero-latency routing now features a micro fade-out transition to prevent screen flashing.
-  [RESTORED 1] Original Y2C Dual-Logo UI exactly restored based on client's architectural request.
-  [RESTORED 2] Inner-Floating Labels & Magnetic 3D Button (.btn-hip) 100% loss-less recovered.
-  [RESTORED 3] Cinematic Entry Animations & Background Glow Shimmer strictly preserved.
+  [RESTORED] Original Y2C Dual-Logo UI, Inner-Floating Labels, Magnetic 3D Button (.btn-hip), and Cinematic Animations 100% loss-less recovered.
 -->
 <html lang="en">
 <head>
@@ -417,7 +416,7 @@
                 </p>
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V69.00
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V70.00
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 및 Deep Nuke 강제 실행 버튼 -->
@@ -448,7 +447,7 @@
 
     <script>
     /**
-     * 🌟 V69.00 Enterprise Login Engine (Deep Nuke, Mobile Optimized & Retry Feedback UI)
+     * 🌟 V70.00 Enterprise Login Engine (Zero-Crash ReferenceError Fix & Deep Nuke)
      */
     document.addEventListener("DOMContentLoaded", () => {
         
@@ -462,21 +461,24 @@
         }
 
         // 2. Password Visibility Toggle
-        const pwInput = document.getElementById("userPw");
+        // 🚨 [CRITICAL FIX] 여기서 선언된 변수들이 Submit Listener 밖에서도 접근 가능하도록 스코프 구조를 리팩토링했습니다.
+        const userIdInput = document.getElementById('userId');
+        const userPwInput = document.getElementById('userPw'); // 🚨 [Bug Fix] Missing variable explicitly defined
+        
         const togglePwBtn = document.getElementById('togglePwBtn');
         const eyeOpen = document.getElementById('eyeIconOpen');
         const eyeClosed = document.getElementById('eyeIconClosed');
         
-        if(togglePwBtn && pwInput) {
+        if(togglePwBtn && userPwInput) {
             togglePwBtn.addEventListener('click', () => {
-                if(pwInput.type === 'password') {
-                    pwInput.type = 'text';
-                    pwInput.classList.remove('tracking-[0.3em]');
+                if(userPwInput.type === 'password') {
+                    userPwInput.type = 'text';
+                    userPwInput.classList.remove('tracking-[0.3em]');
                     eyeClosed.classList.add('hidden');
                     eyeOpen.classList.remove('hidden');
                 } else {
-                    pwInput.type = 'password';
-                    pwInput.classList.add('tracking-[0.3em]');
+                    userPwInput.type = 'password';
+                    userPwInput.classList.add('tracking-[0.3em]');
                     eyeOpen.classList.add('hidden');
                     eyeClosed.classList.remove('hidden');
                 }
@@ -485,19 +487,18 @@
 
         // 3. Caps Lock Warning Engine
         const capsLockWarning = document.getElementById("capsLockWarning");
-        if (pwInput && capsLockWarning) {
-            pwInput.addEventListener('keyup', (e) => {
+        if (userPwInput && capsLockWarning) {
+            userPwInput.addEventListener('keyup', (e) => {
                 if (e.getModifierState && e.getModifierState('CapsLock')) { 
                     capsLockWarning.classList.add('active'); 
                 } else { 
                     capsLockWarning.classList.remove('active'); 
                 }
             });
-            pwInput.addEventListener('blur', () => { capsLockWarning.classList.remove('active'); });
+            userPwInput.addEventListener('blur', () => { capsLockWarning.classList.remove('active'); });
         }
 
         // 4. [UX UPGRADE] Input Whitespace Auto-Trim
-        const userIdInput = document.getElementById('userId');
         if(userIdInput) {
             userIdInput.addEventListener('blur', (e) => {
                 e.target.value = e.target.value.trim();
@@ -516,16 +517,17 @@
                     const hp = document.getElementById('hp_field');
                     if (hp && hp.value) return; 
 
-                    const id = (userIdInput.value || "").trim();
-                    const pw = (userPwInput.value || "").trim();
+                    // 🚨 [CRITICAL FIX] userPwInput ReferenceError Eradicated. Safely parsing values.
+                    const id = (userIdInput ? userIdInput.value : "").trim();
+                    const pw = (userPwInput ? userPwInput.value : "").trim();
 
-                    userIdInput.classList.remove('input-error');
-                    userPwInput.classList.remove('input-error');
+                    if (userIdInput) userIdInput.classList.remove('input-error');
+                    if (userPwInput) userPwInput.classList.remove('input-error');
 
                     if (!id || !pw) {
                         Y2C_AuthEngine.showToast("보안 인가 실패: 파트너 식별자(ID) 및 패스키(Passkey)를 모두 입력해 주십시오.", "error");
-                        if (!id) userIdInput.classList.add('input-error');
-                        if (!pw) userPwInput.classList.add('input-error');
+                        if (!id && userIdInput) userIdInput.classList.add('input-error');
+                        if (!pw && userPwInput) userPwInput.classList.add('input-error');
                         return;
                     }
 
@@ -534,11 +536,14 @@
                     const btnSpinner = document.getElementById('btnSpinner');
                     const spinnerTxt = document.getElementById('btnSpinnerText');
 
-                    btn.disabled = true;
-                    if(btnText) btnText.classList.add('hidden');
-                    if(btnSpinner) btnSpinner.classList.remove('hidden');
+                    if (btn) btn.disabled = true;
+                    if (btnText) btnText.classList.add('hidden');
+                    if (btnSpinner) btnSpinner.classList.remove('hidden');
 
-                    setTimeout(() => { userIdInput.blur(); userPwInput.blur(); }, 500);
+                    setTimeout(() => { 
+                        if (userIdInput) userIdInput.blur(); 
+                        if (userPwInput) userPwInput.blur(); 
+                    }, 500);
 
                     // 🚨 [CRITICAL FIX 2] Retry Visualization Engine
                     // 사용자가 시스템 프리징으로 착각하지 않도록 백그라운드 리트라이 과정을 텍스트로 중계합니다.
@@ -583,17 +588,17 @@
                         }
                         
                         Y2C_AuthEngine.showToast(finalMsg, "error");
-                        userIdInput.classList.add('input-error');
-                        userPwInput.classList.add('input-error');
+                        if (userIdInput) userIdInput.classList.add('input-error');
+                        if (userPwInput) userPwInput.classList.add('input-error');
                         form.classList.remove('shake-animation');
                         void form.offsetWidth; 
                         form.classList.add('shake-animation');
                     } finally {
                         clearInterval(loadingInterval);
-                        if(spinnerTxt) spinnerTxt.innerText = "VERIFYING...";
-                        btn.disabled = false;
-                        if(btnText) btnText.classList.remove('hidden');
-                        if(btnSpinner) btnSpinner.classList.add('hidden');
+                        if (spinnerTxt) spinnerTxt.innerText = "VERIFYING...";
+                        if (btn) btn.disabled = false;
+                        if (btnText) btnText.classList.remove('hidden');
+                        if (btnSpinner) btnSpinner.classList.add('hidden');
                     }
                 });
             }
