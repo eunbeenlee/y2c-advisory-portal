@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V89.00 Enterprise Admin GRAND FINALE - CONCURRENCY COLLISION FIX & RESPONSIVE 🌟
-  [CRITICAL FIX 1] Promise.all() Eradication: Replaced parallel API fetching with sequential `await` calls in `fetchInitialDataFast()` to absolutely prevent Google Apps Script 302 Redirect 404 collisions caused by simultaneous node access.
-  [CRITICAL FIX 2] 3-Tier Responsive Truncation: Upgraded `.truncate-text` with cascading max-widths (140px -> 200px -> 320px) to eradicate mobile layout squishing and text bleeding.
+  🌟 V90.00 Enterprise Admin GRAND FINALE - STRICT SEQUENTIAL BOOT ENGINE 🌟
+  [CRITICAL FIX 1] Concurrent API Collision Eradicated: Discovered that `loadSalesGridFast()` and `fetchInitialDataFast()` were executing simultaneously during initial boot, causing Google Apps Script 302 redirect lockups, 404s, and 15s AbortErrors. 
+  [CRITICAL FIX 2] Global Boot Queue: Implemented `bootEnterpriseCore()` to enforce strict 1-by-1 execution: Master Data -> ERP Sales -> Procurement & Items. Concurrency is now strictly 1.
+  [CRITICAL FIX 3] Hover Prefetch Lock: Prevented hover intent requests from firing while `AppState.isBooting` is true, stopping mid-boot collisions.
+  [CRITICAL FIX 4] 3-Tier Responsive Truncation: Cascading max-widths (140px -> 200px -> 320px) eradicate mobile layout squishing.
   [UX UPGRADE 1] Total 0-Reversion Immunity: Fallback calculations prevent $0.00 phantom values during renders.
-  [UX UPGRADE 2] State Memory Engine: Seamlessly restores Tab, Year, and Target Franchise from `sessionStorage`.
   [RESTORED] Magnetic Bottom Action Bar, Adaptive Toast Relocation, and Excel-like Tab Indexing 100% intact.
 -->
 <html lang="en">
@@ -155,6 +156,9 @@
         .btn-solid-red:hover:not(:disabled) { background-color: #B9000C; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(227, 0, 15, 0.3); }
         .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
         .btn-solid-red:disabled { background-color: #cbd5e1; color: white; cursor: not-allowed; box-shadow: none; }
+        
+        /* 🚨 [UX UPGRADE] 성공 시 버튼 피드백 (Inline Button Feedback) */
+        .btn-success { background-color: #059669 !important; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3) !important; color: white !important; }
 
         .glass-lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 2rem; opacity: 0; transition: opacity 0.5s ease; will-change: opacity; }
         .glass-lock-overlay.show { opacity: 1; }
@@ -183,12 +187,9 @@
 
         .tracking-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; font-family: 'JetBrains Mono', monospace; }
 
-        /* 🚨 [MOBILE OPTIMIZED] Adaptive Toast Positioning */
-        #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
-        @media (max-width: 768px) {
-            #premiumToastContainer { top: auto; bottom: 85px; left: 50%; transform: translateX(-50%); right: auto; width: 90%; max-width: 400px; align-items: center; }
-            #premiumToastContainer > div { width: 100%; justify-content: center; }
-        }
+        /* 🚨 [UX UPGRADE] Adaptive Toast Positioning (전역 하단 중앙 고정) */
+        #premiumToastContainer { position: fixed; top: auto; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; align-items: center; width: 90%; max-width: 420px; }
+        #premiumToastContainer > div { width: 100%; justify-content: center; }
 
         @media print { .no-print { display: none !important; } body { background: white !important; } }
     </style>
@@ -229,7 +230,8 @@
     <!-- 🌟 프리미엄 헤더 -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px] min-w-0">
+            <!-- 🚨 [CRITICAL FIX] Header Layout Collision Fix (shrink-0 -> min-w-0, text truncation, adjusted gaps) -->
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0 w-auto lg:w-[260px] xl:w-[320px] min-w-0">
                 <div class="flex items-center gap-2 shrink-0">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
                         <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
@@ -244,20 +246,21 @@
                 </div>
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200 min-w-0">
                     <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap truncate" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
-                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block shrink-0">Operated by Y2C</span>
+                    <span class="text-[8px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden 2xl:inline-block shrink-0">Operated by Y2C</span>
                 </div>
             </div>
 
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-2 xl:gap-5 px-4 min-w-0 overflow-hidden">
-                <a href="dashboard.html" id="navDashboard" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link active text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_admin">Master DB</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_invoice">Advisory Invoice</a>
+            <!-- 🚨 줄어든 영역에서도 메뉴가 겹치지 않게 gap 축소 및 truncate 적용 -->
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-2 xl:gap-5 px-2 min-w-0 overflow-hidden">
+                <a href="dashboard.html" id="navDashboard" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_dashboard">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_recipes">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link active text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_admin">Master DB</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
-            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto">
-                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-2">
+            <div class="hidden lg:flex items-center justify-end gap-2 sm:gap-3 shrink-0 w-auto">
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-1">
                     <button onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">EN</button>
                     <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
@@ -267,7 +270,7 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[8px] sm:text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
                     <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
@@ -360,13 +363,13 @@
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
                         <select id="salesYearSelector" class="premium-input bg-white appearance-none"></select>
                     </div>
-                    <div class="w-full md:w-64">
+                    <div class="w-full md:w-[22rem]">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
                         <select id="salesClientSelector" class="premium-input bg-white appearance-none text-ellipsis pr-8">
                             <option value="">-- Loading --</option>
                         </select>
                     </div>
-                    <div class="flex items-end">
+                    <div class="flex items-end flex-1">
                         <button type="button" id="btnLoadLedger" onclick="loadSalesGridFast()" class="btn-solid-red w-full h-[46px] px-8 rounded-xl font-black text-[12px] uppercase tracking-widest focus:outline-none">Load Ledger</button>
                     </div>
                 </div>
@@ -656,11 +659,10 @@
 
     <script>
     /**
-     * 🌟 V89.00 Enterprise Admin Quad-Core Integration Logic (CONCURRENCY FIX & UX COMPATIBILITY)
-     * [CRITICAL FIX 1] Promise.all() Eradication: Replaced parallel API calls with sequential awaits to prevent GAS 302 redirect collisions.
-     * [CRITICAL FIX 2] 3-Tier Responsive Truncation: Cascading max-widths (140px -> 200px -> 320px) eradicate mobile layout squishing.
-     * [UX UPGRADE 1] Live 'UNSAVED' Tracking: Badges instantly update to amber on typing.
-     * [UX UPGRADE 2] Excel-like Tab Indexing: Users can hit 'Tab' to rapidly move down a column.
+     * 🌟 V90.00 Enterprise Admin Quad-Core Integration Logic (GLOBAL QUEUE & CONCURRENCY SHIELD)
+     * [CRITICAL FIX 1] Strict Sequential Boot: Entirely eradicated Promise.all overlap between Sales Grid and Procurement Data.
+     * [CRITICAL FIX 2] Hover Collision Lock: Disabled hover prefetching while `isBooting` is true to prevent mouse-movement from triggering 404 aborts.
+     * [CRITICAL FIX 3] 3-Tier Responsive Truncation: Cascading max-widths (140px -> 200px -> 320px) eradicate mobile layout squishing.
      */
     document.addEventListener("DOMContentLoaded", () => {
 
@@ -678,6 +680,7 @@
             cachedClients: [], 
             cart: {},
             isSubmitting: false,
+            isBooting: true, // 🚨 V90 Boot Lock state
             currentHub: "ON"
         };
 
@@ -689,7 +692,7 @@
         const formatCurrency = (amount) => new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(amount || 0);
 
         // ============================================================================
-        // 🚨 [CRITICAL FIX] 다국어(i18n) 번역 엔진 완벽 이식
+        // 🚨 다국어(i18n) 번역 엔진 완벽 이식
         // ============================================================================
         const I18N_DICT = {
             en: {
@@ -866,6 +869,7 @@
 
             // 🚀 Hover Intent Prefetching
             btn.addEventListener('mouseenter', (e) => {
+                if (AppState.isBooting || AppState.isSubmitting) return; // 🚨 V90 FIX: Prevent hover collisions during initial boot sequence
                 const target = e.target.getAttribute('data-target');
                 if (target === 'tab-franchise' && AppState.role !== "VENDOR" && AppState.cachedClients.length === 0) {
                     fetchMasterDataFast();
@@ -933,7 +937,6 @@
             } catch(e) {}
 
             try {
-                // 🚨 Dynamic Loading Feedback: 연결 지연 시 상태 안내 
                 if (clientSel && AppState.cachedClients.length === 0) {
                     clientSel.innerHTML = `<option value="">-- Connecting to Node... --</option>`;
                 }
@@ -962,19 +965,13 @@
                         </tr>
                     `);
                 }
-            } finally {
-                // 🚨 State Memory: 모든 데이터가 로드된 후 기존에 보던 매출 시트가 있다면 자동 로딩
-                const activeTab = sessionStorage.getItem('y2c_active_tab');
-                const ySel = document.getElementById('salesYearSelector')?.value;
-                const cSel = document.getElementById('salesClientSelector')?.value;
-                if (activeTab === 'tab-sales' && ySel && cSel && cSel !== "") {
-                    loadSalesGridFast();
-                }
+                throw err; // V90: Propagate error to boot sequence
             }
+            // 🚨 V90: Removed `finally` block that forcefully initiated `loadSalesGridFast` in parallel.
+            // Boot routing is now handled safely by `bootEnterpriseCore`.
         }
 
         function renderMasterDataFast() {
-            // 🚨 렌더링 전 스크롤 캡처 (Scroll Jank 방어)
             const currentScrollY = window.scrollY;
 
             if (AppState.cachedClients.length === 0) {
@@ -1003,14 +1000,13 @@
                 </tr>`;
             }, () => {
                 Y2C_Accelerator.renderReactively('masterTableBody', html).then(() => {
-                    // 🚨 렌더링 후 스크롤 복원
                     window.scrollTo(0, currentScrollY);
                 });
             }, 50);
         }
 
         window.saveClientData = async function(rowIdx) {
-            if (AppState.isSubmitting) return;
+            if (AppState.isSubmitting || AppState.isBooting) return;
 
             const stateEl = document.getElementById(`state_${rowIdx}`);
             const cityEl = document.getElementById(`city_${rowIdx}`);
@@ -1110,7 +1106,7 @@
             const client = document.getElementById('salesClientSelector')?.value;
 
             if (!year || !client) {
-                Y2C_AuthEngine.showToast("연도와 가맹점을 모두 선택해 주십시오.", "warning");
+                if (!AppState.isBooting) Y2C_AuthEngine.showToast("연도와 가맹점을 모두 선택해 주십시오.", "warning");
                 return;
             }
 
@@ -1137,7 +1133,6 @@
             }
 
             try {
-                // 🌟 [CRITICAL FIX 1] Promise.all 충돌 방지: 순차적(Sequential) Await 호출로 404 에러 원천 차단
                 const salesRes = await Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client }).catch(e => { console.warn(e); return { success: false, message: e.message }; });
                 
                 if (salesRes && salesRes.success) {
@@ -1155,7 +1150,6 @@
         };
 
         function renderSalesGrid(records) {
-            // 🚨 스크롤 메모리 캡처
             const currentScrollY = window.scrollY;
 
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -1187,7 +1181,6 @@
 
             Y2C_Accelerator.renderReactively('salesGridBody', html).then(() => {
                 recalculateSalesKPIs();
-                // 🚨 렌더링 완료 후 스크롤 복원 (Jank 방지)
                 window.scrollTo(0, currentScrollY);
             });
         }
@@ -1200,7 +1193,6 @@
             document.getElementById(`tot_${mIdx}`).innerText = formatCurrency(total);
             recalculateSalesKPIs();
 
-            // 🚨 [UX UPGRADE] Live 'UNSAVED' Tracking: 즉각적인 변경 사항 인지
             if (isUserEdit) {
                 const badgeEl = document.getElementById(`salesBadge_${mIdx}`);
                 if (badgeEl && !badgeEl.innerHTML.includes("UNSAVED")) {
@@ -1222,7 +1214,7 @@
 
         // 🚨 [UX UPGRADE] Non-Destructive DOM Saving (Data Loss Immunity)
         window.saveSalesGridData = async function() {
-            if (AppState.isSubmitting) return;
+            if (AppState.isSubmitting || AppState.isBooting) return;
 
             const year = document.getElementById('salesYearSelector')?.value;
             const client = document.getElementById('salesClientSelector')?.value;
@@ -1250,11 +1242,9 @@
                 if (res && res.success) {
                     Y2C_AuthEngine.showToast("매출 데이터가 완벽히 동기화되었습니다.", "success");
                     
-                    // 🚨 1. 로컬 캐시 즉각 업데이트 (SWR Single Source of Truth)
                     const cacheKey = `SALES_DATA_${year}_${client}`;
                     await SWR_DB.set(cacheKey, recordsToSave);
                     
-                    // 🚨 2. Micro-interactions: DOM 파괴 없이 배지만 업데이트 (입력 커서 보존 및 0-Reversion 완전 타파)
                     recordsToSave.forEach(r => {
                         const badgeEl = document.getElementById(`salesBadge_${r.month}`);
                         if(badgeEl) {
@@ -1274,14 +1264,12 @@
                         }
                     });
 
-                    // 🚨 [UX UPGRADE 2] Inline Button Success Feedback
                     btns.forEach(b => { b.innerHTML = "✅ SYNC COMPLETED"; b.classList.add('btn-success'); });
                     setTimeout(() => {
                         btns.forEach(b => { b.innerHTML = originalHtml; b.classList.remove('btn-success'); b.disabled = false; });
                     }, 2500);
                 }
             } catch (err) {
-                // 🚨 [DLQ Integration] 백엔드 결함 또는 오프라인 발생 시 정확한 메시지 출력
                 Y2C_AuthEngine.showToast(err.message, "error");
                 btns.forEach(b => { b.disabled = false; b.innerHTML = originalHtml; });
             } finally {
@@ -1315,7 +1303,6 @@
             } catch(e){}
 
             try {
-                // 🌟 [CRITICAL FIX 1] Promise.all 충돌 방지: 순차적(Sequential) Await 호출로 404 에러 원천 차단
                 const procRes = await Y2C_AuthEngine.request("get_procurement_data").catch(e => null);
                 if (procRes && procRes.success) {
                     AppState.hqOrders = procRes.hqOrders || [];
@@ -1350,7 +1337,6 @@
         }
 
         function renderHqOrders() {
-            // 🚨 스크롤 메모리
             const currentScrollY = window.scrollY;
 
             if (AppState.hqOrders.length === 0) {
@@ -1485,6 +1471,8 @@
         const btnSubmitProc = document.getElementById('btnSubmitProcurement');
         if(btnSubmitProc) {
             btnSubmitProc.addEventListener('click', async () => {
+                if (AppState.isSubmitting || AppState.isBooting) return;
+                
                 const vName = document.getElementById('procVendorName').value;
                 const hSelect = document.getElementById('procHubSelect');
                 const hub = hSelect ? hSelect.value : "";
@@ -1495,6 +1483,7 @@
 
                 if(!vName || !hub || !itemsStr) { Y2C_AuthEngine.showToast("업체명, 타겟 허브, 발주 물품은 필수 입력 항목입니다.", "warning"); return; }
 
+                AppState.isSubmitting = true;
                 btnSubmitProc.disabled = true; btnSubmitProc.innerHTML = `<span class="animate-pulse">PROCESSING...</span>`;
 
                 const payload = {
@@ -1527,6 +1516,7 @@
                 } catch(e) {
                     Y2C_AuthEngine.showToast(e.message, "error");
                 } finally {
+                    AppState.isSubmitting = false;
                     btnSubmitProc.disabled = false; btnSubmitProc.innerHTML = `<span class="text-lg leading-none">+</span> ADD ORDER`;
                 }
             });
@@ -1564,7 +1554,7 @@
                 const newMethod = document.getElementById('statusModalMethod').value;
                 const newTracking = document.getElementById('statusModalTracking').value.trim();
 
-                if (AppState.isSubmitting) return;
+                if (AppState.isSubmitting || AppState.isBooting) return;
                 AppState.isSubmitting = true;
                 const origHtml = btnSubmitStatus.innerHTML;
                 btnSubmitStatus.disabled = true;
@@ -1663,7 +1653,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // 🚨 엑셀 연산을 워커(백그라운드 스레드)로 위임
         function processAndMapExcelData(jsonArray) {
             if (!window.excelWorker) {
                 window.excelWorker = new Worker('assets/js/excel-worker.js');
@@ -1783,7 +1772,6 @@
             window.currentExcelPreviewData[idx].hqCode = newHqCode;
             window.currentExcelPreviewData[idx].status = "OK";
 
-            // 수동 매핑 시 tempUpdates에 추가
             const row = window.currentExcelPreviewData[idx];
             const targetRegion = inboundRegionSelector.value.trim().replace("Hub: ", ""); 
             if (!window.currentExcelTempUpdates[newHqCode]) {
@@ -1820,6 +1808,8 @@
                 if (pendingStockUpdates.length === 0) { Y2C_AuthEngine.showToast("서버로 전송할 데이터가 없습니다.", "warning"); return; }
                 if (!confirm(`총 ${pendingStockUpdates.length}개 품목의 입고 데이터를 마스터 DB에 강제 병합(ADD)합니다. 단가가 변동된 항목은 마스터 DB의 가격표를 실시간으로 갱신합니다. 진행하시겠습니까?`)) return;
 
+                if (AppState.isSubmitting || AppState.isBooting) return;
+                AppState.isSubmitting = true;
                 btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "COMMITTING...";
 
                 try {
@@ -1836,26 +1826,24 @@
                         document.getElementById('excelPreviewContainer').classList.add('hidden'); document.getElementById('dropZone').classList.remove('hidden');
                         if(fileInput) fileInput.value = ''; parsedExcelData = null; pendingStockUpdates = [];
 
-                        // 🚨 [DLQ Integration] 성공 시 로컬 캐시 무효화 및 새 데이터 병렬 패치
                         fetchInitialDataFast();
                     }
                 } catch (err) {
-                    // 🚨 [DLQ Integration] 백엔드 결함 또는 오프라인 발생 시 정확한 메시지 출력
                     if (err.message.includes("스레드") || err.message.includes("분산")) Y2C_AuthEngine.showToast("⏳ 백그라운드 처리 중입니다. 중복 제출을 방지합니다.", "warning");
                     else if (err.message.includes("시간 초과") || err.message.includes("네트워크")) Y2C_AuthEngine.showToast("⏳ 대량 데이터 처리로 응답이 지연되었습니다. 새로고침 후 확인하십시오.", "warning");
                     else Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
                 } finally {
+                    AppState.isSubmitting = false;
                     btnSyncExcel.disabled = false; if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
                 }
             });
         }
 
         // ==========================================
-        // 🚀 초기 구동 파이프라인 (State Memory 복원 연동)
+        // 🚀 초기 구동 파이프라인 (Strict Sequential Boot Engine)
         // ==========================================
         populateSalesYearSelector();
 
-        // 🚨 State Memory: 초기 진입 시 과거 작업 탭으로 자동 이동
         const savedTab = sessionStorage.getItem('y2c_active_tab');
         if (AppState.role === "VENDOR") {
             switchTab(savedTab === "tab-procurement" || savedTab === "tab-excel" ? savedTab : "tab-procurement");
@@ -1863,7 +1851,34 @@
             switchTab(savedTab || "tab-franchise"); 
         }
 
-        fetchMasterDataFast().then(() => fetchInitialDataFast());
+        // 🚨 [CRITICAL FIX 1 & 2] Global Sequential Boot Engine
+        // 이전 버전에서 발생하던 '동시성(Concurrency) 충돌로 인한 404 및 AbortError'를 완벽히 파괴합니다.
+        // 마스터 데이터 -> ERP 매출 데이터 -> 조달 및 아이템 데이터 순으로 1개씩 순차(Await) 실행하여 구글 서버의 리다이렉트 락(Lock)을 방지합니다.
+        async function bootEnterpriseCore() {
+            try {
+                // 1. Fetch Master Data strictly first
+                await fetchMasterDataFast();
+                
+                // 2. Check if Sales Tab needs auto-loading
+                const activeTab = sessionStorage.getItem('y2c_active_tab');
+                const ySel = document.getElementById('salesYearSelector')?.value;
+                const cSel = document.getElementById('salesClientSelector')?.value;
+                
+                if (activeTab === 'tab-sales' && ySel && cSel && cSel !== "") {
+                    await loadSalesGridFast();
+                }
+                
+                // 3. Finally, fetch procurement and catalog items strictly sequentially
+                await fetchInitialDataFast();
+            } catch(e) {
+                console.error("[Y2C Boot Engine] Initialization Error:", e);
+            } finally {
+                // 🚨 Boot complete, unlock prefetching
+                AppState.isBooting = false; 
+            }
+        }
+        
+        bootEnterpriseCore();
     });
     </script>
 </body>
