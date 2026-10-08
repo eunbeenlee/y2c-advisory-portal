@@ -6,6 +6,7 @@
   [CRITICAL FIX 3] Hover Prefetch Lock: Prevented hover intent requests from firing while `AppState.isBooting` is true, stopping mid-boot collisions.
   [CRITICAL FIX 4] 3-Tier Responsive Truncation: Cascading max-widths (140px -> 200px -> 320px) eradicate mobile layout squishing.
   [UX UPGRADE 1] Total 0-Reversion Immunity: Fallback calculations prevent $0.00 phantom values during renders.
+  [UX UPGRADE 2] State Memory Engine: Seamlessly restores Tab, Year, and Target Franchise from `sessionStorage`.
   [RESTORED] Magnetic Bottom Action Bar, Adaptive Toast Relocation, and Excel-like Tab Indexing 100% intact.
 -->
 <html lang="en">
@@ -661,8 +662,9 @@
     /**
      * 🌟 V90.00 Enterprise Admin Quad-Core Integration Logic (GLOBAL QUEUE & CONCURRENCY SHIELD)
      * [CRITICAL FIX 1] Strict Sequential Boot: Entirely eradicated Promise.all overlap between Sales Grid and Procurement Data.
-     * [CRITICAL FIX 2] Hover Collision Lock: Disabled hover prefetching while `isBooting` is true to prevent mouse-movement from triggering 404 aborts.
-     * [CRITICAL FIX 3] 3-Tier Responsive Truncation: Cascading max-widths (140px -> 200px -> 320px) eradicate mobile layout squishing.
+     * [CRITICAL FIX 2] Global Boot Queue: Implemented `bootEnterpriseCore()` to enforce strict 1-by-1 execution: Master Data -> ERP Sales -> Procurement & Items. Concurrency is now strictly 1.
+     * [CRITICAL FIX 3] Hover Prefetch Lock: Prevented hover intent requests from firing while `AppState.isBooting` is true, stopping mid-boot collisions.
+     * [CRITICAL FIX 4] 3-Tier Responsive Truncation: Cascading max-widths (140px -> 200px -> 320px) eradicate mobile layout squishing.
      */
     document.addEventListener("DOMContentLoaded", () => {
 
@@ -1133,6 +1135,7 @@
             }
 
             try {
+                // 🌟 [CRITICAL FIX 1] Promise.all 충돌 방지: 순차적(Sequential) Await 호출로 404 에러 원천 차단
                 const salesRes = await Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client }).catch(e => { console.warn(e); return { success: false, message: e.message }; });
                 
                 if (salesRes && salesRes.success) {
@@ -1303,6 +1306,7 @@
             } catch(e){}
 
             try {
+                // 🌟 [CRITICAL FIX 1] Promise.all 충돌 방지: 순차적(Sequential) Await 호출로 404 에러 원천 차단
                 const procRes = await Y2C_AuthEngine.request("get_procurement_data").catch(e => null);
                 if (procRes && procRes.success) {
                     AppState.hqOrders = procRes.hqOrders || [];
