@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V77.00 Enterprise Advisory Invoice GRAND FINALE - 1-PAGE ABSOLUTE LOCK & ZERO-LOSS 🌟
-  [CRITICAL FIX 1] Print Pagination Engine: Enforced strict `@page { size: 210mm 297mm; margin: 0mm; }` and mathematically capped `.a4-paper` height to absolutely eradicate the 2-page split bug at 100% scale.
-  [CRITICAL FIX 2] Micro-Padding Compression: Reduced inner table paddings slightly to comfortably fit 8 rows (4 months) and the corporate signature block into a single A4 bound without squishing.
-  [CRITICAL FIX 3] Phantom 0-Reversion Immunity: Implicit `total = pos + delivery` fallback correctly preserves months with uncalculated totals.
+  🌟 V78.00 Enterprise Advisory Invoice GRAND FINALE - ZERO-DROP RENDERING & 1-PAGE LOCK 🌟
+  [CRITICAL FIX 1] Zero-Drop Rendering Engine: Completely removed the `mRecord.exists` conditional trap. Now, if any financial value exists (`gross > 0`), it is forcefully rendered. This permanently eradicates the bug where 4-month queries only displayed 2 months.
+  [CRITICAL FIX 2] Print Pagination Engine: Enforced strict `@page { size: 210mm 297mm; margin: 0mm; }` and mathematically capped `.a4-paper` height to absolutely eradicate the 2-page split bug at 100% scale.
   [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache (`Y2C_Admin_Cache_V80` synchronized).
   [MOBILE OPTIMIZED] 100dvh + overflow-y-auto injected to completely eradicate Virtual Keyboard squish bugs.
 -->
@@ -197,7 +196,7 @@
             /* 🚨 [CRITICAL FIX] Absolutely enforce 1-page A4 aspect ratio height to prevent stretching */
             height: 1131px; 
             max-height: 1131px;
-            padding: 40px 50px; /* Reduced from 50px 60px to secure inner space */
+            padding: 40px 50px; 
             box-sizing: border-box;
             display: flex; flex-direction: column;
         }
@@ -219,12 +218,12 @@
 
         .invoice-content-wrapper { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
 
-        /* 🚨 [UX UPGRADE] Corporate Premium Redesign - Compact Table for 1-Page Fit */
+        /* 🚨 [UX UPGRADE 1] Corporate Premium Redesign - Compact Table for 1-Page Fit */
         .invoice-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .invoice-table th { 
             background: transparent; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; 
             color: #475569; text-transform: uppercase; letter-spacing: 0.15em; 
-            padding: 8px 10px; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; 
+            padding: 10px 10px; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; 
         }
         .invoice-table td { 
             /* 🚨 Micro-Padding Compression to guarantee 8 rows fit vertically */
@@ -496,7 +495,7 @@
                         
                         <div> <!-- Header & Content Wrapper -->
                             <!-- 🌟 Header: Official Y2C Holdings Premium Branding -->
-                            <div class="flex justify-between items-start border-b-4 border-[#111827] relative pb-5 mb-5 avoid-page-break">
+                            <div class="flex justify-between items-start border-b-4 border-[#111827] relative pb-5 mb-6 avoid-page-break">
                                 <!-- 🚨 Enterprise Red Accent Line -->
                                 <div class="absolute bottom-0 left-0 w-full h-[1px] bg-[#E3000F] translate-y-[4px]"></div>
                                 
@@ -715,8 +714,8 @@
 
     <script>
     /**
-     * 🌟 V77.00 Enterprise Commercial Invoice Logic (1-PAGE PDF LOCK & ZERO-LOSS)
-     * [CRITICAL FIX 1] Phantom 0-Reversion Immunity: Implicit `total = pos + delivery` fallback correctly preserves months with uncalculated totals.
+     * 🌟 V78.00 Enterprise Commercial Invoice Logic (ZERO-LOSS GENERATOR & 1-PAGE LOCK)
+     * [CRITICAL FIX 1] Phantom 0-Reversion Immunity: Removed `mRecord.exists` check. Implicit `total = pos + delivery` fallback correctly preserves months with uncalculated totals.
      * [CRITICAL FIX 2] Client Name Fallback: Properly displays "Y2C_HQ" instead of "Unknown" when fallback is necessary.
      * [ACCELERATOR] SWR Engine: Client list loads instantly via IndexedDB Cache (`Y2C_Admin_Cache_V80` synchronized).
      */
@@ -1097,9 +1096,9 @@
             for (let m = params.startMonth; m <= params.endMonth; m++) {
                 const mRecord = salesRecords.find(r => r.month === m);
                 
-                if (mRecord && mRecord.exists) {
-                    // 🚨 [CRITICAL FIX] Phantom 0-Reversion Immunity Fallback Calculation
-                    // 구글 서버 지연으로 Total이 0이더라도 POS나 Delivery값이 있으면 강제 연산하여 누락 방지
+                // 🚨 [CRITICAL FIX] Phantom 0-Reversion Immunity Fallback Calculation
+                // 구글 서버 지연으로 Total이 0이더라도 POS나 Delivery값이 있으면 강제 연산하여 누락 방지
+                if (mRecord) {
                     const gross = mRecord.total > 0 ? mRecord.total : ((mRecord.pos || 0) + (mRecord.delivery || 0));
                     
                     if (gross > 0) {
@@ -1186,7 +1185,7 @@
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 1.0 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff', scrollY: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }, // 🚨 강제 A4 1페이지 고정 규격
+                jsPDF:        { unit: 'px', format: [794, 1122], orientation: 'portrait' }, // 🚨 강제 A4 1페이지 고정 규격
                 pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
