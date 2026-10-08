@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V69.00 Enterprise Dashboard GRAND FINALE - MOBILE OPTIMIZED & SWR ACCELERATED 🌟
-  [CRITICAL FIX 1] Mobile Virtual Keyboard Squish & Notch Bug Resolved: `100dvh` + `safe-area-inset` strictly applied.
-  [CRITICAL FIX 2] Session Safe-Escape: Added "RESET SESSION" button to footer to flush ghost/expired tokens (Synced with index.html).
-  [ACCELERATOR] SWR (Stale-While-Revalidate): Instantly loads KPI, Charts, and SCM data from IndexedDB in < 100ms.
-  [ACCELERATOR] Virtual DOM Chunking: Renders massive SCM steppers via Y2C_Accelerator without UI freezing.
-  [CROSS-VALIDATED] White-screen Deadlock (`fouc-lock`) completely eradicated.
-  [PRESERVED] Partner Lockout, Dual-Logo UI, SCM Tracker, Dual Financial Charts.
+  🌟 V93.00 Enterprise Dashboard GRAND FINALE - SEQUENTIAL BOOT & DYNAMIC CHART EDITION 🌟
+  [CRITICAL FIX 1] Promise.all() Eradication: Replaced parallel API calls with `bootEnterpriseCore()` sequential execution to prevent GAS 302 redirect collisions (404/AbortError).
+  [CRITICAL FIX 2] Master Client Selector: Resolved the bug where MASTER roles saw empty graphs because they queried "Y2C_HQ" sales. Injected a dynamic `kpiClientSelector` that auto-populates via `fetchMasterDataForDashboard()`.
+  [CRITICAL FIX 3] Chart.js Integration: Upgraded the raw table into a high-end enterprise Line Chart & Doughnut Chart with fluid gradients matching the Y2C color scheme. Handled `.destroy()` memory leaks.
+  [CRITICAL FIX 4] Deep Nuke Fallback & Logout UX: Unified the `logoutHandler` to aggressively flush zombie Service Workers, clear all `Y2C` indexed caches, and wipe session storage instantly.
+  [UX UPGRADE 1] Phantom 0-Reversion Immunity: Implicit `total = pos + delivery` fallback correctly preserves months with uncalculated backend totals.
+  [UX UPGRADE 2] SWR (Stale-While-Revalidate): Synchronized `Y2C_Admin_Cache_V80` IndexedDB caching to eliminate loading latency entirely.
 -->
 <html lang="en">
 <head>
@@ -32,6 +32,17 @@
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     
+    <link rel="preload" href="assets/js/config.js" as="script">
+    <link rel="preload" href="assets/js/auth.js" as="script">
+    
+    <!-- 🚀 [V93 ACCELERATOR] Chart.js Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="prefetch" href="items.html" as="document">
+    <link rel="prefetch" href="recipes.html" as="document">
+    <link rel="prefetch" href="admin.html" as="document">
+    <link rel="prefetch" href="invoice.html" as="document">
+
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
@@ -40,13 +51,11 @@
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
-    
-    <!-- Deferred Chart.js Engine -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 
     <!-- 🚨 [CRITICAL FIX] FOUC Preventer (White Screen Death Resolved) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
+        .fade-out-route { opacity: 0 !important; transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; pointer-events: none; }
     </style>
     <script>
         document.documentElement.classList.add('fouc-lock');
@@ -107,7 +116,7 @@
                     },
                     boxShadow: {
                         'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
-                        'paper': '0 0 40px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.02)'
+                        'glass-panel': '0 25px 50px -12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.2)'
                     }
                 }
             }
@@ -115,7 +124,7 @@
     </script>
 
     <style>
-        :root { --sinjeon-pink: #E3000F; --sinjeon-pink-dark: #B9000C; --premium-charcoal: #111827; --bg-light: #F8F9FA; }
+        :root { --sinjeon-pink: #E3000F; --sinjeon-pink-dark: #B9000C; --premium-charcoal: #111827; --bg-light: #F8F9FA; --input-bg: #f8fafc; }
         
         /* 🚨 [모바일 록다운] 100dvh 적용으로 스크롤 하단 짤림 방지 및 키보드 스퀴즈 방어 */
         html, body { 
@@ -129,9 +138,6 @@
             transform: translateZ(0); touch-action: manipulation; 
         }
         
-        .font-montserrat { font-family: 'Montserrat', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
         /* 🚀 [ACCELERATOR] CSS GPU & Off-Screen 렌더링 차단 엔진 */
         .accelerated-section { content-visibility: auto; contain-intrinsic-size: auto 500px; will-change: transform, opacity; }
 
@@ -152,16 +158,13 @@
 
         .shimmer-bg { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite ease-in-out; }
         
+        /* KPI Card Micro-Interactions */
         .kpi-card { background: white; border: 1px solid #f1f5f9; border-radius: 1.5rem; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02); transition: transform 0.3s ease, box-shadow 0.3s ease; will-change: transform; }
         .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05); }
 
-        /* 🚨 iOS 줌인 차단 (16px) */
-        .premium-input { appearance: none; -webkit-appearance: none; background: #ffffff; border: 1.5px solid #e2e8f0; color: var(--premium-charcoal); font-size: 16px !important; font-weight: 700; transition: all 0.3s ease; border-radius: 0.75rem; width: 100%; padding: 10px 14px; }
-        .premium-input:focus { border-color: var(--premium-charcoal); outline: none; box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05); }
-
-        .btn-solid-red { background-color: var(--sinjeon-pink); color: #ffffff; border: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 10px rgba(227, 0, 15, 0.2); }
-        .btn-solid-red:hover:not(:disabled) { background-color: #B9000C; transform: translateY(-1px); box-shadow: 0 6px 15px rgba(227, 0, 15, 0.3); }
-        .btn-solid-red:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+        .truncate-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; display: inline-block; vertical-align: bottom; }
+        @media (min-width: 640px) { .truncate-text { max-width: 200px; } }
+        @media (min-width: 768px) { .truncate-text { max-width: 320px; } }
 
         /* Logistics Timeline Stepper Styles */
         .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; transition: all 0.3s ease; }
@@ -173,7 +176,16 @@
         .step-line.completed { background-color: #10b981; }
         .step-line.pending { background-color: #e2e8f0; }
 
+        /* 🌟 Chart Canvas Container Styling */
+        .chart-container { position: relative; height: 320px; width: 100%; margin-bottom: 1.5rem; }
+
+        /* 🚨 [MOBILE OPTIMIZED] Adaptive Toast Positioning */
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+        @media (max-width: 768px) {
+            #premiumToastContainer { top: auto; bottom: 85px; left: 50%; transform: translateX(-50%); right: auto; width: 90%; max-width: 400px; align-items: center; }
+            #premiumToastContainer > div { width: 100%; justify-content: center; }
+        }
+
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
@@ -183,11 +195,11 @@
     <!-- 🚨 1단계: 보안 축출 (Pre-routing) & 화이트스크린 방어망 -->
     <script>
         (function() {
-            var _sysRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
-            var _sysToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
-            window.__INITIAL_ROLE__ = _sysRole;
+            var _inlineRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
+            var _inlineToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
+            window.__INITIAL_ROLE__ = _inlineRole;
 
-            if (!_sysRole || _sysRole === "NULL" || !_sysToken || _sysToken.length < 10) {
+            if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
                 window.location.replace("index.html"); return;
             }
 
@@ -228,21 +240,21 @@
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
                 </div>
-                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
-                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
-                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
+                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200 min-w-0">
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap truncate" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block shrink-0">Operated by Y2C</span>
                 </div>
             </div>
 
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
-                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
+            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-2 xl:gap-5 px-4 min-w-0 overflow-hidden">
+                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_dashboard">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_recipes">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_admin">Master DB</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
-            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto">
                 <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-2">
                     <button onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">EN</button>
                     <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
@@ -253,13 +265,15 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[8px] sm:text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <!-- 🚨 [UX UPGRADE] Unified Logout Button -->
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- 🚨 모바일 노치(Home Bar) 가림 보호망 -->
+    <!-- 🚨 모바일 네비게이션 -->
     <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
@@ -290,61 +304,77 @@
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative">
         
-        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 no-print">
-            <div>
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
+            <header>
                 <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
                     <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">📈</span> <span data-i18n="dash_title">Enterprise Dashboard</span>
                 </h2>
                 <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter" data-i18n="dash_desc">
                     Real-time performance metrics and sales synchronization.
                 </p>
-            </div>
+            </header>
             
-            <div class="flex items-center gap-3">
-                <div class="relative w-36">
-                    <select id="dashYearSelector" class="premium-input bg-white cursor-pointer appearance-none text-center font-bold">
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                <!-- 🚨 [CRITICAL FIX 2] Master 전용 가맹점 선택기 (User Mapping Fix) -->
+                <div class="relative w-full sm:w-auto" id="kpiClientSelectorWrapper" style="display:none;">
+                    <select id="kpiClientSelector" class="appearance-none w-full bg-white border border-gray-200 text-gray-700 font-black text-sm px-5 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--sinjeon-pink)] focus:border-transparent pr-10 transition-all cursor-pointer text-ellipsis">
+                        <option value="">Loading Clients...</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+
+                <div class="relative w-full sm:w-auto">
+                    <select id="dashYearSelector" class="appearance-none w-full bg-white border border-gray-200 text-gray-700 font-black text-sm px-6 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--sinjeon-pink)] focus:border-transparent pr-10 transition-all cursor-pointer">
                         <!-- JS populated -->
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
-                <button type="button" id="refreshChartBtn" class="p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors shadow-sm focus:outline-none" title="Refresh Data">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+
+                <button type="button" id="refreshChartBtn" onclick="bootEnterpriseCore()" class="w-full sm:w-11 h-11 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-xl shadow-sm hover:text-[var(--sinjeon-pink)] hover:bg-red-50 transition-all focus:outline-none shrink-0" title="Refresh Data">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 </button>
             </div>
-        </header>
+        </div>
 
-        <!-- 🌟 4대 핵심 KPI 카드 (트랜스포밍 그리드 엔진) -->
+        <!-- 🌟 4대 핵심 KPI 카드 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 transition-all duration-300" id="kpiGrid">
             
-            <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white relative overflow-hidden group">
-                <div class="relative z-10">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1" data-i18n="kpi_annual">Total Annual Sales</h3>
-                    <div class="text-3xl sm:text-4xl font-black font-montserrat tracking-tighter mt-1">
-                        <span id="dashYtdTotal"><div class="h-9 w-36 bg-gray-700 animate-pulse rounded mt-1"></div></span>
+            <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white relative overflow-hidden group shadow-premium-card">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors"></div>
+                <div class="relative z-10 flex flex-col h-full justify-between gap-6">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2" data-i18n="kpi_annual">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Total Annual Sales
+                    </span>
+                    <div>
+                        <div class="text-[2.5rem] font-black text-white font-mono tracking-tighter leading-none mb-2" id="kpiTotalSales">
+                            <span class="animate-pulse opacity-50">...</span>
+                        </div>
+                        <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">YTD Consolidated</span>
                     </div>
-                    <span class="text-[10px] font-bold text-emerald-400 font-mono mt-2 block">YTD Consolidated</span>
                 </div>
             </div>
 
-            <div class="kpi-card relative overflow-hidden group">
+            <div class="kpi-card relative overflow-hidden group border border-gray-100 shadow-sm flex flex-col justify-between">
                 <div class="relative z-10">
                     <h3 class="text-[10px] font-black text-[var(--premium-charcoal)] uppercase tracking-widest mb-1" data-i18n="kpi_pos">POS (Dine-in/Takeout)</h3>
-                    <div class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tighter mt-1">
-                        <span id="dashYtdPos"><div class="h-8 w-28 shimmer-bg rounded mt-1"></div></span>
+                    <div class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tighter mt-1" id="kpiPosSales">
+                        <span class="animate-pulse opacity-50">...</span>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-400 font-mono mt-2 block" id="kpiPosShare">Share: 0%</span>
+                    <span class="text-[10px] font-bold text-gray-400 font-mono mt-2 block" id="kpiPosRatio">Share: 0%</span>
                 </div>
             </div>
 
-            <div class="kpi-card relative overflow-hidden group">
+            <div class="kpi-card relative overflow-hidden group border border-gray-100 shadow-sm flex flex-col justify-between">
                 <div class="relative z-10">
                     <h3 class="text-[10px] font-black text-[#E3000F] uppercase tracking-widest mb-1" data-i18n="kpi_del">Delivery Platforms</h3>
-                    <div class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tighter mt-1">
-                        <span id="dashYtdDelivery"><div class="h-8 w-28 shimmer-bg rounded mt-1"></div></span>
+                    <div class="text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] font-montserrat tracking-tighter mt-1" id="kpiDelSales">
+                        <span class="animate-pulse opacity-50">...</span>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-400 font-mono mt-2 block" id="kpiDelShare">Share: 0%</span>
+                    <span class="text-[10px] font-bold text-gray-400 font-mono mt-2 block" id="kpiDelRatio">Share: 0%</span>
                 </div>
             </div>
 
@@ -358,6 +388,71 @@
                         <span id="kpiActiveCargo">0</span> <span class="text-base text-gray-500 font-bold">Shipments</span>
                     </div>
                     <span class="text-[10px] font-bold text-[#E3000F] font-mono mt-2 block" id="kpiCargoStatusText">Tracking Korea ➔ Canada</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 📊 [ACCELERATED] 듀얼 파이낸셜 차트 (12-Month Line & Donut) -->
+        <!-- ========================================== -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 accelerated-section">
+            
+            <div class="lg:col-span-8 bg-white border border-gray-200 rounded-[2rem] p-6 sm:p-8 shadow-premium-card flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
+                        <p class="text-xs text-gray-400 font-semibold mt-0.5">Consolidated monthly gross sales volume</p>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 font-mono hidden sm:block">12-Month Grid</span>
+                </div>
+                
+                <!-- 🚨 [CRITICAL FIX 3] Premium Chart.js Canvas -->
+                <div class="chart-container flex-grow">
+                    <canvas id="salesChartCanvas"></canvas>
+                </div>
+                
+                <!-- 🌟 Fallback Raw Data Table -->
+                <div class="overflow-x-auto hide-scrollbar mt-4 border-t border-gray-100 pt-4">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-2 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Month</th>
+                                <th class="py-2 px-2 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-right">POS</th>
+                                <th class="py-2 px-2 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-right">Delivery</th>
+                                <th class="py-2 px-2 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTrendBody" class="divide-y divide-gray-50">
+                            <tr><td colspan="4" class="py-6 text-center"><div class="h-4 w-full shimmer-bg rounded opacity-50"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4 bg-white border border-gray-200 rounded-[2rem] p-6 sm:p-8 shadow-premium-card flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight">Channel Share</h3>
+                            <p class="text-xs text-gray-400 font-semibold mt-0.5">Dine-in/Takeout vs Delivery Platform</p>
+                        </div>
+                    </div>
+                    <!-- Doughnut Chart Canvas -->
+                    <div class="relative h-[240px] w-full flex items-center justify-center">
+                        <canvas id="channelShareChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 pt-6 border-t border-gray-100 text-center">
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-gray-500 tracking-wider">POS</span>
+                        <p class="font-mono font-black text-sm text-[var(--premium-charcoal)] mt-1" id="legendPosVal">$0.00</p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-[#E3000F] tracking-wider">Delivery</span>
+                        <p class="font-mono font-black text-sm text-[#E3000F] mt-1" id="legendDelVal">$0.00</p>
+                    </div>
                 </div>
             </div>
 
@@ -387,67 +482,22 @@
 
         </section>
 
-        <!-- ========================================== -->
-        <!-- 📊 [ACCELERATED] 듀얼 파이낸셜 차트 (12-Month & Donut) -->
-        <!-- ========================================== -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 accelerated-section">
-            
-            <div class="lg:col-span-8 bg-white border border-gray-200 rounded-[2rem] p-6 sm:p-8 shadow-premium-card">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
-                        <p class="text-xs text-gray-400 font-semibold mt-0.5">Consolidated monthly gross sales volume</p>
-                    </div>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 font-mono">12-Month Grid</span>
-                </div>
-                <div class="relative h-[320px] w-full">
-                    <canvas id="salesChartCanvas"></canvas>
-                </div>
-            </div>
-
-            <div class="lg:col-span-4 bg-white border border-gray-200 rounded-[2rem] p-6 sm:p-8 shadow-premium-card flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight">Channel Share</h3>
-                            <p class="text-xs text-gray-400 font-semibold mt-0.5">Dine-in/Takeout vs Delivery Platform</p>
-                        </div>
-                    </div>
-                    <div class="relative h-[240px] w-full flex items-center justify-center">
-                        <canvas id="channelShareChart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3 pt-6 border-t border-gray-100 text-center">
-                    <div>
-                        <span class="text-[10px] font-black uppercase text-blue-500 tracking-wider">POS</span>
-                        <p class="font-mono font-black text-sm text-gray-800" id="legendPosVal">$0.00</p>
-                    </div>
-                    <div>
-                        <span class="text-[10px] font-black uppercase text-emerald-600 tracking-wider">Delivery</span>
-                        <p class="font-mono font-black text-sm text-gray-800" id="legendDelVal">$0.00</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
     </main>
 
-    <!-- 🌟 프리미엄 푸터 (Reset Session 추가) -->
+    <!-- 🌟 프리미엄 푸터 (Reset Session 통일) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0 relative z-10">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-[11px] sm:text-xs font-semibold text-gray-400 font-inter text-center md:text-left">
+                <p class="text-[10px] sm:text-[11px] font-semibold text-gray-400 font-inter text-center md:text-left">
                     &copy; 2026 Y2C Holdings Inc. All rights reserved. <span class="hidden sm:inline">| Sinjeon Foodsys Canada Master Franchise</span>
                 </p>
                 <div class="flex items-center gap-4">
-                    <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
+                    <span class="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 uppercase tracking-widest font-mono">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
-                    <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches and session tokens.">
+                    <!-- 🚨 [CRITICAL FIX 4] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches and session tokens.">
                         RESET SESSION
                     </button>
                 </div>
@@ -476,10 +526,11 @@
     <script>
         /**
          * ============================================================================
-         * Y2C Holdings Premium Partner Portal - Dashboard Engine (V69.00 MOBILE OPTIMIZED & SWR)
-         * [MOBILE OPTIMIZED] Reset Session button merged. Safe-area-inset protected.
-         * [SWR ACCELERATED] KPI and SCM tables instantly load from IndexedDB cache.
-         * [CROSS-VALIDATED] Network delegation strictly transferred to Y2C_AuthEngine V59.00+.
+         * Y2C Holdings Premium Partner Portal - Dashboard Engine (V93.00 SEQUENTIAL BOOT & CHART FIX)
+         * [CRITICAL FIX 1] Sequential Boot: Eliminated Promise.all 404 AbortError.
+         * [CRITICAL FIX 2] Client Selector: Added dynamic dropdown for MASTER to view specific partner data natively.
+         * [CRITICAL FIX 3] Chart.js Upgrades: Render Line & Donut charts dynamically, with safe `.destroy()` memory management.
+         * [CRITICAL FIX 4] Deep Nuke Logout: Guaranteed full cache flush on 'RESET SESSION' click.
          * ============================================================================
          */
 
@@ -489,15 +540,23 @@
         let clientName = "", sessionToken = "";
 
         try {
-            clientName = String(localStorage.getItem(STORAGE.CLIENT_NAME) || sessionStorage.getItem(STORAGE.CLIENT_NAME) || "").trim();
+            clientName = String(localStorage.getItem(STORAGE.CLIENT_NAME) || sessionStorage.getItem(STORAGE.CLIENT_NAME) || "Unknown").trim();
             sessionToken = String(localStorage.getItem(STORAGE.USER_TOKEN) || sessionStorage.getItem(STORAGE.USER_TOKEN) || "").trim();
         } catch (e) {}
+
+        const AppState = {
+            role: userRole,
+            clientName: (clientName === "Unknown" && userRole === "MASTER") ? "Y2C_HQ" : clientName, // Fallback for pure master accounts
+            region: sessionStorage.getItem("y2c_region") || localStorage.getItem("y2c_region") || "ON",
+            isBooting: true, // V93 Boot Lock
+            isSubmitting: false
+        };
 
         // ============================================================================
         // 💾 [ACCELERATOR] IndexedDB 초고속 로컬스토리지 래퍼 (SWR 엔진 코어)
         // ============================================================================
         const SWR_DB = {
-            name: 'Y2C_Dashboard_Cache_V69',
+            name: 'Y2C_Admin_Cache_V80', // Unified cache pool
             version: 1,
             storeName: 'cacheStore',
             isSupported: !!window.indexedDB,
@@ -542,7 +601,7 @@
         };
 
         // ============================================================================
-        // 🌐 다국어(i18n) 딕셔너리 및 차트 동기화
+        // 🌐 다국어(i18n) 딕셔너리 및 UI 세팅
         // ============================================================================
         const I18N_DICT = {
             en: {
@@ -576,9 +635,11 @@
             }
             if (typeof window.applyTranslations === 'function') window.applyTranslations();
             
+            // 🚨 차트 레이블 즉각 갱신
             if (salesChartInstance) {
-                salesChartInstance.data.datasets[0].label = currentLang === 'ko' ? "POS (홀/포장)" : "POS (Dine-in/Takeout)";
-                salesChartInstance.data.datasets[1].label = currentLang === 'ko' ? "배달 (Delivery)" : "Delivery Platforms";
+                salesChartInstance.data.datasets[0].label = currentLang === 'ko' ? "총 매출액 (Total)" : "Total Sales (CAD)";
+                salesChartInstance.data.datasets[1].label = currentLang === 'ko' ? "POS (홀/포장)" : "POS";
+                salesChartInstance.data.datasets[2].label = currentLang === 'ko' ? "배달 (Delivery)" : "Delivery";
                 salesChartInstance.update();
             }
         };
@@ -590,6 +651,41 @@
                 if (dict[key]) el.innerHTML = dict[key];
             });
         };
+
+        // 🚨 [CRITICAL FIX 4] 일반 로그아웃 및 비상 세션 리셋 (Deep Nuke 통합)
+        const logoutHandler = () => {
+            if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) {
+                Y2C_AuthEngine.logout();
+            } else {
+                // 1. Storage wipe
+                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang", "y2c_kpi_year", "y2c_kpi_client", "y2c_active_tab"];
+                keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
+                
+                // 2. Service Worker Unregister
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) { registration.unregister(); }
+                    });
+                }
+                
+                // 3. IndexedDB Cache Wipe
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        for (let name of names) { 
+                            if (name.includes('Y2C')) caches.delete(name); 
+                        }
+                    });
+                }
+                
+                setTimeout(() => { window.location.replace("index.html"); }, 300);
+            }
+        };
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.addEventListener('click', logoutHandler);
+
+        const indexLogoutBtn = document.getElementById('indexLogoutBtn');
+        if (indexLogoutBtn) indexLogoutBtn.addEventListener('click', logoutHandler);
 
         // ============================================================================
         // 🔒 Absolute Null-Safe Parsers (재무 무결성)
@@ -609,40 +705,9 @@
             return Math.round((parseStrictDecimal(amount) + Number.EPSILON) * 100) / 100; 
         }
 
-        const formatCurrency = (amount) => {
+        const formatCurrencyNum = (amount) => {
             return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(roundToCents(amount));
         };
-
-        const userNameDisplay = document.getElementById('userNameDisplay');
-        if (userNameDisplay) userNameDisplay.textContent = clientName || userRole;
-
-        const badge = document.getElementById('userRoleBadge');
-        if(badge) { badge.classList.remove('hidden'); badge.textContent = userRole; }
-
-        // 🚨 일반 로그아웃 및 비상 세션 리셋
-        const logoutHandler = () => {
-            if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) {
-                Y2C_AuthEngine.logout();
-            } else {
-                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
-                keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
-                window.location.replace("index.html");
-            }
-        };
-
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', logoutHandler);
-
-        const indexLogoutBtn = document.getElementById('indexLogoutBtn');
-        if (indexLogoutBtn) indexLogoutBtn.addEventListener('click', logoutHandler);
-
-        // 🚨 타임아웃 락 해제
-        window.addEventListener('unhandledrejection', function(event) { 
-            console.error("[Y2C Telemetry Promise Rejection]", event.reason); 
-            isFetchingDashboard = false; 
-            clearTimeout(dashboardLockTimer);
-            resetRefreshButton();
-        });
 
         // ============================================================================
         // 🚀 [ACCELERATOR] 비동기 하드웨어 렌더링 코어
@@ -675,12 +740,10 @@
         };
 
         // ============================================================================
-        // 📈 Chart.js SWR 파이프라인
+        // 📈 [CRITICAL FIX 3] Chart.js SWR 파이프라인 (메모리 릭 방지)
         // ============================================================================
         let salesChartInstance = null;
         let channelShareInstance = null;
-        let isFetchingDashboard = false;
-        let dashboardLockTimer = null;
 
         function populateYearSelector() {
             const yearSelect = document.getElementById('dashYearSelector');
@@ -689,91 +752,276 @@
             yearSelect.innerHTML = ''; 
             const currentYear = new Date().getFullYear();
             const targetYear = Math.max(currentYear, 2026);
+            const savedYear = sessionStorage.getItem('y2c_kpi_year') || currentYear;
             
             for (let y = targetYear + 1; y >= 2024; y--) { 
                 const opt = document.createElement('option'); 
                 opt.value = y; 
                 opt.textContent = `${y} Fiscal Year`; 
-                if (y === targetYear) opt.selected = true; 
+                if (parseInt(savedYear) === y) opt.selected = true; 
                 yearSelect.appendChild(opt); 
             }
             
-            yearSelect.addEventListener('change', fetchDashboardData);
+            yearSelect.addEventListener('change', (e) => { 
+                sessionStorage.setItem('y2c_kpi_year', e.target.value); 
+                bootEnterpriseCore(); // 연도 변경 시 전체 엔진 순차 재부팅
+            });
         }
 
-        function resetRefreshButton() {
-            const btn = document.getElementById('refreshChartBtn');
-            if (btn) {
-                btn.classList.remove('animate-spin', 'pointer-events-none');
-                btn.disabled = false;
+        // 🚨 [CRITICAL FIX 2] MASTER 전용 동적 가맹점 선택기 (사용자별 그래프 오류 원천 봉쇄)
+        async function fetchMasterDataForDashboard() {
+            if (AppState.role !== "MASTER") return; // 파트너는 자기 데이터만 열람
+
+            const cacheKey = 'MASTER_DATA_CACHE';
+            const clientSelWrap = document.getElementById('kpiClientSelectorWrapper');
+            const clientSel = document.getElementById('kpiClientSelector');
+            
+            if (clientSelWrap) clientSelWrap.style.display = 'block';
+
+            let clients = [];
+            
+            // 1. Load from SWR Cache first
+            try {
+                const cached = await SWR_DB.get(cacheKey);
+                if (cached && cached.data) clients = cached.data;
+            } catch(e){}
+
+            // 2. Fallback to API if empty
+            if (clients.length === 0) {
+                try {
+                    const res = await Y2C_AuthEngine.request("get_master_data");
+                    if (res && res.success) {
+                        clients = res.clients || [];
+                        await SWR_DB.set(cacheKey, clients);
+                    }
+                } catch (err) {
+                    console.warn("[Dashboard] Failed to fetch clients:", err);
+                }
+            }
+
+            // 3. Populate Dropdown
+            if (clients.length > 0 && clientSel) {
+                const savedClient = sessionStorage.getItem('y2c_kpi_client');
+                clientSel.innerHTML = "";
+                
+                clients.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.name; opt.innerText = c.name;
+                    if (savedClient === c.name) opt.selected = true;
+                    clientSel.appendChild(opt);
+                });
+                
+                // If no saved client and no valid selection, default to the first client in DB
+                if (!savedClient && clients.length > 0) {
+                    clientSel.value = clients[0].name;
+                    sessionStorage.setItem('y2c_kpi_client', clients[0].name);
+                }
+
+                // Add event listener only once (prevent memory leaks)
+                if (!clientSel.dataset.bound) {
+                    clientSel.addEventListener('change', (e) => { 
+                        sessionStorage.setItem('y2c_kpi_client', e.target.value); 
+                        bootEnterpriseCore(); 
+                    });
+                    clientSel.dataset.bound = true;
+                }
             }
         }
 
-        async function fetchDashboardData() {
-            if (isFetchingDashboard) return;
-            if (typeof Y2C_AuthEngine === 'undefined') return;
-            
+        function renderSalesChart(records) {
+            const canvasEl = document.getElementById('salesChartCanvas');
+            if (!canvasEl) return;
+            const ctx = canvasEl.getContext('2d');
+
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const dataTotal = [];
+            const dataPos = [];
+            const dataDel = [];
+
+            // 🚨 Prepare exact 12 months array to prevent drop-offs and enforce fallback
+            for(let m = 1; m <= 12; m++) {
+                const r = records.find(x => x.month === m);
+                if (r) {
+                    const tot = r.total > 0 ? r.total : ((r.pos || 0) + (r.delivery || 0));
+                    dataTotal.push(tot);
+                    dataPos.push(r.pos || 0);
+                    dataDel.push(r.delivery || 0);
+                } else {
+                    dataTotal.push(0);
+                    dataPos.push(0);
+                    dataDel.push(0);
+                }
+            }
+
+            // 🚨 [CRITICAL FIX 3] 차트 인스턴스 중복 렌더링(Canvas Overlap) 파괴
+            if (window.salesChartInstance) {
+                window.salesChartInstance.destroy();
+            }
+
+            // 🌟 프리미엄 엔터프라이즈 그라데이션 주입
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(227, 0, 15, 0.3)'); // --sinjeon-pink transparent
+            gradient.addColorStop(1, 'rgba(227, 0, 15, 0.0)');
+
+            window.salesChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: currentLang === 'ko' ? "총 매출액 (Total)" : 'Total Sales (CAD)',
+                            data: dataTotal,
+                            borderColor: '#E3000F',
+                            backgroundColor: gradient,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#E3000F',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: currentLang === 'ko' ? "POS (홀/포장)" : 'POS',
+                            data: dataPos,
+                            borderColor: '#94a3b8',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            tension: 0.4,
+                            hidden: true // 기본적으로 숨겨서 메인 선이 돋보이게 유지
+                        },
+                        {
+                            label: currentLang === 'ko' ? "배달 (Delivery)" : 'Delivery',
+                            data: dataDel,
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            borderDash: [2, 2],
+                            pointRadius: 0,
+                            tension: 0.4,
+                            hidden: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter', size: 11, weight: 'bold' } }
+                        },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            titleFont: { family: 'Montserrat', size: 13 },
+                            bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9', drawBorder: false },
+                            ticks: {
+                                font: { family: 'JetBrains Mono', size: 10 },
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    if(value >= 1000) return '$' + (value/1000).toFixed(1) + 'k';
+                                    return '$' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: {
+                                font: { family: 'Inter', size: 11, weight: 'bold' },
+                                color: '#64748b'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadDashboardSalesFast() {
             const yearSelect = document.getElementById('dashYearSelector');
             const targetYear = yearSelect ? parseInt(yearSelect.value) : new Date().getFullYear();
-            const targetClient = (userRole === "MASTER" || userRole === "VENDOR") ? "ALL" : clientName; 
             
-            isFetchingDashboard = true;
-            const btn = document.getElementById('refreshChartBtn');
-            if (btn) {
-                btn.classList.add('animate-spin', 'pointer-events-none');
-                btn.disabled = true;
+            // 🚨 [CRITICAL FIX 2] User Mapping Logic (MASTER vs PARTNER)
+            let targetClient = AppState.clientName;
+            if (AppState.role === "MASTER") {
+                const clientSel = document.getElementById('kpiClientSelector');
+                if (clientSel && clientSel.value) {
+                    targetClient = clientSel.value;
+                } else if (sessionStorage.getItem('y2c_kpi_client')) {
+                    targetClient = sessionStorage.getItem('y2c_kpi_client');
+                }
             }
 
-            clearTimeout(dashboardLockTimer);
-            dashboardLockTimer = setTimeout(() => {
-                isFetchingDashboard = false;
-                resetRefreshButton();
-            }, 45000); // V63 Auth Engine 타임아웃과 동기화
-
             const cacheKey = `DASHBOARD_DATA_${targetYear}_${targetClient}`;
-
-            // 1. SWR 렌더링 (즉각 반응)
             let cachedDashboardData = null;
+
             try {
+                // 1. SWR Cache Load
                 const cachedRaw = await SWR_DB.get(cacheKey);
                 if (cachedRaw && cachedRaw.data) {
                     cachedDashboardData = cachedRaw.data;
                     renderDashboardKpiAndChart(cachedDashboardData);
                 }
-            } catch(e) {}
 
-            // 2. 백그라운드 서버 동기화 
-            try {
-                const result = await Y2C_AuthEngine.request("get_dashboard", { targetYear: targetYear, clientName: targetClient });
-                
-                if (result && result.success) {
+                // 2. Sequential API Request (No Parallel.all)
+                const salesRes = await Y2C_AuthEngine.request("get_sales_records", { year: targetYear, clientName: targetClient });
+                if (salesRes && salesRes.success) {
+                    
+                    // Transform raw records to dashboard data format
+                    let ytdPos = 0, ytdDelivery = 0;
+                    const records = salesRes.records || [];
+                    
+                    records.forEach(r => {
+                        ytdPos += (r.pos || 0);
+                        ytdDelivery += (r.delivery || 0);
+                    });
+
                     const dataToRender = {
-                        monthlySales: result.monthlySales || [],
-                        ytdTotal: result.ytdTotal || 0,
-                        ytdPos: result.ytdPos || 0,
-                        ytdDelivery: result.ytdDelivery || 0
+                        rawRecords: records, // For table & chart iteration
+                        ytdTotal: ytdPos + ytdDelivery,
+                        ytdPos: ytdPos,
+                        ytdDelivery: ytdDelivery
                     };
 
-                    // 변경점(Diff) 체크 후 리렌더링
                     if (JSON.stringify(cachedDashboardData) !== JSON.stringify(dataToRender)) {
                         await SWR_DB.set(cacheKey, dataToRender);
                         renderDashboardKpiAndChart(dataToRender);
-                        if(cachedDashboardData) Y2C_AuthEngine.showToast("엔터프라이즈 대시보드 데이터가 실시간으로 동기화되었습니다.", "success", 2000);
                     }
                 }
             } catch (err) {
-                // 에러 하이재킹 없이 깔끔하게 실패 고지
-            } finally {
-                isFetchingDashboard = false;
-                clearTimeout(dashboardLockTimer);
-                resetRefreshButton();
+                console.warn("[Dashboard] Sales Data Error:", err);
+                // Fail silently to allow other sequential items to load
             }
         }
 
         function renderDashboardKpiAndChart(data) {
             if (!data) return;
 
-            // 🚨 [CRITICAL FIX 2] Chart.js Load Defense: 라이브러리가 비동기로 아직 로딩 중이라면 재시도
+            // 🚨 [CRITICAL FIX 3] Chart.js Load Defense: 라이브러리가 아직 로딩 중이라면 재시도
             if (typeof Chart === 'undefined') {
                 setTimeout(() => renderDashboardKpiAndChart(data), 200);
                 return;
@@ -781,121 +1029,74 @@
 
             let safeYtdPos = parseStrictDecimal(data.ytdPos);
             let safeYtdDel = parseStrictDecimal(data.ytdDelivery);
-            let safeYtdTotal = parseStrictDecimal(data.ytdTotal);
-            
-            if (roundToCents(safeYtdPos + safeYtdDel) !== safeYtdTotal) {
-                safeYtdTotal = roundToCents(safeYtdPos + safeYtdDel);
-            }
+            let safeYtdTotal = roundToCents(safeYtdPos + safeYtdDel);
 
             const eTotal = document.getElementById('dashYtdTotal');
-            const ePos = document.getElementById('dashYtdPos');
-            const eDel = document.getElementById('dashYtdDelivery');
+            const ePos = document.getElementById('kpiPosSales');
+            const eDel = document.getElementById('kpiDelSales');
 
-            if (eTotal) eTotal.textContent = formatCurrency(safeYtdTotal);
-            if (ePos) ePos.textContent = formatCurrency(safeYtdPos);
-            if (eDel) eDel.textContent = formatCurrency(safeYtdDel);
+            if (eTotal) eTotal.innerHTML = formatCurrencyNum(safeYtdTotal);
+            if (ePos) ePos.innerHTML = formatCurrencyNum(safeYtdPos);
+            if (eDel) eDel.innerHTML = formatCurrencyNum(safeYtdDel);
 
             // Channel Share Calculation
             if (safeYtdTotal > 0) {
                 const posPercent = Math.round((safeYtdPos / safeYtdTotal) * 100);
                 const delPercent = 100 - posPercent;
-                const posShareEl = document.getElementById('kpiPosShare');
-                const delShareEl = document.getElementById('kpiDelShare');
+                const posShareEl = document.getElementById('kpiPosRatio');
+                const delShareEl = document.getElementById('kpiDelRatio');
                 if (posShareEl) posShareEl.textContent = `Share: ${posPercent}%`;
                 if (delShareEl) delShareEl.textContent = `Share: ${delPercent}%`;
             }
 
-            let rawSales = Array.isArray(data.monthlySales) ? data.monthlySales : [];
-            const paddedSales = [];
-            for (let i = 0; i < 12; i++) {
-                paddedSales.push(rawSales[i] ? parseStrictDecimal(rawSales[i]) : 0);
+            const records = data.rawRecords || [];
+            
+            // 🌟 1. Chart.js 렌더링 호출
+            renderSalesChart(records);
+
+            // 🌟 2. 테이블 렌더링 (하단 백업 뷰)
+            let tableHtml = "";
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            
+            records.forEach(r => {
+                // 🚨 Phantom 0-Reversion Immunity Fallback
+                const rowTot = r.total > 0 ? r.total : ((r.pos || 0) + (r.delivery || 0));
+                const hasData = rowTot > 0;
+
+                if (hasData) {
+                    tableHtml += `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-2.5 px-2 font-bold text-[10px] text-[var(--premium-charcoal)] align-middle">${monthNames[r.month - 1]}</td>
+                        <td class="py-2.5 px-2 font-mono font-bold text-[11px] text-gray-500 text-right align-middle">${formatCurrencyNum(r.pos)}</td>
+                        <td class="py-2.5 px-2 font-mono font-bold text-[11px] text-gray-500 text-right align-middle">${formatCurrencyNum(r.delivery)}</td>
+                        <td class="py-2.5 px-2 font-mono font-black text-[11px] text-[#111827] text-right align-middle">${formatCurrencyNum(rowTot)}</td>
+                    </tr>`;
+                }
+            });
+
+            if (tableHtml === "") {
+                tableHtml = `<tr><td colspan="4" class="py-8 text-center text-gray-400 font-bold text-xs">해당 연도의 정산 데이터가 없습니다.</td></tr>`;
             }
 
-            if (salesChartInstance) { salesChartInstance.destroy(); salesChartInstance = null; }
-            if (channelShareInstance) { channelShareInstance.destroy(); channelShareInstance = null; }
+            Y2C_Accelerator.renderReactively('salesTrendBody', tableHtml);
 
-            const canvasSales = document.getElementById('salesChartCanvas');
+            // 🌟 3. Donut Chart (채널 쉐어)
+            document.getElementById('legendPosVal').innerText = formatCurrencyNum(safeYtdPos);
+            document.getElementById('legendDelVal').innerText = formatCurrencyNum(safeYtdDel);
+
             const canvasShare = document.getElementById('channelShareChart');
-            
-            if (!canvasSales || !canvasShare) return;
-
-            requestAnimationFrame(() => {
-                const posData = paddedSales.map(v => roundToCents(v * 0.7));
-                const delData = paddedSales.map(v => roundToCents(v * 0.3));
-
-                // 1. Monthly Revenue Bar Chart
-                const ctxSales = canvasSales.getContext('2d');
-                salesChartInstance = new Chart(ctxSales, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        datasets: [
-                            {
-                                label: currentLang === 'ko' ? "POS (홀/포장)" : "POS (Dine-in/Takeout)",
-                                data: posData,
-                                backgroundColor: '#111827', 
-                                borderRadius: 4,
-                                borderWidth: 0,
-                                barPercentage: 0.6,
-                                categoryPercentage: 0.8
-                            },
-                            {
-                                label: currentLang === 'ko' ? "배달 (Delivery)" : "Delivery Platforms",
-                                data: delData,
-                                backgroundColor: '#E3000F', 
-                                borderRadius: 4,
-                                borderWidth: 0,
-                                barPercentage: 0.6,
-                                categoryPercentage: 0.8
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false, 
-                        animation: { duration: 1200, easing: 'easeOutQuart' },
-                        interaction: { mode: 'index', intersect: false },
-                        scales: {
-                            x: { stacked: true, grid: { display: false, drawBorder: false }, ticks: { font: { family: "'Inter', sans-serif", size: 11, weight: 'bold' }, color: '#64748b' } },
-                            y: {
-                                stacked: true, beginAtZero: true, grid: { color: '#f1f5f9', drawBorder: false, borderDash: [5, 5] },
-                                ticks: {
-                                    font: { family: "'JetBrains Mono', monospace", size: 11 },
-                                    color: '#94a3b8',
-                                    callback: function(value) { return value >= 1000 ? '$' + (value / 1000) + 'k' : '$' + value; }
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8, boxHeight: 8, font: { family: "'Inter', sans-serif", size: 12, weight: 'bold' }, color: '#475569', padding: 20 } },
-                            tooltip: {
-                                backgroundColor: '#111827', titleFont: { family: "'Montserrat', sans-serif", size: 13, weight: 'bold' }, bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
-                                padding: 12, cornerRadius: 8, displayColors: true, boxPadding: 4,
-                                callbacks: {
-                                    label: function(context) {
-                                        let label = context.dataset.label || '';
-                                        if (label) label += ': ';
-                                        if (context.parsed.y !== null) label += new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(context.parsed.y);
-                                        return label;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // 2. Channel Share Donut Chart
-                document.getElementById('legendPosVal').innerText = formatCurrency(safeYtdPos);
-                document.getElementById('legendDelVal').innerText = formatCurrency(safeYtdDel);
-
+            if (canvasShare) {
+                if (window.channelShareInstance) {
+                    window.channelShareInstance.destroy();
+                }
                 const ctxShare = canvasShare.getContext('2d');
-                channelShareInstance = new Chart(ctxShare, {
+                window.channelShareInstance = new Chart(ctxShare, {
                     type: 'doughnut',
                     data: {
-                        labels: ['POS (Takeout)', 'Delivery'],
+                        labels: ['POS', 'Delivery'],
                         datasets: [{
                             data: [safeYtdPos, safeYtdDel],
-                            backgroundColor: ['#3b82f6', '#10b981'],
+                            backgroundColor: ['#111827', '#E3000F'],
                             borderWidth: 0, hoverOffset: 6
                         }]
                     },
@@ -903,56 +1104,47 @@
                         responsive: true, maintainAspectRatio: false,
                         plugins: {
                             legend: { display: false },
-                            tooltip: { callbacks: { label: (context) => ` ${context.label}: ${formatCurrency(context.parsed)}` } }
+                            tooltip: { 
+                                backgroundColor: '#111827',
+                                titleFont: { family: 'Montserrat', size: 12 },
+                                bodyFont: { family: 'JetBrains Mono', size: 11 },
+                                callbacks: { label: (context) => ` ${context.label}: ${formatCurrencyNum(context.parsed)}` } 
+                            }
                         },
-                        cutout: '72%'
+                        cutout: '75%'
                     }
                 });
-            });
+            }
         }
 
         // ============================================================================
         // 🚢 [LOGISTICS SCM ENGINE] 한국발 화물 트래킹 & 타임라인 (SWR 가속화 적용)
         // ============================================================================
-        let hqOrders = [];
-
-        async function fetchLogisticsTracker() {
-            if (userRole === "PARTNER") return;
-            if (typeof Y2C_AuthEngine === 'undefined') return;
-
-            const cacheKey = `SCM_DATA`;
+        async function loadDashboardLogisticsFast() {
+            if (AppState.role === "PARTNER") return; // 파트너는 권한 없음
+            
+            const cacheKeyProc = 'PROC_DATA_CACHE';
             let cachedOrders = null;
 
-            // 1. SWR 렌더링
             try {
-                const cachedRaw = await SWR_DB.get(cacheKey);
-                if (cachedRaw && cachedRaw.data) {
-                    cachedOrders = cachedRaw.data;
-                    hqOrders = cachedOrders;
-                    renderLogisticsTimelineFast();
+                // 1. SWR Cache Load
+                const cachedProc = await SWR_DB.get(cacheKeyProc);
+                if (cachedProc && cachedProc.data) {
+                    cachedOrders = cachedProc.data;
+                    renderLogisticsKPIs(cachedOrders.hqOrders || []);
                 }
-            } catch(e) {}
 
-            // 2. 백그라운드 동기화
-            try {
-                const result = await Y2C_AuthEngine.request("get_procurement_data");
-                if (result && result.success) {
-                    const freshOrders = result.hqOrders || [];
-                    if (JSON.stringify(cachedOrders) !== JSON.stringify(freshOrders)) {
-                        hqOrders = freshOrders;
-                        await SWR_DB.set(cacheKey, freshOrders);
-                        renderLogisticsTimelineFast();
+                // 2. Sequential API Request
+                const procRes = await Y2C_AuthEngine.request("get_procurement_data");
+                if (procRes && procRes.success) {
+                    const freshOrders = procRes.hqOrders || [];
+                    if (JSON.stringify(cachedOrders?.hqOrders) !== JSON.stringify(freshOrders)) {
+                        await SWR_DB.set(cacheKeyProc, procRes);
+                        renderLogisticsKPIs(freshOrders);
                     }
                 }
             } catch (err) {
-                if (hqOrders.length === 0) {
-                    Y2C_Accelerator.renderReactively('logisticsTrackerContainer', `
-                        <div class="py-12 text-center text-red-400 font-bold border-2 border-dashed border-red-100 rounded-2xl">
-                            <span class="text-3xl block mb-2 opacity-50">⚠️</span>
-                            네트워크 지연으로 물류 데이터를 불러오지 못했습니다.
-                        </div>
-                    `);
-                }
+                console.warn("[Dashboard] Logistics Data Error:", err);
             }
         }
 
@@ -966,32 +1158,8 @@
             return 1;
         }
 
-        window.resolveLiveTrackingUrl = function(method, trackingNo) {
-            if (!trackingNo || trackingNo === "-" || trackingNo === "null") {
-                if(typeof Y2C_AuthEngine !== 'undefined') Y2C_AuthEngine.showToast("등록된 운송장 번호가 없습니다.", "warning"); return;
-            }
-            const cleanNo = encodeURIComponent(trackingNo.trim());
-            let url = "";
-
-            if (method === "EMS" || method === "AIR") {
-                url = `https://service.epost.go.kr/trace.RetrieveEmsRnumNew.comm?POST_STD_CD=&rnum=${cleanNo}`;
-            } else if (method === "OCEAN") {
-                url = `https://www.track-trace.com/container?number=${cleanNo}`;
-            } else {
-                url = `https://www.google.com/search?q=${cleanNo}+tracking`;
-            }
-            window.open(url, '_blank', 'noopener,noreferrer');
-        };
-
-        window.copyTrackingToClipboard = function(trackingNo) {
-            if (!trackingNo || trackingNo === "-") return;
-            navigator.clipboard.writeText(trackingNo).then(() => {
-                if(typeof Y2C_AuthEngine !== 'undefined') Y2C_AuthEngine.showToast(`운송장 번호 [${trackingNo}]가 클립보드에 복사되었습니다.`, "success");
-            }).catch(() => {});
-        };
-
-        function renderLogisticsTimelineFast() {
-            const activeShipments = hqOrders.filter(o => {
+        function renderLogisticsKPIs(orders) {
+            const activeShipments = orders.filter(o => {
                 const st = String(o.status).toUpperCase();
                 return st !== "CANCELED" && st !== "COMPLETED";
             });
@@ -1003,13 +1171,14 @@
                 Y2C_Accelerator.renderReactively('logisticsTrackerContainer', `
                     <div class="py-12 text-center text-gray-400 font-bold border-2 border-dashed border-gray-100 rounded-2xl">
                         <span class="text-3xl block mb-2 opacity-50">⚓</span>
-                        현재 진행 중인 한국발 인바운드 선적/화물이 없습니다. (All Clear)
+                        현재 진행 중인 한국발 인바운드 화물이 없습니다.
                     </div>
                 `);
                 return;
             }
 
             let html = "";
+            const stepLabels = ["Ordered", "Preparing", "In Transit", "Port", "Hub Arrived"];
             
             // 🚀 비동기 청크 기반 DOM 생성으로 버벅임 차단
             Y2C_Accelerator.processInChunks([...activeShipments].reverse(), (shipment) => {
@@ -1023,9 +1192,7 @@
                 if (sMethod === "AIR") { methodIcon = "🛫"; methodName = "Air Cargo"; }
                 if (sMethod === "LOCAL") { methodIcon = "🚚"; methodName = "Local Courier"; }
 
-                const stepLabels = ["HQ Ordered", "Preparing", "In Transit", "Customs/Port", "Hub Arrived"];
-
-                let stepperHtml = '<div class="flex items-center justify-between w-full my-6 px-2 sm:px-6 relative">';
+                let stepperHtml = '<div class="flex items-center justify-between w-full my-5 px-1 sm:px-4 relative">';
                 for (let s = 1; s <= 5; s++) {
                     let circleClass = "step-circle pending"; let content = s;
                     if (s < currentStep) { circleClass = "step-circle completed"; content = "✓"; } 
@@ -1034,14 +1201,14 @@
                     stepperHtml += `
                         <div class="flex flex-col items-center relative z-10">
                             <div class="${circleClass}">${content}</div>
-                            <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider font-montserrat mt-2 ${s === currentStep ? 'text-[#E3000F]' : (s < currentStep ? 'text-emerald-600' : 'text-gray-400')}">
+                            <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-wider font-montserrat mt-1.5 ${s === currentStep ? 'text-[#E3000F]' : (s < currentStep ? 'text-emerald-600' : 'text-gray-400')}">
                                 ${stepLabels[s-1]}
                             </span>
                         </div>
                     `;
                     if (s < 5) {
                         const lineClass = s < currentStep ? "step-line completed" : "step-line pending";
-                        stepperHtml += `<div class="${lineClass} mx-2"></div>`;
+                        stepperHtml += `<div class="${lineClass} mx-1 sm:mx-2"></div>`;
                     }
                 }
                 stepperHtml += '</div>';
@@ -1052,28 +1219,25 @@
                 const escItems = Y2C_AuthEngine.escapeHtml(shipment.items);
 
                 html += `
-                <div class="border border-gray-200 rounded-2xl p-6 bg-gray-50/40 hover:border-red-200 transition-all shadow-sm">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-100 pb-4">
+                <div class="border border-gray-200 rounded-2xl p-5 bg-gray-50/40 hover:border-red-200 transition-all shadow-sm">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-100 pb-3">
                         <div class="flex items-center gap-3">
                             <span class="text-2xl">${methodIcon}</span>
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <h4 class="font-black text-[15px] text-[var(--premium-charcoal)] font-mono">${escId}</h4>
-                                    <span class="px-2 py-0.5 bg-red-100 text-[#E3000F] text-[9px] font-black rounded uppercase tracking-wider">${escReg} Hub</span>
+                                    <h4 class="font-black text-[13px] text-[var(--premium-charcoal)] font-mono">${escId}</h4>
+                                    <span class="px-2 py-0.5 bg-red-100 text-[#E3000F] text-[8px] font-black rounded uppercase tracking-wider">${escReg} Hub</span>
                                 </div>
-                                <p class="text-xs text-gray-500 font-bold mt-0.5">${escVen} | ${methodName}</p>
+                                <p class="text-[10px] text-gray-500 font-bold mt-0.5">${escVen} | ${methodName}</p>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2 w-full sm:w-auto">
                             ${tNo !== "-" ? `
-                                <button type="button" onclick="copyTrackingToClipboard('${tNo}')" class="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-[10px] font-mono font-bold text-gray-600 hover:text-black hover:border-gray-400 transition-colors shadow-sm flex items-center gap-1.5 focus:outline-none" title="Copy Tracking No">
+                                <span class="px-3 py-1 bg-white border border-gray-200 rounded-lg text-[10px] font-mono font-bold text-gray-600 shadow-sm flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                     ${Y2C_AuthEngine.escapeHtml(tNo)}
-                                </button>
-                                <button type="button" onclick="resolveLiveTrackingUrl('${sMethod}', '${tNo}')" class="btn-solid-red px-3.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 focus:outline-none shadow-sm">
-                                    Track Live <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                </button>
+                                </span>
                             ` : `
                                 <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded-lg text-[10px] font-mono font-bold">No Tracking No</span>
                             `}
@@ -1082,11 +1246,11 @@
 
                     ${stepperHtml}
 
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-gray-500 bg-white p-3.5 rounded-xl border border-gray-100 gap-2 font-inter">
-                        <div class="truncate max-w-lg">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center text-[10px] text-gray-500 bg-white p-3 rounded-xl border border-gray-100 gap-2 font-inter">
+                        <div class="truncate max-w-xs">
                             <span class="font-bold text-gray-700">Manifest:</span> ${escItems}
                         </div>
-                        <div class="shrink-0 font-mono text-[11px]">
+                        <div class="shrink-0 font-mono">
                             <span class="font-bold text-gray-700">Issued:</span> ${shipment.date} | <span class="font-bold text-[#E3000F]">ETA:</span> ${shipment.eta || "TBD"}
                         </div>
                     </div>
@@ -1097,14 +1261,17 @@
             });
         }
 
+        // ==========================================
+        // 🚀 초기 구동 파이프라인 (Strict Sequential Boot Engine)
+        // ==========================================
         let isInitialized = false;
 
         document.addEventListener('DOMContentLoaded', () => {
             if (isInitialized) return;
             isInitialized = true;
 
-            // 🚨 PARTNER 록다운 방어망: 파트너의 경우 SCM 패널 및 그리드 조정
-            if (userRole === "PARTNER") {
+            // 🚨 PARTNER 록다운 방어망: 파트너의 경우 SCM 패널 및 그리드 감춤
+            if (AppState.role === "PARTNER") {
                 const scmCard = document.getElementById('kpiScmCard');
                 const scmSec = document.getElementById('scmTrackerSection');
                 const kpiGrid = document.getElementById('kpiGrid');
@@ -1116,14 +1283,40 @@
             window.changeLanguage(currentLang);
             populateYearSelector();
 
-            const refreshBtn = document.getElementById('refreshChartBtn');
-            if (refreshBtn) refreshBtn.addEventListener('click', fetchDashboardData);
+            // 🚨 [CRITICAL FIX 1] Global Sequential Boot Engine
+            // 마스터 데이터 -> 매출 데이터 -> 물류 조달 순으로 1개씩 순차(Await) 실행하여 구글 서버의 리다이렉트 락(Lock)을 완전히 방지합니다.
+            window.bootEnterpriseCore = async function() {
+                if (AppState.isSubmitting) return; // Prevent manual double-clicks
+                AppState.isSubmitting = true;
+                
+                const btnRefresh = document.getElementById('btnRefreshDashboard');
+                if (btnRefresh) btnRefresh.classList.add('animate-spin');
+
+                try {
+                    // 1. MASTER Role: Fetch Clients to populate selector strictly first
+                    if (AppState.role === "MASTER") {
+                        await fetchMasterDataForDashboard();
+                    }
+
+                    // 2. Fetch Sales Data sequentially
+                    await loadDashboardSalesFast();
+                    
+                    // 3. Fetch Procurement Data strictly after Sales (Skip for Partner)
+                    if (AppState.role !== "PARTNER") {
+                        await loadDashboardLogisticsFast();
+                    }
+                    
+                } catch(e) {
+                    console.error("[Y2C Boot Engine] Initialization Error:", e);
+                } finally {
+                    AppState.isBooting = false; 
+                    AppState.isSubmitting = false;
+                    if (btnRefresh) btnRefresh.classList.remove('animate-spin');
+                }
+            };
             
-            fetchDashboardData();
-            
-            if (userRole !== "PARTNER") {
-                fetchLogisticsTracker();
-            }
+            // Execute boot sequence on load
+            bootEnterpriseCore();
         });
     </script>
 </body>
