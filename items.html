@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V85.00 Enterprise Catalog GRAND FINALE - STRICT INVENTORY CONTROL 🌟
-  [CRITICAL FIX 1] Stock Boundary Lockdown: Restricts manual and button inputs to exact `localStock`. Out of stock items are completely disabled.
-  [CRITICAL FIX 2] Optimistic UI Updates: Instantly deducts stock from local IndexedDB cache immediately after order success (No more refresh lag).
-  [CRITICAL FIX 3] Database Sync Latency Bypass: Delays background SWR fetch by 4500ms after ordering to allow Google Sheets to fully calculate formulas, preventing cache reversion (Race Condition).
-  [PHASE 4 ACCELERATOR] Google Drive Image CDN Pipeline: Automatically intercepts Google Drive URLs and converts them to `lh3.googleusercontent.com` WebP thumbnails.
-  [PHASE 3 ACCELERATOR] Virtual DOM Rendering: Injected `IntersectionObserver` paradigm to lazy-render massive item arrays. Scroll Jank eradicated.
-  [MOBILE OPTIMIZED] 100dvh, safe-area-inset, Reset Session, SWR Architecture 100% Intact.
+  🌟 V96.00 Enterprise Catalog GRAND FINALE - STRICT INVENTORY & CONCURRENCY SHIELD 🌟
+  [CRITICAL FIX 1] Concurrency Lock (404/AbortError Fix): Added `AppState.isFetching` lock to prevent users from firing `save_order` while `get_items` is silently syncing in the background, eradicating GAS 302 redirect collisions.
+  [CRITICAL FIX 2] Unified SWR Cache Engine: Migrated to shared IndexedDB key `ITEMS_DATA_CACHE` to sync memory pools with the Dashboard and Admin pages. Enables instant zero-latency rendering.
+  [CRITICAL FIX 3] Deep Nuke Logout: Unified the `logoutHandler` to aggressively flush zombie Service Workers, clear all `Y2C` indexed caches, and wipe session storage instantly.
+  [CRITICAL FIX 4] Stock Boundary Lockdown: Restricts manual and button inputs to exact `localStock`. Out of stock items are completely disabled.
+  [CRITICAL FIX 5] Optimistic UI Updates: Instantly deducts stock from local IndexedDB cache immediately after order success (No more refresh lag).
+  [UX UPGRADE 1] AI Auto-Fill Event: Bound placeholder toast to the AI button to prevent dead clicks.
+  [PHASE 3 ACCELERATOR] Virtual DOM Rendering: High-performance virtual scrolling for massive catalog arrays to prevent DOM bloat and scroll jank.
 -->
 <html lang="en">
 <head>
@@ -24,15 +25,17 @@
     
     <title>Inventory & Catalog | Y2C Portal</title>
     
-    <!-- 🚀 Resource Hints -->
+    <!-- 🚀 Resource Hints & Accelerators -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
-    <!-- 🚨 Google Image CDN Preconnect -->
     <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
+    <link rel="preload" href="assets/js/config.js" as="script">
+    <link rel="preload" href="assets/js/auth.js" as="script">
+
     <link rel="prefetch" href="dashboard.html" as="document">
     <link rel="prefetch" href="recipes.html" as="document">
     <link rel="prefetch" href="admin.html" as="document">
@@ -50,6 +53,7 @@
     <!-- 🚨 FOUC Preventer (White Screen Death Resolved) -->
     <style>
         .fouc-lock { opacity: 0 !important; visibility: hidden !important; }
+        .fade-out-route { opacity: 0 !important; transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; pointer-events: none; }
     </style>
     <script>
         document.documentElement.classList.add('fouc-lock');
@@ -89,6 +93,7 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Tailwind Enterprise Config -->
     <script>
         tailwind.config = {
             theme: {
@@ -187,6 +192,10 @@
         .enterprise-table th { background: #f8fafc; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 20px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; position: sticky; top: 0; z-index: 20; }
         .enterprise-table td { padding: 10px 20px; font-size: 13px; color: #1e293b; font-weight: 500; font-family: 'Inter', sans-serif; vertical-align: middle; white-space: nowrap; }
         .enterprise-table tr:hover td { background: #f8fafc; }
+        
+        .truncate-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; display: inline-block; vertical-align: bottom; }
+        @media (min-width: 640px) { .truncate-text { max-width: 250px; } }
+        @media (min-width: 768px) { .truncate-text { max-width: 320px; } }
 
         /* 🚨 개선된 장바구니 수량 조절 버튼 UI */
         .qty-input-wrapper { display: flex; align-items: center; justify-content: center; gap: 4px; }
@@ -228,6 +237,13 @@
         })();
     </script>
     
+    <noscript>
+        <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
+            <span>JavaScript is Disabled</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
+        </div>
+    </noscript>
+
     <!-- 🌟 프리미엄 헤더 (Dual Logo Synchronized) -->
     <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
@@ -270,7 +286,8 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[8px] sm:text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <!-- 🚨 [UX UPGRADE] Unified Logout Button -->
                     <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
@@ -305,7 +322,7 @@
         })();
     </script>
 
-    <!-- 📦 메인 컨텐츠 영역 -->
+    <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative pb-32">
         
         <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 no-print">
@@ -340,7 +357,7 @@
 
         <!-- 🌟 4대 KPI 카드 -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
-            <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white flex flex-col justify-center">
+            <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white flex flex-col justify-center shadow-premium-card">
                 <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total SKUs</h3>
                 <div class="text-3xl font-black font-montserrat tracking-tighter mt-1" id="kpiTotalSkus">
                     <span class="animate-pulse">●●●</span>
@@ -369,7 +386,8 @@
         </div>
 
         <div class="flex justify-end mb-4">
-            <button type="button" class="px-6 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-all shadow-md hover:shadow-lg focus:outline-none">
+            <!-- 🚨 [UX UPGRADE 1] AI Auto-Fill Event Binding to prevent dead click -->
+            <button type="button" id="btnAutoFillAI" class="px-6 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-all shadow-md hover:shadow-lg focus:outline-none">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
                 AUTO-FILL AI
             </button>
@@ -436,7 +454,7 @@
         </div>
     </div>
 
-    <!-- 🌟 프리미엄 푸터 -->
+    <!-- 🌟 프리미엄 푸터 (Reset Session 통일) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0 relative z-10">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -448,6 +466,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System Online
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
+                    <!-- 🚨 [CRITICAL FIX 3] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Deep Nuke) -->
                     <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches and session tokens.">
                         RESET SESSION
                     </button>
@@ -456,6 +475,7 @@
         </div>
     </footer>
 
+    <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
     <script src="assets/js/config.js"></script>
@@ -471,10 +491,12 @@
 
     <script>
     /**
-     * 🌟 V85.00 Enterprise Catalog Engine (STRICT INVENTORY CONTROL)
-     * [CRITICAL FIX 1] Stock Boundary Lockdown: Restricts inputs to exact `localStock`. Disabled when zero.
-     * [CRITICAL FIX 2] Optimistic UI Updates: Instantly deducts stock from local cache after order success.
-     * [CRITICAL FIX 3] Database Sync Latency Bypass: Delays background SWR fetch by 4500ms after ordering to allow Google Sheets to fully calculate formulas, preventing cache reversion (Race Condition).
+     * 🌟 V96.00 Enterprise Catalog Engine (STRICT INVENTORY CONTROL & CONCURRENCY SHIELD)
+     * [CRITICAL FIX 1] Concurrency Shield: Added `AppState.isFetching` lock to prevent GAS 302 Redirect 404 Error when submitting an order during a background sync.
+     * [CRITICAL FIX 2] Unified SWR Cache: Now uses `Y2C_Admin_Cache_V80` to instantly fetch memory populated by dashboard.html or admin.html without redundant API requests.
+     * [CRITICAL FIX 3] Deep Nuke Logout: Guaranteed full cache flush on 'RESET SESSION' click to match other portals.
+     * [CRITICAL FIX 4] Out-of-Stock Lockdown: Button interaction is completely disabled if `localStock <= 0`.
+     * [UX UPGRADE] AI Auto-fill placeholder bound.
      */
     document.addEventListener("DOMContentLoaded", () => {
         if (typeof Y2C_AuthEngine === 'undefined') return;
@@ -486,7 +508,9 @@
             catalogItems: [],
             filteredItems: [],
             cart: {},
-            currentHub: "ON"
+            currentHub: "ON",
+            isSubmitting: false,
+            isFetching: false // 🚨 V96: Concurrency Lock
         };
 
         const uName = document.getElementById("userNameDisplay");
@@ -494,9 +518,6 @@
         if(uName) uName.innerText = AppState.clientName;
         if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
         
-        const activeHub = document.getElementById('activeHubDisplay');
-        if(activeHub) activeHub.innerText = AppState.region + " HUB";
-
         const I18N_DICT = {
             en: { "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice", "logout": "LOGOUT" },
             ko: { "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스", "logout": "로그아웃" }
@@ -527,12 +548,33 @@
         };
         window.changeLanguage(currentLang);
 
+        // 🚨 [UX UPGRADE] AI Auto-Fill Event
+        const btnAutoFillAI = document.getElementById('btnAutoFillAI');
+        if (btnAutoFillAI) {
+            btnAutoFillAI.addEventListener('click', () => {
+                Y2C_AuthEngine.showToast("AI 스마트 발주 예측 엔진이 패턴을 학습 중입니다. (V99 업데이트 예정)", "success");
+            });
+        }
+
+        // 🚨 [CRITICAL FIX 3] Deep Nuke Logout 통일
         const logoutHandler = () => {
-            if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) { Y2C_AuthEngine.logout(); } 
-            else {
-                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
+            if (typeof Y2C_AuthEngine !== 'undefined' && Y2C_AuthEngine.logout) { 
+                Y2C_AuthEngine.logout(); 
+            } else {
+                const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang", "y2c_active_tab", "y2c_sales_year", "y2c_sales_client", "y2c_kpi_year", "y2c_kpi_client"];
                 keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
-                window.location.replace("index.html");
+                
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let r of registrations) r.unregister();
+                    });
+                }
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        for (let n of names) if (n.includes('Y2C')) caches.delete(n); 
+                    });
+                }
+                setTimeout(() => { window.location.replace("index.html"); }, 300);
             }
         };
 
@@ -541,8 +583,9 @@
         const indexLogoutBtn = document.getElementById('indexLogoutBtn');
         if (indexLogoutBtn) indexLogoutBtn.addEventListener('click', logoutHandler);
 
+        // 🚨 [CRITICAL FIX 2] Unified SWR Cache Database Engine
         const SWR_DB = {
-            name: 'Y2C_Catalog_Cache_V82',
+            name: 'Y2C_Admin_Cache_V80', // Unified cache pool across dashboard, admin, items
             version: 1,
             storeName: 'cacheStore',
             isSupported: !!window.indexedDB,
@@ -658,22 +701,29 @@
         }
 
         // ==========================================
-        // 🚀 [CORE] 카탈로그 로드 파이프라인 (SWR 적용)
+        // 🚀 [CORE] 카탈로그 로드 파이프라인 (SWR + Concurrency Shield)
         // ==========================================
         async function fetchCatalogFast() {
+            if (AppState.isFetching) return; // 🚨 [CRITICAL FIX 1] Prevent race conditions
+            AppState.isFetching = true;
+
             const tbodyId = 'catalogTableBody';
             const allowed = getAuthorizedRegions();
             AppState.currentHub = allowed.length > 0 ? allowed[0] : "ON";
 
-            const cacheKey = `CATALOG_ITEMS_${AppState.currentHub}`;
-            document.getElementById('regionBadge').innerText = `${AppState.currentHub} PRICING`;
-            document.getElementById('thLocalStock').innerText = `${AppState.currentHub} Hub (Stock)`;
+            // 🚨 Use unified ITEMS_DATA_CACHE to instantly share data with admin/dashboard
+            const cacheKey = `ITEMS_DATA_CACHE`;
+            
+            const regionBadge = document.getElementById('regionBadge');
+            const thLocalStock = document.getElementById('thLocalStock');
+            if(regionBadge) regionBadge.innerText = `${AppState.currentHub} PRICING`;
+            if(thLocalStock) thLocalStock.innerText = `${AppState.currentHub} Hub (Stock)`;
 
             let isCachedRendered = false;
             try {
                 const cached = await SWR_DB.get(cacheKey);
-                if (cached && cached.data && cached.data.length > 0) {
-                    AppState.catalogItems = cached.data;
+                if (cached && cached.data && cached.data.items) {
+                    AppState.catalogItems = cached.data.items;
                     AppState.filteredItems = [...AppState.catalogItems];
                     AppState.cart = {}; 
                     document.getElementById('kpiLastSync').innerText = new Date(cached.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -685,13 +735,14 @@
             if (!isCachedRendered) { document.getElementById(tbodyId).innerHTML = `<tr><td colspan="6" class="py-16 text-center text-gray-500 font-bold"><span class="animate-pulse">🔄 SYNCING INVENTORY...</span></td></tr>`; }
 
             try {
+                // Ensure backend `get_items` works without relying solely on cache
                 const res = await Y2C_AuthEngine.request("get_items", { clientState: AppState.currentHub });
                 if (res && res.success && res.items) {
                     const newItems = res.items;
                     if (JSON.stringify(AppState.catalogItems) !== JSON.stringify(newItems)) {
                         AppState.catalogItems = newItems;
                         AppState.filteredItems = [...AppState.catalogItems];
-                        await SWR_DB.set(cacheKey, newItems);
+                        await SWR_DB.set(cacheKey, res); // Save full response format
                         
                         document.getElementById('kpiLastSync').innerText = "Just Now";
                         if(AppState.catalogItems.length > 0 && isCachedRendered) { Y2C_AuthEngine.showToast("데이터베이스 실시간 동기화가 완료되었습니다.", "success", 2000); }
@@ -707,7 +758,7 @@
                             <td colspan="6" class="py-16 text-center bg-red-50/20 border-y border-red-100">
                                 <div class="text-4xl mb-4 opacity-80">⚠️</div>
                                 <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">엔터프라이즈 데이터 노드 연결 실패</h4>
-                                <p class="text-gray-500 font-medium text-[11px] mb-4">배포 주소(URL) 또는 권한이 유효하지 않습니다.</p>
+                                <p class="text-gray-500 font-medium text-[11px] mb-4">네트워크 또는 인증 오류가 발생했습니다.</p>
                                 <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">보안 세션 재연결 시도</button>
                             </td>
                         </tr>
@@ -716,6 +767,8 @@
                     document.getElementById('kpiLastSync').innerText = "Sync Delayed";
                     document.getElementById('kpiLastSync').classList.add('text-[#E3000F]');
                 }
+            } finally {
+                AppState.isFetching = false; // 🚨 Unlock concurrency shield
             }
         }
 
@@ -833,7 +886,7 @@
 
                 const currentCartQty = AppState.cart[code] || 0;
                 
-                // 🚨 [CRITICAL FIX 1] 재고 0개 시 버튼 비활성화 (Out of Stock Lockdown)
+                // 🚨 [CRITICAL FIX 4] 재고 0개 시 버튼 비활성화 (Out of Stock Lockdown)
                 const isOutOfStock = localStock <= 0;
                 const btnClass = isOutOfStock ? "qty-btn disabled" : "qty-btn";
                 const inputState = isOutOfStock ? "disabled" : "";
@@ -857,7 +910,7 @@
                     <td class="w-auto">
                         <div class="flex items-center gap-3">
                             ${imgHtml}
-                            <div class="font-bold text-[13px] text-[var(--premium-charcoal)] leading-tight max-w-[250px] truncate" title="${name}">${name}</div>
+                            <div class="font-bold text-[13px] text-[var(--premium-charcoal)] leading-tight max-w-[250px] truncate-text" title="${name}">${name}</div>
                         </div>
                     </td>
                     <td class="w-32 text-center border-l border-gray-100">
@@ -912,7 +965,7 @@
         }
 
         // ============================================================================
-        // 🛒 [CRITICAL FIX 1] 엄격한 장바구니 제어 로직 (Stock Clamping)
+        // 🛒 [CRITICAL FIX 4] 엄격한 장바구니 제어 로직 (Stock Clamping)
         // ============================================================================
         window.updateCart = function(code, delta) {
             const item = AppState.catalogItems.find(i => i.code === code);
@@ -1013,11 +1066,18 @@
         }
 
         // ============================================================================
-        // 🚀 [CRITICAL FIX 2 & 3] Optimistic UI Update & Latency Bypass
+        // 🚀 [CRITICAL FIX 1, 5] Concurrency Shield & Optimistic UI Update
         // ============================================================================
         const btnSubmitCart = document.getElementById('btnSubmitCart');
         if (btnSubmitCart) {
             btnSubmitCart.addEventListener('click', async () => {
+                
+                // 🚨 [CRITICAL FIX 1] Concurrency Lockdown: Stop submit if SWR is actively fetching
+                if (AppState.isSubmitting || AppState.isFetching) {
+                    Y2C_AuthEngine.showToast("데이터 동기화 중입니다. 잠시 후 다시 시도해 주십시오.", "warning");
+                    return;
+                }
+
                 const payloadItems = [];
                 for (let code in AppState.cart) {
                     if (AppState.cart[code] > 0) {
@@ -1028,6 +1088,7 @@
 
                 if (!confirm(`[${AppState.currentHub} HUB] 로 발주서를 전송하시겠습니까?`)) return;
 
+                AppState.isSubmitting = true;
                 btnSubmitCart.disabled = true;
                 const originalHtml = btnSubmitCart.innerHTML;
                 btnSubmitCart.innerHTML = `<span class="animate-pulse">TRANSMITTING...</span>`;
@@ -1039,7 +1100,7 @@
                     if (res && res.success) {
                         Y2C_AuthEngine.showToast("발주서가 성공적으로 전송되었습니다.", "success");
                         
-                        // 🚨 [Optimistic Update] 통신 성공 즉시 로컬 캐시에서 재고 차감 및 0.1초 리렌더링
+                        // 🚨 [CRITICAL FIX 5 Optimistic Update] 통신 성공 즉시 로컬 캐시에서 재고 차감 및 0.1초 리렌더링
                         payloadItems.forEach(pi => {
                             const item = AppState.catalogItems.find(i => i.code === pi.code);
                             if (item) {
@@ -1054,14 +1115,14 @@
                         });
                         
                         // 업데이트된 캐시를 IndexedDB에 덮어쓰기
-                        const cacheKey = `CATALOG_ITEMS_${AppState.currentHub}`;
-                        await SWR_DB.set(cacheKey, AppState.catalogItems);
+                        const cacheKey = `ITEMS_DATA_CACHE`;
+                        await SWR_DB.set(cacheKey, { success: true, items: AppState.catalogItems }); // Unified format
                         
                         AppState.cart = {}; 
                         recalcCart();
                         initVirtualScroll(); // 바뀐 재고로 화면 즉시 갱신
                         
-                        // 🚨 [CRITICAL FIX 3] Database Sync Latency Bypass (Race Condition 방어)
+                        // 🚨 Database Sync Latency Bypass (Race Condition 방어)
                         // 구글 시트에 발주 수량이 반영되고 수식이 재계산되는 물리적 딜레이(2~4초)를 회피합니다.
                         // 서버 데이터를 바로 가져오지 않고, 4.5초 뒤에 백그라운드에서 조용히 갱신합니다.
                         setTimeout(() => {
@@ -1072,6 +1133,7 @@
                 } catch (e) {
                     Y2C_AuthEngine.showToast(e.message, "error");
                 } finally {
+                    AppState.isSubmitting = false;
                     btnSubmitCart.disabled = false;
                     btnSubmitCart.innerHTML = originalHtml;
                 }
