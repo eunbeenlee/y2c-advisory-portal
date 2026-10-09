@@ -1,12 +1,12 @@
 /**
- * Y2C release-scoped offline shell V88_17.
+ * Y2C release-scoped offline shell V88_18.
  * Compiled static assets use cache-first; API data and durable writes stay with AuthEngine.
  * Cache cleanup is restricted to this application path. IndexedDB queues are retained.
  */
 
 "use strict";
 
-const CACHE_VERSION = 'V88_17';
+const CACHE_VERSION = 'V88_18';
 const SCOPE_URL = new URL(self.registration.scope);
 const CACHE_FAMILY = `Y2C_ENTERPRISE_SCOPE_${encodeURIComponent(SCOPE_URL.pathname)}_`;
 const STATIC_CACHE = `${CACHE_FAMILY}STATIC_${CACHE_VERSION}`;
@@ -28,6 +28,7 @@ const CORE_ASSETS = [
     '/assets/js/mutation-ui.js',
     '/assets/js/excel-model.js',
     '/assets/js/excel-worker.js',
+    '/assets/js/order-history.js',
     '/assets/js/mobile.js',
     '/assets/js/invoice-math.js',
     '/assets/js/document-io.js',

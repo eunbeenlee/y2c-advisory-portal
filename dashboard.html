@@ -460,7 +460,25 @@
 
         </section>
 
-    </main>
+    
+<section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
+ <h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2>
+ <p style="color:#64748b">가맹점은 본인 매장의 발주만 조회할 수 있습니다. 관리자에게는 전체 발주가 표시됩니다.</p>
+ <button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button>
+ <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
+ <div id="orderHistoryList"></div>
+ <button type="button" id="orderHistoryPrev" disabled>Previous / 이전</button>
+ <button type="button" id="orderHistoryNext" disabled>Next / 다음</button>
+</section>
+<style>
+#orderHistorySection button{padding:10px 16px;margin:8px 8px 8px 0;border:1px solid #cbd5e1;border-radius:10px;background:#fff;min-height:44px;cursor:pointer}
+#orderHistorySection button:disabled{opacity:.45;cursor:default}
+.order-history-card{margin:12px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;overflow-wrap:anywhere}
+.order-history-card summary{cursor:pointer;font-weight:700;min-height:44px}
+.order-history-card table{width:100%;min-width:480px;text-align:left}.order-history-card th,.order-history-card td{padding:10px;border-bottom:1px solid #eee}
+</style>
+
+</main>
 
     <!-- 🌟 프리미엄 푸터 (Reset Session 통일) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0 relative z-10">
@@ -1279,6 +1297,7 @@
             bootEnterpriseCore();
         });
     </script>
+    <script src="assets/js/order-history.js"></script>
     <script src="assets/js/mobile.js"></script>
 </body>
 </html>
