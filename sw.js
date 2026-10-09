@@ -1,21 +1,16 @@
 /**
- * ============================================================================
- * Y2C Holdings Premium Partner Portal - PWA Hyper-Cache Engine (Service Worker)
- * Version: V88.00 GRAND FINALE (PWA, Offline Optimized & Deep Nuke Ready)
- * ============================================================================
- * [CRITICAL FIX 1] Deep Nuke Integration: Added `FORCE_NUKE` message listener to aggressively wipe all caches when commanded by auth.js.
- * [CRITICAL FIX 2] 302 Redirect Bypass: Online GAS requests completely bypass SW to eliminate 404 CORS login latency.
- * [ACCELERATOR] Cache-First Strategy & LRU Dynamic Caching: Limits dynamic assets to 100 items to prevent RAM bloat.
- * [CLEANUP] Advanced Cache Invalidations: Automatically purges ghost caches from older versions.
- * [RESTORED] IndexedDB Mutation Queue, Background Sync & High-End Offline UI 100% intact.
- * ============================================================================
+ * Y2C release-scoped offline shell V88_17.
+ * Compiled static assets use cache-first; API data and durable writes stay with AuthEngine.
+ * Cache cleanup is restricted to this application path. IndexedDB queues are retained.
  */
 
 "use strict";
 
-const CACHE_VERSION = 'V88_00';
-const STATIC_CACHE = `Y2C_ENTERPRISE_STATIC_${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `Y2C_ENTERPRISE_DYNAMIC_${CACHE_VERSION}`;
+const CACHE_VERSION = 'V88_17';
+const SCOPE_URL = new URL(self.registration.scope);
+const CACHE_FAMILY = `Y2C_ENTERPRISE_SCOPE_${encodeURIComponent(SCOPE_URL.pathname)}_`;
+const STATIC_CACHE = `${CACHE_FAMILY}STATIC_${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `${CACHE_FAMILY}DYNAMIC_${CACHE_VERSION}`;
 const OFFLINE_DB_NAME = 'Y2C_Offline_Sync_DB_V88';
 const QUEUE_STORE = 'mutation_queue';
 
@@ -29,10 +24,27 @@ const CORE_ASSETS = [
     '/recipes.html',
     '/invoice.html',
     '/assets/js/auth.js',
+    '/assets/js/accelerator.js',
+    '/assets/js/mutation-ui.js',
+    '/assets/js/excel-model.js',
+    '/assets/js/excel-worker.js',
+    '/assets/js/mobile.js',
+    '/assets/js/invoice-math.js',
+    '/assets/js/document-io.js',
+    '/Sinjeon_Logo_Pink.png',
     '/assets/js/config.js',
+    '/assets/css/portal-shell.css',
+    '/assets/css/mobile.css',
+    '/assets/css/tailwind-admin.css',
+    '/assets/css/tailwind-dashboard.css',
+    '/assets/css/tailwind-index.css',
+    '/assets/css/tailwind-invoice.css',
+    '/assets/css/tailwind-items.css',
+    '/assets/css/tailwind-recipes.css',
+    '/manifest.json',
     '/favicon.png',
     '/y2c_holdings_logo.png'
-];
+].map(path => new URL(path.replace(/^\//,''), self.registration.scope).href);
 
 // ============================================================================
 // 💾 [MODULE 1] IndexedDB Offline Queue Manager
@@ -106,16 +118,13 @@ async function incrementRetryCount(id, currentCount) {
 // ⚙️ [MODULE 2] Service Worker Lifecycle Hooks
 // ============================================================================
 self.addEventListener('install', event => {
-    // 즉시 설치 및 활성화 대기 무시
-    self.skipWaiting(); 
     event.waitUntil(
         caches.open(STATIC_CACHE).then(cache => {
             console.log(`[Y2C SW Engine] Installing ${STATIC_CACHE}...`);
-            // Promise.allSettled를 통해 단일 에셋 로드 실패가 전체 설치를 중단시키지 않도록 방어
-            return Promise.allSettled(
-                CORE_ASSETS.map(url => cache.add(url).catch(err => console.warn(`[Y2C SW Engine] Local cache skipped: ${url}`)))
-            );
-        })
+            // A partial rollout must not replace the last working offline shell.
+            // A new release must not seed its permanent shell from stale HTTP-cache bytes.
+            return cache.addAll(CORE_ASSETS.map(url => new Request(url, {cache: 'reload'})));
+        }).then(() => self.skipWaiting())
     );
 });
 
@@ -125,7 +134,7 @@ self.addEventListener('activate', event => {
         caches.keys().then(keys => Promise.all(
             keys.map(key => {
                 // 구버전 캐시 찌꺼기 100% 소각 (좀비 캐시 영구 차단)
-                if (key !== STATIC_CACHE && key !== DYNAMIC_CACHE && (key.startsWith('Y2C_ENTERPRISE_') || key.startsWith('Y2C_Enterprise_'))) {
+                if (key !== STATIC_CACHE && key !== DYNAMIC_CACHE && key.startsWith(CACHE_FAMILY)) {
                     console.log('[Y2C SW Engine] Obsolete Cache Destroyed:', key);
                     return caches.delete(key);
                 }
@@ -137,147 +146,66 @@ self.addEventListener('activate', event => {
 // ============================================================================
 // 🧹 [MODULE 3] LRU Dynamic Cache Garbage Collector
 // ============================================================================
-const limitCacheSize = (name, size) => {
-    caches.open(name).then(cache => {
-        cache.keys().then(keys => {
-            if (keys.length > size) {
-                cache.delete(keys[0]).then(() => limitCacheSize(name, size));
-            }
-        });
-    });
-};
+// The compiled shell belongs to this release. API responses never enter CacheStorage.
+const CORE_URLS = new Set(CORE_ASSETS);
+const ASSET_HOSTS = new Set(['fonts.gstatic.com', 'fonts.googleapis.com', 'cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'lh3.googleusercontent.com']);
 
-// ============================================================================
-// 📡 [MODULE 4] Request Interceptor & Intelligent Proxy Engine
-// ============================================================================
+async function limitCacheSize(name, size) {
+    const cache = await caches.open(name), keys = await cache.keys();
+    await Promise.all(keys.slice(0, Math.max(0, keys.length - size)).map(key => cache.delete(key)));
+}
+function keepAlive(event, promise) {
+    const safe = promise.catch(() => {}); // Cache quota failure must not fail a successful network read.
+    if (typeof event.waitUntil === 'function') event.waitUntil(safe);
+}
+function offlineResponse(request) {
+    if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
+        return new Response(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5"><title>연결 확인 | Y2C Portal</title><style>body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#f8f9fa;color:#111827;font:16px system-ui,sans-serif}main{max-width:28rem;padding:2rem}button{min-height:44px;padding:.75rem 1.5rem;background:#e3000f;color:white;border:0;border-radius:.5rem;font:inherit}p{line-height:1.6}</style></head><body><main><h1>연결을 확인해 주세요</h1><p>이 화면은 아직 오프라인으로 저장되지 않았습니다. 인터넷 연결 후 다시 시도해 주세요. 대기 중인 저장 요청은 유지됩니다.</p><button onclick="location.reload()">다시 시도</button></main></body></html>`, {status:503,headers:{'Content-Type':'text/html; charset=utf-8'}});
+    }
+    return Response.error();
+}
+
 self.addEventListener('fetch', event => {
-    const req = event.request;
-    const url = new URL(req.url);
-
-    // 🚨 1. 크롬 익스텐션 등 비정상 프로토콜 최상단 원천 차단
-    if (!req.url.startsWith('http')) {
-        return; 
-    }
-
-    // 🚨 2. [CRITICAL FIX] 구글 백엔드 API (로그인 지연 완벽 해결 로직)
-    if (url.hostname.includes('script.google.com') || url.hostname.includes('googleapis.com')) {
-        // [수정점] 온라인 상태일 경우 서비스 워커가 개입하지 않고 100% 브라우저에 네이티브 통신을 위임합니다.
-        // 이로써 구글 서버 특유의 302 리다이렉트 지연과 CORS 에러가 원천적으로 소멸합니다.
-        if (navigator.onLine) {
-            return; 
-        } 
-        // [무손실 보존] 오프라인 단절 상태에서 발주/재고 등 POST 뮤테이션 요청 시에만 인터셉트하여 안전하게 큐에 보관합니다.
-        else if (req.method === 'POST') {
-            event.respondWith(handleApiFetch(req));
-        }
+    const req=event.request, url=new URL(req.url);
+    if (!/^https?:$/.test(url.protocol) || req.method !== 'GET') return;
+    // Google web app redirects, all mutations, and foreign application data stay native.
+    if (url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com' || url.hostname === 'googleapis.com' || url.hostname.endsWith('.googleapis.com')) return;
+    const inScope=url.origin===SCOPE_URL.origin && url.pathname.startsWith(SCOPE_URL.pathname);
+    const canonical=new URL(url.pathname,SCOPE_URL).href;
+    if (inScope && CORE_URLS.has(canonical)) {
+        event.respondWith((async()=>{
+            const cache=await caches.open(STATIC_CACHE);
+            const cached=await cache.match(canonical);
+            if(cached)return cached;
+            try {
+                const response=await fetch(req);
+                if(response.status===200 && response.type==='basic')keepAlive(event,cache.put(canonical,response.clone()));
+                return response;
+            } catch(error){return offlineResponse(req);}
+        })().catch(()=>fetch(req).catch(()=>offlineResponse(req))));
         return;
     }
-
-    // 3. 🚀 정적 이미지/폰트 에셋 -> Cache-First, fallback to Network & Dynamic Cache
-    const isStaticAsset = req.url.match(/\.(png|jpg|jpeg|svg|woff2|woff|ttf|css)$/) || url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('cdn');
-    if (req.method === 'GET' && isStaticAsset) {
-        event.respondWith(
-            caches.match(req).then(cachedRes => {
-                if (cachedRes) return cachedRes; // 1ms 즉시 반환
-                
-                return fetch(req).then(networkRes => {
-                    // CORS No-Cors 대응 (Opaque Response 저장 허용)
-                    if (networkRes && (networkRes.status === 200 || networkRes.type === 'opaque')) {
-                        const responseToCache = networkRes.clone();
-                        caches.open(DYNAMIC_CACHE).then(cache => {
-                            cache.put(req, responseToCache);
-                            limitCacheSize(DYNAMIC_CACHE, 100); // 🚨 다이내믹 캐시 최대 100개 제한 (메모리 최적화)
-                        });
-                    }
-                    return networkRes;
-                }).catch(() => { console.warn(`[Y2C SW Engine] Asset Fetch Failed: ${req.url}`); });
-            })
-        );
+    const asset=(inScope && /\.(png|jpe?g|svg|webp|gif|ico|woff2?|ttf|css|js)$/i.test(url.pathname)) || ASSET_HOSTS.has(url.hostname);
+    if(asset){
+        event.respondWith((async()=>{
+            const cache=await caches.open(DYNAMIC_CACHE), cached=await cache.match(req);
+            if(cached)return cached;
+            try {
+                const response=await fetch(req);
+                if(response.status===200 || response.type==='opaque')keepAlive(event,cache.put(req,response.clone()).then(()=>limitCacheSize(DYNAMIC_CACHE,100)));
+                return response;
+            }catch(error){return offlineResponse(req);}
+        })().catch(()=>fetch(req).catch(()=>offlineResponse(req))));
         return;
     }
-
-    // 4. 🚀 HTML, JS 문서 -> Network-First, fallback to Cache, fallback to Offline UI
-    if (req.method === 'GET') {
-        event.respondWith(
-            fetch(req).then(networkRes => {
-                if (networkRes && networkRes.status === 200 && networkRes.type === 'basic') {
-                    const responseToCache = networkRes.clone();
-                    caches.open(STATIC_CACHE).then(cache => cache.put(req, responseToCache));
-                }
-                return networkRes;
-            }).catch(async () => {
-                const cachedRes = await caches.match(req);
-                if (cachedRes) {
-                    console.log('[Y2C SW Engine] Offline Mode Active: Served from Cache', req.url);
-                    return cachedRes;
-                }
-                
-                // 🚨 [핵심 방어막] HTML 문서 요청인데 캐시마저 없다면, 하이엔드 오프라인 UI 반환
-                if (req.headers.get('accept') && req.headers.get('accept').includes('text/html')) {
-                    return new Response(
-                        `<html lang="en">
-                            <head>
-                                <meta charset="UTF-8">
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-                                <title>System Offline | Y2C Portal</title>
-                                <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-                                <style>
-                                    body { background-color: #F8F9FA; color: #111827; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-                                    .glass-box { background: rgba(255, 255, 255, 0.95); padding: 50px 40px; border-radius: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05); text-align: center; max-width: 440px; width: 90%; backdrop-filter: blur(20px); border-top: 4px solid #E3000F; }
-                                    .icon-wrap { width: 80px; height: 80px; background: #FEF2F2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; color: #E3000F; font-size: 36px; border: 1px solid #FEE2E2; }
-                                    h1 { font-family: 'Montserrat', sans-serif; font-size: 26px; color: #111827; margin: 0 0 12px 0; font-weight: 900; letter-spacing: -0.5px; }
-                                    p { color: #64748b; font-size: 15px; line-height: 1.6; font-weight: 500; margin-bottom: 30px; }
-                                    .btn { background: #E3000F; color: white; border: none; padding: 16px 32px; border-radius: 12px; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; width: 100%; box-shadow: 0 4px 15px rgba(227, 0, 15, 0.2); }
-                                    .btn:hover { background: #B9000C; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(227, 0, 15, 0.3); }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="glass-box">
-                                    <div class="icon-wrap">📡</div>
-                                    <h1>SYSTEM OFFLINE</h1>
-                                    <p>인터넷 연결이 완전히 단절되었으며, 해당 페이지의 보안 저장소가 존재하지 않습니다.<br><br>와이파이 또는 셀룰러 데이터를 확인해 주십시오.</p>
-                                    <button class="btn" onclick="window.location.reload()">Retry Connection</button>
-                                </div>
-                            </body>
-                        </html>`, 
-                        { headers: { 'Content-Type': 'text/html; charset=utf-8' }, status: 503 }
-                    );
-                }
-            })
-        );
-    }
+    // Unknown same-app navigations get a readable offline error, never cached user data.
+    if(inScope && req.mode==='navigate')event.respondWith(fetch(req).catch(()=>offlineResponse(req)));
 });
 
 // 🚨 오프라인 큐잉을 위한 인젝터 로직 (온라인일 때는 브라우저가 알아서 처리하므로 여기 도달하지 않음)
 async function handleApiFetch(req) {
-    const clonedReq = req.clone(); 
-    try {
-        const bodyText = await clonedReq.text();
-        let payload = {};
-        try { payload = JSON.parse(bodyText); } 
-        catch (e) {
-            const parts = bodyText.split('&');
-            for (let p of parts) {
-                const kv = p.split('=');
-                if (kv.length === 2) payload[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]);
-            }
-        }
-
-        const mutationActions = ['save_order', 'update_stock', 'upsert_hq_order', 'update_master_data', 'update_hq_order_status', 'save_sales_records'];
-        
-        if (mutationActions.includes(payload.action)) {
-            await enqueueRequest({ url: req.url, headers: [...req.headers.entries()], body: bodyText, action: payload.action, timestamp: Date.now(), retryCount: 0 });
-            return new Response(JSON.stringify({
-                success: true,
-                message: "[오프라인 보관 완료] 네트워크가 단절되어 기기 저장소에 안전하게 보관되었습니다. 인터넷 복구 시 백그라운드에서 자동 처리됩니다.",
-                offlineQueued: true, action: payload.action, batchId: payload.batchId || `OFFLINE-${Date.now()}`
-            }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-        } else {
-            return new Response(JSON.stringify({ success: false, message: "네트워크가 단절되었습니다." }), { status: 503, headers: { 'Content-Type': 'application/json' } });
-        }
-    } catch (fallbackError) {
-        return new Response(JSON.stringify({ success: false, message: "네트워크 단절 및 큐 저장 실패." }), { status: 503, headers: { 'Content-Type': 'application/json' } });
-    }
+    // The page owns authentication and the durable queue; never acknowledge locally here.
+    return fetch(req);
 }
 
 // ============================================================================
@@ -286,43 +214,11 @@ async function handleApiFetch(req) {
 let isFlushing = false;
 
 async function flushQueue() {
-    if (isFlushing || !navigator.onLine) return;
-    isFlushing = true;
-
-    try {
-        const queue = await getQueuedRequests();
-        if (queue.length === 0) return;
-
-        console.log(`[Y2C Sync Daemon] Waking up. Found ${queue.length} pending mutation(s).`);
-
-        for (const requestData of queue) {
-            // 포이즌 필(Poison Pill) 방어: 5회 이상 실패한 요청은 영구 파기
-            if (requestData.retryCount >= 5) {
-                await dequeueRequest(requestData.id);
-                continue;
-            }
-
-            try {
-                const headers = new Headers();
-                requestData.headers.forEach(h => headers.append(h[0], h[1]));
-
-                const response = await fetch(requestData.url, { method: 'POST', headers: headers, body: requestData.body, redirect: 'follow' });
-
-                if (response.ok) {
-                    const resJson = await response.json();
-                    if (resJson.success) { await dequeueRequest(requestData.id); } 
-                    else { await dequeueRequest(requestData.id); } // 논리 에러 발생 시에도 큐에서 제거
-                } else {
-                    throw new Error(`HTTP Error ${response.status}`);
-                }
-            } catch (error) {
-                await incrementRetryCount(requestData.id, requestData.retryCount);
-                break; // 하나라도 실패하면 통신 상태가 불안정한 것으로 간주하고 플러시 중단
-            }
-        }
-    } finally {
-        isFlushing = false;
-    }
+    const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    clients.forEach(client=>{
+        try { const url=new URL(client.url); if(url.origin===SCOPE_URL.origin && url.pathname.startsWith(SCOPE_URL.pathname))client.postMessage({type:'Y2C_SYNC_REQUEST'}); } catch(error) {}
+    });
+    // Legacy records are retained and migrated by the authenticated page.
 }
 
 // ============================================================================
@@ -334,16 +230,10 @@ self.addEventListener('sync', event => {
 
 self.addEventListener('message', event => { 
     if (event.data && event.data.type === 'FLUSH_QUEUE') {
-        flushQueue(); 
+        keepAlive(event, flushQueue());
     } 
     // 🚨 프론트엔드(auth.js)에서 하달되는 모든 캐시 강제 소각 명령을 수신하여 즉각 수행
     else if (event.data && event.data.type === 'FORCE_NUKE') {
-        caches.keys().then(keys => {
-            keys.forEach(key => {
-                if (key.includes('Y2C')) {
-                    caches.delete(key).then(() => console.log(`[Y2C SW Engine] Deep Nuke executed: Destroyed ${key}`));
-                }
-            });
-        });
+        keepAlive(event, caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith(CACHE_FAMILY)).map(key => caches.delete(key)))));
     }
 });
