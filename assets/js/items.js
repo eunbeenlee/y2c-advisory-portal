@@ -961,7 +961,7 @@ window.cancelOrder = async function(batchId) {
     const safeBatchId = String(batchId).trim();
     if (safeBatchId.length > 50 || !/^[\w-]+$/.test(safeBatchId)) return showToast("주문 번호 형식이 올바르지 않습니다.", "error");
 
-    const confirmMsg = `정말 주문 [${escapeHtml(safeBatchId)}]을 취소하시겠습니까?\n\n주문 상태만 취소로 변경됩니다. 재고는 자동 복원되지 않습니다.\n관리자가 재고를 대조하고 필요한 조정을 별도로 진행해야 합니다.`;
+    const confirmMsg = `정말 주문 [${escapeHtml(safeBatchId)}]을 취소하시겠습니까?\n\n접수 대기 주문은 차감 기록을 검증한 뒤 재고와 유통기한별 수량을 복원합니다.\n이미 수동 취소된 주문이나 검증할 수 없는 기록은 자동 복원하지 않습니다.`;
     if (!confirm(confirmMsg)) return;
 
     isCanceling = true; isSubmitting = true; 
@@ -971,7 +971,7 @@ window.cancelOrder = async function(batchId) {
     submitLockTimer = setTimeout(() => { isCanceling = false; isSubmitting = false; showToast("취소 요청 시간이 초과되었습니다.", "error"); }, 35000);
 
     try {
-        const result = await executeApi("cancel_order", { orderId: safeBatchId });
+        const result = await executeApi("cancel_order", { orderId: safeBatchId, restoreStock: true });
         if (result && result.success) { showToast(`✅ ${escapeHtml(result.message)}`, "success"); setTimeout(() => fetchItems(), 1500); } 
     } catch (err) { 
         if(err.ledgerPending) { showToast(`⚠️ 취소 결과 확인이 필요합니다. 재고 복원으로 간주하지 마세요.\n원장 지연 (TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); } 
