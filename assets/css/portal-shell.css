@@ -1,0 +1,62 @@
+/* Shared portal shell, based on the Recipe Center and approved header. */
+/* Scope layout rules above Tailwind utility specificity so compiled/CDN order
+   cannot hide account controls or override the intentional 1280px nav break. */
+:root {
+  --portal-brand:#E3000F; --portal-brand-hover:#be000d; --portal-gold:#D4AF37;
+  --portal-ink:#111827; --portal-muted:#64748b; --portal-border:#e2e8f0;
+  --portal-surface:#fff; --portal-background:#f8f9fa;
+  --sinjeon-pink:var(--portal-brand); --sinjeon-pink-dark:var(--portal-brand-hover);
+  --premium-charcoal:var(--portal-ink); --bg-light:var(--portal-background);
+}
+@media screen {
+  .portal-page {background-color:var(--portal-background);color:var(--portal-ink);}
+  [data-portal-header] {background:var(--portal-surface);border-bottom:1px solid var(--portal-border);box-shadow:0 2px 10px rgb(0 0 0 / 2%);}
+  .portal-page [data-portal-header-row] {max-width:1600px;min-height:80px;height:auto;gap:20px;}
+  .portal-page [data-portal-brand] {width:auto;min-width:0;flex-shrink:0;}
+  .portal-page [data-portal-brand] > :last-child > :first-child {text-shadow:none!important;}
+  .portal-page [data-portal-account] {width:auto;gap:12px;flex-shrink:0;}
+  .portal-page [data-portal-navigation] {gap:20px;padding-inline:4px;overflow:visible;}
+  .portal-page [data-portal-navigation] .nav-link {font-size:12px;letter-spacing:.02em;color:var(--portal-muted);}
+  .portal-page [data-portal-navigation] .nav-link.active {color:var(--portal-brand);}
+  .portal-page [data-portal-navigation] .nav-link.active::after {height:3px;}
+  .portal-page [data-portal-navigation] .hidden,.portal-page [data-portal-mobile-navigation] .hidden {display:none!important;}
+  .portal-page [data-portal-mobile-navigation] {scroll-padding-inline:16px;}
+  .portal-page .premium-input {background:var(--portal-surface);border-color:var(--portal-border);border-radius:12px;color:var(--portal-ink);}
+  .portal-page .premium-input:focus {border-color:var(--portal-ink);box-shadow:0 0 0 3px rgb(17 24 39 / 8%);}
+  .portal-page .btn-solid-red {background:var(--portal-brand);transition:background-color .16s,box-shadow .16s,transform .16s;}
+  .portal-page .btn-solid-red:hover:not(:disabled) {background:var(--portal-brand-hover);}
+  .portal-page .btn-solid-red:disabled {background:#cbd5e1;color:#fff;cursor:not-allowed;box-shadow:none;}
+  [data-portal-header] a:focus-visible,[data-portal-header] button:focus-visible,
+  .portal-page [data-portal-mobile-navigation] a:focus-visible,.portal-page button:focus-visible,
+  .portal-page [role="button"]:focus-visible {outline:2px solid var(--portal-brand);outline-offset:3px;}
+  @media (min-width:1280px) {
+    .portal-page [data-portal-header-row] {height:80px;}
+    .portal-page [data-portal-navigation],.portal-page [data-portal-account] {display:flex;}
+    .portal-page [data-portal-mobile-navigation] {display:none;}
+    .portal-page [data-portal-brand] > :last-child > :last-child {display:inline-block;font-size:8px;}
+  }
+  @media (min-width:1280px) and (max-width:1535px) {
+    .portal-page [data-portal-header-row] {gap:14px;}
+    .portal-page [data-portal-navigation] {gap:12px;}
+    .portal-page [data-portal-brand] > :last-child > :last-child {display:none;}
+  }
+  @media (max-width:1279px) {
+    .portal-page [data-portal-navigation] {display:none;}
+    .portal-page [data-portal-mobile-navigation] {display:flex;}
+    .portal-page [data-portal-account] {display:flex;}
+    .portal-page [data-portal-brand] > :last-child > :last-child {display:none;}
+  }
+  @media (max-width:767px) {
+    .portal-page [data-portal-header-row] {flex-wrap:wrap;gap:8px;min-height:70px;padding-block:10px;}
+    .portal-page [data-portal-brand] {width:100%;}
+    .portal-page [data-portal-brand] > :last-child > :first-child {font-size:18px;}
+    .portal-page [data-portal-account] {width:100%;justify-content:flex-end;gap:8px;}
+    .portal-page [data-portal-account] > :first-child {margin-right:0;}
+    .portal-page [data-portal-account] #userNameDisplay {max-width:80px;}
+  }
+  @media (prefers-reduced-motion:reduce) {
+    .portal-page .app-shell-enter {animation:none;opacity:1;transform:none;will-change:auto;}
+    .portal-page .animate-ping,.portal-page [data-portal-header] [class*="animate-shimmer"] {animation:none;}
+    .portal-page .btn-solid-red {transition:none;}
+  }
+}

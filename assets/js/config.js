@@ -28,7 +28,7 @@
         global.location.replace("about:blank");
     }
 
-    const APP_VERSION = "V85.00_ENTERPRISE_GRAND_FINALE";
+    const APP_VERSION = "V88_17";
 
     // 🚨 [환경 변수] 엔터프라이즈 통합 라우팅 및 Timezone 록다운
     const _SYSTEM_CONFIG = {

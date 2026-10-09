@@ -12,7 +12,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content">
     
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
@@ -30,7 +30,6 @@
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
     <link rel="prefetch" href="dashboard.html" as="document">
     <link rel="prefetch" href="items.html" as="document">
@@ -77,47 +76,10 @@
     </script>
 
     <!-- Tailwind CSS Engine -->
-    <script>
-        (function() {
-            var originalWarn = console.warn;
-            console.warn = function() {
-                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) return; 
-                originalWarn.apply(console, arguments);
-            };
-        })();
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'], 
-                        montserrat: ['Montserrat', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']
-                    },
-                    colors: { 
-                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', bg: '#F8F9FA' }
-                    },
-                    animation: {
-                        'shimmer': 'shimmer 2s linear infinite',
-                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'modal-pop': 'modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-                    },
-                    keyframes: {
-                        shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
-                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
-                        modalPop: { '0%': { transform: 'scale(0.95)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } }
-                    },
-                    boxShadow: {
-                        'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
-                        'modal': '0 35px 60px -15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0,0,0,0.05)'
-                    }
-                }
-            }
-        }
-    </script>
+    
 
     <!-- Hyper-gap Enterprise Styling -->
     <style>
@@ -204,9 +166,12 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="assets/css/portal-shell.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/tailwind-recipes.css">
 </head>
 
-<body id="mainBody" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
+<body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
     
     <!-- 🚨 1단계: 보안 축출 (Pre-routing - VENDOR Lockout) & 화이트스크린 방어망 -->
     <script>
@@ -244,13 +209,13 @@
     </noscript>
 
     <!-- 🌟 프리미엄 헤더 (Dual Logo Synchronized) -->
-    <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
+    <header data-portal-header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div data-portal-header-row class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
+            <div data-portal-brand class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
                 <div class="flex items-center gap-2">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
-                        <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
+                        <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-full shadow-sm border-[2px] border-[#D4AF37] transform hover:scale-105 transition-transform duration-300 overflow-hidden relative group">
@@ -266,15 +231,15 @@
                 </div>
             </div>
 
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
+            <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
+                <a href="recipes.html" id="navRecipes" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
                 <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
                 <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
-            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+            <div data-portal-account class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-2">
                     <button onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">EN</button>
                     <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
@@ -293,10 +258,10 @@
     </header>
 
     <!-- 🚨 모바일 노치(Home Bar) 가림 보호망 -->
-    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
+    <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
-        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
+        <a href="recipes.html" id="navRecipes_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
@@ -323,7 +288,7 @@
     <!-- 📦 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative no-print">
         
-        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+        <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
             <div>
                 <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
                     <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">👨‍🍳</span> Standard Recipe Center
@@ -335,7 +300,7 @@
             </div>
             
             <!-- 🌟 Search & Filter Controls -->
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                 <div class="relative w-full sm:w-64">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -374,7 +339,7 @@
     <div id="recipeModal" class="fixed inset-0 z-[100000] hidden flex flex-col items-center justify-end sm:justify-center sm:px-4 pb-0 pt-10 sm:pt-4 no-print">
         <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md transition-opacity duration-300 opacity-0" id="recipeModalBackdrop"></div>
         
-        <div class="bg-white w-full sm:w-auto sm:min-w-[650px] sm:max-w-3xl max-h-[95vh] rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-modal relative z-10 flex flex-col overflow-hidden transform translate-y-full sm:translate-y-0 sm:scale-95 opacity-0 transition-all duration-400" id="recipeModalPanel">
+        <div class="bg-white w-full sm:w-auto sm:min-w-[650px] sm:max-w-3xl max-h-[95vh] rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-modal relative z-10 flex flex-col overflow-hidden transform translate-y-full sm:translate-y-0 sm:scale-95 opacity-0 transition-all duration-400" id="recipeModalPanel" role="dialog" aria-modal="true" aria-labelledby="modalRecipeTitle" tabindex="-1">
             
             <!-- Modal Header -->
             <header class="px-6 sm:px-10 py-6 border-b border-gray-100 flex justify-between items-start bg-gray-50/80 sticky top-0 z-20">
@@ -383,7 +348,7 @@
                     <h3 id="modalRecipeTitle" class="font-montserrat font-black text-2xl sm:text-3xl text-[var(--premium-charcoal)] leading-tight tracking-tight">Recipe Title</h3>
                     <p class="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mt-2">Document ID: <span id="modalRecipeId">#0000</span></p>
                 </div>
-                <button id="btnCloseModal" class="text-gray-400 hover:text-[#E3000F] transition-colors bg-white p-2 rounded-full shadow-sm border border-gray-100 focus:outline-none shrink-0">
+                <button id="btnCloseModal" aria-label="Close dialog" class="text-gray-400 hover:text-[#E3000F] transition-colors bg-white p-2 rounded-full shadow-sm border border-gray-100 focus:outline-none shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </header>
@@ -462,6 +427,7 @@
     <!-- 🚨 코어 엔진 바인딩 -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/accelerator.js"></script>
 
     <!-- 🌟 [PWA 엔진 점화] 모바일 네이티브 앱 설치 지원 -->
     <script>
@@ -564,120 +530,62 @@
         };
 
         const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', logoutHandler);
+        if (logoutBtn) Y2C_AuthEngine.bindLogoutButton(logoutBtn);
 
         const indexLogoutBtn = document.getElementById('indexLogoutBtn');
-        if (indexLogoutBtn) indexLogoutBtn.addEventListener('click', logoutHandler);
+        if (indexLogoutBtn) Y2C_AuthEngine.bindLogoutButton(indexLogoutBtn);
 
         // ==========================================
         // 🚀 [ACCELERATION] IndexedDB Caching (SWR 엔진 코어)
         // ==========================================
-        const SWR_DB = {
-            name: 'Y2C_Recipe_Cache_V71',
-            version: 1,
-            storeName: 'cacheStore',
-            isSupported: !!window.indexedDB,
-            init: function() {
-                return new Promise((resolve, reject) => {
-                    if (!this.isSupported) return reject("IndexedDB not supported");
-                    const req = indexedDB.open(this.name, this.version);
-                    req.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains(this.storeName)) {
-                            db.createObjectStore(this.storeName, { keyPath: 'id' });
-                        }
-                    };
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => reject(req.error);
-                });
-            },
-            set: async function(key, data) {
-                if (!this.isSupported) return;
-                try {
-                    const db = await this.init();
-                    return new Promise((resolve, reject) => {
-                        const tx = db.transaction(this.storeName, 'readwrite');
-                        tx.objectStore(this.storeName).put({ id: key, data: data, timestamp: Date.now() });
-                        tx.oncomplete = () => resolve();
-                        tx.onerror = () => reject(tx.error);
-                    });
-                } catch(e) {}
-            },
-            get: async function(key) {
-                if (!this.isSupported) return null;
-                try {
-                    const db = await this.init();
-                    return new Promise((resolve, reject) => {
-                        const tx = db.transaction(this.storeName, 'readonly');
-                        const req = tx.objectStore(this.storeName).get(key);
-                        req.onsuccess = () => resolve(req.result ? req.result : null);
-                        req.onerror = () => reject(tx.error);
-                    });
-                } catch(e) { return null; }
-            }
-        };
+        const SWR_DB = window.Y2C_Accelerator.cache;
 
         // ==========================================
         // 🚀 [ACCELERATION] 가상 DOM 청크 렌더러
         // ==========================================
-        const Y2C_Accelerator = {
-            renderReactively: function(targetId, htmlString) {
-                return new Promise(resolve => {
-                    requestAnimationFrame(() => {
-                        const el = document.getElementById(targetId);
-                        if (el) el.innerHTML = htmlString;
-                        resolve();
-                    });
-                });
-            },
-            processInChunks: async function(array, processFn, onComplete, chunkSize = 20) {
-                let index = 0;
-                function nextChunk() {
-                    const chunkEnd = Math.min(index + chunkSize, array.length);
-                    for (; index < chunkEnd; index++) {
-                        processFn(array[index], index);
-                    }
-                    if (index < array.length) {
-                        requestAnimationFrame(nextChunk);
-                    } else {
-                        if (onComplete) onComplete();
-                    }
-                }
-                requestAnimationFrame(nextChunk);
-            }
-        };
+        const Y2C_Accelerator = window.Y2C_Accelerator;
 
         // ==========================================
         // 🚀 데이터 페칭 파이프라인 (SWR 적용)
         // ==========================================
         async function fetchRecipesFast() {
+            const viewSession = Y2C_AuthEngine.cacheSessionKey();
+            const readCurrent = window.Y2C_Accelerator.readGuard('fetchRecipesFast', () => fetchRecipesFast());
+            const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
+            if (!sameSession()) return;
             const cacheKey = `RECIPES_ALL`;
 
             // 1. SWR: 로컬 캐시 즉시 렌더링
             let isCachedRendered = false;
+            if (!sameSession()) return;
             try {
                 const cached = await SWR_DB.get(cacheKey);
-                if (cached && cached.data && cached.data.length > 0) {
+                if (!sameSession()) return;
+                if (cached && Array.isArray(cached.data) && cached.data.length > 0) {
                     AppState.recipes = cached.data;
                     AppState.filteredRecipes = [...AppState.recipes];
                     
                     extractCategories();
-                    renderGridFast(AppState.filteredRecipes);
+                    filterEngine();
                     isCachedRendered = true;
                 }
-            } catch(e) {}
+            } catch (e) { if (!sameSession()) return;}
 
             // 2. SWR: 백그라운드 서버 동기화
+            if (!sameSession()) return;
             try {
                 const res = await Y2C_AuthEngine.request("get_recipes");
-                if (res && res.success && res.recipes) {
+                if (!sameSession()) return;
+                if (!res || !res.success || !Array.isArray(res.recipes)) throw new Error(res?.message || '레시피 목록을 불러올 수 없습니다.');
+                if (res.success) {
                     const newRecipes = res.recipes;
                     
                     // Diff Check
-                    if (JSON.stringify(AppState.recipes) !== JSON.stringify(newRecipes)) {
+                    if (!isCachedRendered || JSON.stringify(AppState.recipes) !== JSON.stringify(newRecipes)) {
+                        await SWR_DB.set(cacheKey, newRecipes);
+                        if (!sameSession()) return;
                         AppState.recipes = newRecipes;
                         AppState.filteredRecipes = [...AppState.recipes];
-                        await SWR_DB.set(cacheKey, newRecipes);
                         
                         extractCategories();
                         filterEngine();
@@ -686,15 +594,15 @@
                         }
                     }
                 }
-            } catch (err) {
+            } catch (err) { if (!sameSession()) return;
                 if (AppState.recipes.length === 0) {
-                    Y2C_Accelerator.renderReactively('recipeGrid', '');
+                    recipeRenderEpoch++;
                     emptyState.classList.add('hidden');
                     grid.innerHTML = `
                         <div class="col-span-full py-16 text-center bg-red-50/50 border border-red-100 rounded-3xl">
                             <span class="text-4xl mb-4 block opacity-80">⚠️</span>
                             <h3 class="font-black text-[#E3000F] font-montserrat tracking-wide text-lg mb-2">엔터프라이즈 데이터 노드 접근 실패</h3>
-                            <p class="text-xs font-bold text-gray-500 mb-4">${err.message}</p>
+                            <p class="text-xs font-bold text-gray-500 mb-4">${Y2C_AuthEngine.escapeHtml(err.message)}</p>
                             <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">보안 세션 재연결 시도</button>
                         </div>`;
                 }
@@ -702,9 +610,10 @@
         }
 
         function extractCategories() {
+            const selectedCategory = categoryFilter.value;
             AppState.categories.clear();
             AppState.recipes.forEach(r => {
-                if (r.category && r.category.trim() !== "") AppState.categories.add(r.category.trim());
+                if (String(r.category ?? "").trim()) AppState.categories.add(String(r.category).trim());
             });
             
             let html = '<option value="ALL">All Categories</option>';
@@ -712,12 +621,23 @@
                 html += `<option value="${Y2C_AuthEngine.escapeHtml(c)}">${Y2C_AuthEngine.escapeHtml(c)}</option>`;
             });
             categoryFilter.innerHTML = html;
+            categoryFilter.value = AppState.categories.has(selectedCategory) ? selectedCategory : 'ALL';
         }
 
         // ==========================================
         // 🚀 [ACCELERATION] 가상 DOM 레시피 카드 렌더러
         // ==========================================
+        function activateRecipe(event) {
+            if (event.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ') return;
+            const card = event.target.closest('[data-recipe-id]');
+            if (card && grid.contains(card)) { event.preventDefault(); openRecipeModal(card.dataset.recipeId); }
+        }
+        grid.addEventListener('click', activateRecipe);
+        grid.addEventListener('keydown', activateRecipe);
+        let recipeRenderEpoch=0, recipeModalEpoch=0;
         function renderGridFast(recipesToRender) {
+            const readOptions = {readBound:true,key:'recipeGrid',onStale:()=>fetchRecipesFast()};
+            const epoch=++recipeRenderEpoch;
             if (recipesToRender.length === 0) {
                 grid.innerHTML = "";
                 emptyState.classList.remove('hidden');
@@ -729,7 +649,7 @@
             
             Y2C_Accelerator.processInChunks(recipesToRender, (r) => {
                 html += `
-                <div class="bg-white rounded-3xl p-6 recipe-card shadow-sm flex flex-col justify-between h-full" onclick="openRecipeModal('${r.id}')">
+                <div class="bg-white rounded-3xl p-6 recipe-card shadow-sm flex flex-col justify-between h-full" role="button" tabindex="0" data-recipe-id="${Y2C_AuthEngine.escapeHtml(r.id)}">
                     <div>
                         <div class="flex justify-between items-start mb-4">
                             <span class="px-2.5 py-1 bg-gray-100 text-[10px] font-black text-gray-600 rounded-md uppercase tracking-widest border border-gray-200">${Y2C_AuthEngine.escapeHtml(r.category || 'General')}</span>
@@ -745,8 +665,8 @@
                     </div>
                 </div>`;
             }, () => {
-                Y2C_Accelerator.renderReactively('recipeGrid', html);
-            }, 20); // 20 cards per frame
+                if(epoch===recipeRenderEpoch)Y2C_Accelerator.renderReactively('recipeGrid', html,()=>epoch===recipeRenderEpoch,readOptions);
+            }, 200, {...readOptions,isCurrent:()=>epoch===recipeRenderEpoch}); // Cancel superseded searches before generating more cards.
         }
 
         // ==========================================
@@ -759,8 +679,8 @@
             const cat = categoryFilter.value;
             
             AppState.filteredRecipes = AppState.recipes.filter(r => {
-                const matchQuery = r.title.toLowerCase().includes(query) || (r.ingredients && r.ingredients.toLowerCase().includes(query));
-                const matchCat = cat === "ALL" || r.category === cat;
+                const matchQuery = String(r.title ?? "").toLowerCase().includes(query) || String(r.ingredients ?? "").toLowerCase().includes(query);
+                const matchCat = cat === "ALL" || String(r.category ?? "").trim() === cat;
                 return matchQuery && matchCat;
             });
             
@@ -769,6 +689,7 @@
 
         if (searchInput) {
             searchInput.addEventListener('input', () => {
+                recipeRenderEpoch++;
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(filterEngine, 300); // 300ms Debounce
             });
@@ -779,19 +700,35 @@
         // 📜 모달 렌더링 및 동적 파서 엔진
         // ==========================================
         window.openRecipeModal = function(recipeId) {
-            const recipe = AppState.recipes.find(r => r.id === recipeId);
+            const recipe = AppState.recipes.find(r => String(r.id) === String(recipeId));
             if (!recipe) return;
+            const epoch=++recipeModalEpoch;
 
-            document.getElementById('modalRecipeId').innerText = Y2C_AuthEngine.escapeHtml(recipe.id);
-            document.getElementById('modalRecipeTitle').innerText = Y2C_AuthEngine.escapeHtml(recipe.title);
-            document.getElementById('modalCategoryBadge').innerText = Y2C_AuthEngine.escapeHtml(recipe.category || 'General');
+            document.getElementById('modalRecipeId').textContent = recipe.id;
+            document.getElementById('modalRecipeTitle').textContent = recipe.title;
+            document.getElementById('modalCategoryBadge').textContent = recipe.category || 'General';
 
             // 1. 재료 파싱 (줄바꿈 또는 쉼표 기준 분리)
             const ingList = document.getElementById('modalIngredients');
             let ingHtml = "";
-            let rawIng = recipe.ingredients || "";
+            let rawIng = String(recipe.ingredients ?? "");
             let ingArr = rawIng.split(/\r?\n/).filter(line => line.trim() !== "");
-            if (ingArr.length === 0 && rawIng.includes(",")) ingArr = rawIng.split(',').filter(i => i.trim() !== "");
+            // Split only an unambiguous single-line list of measured ingredients.
+            // Keep commas inside descriptions, parentheses, and thousands separators.
+            if (ingArr.length === 1 && rawIng.includes(',')) {
+                const parts = []; let segment = '', depth = 0;
+                for (let i = 0; i < rawIng.length; i++) {
+                    const char = rawIng[i];
+                    if (char === '(' || char === '[') depth++;
+                    if (char === ')' || char === ']') depth = Math.max(0, depth - 1);
+                    if (char === ',' && depth === 0 && !(/\d/.test(rawIng[i-1] || '') && /\d/.test(rawIng[i+1] || ''))) {
+                        parts.push(segment.trim()); segment = '';
+                    } else segment += char;
+                }
+                parts.push(segment.trim());
+                const measured = /\d(?:[\d.,]*\d)?\s*(?:mg|kg|g|ml|l|oz|lb|lbs|tsp|tbsp|cups?)\.?$/i;
+                if (parts.length > 1 && parts.every(part => measured.test(part))) ingArr = parts;
+            }
             
             if (ingArr.length > 0) {
                 ingArr.forEach(ing => {
@@ -805,8 +742,16 @@
             // 2. 조리법 파싱 (줄바꿈 기준, 숫자 태그 자동 생성)
             const instContainer = document.getElementById('modalInstructions');
             let instHtml = "";
-            let rawInst = recipe.instructions || "";
+            let rawInst = String(recipe.instructions ?? "");
             let instArr = rawInst.split(/\r?\n/).filter(line => line.trim() !== "");
+            if (instArr.length === 1) {
+                const line = instArr[0].trim();
+                const markers = Array.from(line.matchAll(/(?:^|\s)(\d+)[.)]\s+/g));
+                // Only split a complete 1, 2, 3... sequence; decimal quantities stay intact.
+                if (markers.length > 1 && markers[0].index === 0 && markers.every((match, index) => Number(match[1]) === index + 1)) {
+                    instArr = markers.map((match, index) => line.slice(match.index, index + 1 < markers.length ? markers[index + 1].index : line.length).trim());
+                }
+            }
             
             if (instArr.length > 0) {
                 instArr.forEach((step, index) => {
@@ -825,30 +770,33 @@
             // 3. Pro Tips 파싱
             const tipsContainer = document.getElementById('modalTipsContainer');
             const tipsEl = document.getElementById('modalTips');
-            if (recipe.tips && recipe.tips.trim() !== "") {
-                tipsEl.innerText = recipe.tips.trim();
+            if (String(recipe.tips ?? "").trim()) {
+                tipsEl.innerText = String(recipe.tips).trim();
                 tipsContainer.classList.remove('hidden');
             } else {
                 tipsContainer.classList.add('hidden');
             }
 
-            // 모달 열기 애니메이션 및 스크롤 락
+            // Remember focus/scroll once so close-and-reopen animations cannot lose them.
+            if (!AppState.recipeModalOpen) {
+                AppState.recipeModalTrigger = document.activeElement;
+                AppState.recipeModalOverflow = document.body.style.overflow || '';
+            }
+            AppState.recipeModalOpen = true;
             document.body.style.overflow = 'hidden';
             modal.classList.remove('hidden');
             
             setTimeout(() => { 
+                if(epoch!==recipeModalEpoch)return;
                 backdrop.classList.remove('opacity-0');
-                if (window.innerWidth >= 640) {
-                    modalPanel.classList.remove('scale-95', 'opacity-0'); 
-                    modalPanel.classList.add('scale-100', 'opacity-100'); 
-                } else {
-                    modalPanel.classList.remove('translate-y-full', 'opacity-0'); 
-                    modalPanel.classList.add('translate-y-0', 'opacity-100'); 
-                }
+                modalPanel.classList.remove('scale-95', 'sm:scale-95', 'translate-y-full', 'opacity-0');
+                modalPanel.classList.add('scale-100', 'translate-y-0', 'opacity-100');
+                document.getElementById('btnCloseModal')?.focus?.({ preventScroll: true });
             }, 10);
         };
 
         window.closeRecipeModal = function() {
+            const epoch=++recipeModalEpoch;
             backdrop.classList.add('opacity-0');
             if (window.innerWidth >= 640) {
                 modalPanel.classList.remove('scale-100', 'opacity-100'); 
@@ -858,10 +806,25 @@
                 modalPanel.classList.add('translate-y-full', 'opacity-0');
             }
             setTimeout(() => { 
+                if(epoch!==recipeModalEpoch)return;
                 modal.classList.add('hidden'); 
-                document.body.style.overflow = '';
+                document.body.style.overflow = AppState.recipeModalOverflow || '';
+                AppState.recipeModalOpen = false;
+                const trigger = AppState.recipeModalTrigger;
+                AppState.recipeModalTrigger = null;
+                if (trigger?.isConnected) trigger.focus?.({ preventScroll: true });
             }, 300);
         };
+
+        modal.addEventListener('keydown', event => {
+            if (event.key === 'Escape') { event.preventDefault(); closeRecipeModal(); return; }
+            if (event.key !== 'Tab') return;
+            const controls = Array.from(modalPanel.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(element => !element.hidden && element.getClientRects().length > 0);
+            const first = controls[0], last = controls[controls.length - 1];
+            if (!first) { event.preventDefault(); modalPanel.focus(); return; }
+            if (event.shiftKey && (document.activeElement === first || document.activeElement === modalPanel)) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && (document.activeElement === last || document.activeElement === modalPanel)) { event.preventDefault(); first.focus(); }
+        });
 
         if (btnClose) btnClose.addEventListener('click', closeRecipeModal);
         if (backdrop) backdrop.addEventListener('click', closeRecipeModal);
@@ -870,5 +833,6 @@
         fetchRecipesFast();
     });
     </script>
+    <script src="assets/js/mobile.js"></script>
 </body>
 </html>

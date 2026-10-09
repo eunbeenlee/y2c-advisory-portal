@@ -3,8 +3,8 @@
   "name": "SINJEON CANADA Enterprise Portal",
   "short_name": "Y2C Portal",
   "description": "Global SCM, Procurement, and Financial Dashboard operated by Y2C Holdings Inc.",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "display_override": [
     "standalone",
@@ -41,7 +41,7 @@
       "name": "Live Dashboard",
       "short_name": "Dashboard",
       "description": "View real-time KPI and sales data",
-      "url": "/dashboard.html",
+      "url": "./dashboard.html",
       "icons": [
         {
           "src": "favicon.png",
@@ -53,7 +53,7 @@
       "name": "Item Catalog",
       "short_name": "Order Items",
       "description": "Request procurement or view stock",
-      "url": "/items.html",
+      "url": "./items.html",
       "icons": [
         {
           "src": "favicon.png",

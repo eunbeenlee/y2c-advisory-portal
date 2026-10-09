@@ -9,7 +9,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content">
     
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
@@ -27,7 +27,6 @@
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     
     <link rel="prefetch" href="dashboard.html" as="document">
@@ -76,51 +75,10 @@
     </script>
 
     <!-- Tailwind CSS Engine -->
-    <script>
-        (function() {
-            var originalWarn = console.warn;
-            console.warn = function() {
-                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) return; 
-                originalWarn.apply(console, arguments);
-            };
-        })();
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'], 
-                        montserrat: ['Montserrat', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-                        serif: ['Playfair Display', 'serif']
-                    },
-                    colors: { 
-                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', bg: '#F8F9FA' },
-                        paper: '#ffffff',
-                        ink: '#1e293b'
-                    },
-                    animation: {
-                        'shimmer': 'shimmer 2s linear infinite',
-                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'flash-update': 'flashUpdate 1.5s ease-out'
-                    },
-                    keyframes: {
-                        shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
-                        slideUp: { '0%': { transform: 'translateY(40px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
-                        flashUpdate: { '0%': { backgroundColor: 'rgba(227, 0, 15, 0.08)' }, '100%': { backgroundColor: 'transparent' } }
-                    },
-                    boxShadow: {
-                        'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
-                        'paper': '0 10px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02)',
-                        'dock': '0 -10px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02)'
-                    }
-                }
-            }
-        }
-    </script>
+    
 
     <!-- Hyper-gap Enterprise Styling -->
     <style>
@@ -187,16 +145,16 @@
         #premiumToastContainer > div { width: 100%; justify-content: center; }
 
         /* ==========================================================
-            🌟 A4 Commercial Invoice Paper Architecture (1-PAGE FIXED)
+            🌟 A4 Commercial Invoice Paper Architecture (content-preserving)
             ========================================================== */
         .a4-paper {
             width: 100%; 
             min-width: 794px; max-width: 794px; /* Exact A4 width in pixels at 96dpi */
             margin: 0 auto; background: white;
             box-shadow: var(--tw-shadow-paper); 
-            overflow: hidden;
+            overflow: visible;
             position: relative; transition: all 0.3s ease;
-            height: 1122px; max-height: 1122px; /* Exact A4 height in pixels at 96dpi */
+            min-height: 1122px; height: auto; max-height: none;
             /* 🚨 Micro-Padding 압축 적용 (위아래 여백을 30px로 축소하여 내부 공간 확보) */
             padding: 30px 45px; 
             box-sizing: border-box;
@@ -218,7 +176,7 @@
             z-index: 0;
         }
 
-        .invoice-content-wrapper { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .invoice-content-wrapper { position: relative; z-index: 10; height: auto; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 
         /* 🚨 [UX UPGRADE 1] Corporate Premium Redesign - Compact Table for 1-Page Fit */
         .invoice-table { width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -243,12 +201,12 @@
             font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 18px; color: var(--y2c-gold);
         }
 
-        /* 🚨 [CRITICAL FIX] PDF 강제 추출 모드 - 1페이지 절대 압축을 위한 픽셀 규격 고정 */
+        /* A4 export width; the full document may span several pages. */
         .pdf-export-mode {
             width: 794px !important;
-            height: 1122px !important;
+            height: auto !important;
             max-width: 794px !important;
-            max-height: 1122px !important;
+            max-height: none !important;
             margin: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
@@ -257,23 +215,24 @@
             border: none !important;
             padding: 30px 45px !important; 
             box-sizing: border-box !important;
-            overflow: hidden !important;
+            overflow: visible !important;
         }
 
         /* Page-break avoidance for elements inside the PDF */
         .avoid-page-break { page-break-inside: avoid; break-inside: avoid; }
 
-        /* 🚨 [CRITICAL FIX] Chrome Print Preview 100% Scale Splitting Bug Eradicated */
+        /* Native printing preserves every monthly line, total and remittance block. */
         @media print { 
-            /* Forces exactly A4 size with NO browser margins. Eradicates 98% scale requirement. */
-            @page { size: A4; margin: 0mm !important; } 
+            @page { size: A4; margin: 10mm 12mm; } 
             
             html, body { 
-                width: 210mm !important; 
-                height: 297mm !important; 
+                width: auto !important;
+                height: auto !important;
+                min-height: 0 !important;
                 margin: 0 !important; 
                 padding: 0 !important; 
-                overflow: hidden !important; /* Kills the phantom 2nd page scrollbar */
+                overflow: visible !important;
+                transform: none !important;
                 background-color: #ffffff !important; 
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact; 
@@ -282,31 +241,41 @@
             .no-print, header, aside, .lg\:hidden { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; display: block !important; max-width: none !important; }
             .flex-col.lg\:flex-row { display: block !important; }
-            #invoiceCanvasContainer { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: hidden !important; }
+            #invoiceCanvasContainer { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible !important; }
             
             .a4-paper { 
-                width: 210mm !important; 
-                height: 296mm !important; /* 🚨 Cap at 296mm (1mm shorter than 297mm) to perfectly avoid edge bleed and 2nd page generation */
-                max-width: 210mm !important;
-                max-height: 296mm !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-width: none !important;
+                max-height: none !important;
                 margin: 0 auto !important; 
-                padding: 10mm 15mm !important; /* Compact print padding */
+                padding: 0 !important;
                 box-shadow: none !important; 
                 border: none !important; 
                 border-radius: 0 !important; 
-                overflow: hidden !important; 
+                overflow: visible !important;
                 box-sizing: border-box !important;
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
+                display: block !important;
+                page-break-after: auto !important;
+                page-break-inside: auto !important;
+                break-inside: auto !important;
                 position: relative !important;
             }
+            .invoice-content-wrapper { display: block !important; height: auto !important; }
+            .invoice-table thead { display: table-header-group; }
+            .invoice-table tr { page-break-inside: avoid; break-inside: avoid; }
+            .invoice-content-wrapper > .avoid-page-break { margin-top: 6mm !important; }
             .a4-paper::before { display: none !important; } /* 워터마크 인쇄 시 제거 */
         }
     </style>
+    <link rel="stylesheet" href="assets/css/portal-shell.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/tailwind-invoice.css">
 </head>
 
-<body id="mainBody" class="text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
+<body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
     
     <!-- 🚨 1단계: 보안 축출 (Pre-routing - MASTER ONLY 록다운) & 화이트스크린 방어망 -->
     <script>
@@ -343,13 +312,13 @@
     </noscript>
 
     <!-- 🌟 프리미엄 헤더 (Dual Logo Synchronized & V88 Truncation Layout) -->
-    <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
-            <!-- 🚨 [CRITICAL FIX] Header Layout Collision Fix -->
-            <div class="flex items-center gap-2 sm:gap-4 shrink-0 w-auto lg:w-[260px] xl:w-[320px] min-w-0">
-                <div class="flex items-center gap-2 shrink-0">
+    <header data-portal-header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div data-portal-header-row class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
+
+            <div data-portal-brand class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
+                <div class="flex items-center gap-2">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
-                        <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
+                        <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-full shadow-sm border-[2px] border-[#D4AF37] transform hover:scale-105 transition-transform duration-300 overflow-hidden relative group">
@@ -359,23 +328,22 @@
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
                 </div>
-                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200 min-w-0">
-                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap truncate" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
-                    <span class="text-[8px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden 2xl:inline-block shrink-0">Operated by Y2C</span>
+                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
 
-            <!-- 🚨 줄어든 영역에서도 메뉴가 겹치지 않게 gap 축소 및 truncate 적용 -->
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-2 xl:gap-5 px-2 min-w-0 overflow-hidden">
-                <a href="dashboard.html" id="navDashboard" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_admin">Master DB</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link active text-[10.5px] xl:text-[12px] tracking-wide hidden truncate" data-i18n="nav_invoice">Advisory Invoice</a>
+            <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
+                <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
+                <a href="invoice.html" id="navInvoice" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
-            <div class="hidden lg:flex items-center justify-end gap-2 sm:gap-3 shrink-0 w-auto">
-                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-1">
+            <div data-portal-account class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-2">
                     <button onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">EN</button>
                     <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
                 </div>
@@ -385,7 +353,7 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[8px] sm:text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
                     <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
@@ -393,12 +361,12 @@
     </header>
 
     <!-- 🚨 모바일 네비게이션 -->
-    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
+    <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
-        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
+        <a href="invoice.html" id="navInvoice_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
 
     <!-- 🚨 권한 기반 라우팅 동적으로 해제 -->
@@ -507,6 +475,7 @@
             <section id="invoiceCanvasContainer" class="flex-1 w-full overflow-x-auto pb-8 animate-slide-up">
                 
                 <!-- 🚨 id="invoiceDocument"는 html2pdf가 스캔할 최상위 타겟입니다. -->
+                <p id="invoiceResultStatus" role="status" class="no-print text-sm text-gray-500 mb-3">조회 조건을 선택하고 인보이스를 생성하십시오.</p>
                 <div class="a4-paper shadow-paper" id="invoiceDocument">
                     
                     <div class="invoice-content-wrapper">
@@ -677,16 +646,16 @@
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-full bg-red-50 text-[#E3000F] flex items-center justify-center text-lg">📄</div>
                     <div>
-                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter">Ready to Export</p>
-                        <p class="text-[13px] font-bold text-[#111827] font-inter">Commercial invoice generated successfully.</p>
+                        <p id="invoiceDockTitle" class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter">Awaiting Invoice</p>
+                        <p id="invoiceDockMessage" class="text-[13px] font-bold text-[#111827] font-inter">Generate an invoice to enable PDF export.</p>
                     </div>
                 </div>
                 
                 <div class="flex gap-2 w-full sm:w-auto">
-                    <button type="button" onclick="window.print()" class="flex-1 sm:flex-none px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-[var(--premium-charcoal)] rounded-xl font-black text-[11px] uppercase tracking-widest transition-colors focus:outline-none flex items-center justify-center gap-2">
+                    <button type="button" id="btnPrintInvoice" disabled onclick="printInvoice()" class="flex-1 sm:flex-none px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-[var(--premium-charcoal)] rounded-xl font-black text-[11px] uppercase tracking-widest transition-colors focus:outline-none flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> Print
                     </button>
-                    <button type="button" id="btnDownloadPdf" class="flex-1 sm:flex-none btn-solid-red px-8 py-3.5 rounded-xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
+                    <button type="button" id="btnDownloadPdf" disabled class="flex-1 sm:flex-none btn-solid-red px-8 py-3.5 rounded-xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
                         Download PDF <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     </button>
                 </div>
@@ -721,6 +690,9 @@
     <!-- 🚨 코어 엔진 바인딩 -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/accelerator.js"></script>
+    <script src="assets/js/invoice-math.js"></script>
+    <script src="assets/js/document-io.js"></script>
 
     <!-- 🌟 [PWA 엔진 점화] 모바일 네이티브 앱 설치 지원 -->
     <script>
@@ -842,59 +814,16 @@
         };
 
         const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', logoutHandler);
+        if (logoutBtn) Y2C_AuthEngine.bindLogoutButton(logoutBtn);
 
         const indexLogoutBtn = document.getElementById('indexLogoutBtn');
-        if (indexLogoutBtn) indexLogoutBtn.addEventListener('click', logoutHandler);
+        if (indexLogoutBtn) Y2C_AuthEngine.bindLogoutButton(indexLogoutBtn);
 
         // ==========================================
         // 🚀 [ACCELERATION] IndexedDB Caching (SWR 엔진 코어)
         // ==========================================
         // 🚨 Y2C_Admin_Cache_V80 으로 동기화하여 admin.html과 클라이언트 캐시 풀 공유
-        const SWR_DB = {
-            name: 'Y2C_Admin_Cache_V80', 
-            version: 1,
-            storeName: 'cacheStore',
-            isSupported: !!window.indexedDB,
-            init: function() {
-                return new Promise((resolve, reject) => {
-                    if (!this.isSupported) return reject("IndexedDB not supported");
-                    const req = indexedDB.open(this.name, this.version);
-                    req.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains(this.storeName)) {
-                            db.createObjectStore(this.storeName, { keyPath: 'id' });
-                        }
-                    };
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => reject(req.error);
-                });
-            },
-            set: async function(key, data) {
-                if (!this.isSupported) return;
-                try {
-                    const db = await this.init();
-                    return new Promise((resolve, reject) => {
-                        const tx = db.transaction(this.storeName, 'readwrite');
-                        tx.objectStore(this.storeName).put({ id: key, data: data, timestamp: Date.now() });
-                        tx.oncomplete = () => resolve();
-                        tx.onerror = () => reject(tx.error);
-                    });
-                } catch(e) {}
-            },
-            get: async function(key) {
-                if (!this.isSupported) return null;
-                try {
-                    const db = await this.init();
-                    return new Promise((resolve, reject) => {
-                        const tx = db.transaction(this.storeName, 'readonly');
-                        const req = tx.objectStore(this.storeName).get(key);
-                        req.onsuccess = () => resolve(req.result ? req.result : null);
-                        req.onerror = () => reject(tx.error);
-                    });
-                } catch(e) { return null; }
-            }
-        };
+        const SWR_DB = window.Y2C_Accelerator.cache;
 
         // ==========================================
         // 🚀 UI 초기화 (드롭다운 세팅 및 블랭크 템플릿 준비)
@@ -969,9 +898,9 @@
         }
         
         function injectHqData(hq) {
-            document.getElementById('docHqName').innerHTML = (hq.name || FALLBACK_HQ_INFO.name).replace(" Inc.", "<br>INC.");
+            document.getElementById('docHqName').innerHTML = Y2C_AuthEngine.escapeHtml(hq.name || FALLBACK_HQ_INFO.name).replace(" Inc.", "<br>INC.");
             document.getElementById('docHqRep').innerText = hq.name || FALLBACK_HQ_INFO.name;
-            document.getElementById('docHqAddress').innerHTML = (hq.address || FALLBACK_HQ_INFO.address).replace(/\n/g, "<br>");
+            document.getElementById('docHqAddress').innerHTML = Y2C_AuthEngine.escapeHtml(hq.address || FALLBACK_HQ_INFO.address).replace(/\n/g, "<br>");
             document.getElementById('docHqRegNo').innerText = hq.regNo || FALLBACK_HQ_INFO.regNo;
             document.getElementById('docHqContact').innerText = hq.contact || FALLBACK_HQ_INFO.contact;
             document.getElementById('docHqRepName').innerText = hq.rep || FALLBACK_HQ_INFO.rep;
@@ -990,28 +919,37 @@
         // 🚀 [SWR ACCELERATION] 10x Fast Client Fetch
         // ==========================================
         async function fetchClientsFast() {
+            const viewSession = Y2C_AuthEngine.cacheSessionKey();
+            const readCurrent = window.Y2C_Accelerator.readGuard('fetchClientsFast', () => fetchClientsFast());
+            const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
+            if (!sameSession()) return;
             const cacheKey = 'MASTER_DATA_CACHE';
 
             // 1. SWR: 캐시 즉시 렌더링
+            if (!sameSession()) return;
             try {
                 const cachedRaw = await SWR_DB.get(cacheKey);
+                if (!sameSession()) return;
                 if (cachedRaw && cachedRaw.data) {
                     AppState.clients = cachedRaw.data || [];
                     populateClientSelector(AppState.clients);
                 }
-            } catch(e){}
+            } catch (e) { if (!sameSession()) return;}
 
             // 2. 백그라운드 동기화
+            if (!sameSession()) return;
             try {
                 const res = await Y2C_AuthEngine.request("get_master_data");
+                if (!sameSession()) return;
                 if (res && res.success && res.clients) {
                     if (JSON.stringify(AppState.clients) !== JSON.stringify(res.clients)) {
-                        AppState.clients = res.clients;
                         await SWR_DB.set(cacheKey, res.clients);
+                        if (!sameSession()) return;
+                        AppState.clients = res.clients;
                         populateClientSelector(AppState.clients);
                     }
                 }
-            } catch (err) { 
+            } catch (err) { if (!sameSession()) return; 
                 if (AppState.clients.length === 0) {
                     clientSel.innerHTML = '<option value="" disabled selected>⚠️ 서버 통신 실패 (새로고침 요망)</option>';
                     clientSel.classList.add('border-[#E3000F]', 'text-[#E3000F]');
@@ -1021,10 +959,13 @@
         }
 
         function populateClientSelector(clients) {
+            const selected=clientSel.value;
             clientSel.innerHTML = '<option value="" disabled selected>-- Select Franchise --</option>';
             clients.forEach(c => {
                 const opt = document.createElement('option'); opt.value = c.name; opt.innerText = c.name; clientSel.appendChild(opt);
             });
+            if(clients.some(client=>client.name===selected))clientSel.value=selected;
+            else if(AppState.invoiceReady)invalidateInvoice();
             btnGen.disabled = false;
             btnGen.innerText = "Generate Invoice";
         }
@@ -1032,6 +973,20 @@
         // ==========================================
         // 📊 정밀 정산 로직 (Concurrent API Engine & Phantom 0 Fix)
         // ==========================================
+        const printBtn=document.getElementById('btnPrintInvoice');
+        const resultStatus=document.getElementById('invoiceResultStatus');
+        const invoiceControls=[clientSel,yearSel,startSel,endSel,advSel,adfSel];
+        function invoiceSelection(){return invoiceControls.map(element=>element.value);}
+        function setInvoiceResult(state, message) {
+            resultStatus.textContent = message;
+            const title = document.getElementById('invoiceDockTitle'), detail = document.getElementById('invoiceDockMessage');
+            if (title) title.textContent = {ready:'Ready to Export',generating:'Generating Invoice',changed:'Generate Again',failed:'Unable to Generate'}[state] || 'Awaiting Invoice';
+            if (detail) detail.textContent = message;
+        }
+        function invalidateInvoice(){AppState.invoiceReady=false;[btnPdf,btnDownload,printBtn].forEach(button=>{if(button)button.disabled=true;});setInvoiceResult('changed','조건이 변경되었습니다. 인보이스를 다시 생성하십시오.');}
+        invoiceControls.forEach(element=>element.addEventListener('change',invalidateInvoice));
+        window.printInvoice=function(){if(!AppState.invoiceReady||AppState.isSubmitting||AppState.renderedSelection!==JSON.stringify(invoiceSelection())||Y2C_DocumentIO.isBusy())return;window.print();};
+
         if (btnGen) {
             btnGen.addEventListener('click', async () => {
                 const client = clientSel.value;
@@ -1045,8 +1000,11 @@
                 if (!client || !year || !sM || !eM) { Y2C_AuthEngine.showToast("모든 검색 조건을 설정해주십시오.", "warning"); return; }
                 if (sM > eM) { Y2C_AuthEngine.showToast("시작 월은 종료 월보다 클 수 없습니다.", "error"); return; }
 
-                if (AppState.isSubmitting) return;
+                if (AppState.isSubmitting||Y2C_DocumentIO.isBusy()) return;
+                const submittedSelection=JSON.stringify(invoiceSelection());
+                invalidateInvoice();
                 AppState.isSubmitting = true;
+                setInvoiceResult('generating','매출과 집계값을 검증하고 있습니다.');
                 const origHtml = btnGen.innerHTML;
                 btnGen.innerHTML = `⏳ COMPUTING...`; btnGen.disabled = true;
 
@@ -1057,6 +1015,7 @@
                         Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client }).catch(e => { console.warn(e); return { success: false, message: e.message }; })
                     ]);
                     
+                    if(submittedSelection!==JSON.stringify(invoiceSelection())){setInvoiceResult('changed','조회 중 조건이 변경되었습니다. 다시 생성하십시오.');return;}
                     if (invRes && salesRes && invRes.success && salesRes.success) {
                         // 🌟 월별 데이터 주입 및 애니메이션 실행
                         renderMonthlyBreakdown(invRes.invoiceData, salesRes.records, { targetYear: year, clientName: client, startMonth: sM, endMonth: eM }, advRate, adfRate);
@@ -1071,6 +1030,7 @@
                         throw new Error(invRes.message || salesRes.message || "서버와의 통신이 원활하지 않습니다. 다시 시도해 주십시오.");
                     }
                 } catch (e) {
+                    setInvoiceResult('failed','검증 또는 조회에 실패했습니다. 이전 결과는 출력할 수 없습니다.');
                     Y2C_AuthEngine.showToast(e.message, "error");
                 } finally {
                     AppState.isSubmitting = false;
@@ -1080,6 +1040,7 @@
         }
 
         function renderMonthlyBreakdown(invData, salesRecords, params, advRate, adfRate) {
+            const summary=Y2C_InvoiceMath.summarize(invData,salesRecords,params,advRate,adfRate);
             const cli = invData.clientInfo || {};
             
             // 🚨 백엔드가 수직 데이터를 읽지 못해 hqInfo가 비어있을 경우 무조건 FALLBACK_HQ_INFO를 덮어씌웁니다.
@@ -1113,24 +1074,24 @@
 
             // 🌟 월별 수수료 추출 연산 (Breakdown Engine)
             let linesHtml = "";
-            let totalFees = 0;
+            let totalFees = summary.totalFees;
             let validMonthsCount = 0;
 
             for (let m = params.startMonth; m <= params.endMonth; m++) {
-                const mRecord = salesRecords.find(r => r.month === m);
+                const mRecord = summary.months.find(r => r.month === m);
                 
                 // 🚨 [CRITICAL FIX 3] Zero-Drop Rendering Engine
                 // Removed `mRecord.exists` to ensure any value > 0 is captured, 
                 // preventing phantom skips when Google Sheets delays total calculation.
                 if (mRecord) {
-                    const gross = mRecord.total > 0 ? mRecord.total : ((mRecord.pos || 0) + (mRecord.delivery || 0));
+                    const gross = mRecord.gross;
                     
                     if (gross > 0) {
                         validMonthsCount++;
                         
-                        const advFee = Math.round(gross * advRate * 100) / 100;
-                        const adfFee = Math.round(gross * adfRate * 100) / 100;
-                        totalFees += (advFee + adfFee);
+                        const advFee = mRecord.advFee;
+                        const adfFee = mRecord.adfFee;
+                        // The reconciled integer-cent total is authoritative.
                         
                         const monthLabel = `${mNames[m-1]} ${params.targetYear}`;
                         
@@ -1162,8 +1123,8 @@
                 }
             }
             
-            if (validMonthsCount === 0) {
-                linesHtml = `<tr><td colspan="4" class="py-10 text-center text-gray-400 font-bold font-inter italic text-[11px]">No sales data found for the selected period.</td></tr>`;
+            if (validMonthsCount === 0 || !linesHtml) {
+                linesHtml = `<tr><td colspan="4" class="py-10 text-center text-gray-400 font-bold font-inter italic text-[11px]">${validMonthsCount===0?'No sales data found for the selected period.':'No fees apply at the selected rates.'}</td></tr>`;
             }
 
             document.getElementById('valInvoiceLines').innerHTML = linesHtml;
@@ -1182,7 +1143,9 @@
                 dock.classList.remove('translate-y-full');
                 dock.classList.add('translate-y-0');
             }
-            btnPdf.disabled = false;
+            AppState.invoiceReady=true;AppState.renderedSelection=JSON.stringify(invoiceSelection());
+            setInvoiceResult('ready','월별 매출과 집계값 검증 완료. 출력할 수 있습니다.');
+            [btnPdf,btnDownload,printBtn].forEach(button=>{if(button)button.disabled=false;});
         }
 
         // ==========================================
@@ -1191,54 +1154,24 @@
         if (btnPdf) btnPdf.addEventListener('click', generatePDF); 
         if (btnDownload) btnDownload.addEventListener('click', generatePDF); 
 
-        function generatePDF() {
-            const element = document.getElementById('invoiceDocument');
-            if (!element) return;
-            
-            const clientName = document.getElementById('docClientName').innerText.replace(/[^a-zA-Z0-9]/g, '_');
-            const period = document.getElementById('docBillingPeriod').innerText.replace(/\s/g, '_');
-            const filename = `Commercial_Invoice_${clientName}_${period}.pdf`;
-
-            // 🚨 [CRITICAL FIX] PDF 렌더링 붕괴를 막기 위해 일시적으로 CSS 클래스 주입
-            element.classList.add('pdf-export-mode');
-
-            const opt = {
-                margin:       0, 
-                filename:     filename,
-                image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { scale: 2, useCORS: true, letterRendering: true, backgroundColor: '#ffffff', scrollY: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }, // 🚨 강제 A4 규격
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
-            };
-
-            const origHtml = btnPdf.innerHTML;
-            btnPdf.innerHTML = `<span class="animate-pulse">EXPORTING...</span>`;
-            btnPdf.disabled = true;
-
-            if(typeof html2pdf !== 'undefined') {
-                html2pdf().set(opt).from(element).save().then(() => {
-                    // 🚨 PDF 구운 후 UI 롤백
-                    element.classList.remove('pdf-export-mode');
-                    btnPdf.innerHTML = origHtml;
-                    btnPdf.disabled = false;
-                    Y2C_AuthEngine.showToast("PDF 문서가 성공적으로 다운로드되었습니다.", "success");
-                }).catch(err => {
-                    element.classList.remove('pdf-export-mode');
-                    btnPdf.innerHTML = origHtml;
-                    btnPdf.disabled = false;
-                    Y2C_AuthEngine.showToast("PDF 생성 중 오류가 발생했습니다.", "error");
-                });
-            } else {
-                element.classList.remove('pdf-export-mode');
-                Y2C_AuthEngine.showToast("PDF 렌더링 엔진 로드 실패. 브라우저 인쇄 버튼을 이용하십시오.", "error");
-                btnPdf.innerHTML = origHtml;
-                btnPdf.disabled = false;
-            }
+        async function generatePDF() {
+            if(!AppState.invoiceReady||AppState.isSubmitting||AppState.renderedSelection!==JSON.stringify(invoiceSelection())){Y2C_AuthEngine.showToast('현재 조건의 인보이스를 먼저 생성하십시오.','warning');return;}
+            if(Y2C_DocumentIO.isBusy())return;
+            const element=document.getElementById('invoiceDocument');if(!element)return;
+            const safe=value=>String(value).replace(/[\\/:*?"<>|\x00-\x1f]/g,'_').slice(0,100);
+            const filename=`Commercial_Invoice_${safe(document.getElementById('docClientName').innerText)}_${safe(document.getElementById('docBillingPeriod').innerText)}.pdf`;
+            const original=btnPdf.innerHTML;btnPdf.innerHTML='EXPORTING...';
+            try{
+                const saved=await Y2C_DocumentIO.exportPDF(element,[btnPdf,btnDownload,printBtn,btnGen,...invoiceControls],filename);
+                if(saved)Y2C_AuthEngine.showToast('PDF 다운로드 요청을 완료했습니다.','success');
+            }catch(error){Y2C_AuthEngine.showToast(error.message||'PDF 생성 실패. 다시 시도하십시오.','error');}
+            finally{btnPdf.innerHTML=original;if(!AppState.invoiceReady)[btnPdf,btnDownload,printBtn].forEach(button=>{if(button)button.disabled=true;});}
         }
 
         // 🚀 초기 구동
         fetchClientsFast();
     });
     </script>
+    <script src="assets/js/mobile.js"></script>
 </body>
 </html>

@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content">
     
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light">
@@ -29,7 +29,6 @@
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     
     <link rel="preload" href="assets/js/config.js" as="script">
@@ -83,45 +82,10 @@
     </script>
 
     <!-- Tailwind CSS Hijacker -->
-    <script>
-        (function() {
-            var originalWarn = console.warn;
-            console.warn = function() {
-                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) return; 
-                originalWarn.apply(console, arguments);
-            };
-        })();
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'], 
-                        montserrat: ['Montserrat', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
-                    },
-                    colors: { 
-                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', border: '#e2e8f0', bg: '#F8F9FA' }
-                    },
-                    animation: {
-                        'shimmer': 'shimmer 2s linear infinite',
-                        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-                    },
-                    keyframes: {
-                        shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
-                        slideUp: { '0%': { opacity: 0, transform: 'translateY(20px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } }
-                    },
-                    boxShadow: {
-                        'premium-card': '0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
-                        'glass-panel': '0 25px 50px -12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.2)'
-                    }
-                }
-            }
-        }
-    </script>
+    
 
     <style>
         :root { --sinjeon-pink: #E3000F; --sinjeon-pink-dark: #B9000C; --premium-charcoal: #111827; --bg-light: #F8F9FA; --input-bg: #f8fafc; }
@@ -188,20 +152,34 @@
 
         @media print { .no-print { display: none !important; } }
     </style>
+    <link rel="stylesheet" href="assets/css/portal-shell.css">
+    <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/tailwind-dashboard.css">
 </head>
 
-<body id="mainBody" class="fouc-lock flex flex-col min-h-screen relative overflow-x-hidden selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
+<body id="mainBody" class="portal-page fouc-lock flex flex-col min-h-screen relative overflow-x-hidden selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
     
     <!-- 🚨 1단계: 보안 축출 (Pre-routing) & 화이트스크린 방어망 -->
     <script>
         (function() {
             var _inlineRole = String(sessionStorage.getItem("y2c_role") || localStorage.getItem("y2c_role") || "").toUpperCase().trim();
             var _inlineToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
+            try {
+                var _parts = _inlineToken.split('.');
+                var _claims = JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(_parts[1].replace(/-/g,'+').replace(/_/g,'/')),function(c){return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);}).join('')));
+                if (typeof _claims.exp !== 'number' || (_claims.exp > 10000000000 ? _claims.exp <= Date.now() : _claims.exp <= Date.now()/1000)) throw new Error('Expired');
+                _inlineRole = String(_claims.role || '').toUpperCase();
+                var _identityStore = sessionStorage.getItem('y2c_token') ? sessionStorage : localStorage;
+                _identityStore.setItem('y2c_role',_inlineRole);
+                _identityStore.setItem('y2c_client',_claims.clientName || '');
+            } catch (_error) { window.location.replace('index.html'); return; }
             window.__INITIAL_ROLE__ = _inlineRole;
 
             if (!_inlineRole || _inlineRole === "NULL" || !_inlineToken || _inlineToken.length < 10) {
                 window.location.replace("index.html"); return;
             }
+
+            if (_inlineRole !== 'MASTER' && _inlineRole !== 'PARTNER') { window.location.replace('items.html'); return; }
 
             // 🚨 FOUC 타이머 초기화 및 body 태그 강제 가시화 (White Screen Bug Fix)
             clearTimeout(window._foucTimer);
@@ -224,13 +202,13 @@
     </noscript>
 
     <!-- 🌟 프리미엄 헤더 (Dual Logo Synchronized) -->
-    <header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
+    <header data-portal-header class="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40 no-print transform-gpu shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div data-portal-header-row class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[70px] lg:h-[80px]">
 
-            <div class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
+            <div data-portal-brand class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
                 <div class="flex items-center gap-2">
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.reload()">
-                        <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
+                        <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
                     <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-full shadow-sm border-[2px] border-[#D4AF37] transform hover:scale-105 transition-transform duration-300 overflow-hidden relative group">
@@ -240,21 +218,21 @@
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
                 </div>
-                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200 min-w-0">
-                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap truncate" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
-                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block shrink-0">Operated by Y2C</span>
+                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
 
-            <nav class="hidden lg:flex items-center justify-center flex-1 h-full gap-2 xl:gap-5 px-4 min-w-0 overflow-hidden">
-                <a href="dashboard.html" id="navDashboard" class="nav-link active text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_admin">Master DB</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[10.5px] xl:text-[13px] tracking-wide hidden truncate" data-i18n="nav_invoice">Advisory Invoice</a>
+            <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
+                <a href="dashboard.html" id="navDashboard" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
-            <div class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto">
+            <div data-portal-account class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
                 <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200 shadow-sm mr-2">
                     <button onclick="changeLanguage('en')" id="lang_en" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">EN</button>
                     <button onclick="changeLanguage('ko')" id="lang_ko" class="px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none">KR</button>
@@ -265,8 +243,7 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
-                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[8px] sm:text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
-                    <!-- 🚨 [UX UPGRADE] Unified Logout Button -->
+                    <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
                     <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
                 </div>
             </div>
@@ -274,8 +251,8 @@
     </header>
 
     <!-- 🚨 모바일 네비게이션 -->
-    <div class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
-        <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
+    <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
+        <a href="dashboard.html" id="navDashboard_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
@@ -354,6 +331,7 @@
                             <span class="animate-pulse opacity-50">...</span>
                         </div>
                         <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">YTD Consolidated</span>
+                        <p id="historicalSalesNotice" class="hidden text-[10px] font-medium text-gray-300 mt-2" role="status"></p>
                     </div>
                 </div>
             </div>
@@ -511,6 +489,7 @@
     <!-- 🚨 코어 엔진 바인딩 -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
+    <script src="assets/js/accelerator.js"></script>
 
     <!-- 🌟 [PWA 엔진 점화] 모바일 네이티브 앱 설치 지원 -->
     <script>
@@ -540,8 +519,8 @@
         let clientName = "", sessionToken = "";
 
         try {
-            clientName = String(localStorage.getItem(STORAGE.CLIENT_NAME) || sessionStorage.getItem(STORAGE.CLIENT_NAME) || "Unknown").trim();
-            sessionToken = String(localStorage.getItem(STORAGE.USER_TOKEN) || sessionStorage.getItem(STORAGE.USER_TOKEN) || "").trim();
+            clientName = String(sessionStorage.getItem(STORAGE.CLIENT_NAME) || localStorage.getItem(STORAGE.CLIENT_NAME) || "Unknown").trim();
+            sessionToken = String(sessionStorage.getItem(STORAGE.USER_TOKEN) || localStorage.getItem(STORAGE.USER_TOKEN) || "").trim();
         } catch (e) {}
 
         const AppState = {
@@ -555,50 +534,7 @@
         // ============================================================================
         // 💾 [ACCELERATOR] IndexedDB 초고속 로컬스토리지 래퍼 (SWR 엔진 코어)
         // ============================================================================
-        const SWR_DB = {
-            name: 'Y2C_Admin_Cache_V80', // Unified cache pool
-            version: 1,
-            storeName: 'cacheStore',
-            isSupported: !!window.indexedDB,
-            init: function() {
-                return new Promise((resolve, reject) => {
-                    if (!this.isSupported) return reject("IndexedDB not supported");
-                    const req = indexedDB.open(this.name, this.version);
-                    req.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains(this.storeName)) {
-                            db.createObjectStore(this.storeName, { keyPath: 'id' });
-                        }
-                    };
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => reject(req.error);
-                });
-            },
-            set: async function(key, data) {
-                if (!this.isSupported) return;
-                try {
-                    const db = await this.init();
-                    return new Promise((resolve, reject) => {
-                        const tx = db.transaction(this.storeName, 'readwrite');
-                        tx.objectStore(this.storeName).put({ id: key, data: data, timestamp: Date.now() });
-                        tx.oncomplete = () => resolve();
-                        tx.onerror = () => reject(tx.error);
-                    });
-                } catch(e) {}
-            },
-            get: async function(key) {
-                if (!this.isSupported) return null;
-                try {
-                    const db = await this.init();
-                    return new Promise((resolve, reject) => {
-                        const tx = db.transaction(this.storeName, 'readonly');
-                        const req = tx.objectStore(this.storeName).get(key);
-                        req.onsuccess = () => resolve(req.result ? req.result : null);
-                        req.onerror = () => reject(tx.error);
-                    });
-                } catch(e) { return null; }
-            }
-        };
+        const SWR_DB = window.Y2C_Accelerator.cache;
 
         // ============================================================================
         // 🌐 다국어(i18n) 딕셔너리 및 UI 세팅
@@ -664,7 +600,7 @@
                 // 2. Service Worker Unregister
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                        for(let registration of registrations) { registration.unregister(); }
+                        for(let registration of registrations) { if(registration.scope === new URL('./', window.location.href).href) registration.unregister(); }
                     });
                 }
                 
@@ -672,7 +608,7 @@
                 if ('caches' in window) {
                     caches.keys().then(names => {
                         for (let name of names) { 
-                            if (name.includes('Y2C')) caches.delete(name); 
+                            if (name.startsWith('Y2C_ENTERPRISE_SCOPE_' + encodeURIComponent(new URL('./', window.location.href).pathname) + '_')) caches.delete(name); 
                         }
                     });
                 }
@@ -682,15 +618,17 @@
         };
 
         const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.addEventListener('click', logoutHandler);
+        if (logoutBtn) Y2C_AuthEngine.bindLogoutButton(logoutBtn);
 
         const indexLogoutBtn = document.getElementById('indexLogoutBtn');
-        if (indexLogoutBtn) indexLogoutBtn.addEventListener('click', logoutHandler);
+        if (indexLogoutBtn) Y2C_AuthEngine.bindLogoutButton(indexLogoutBtn);
 
         // ============================================================================
         // 🔒 Absolute Null-Safe Parsers (재무 무결성)
         // ============================================================================
         function parseStrictDecimal(value) { 
+            // Calculated numeric values may contain binary floating-point tail digits.
+            if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
             if (value == null) return 0; 
             let str = String(value).trim().toLowerCase().replace(/,/g, ''); 
             if (str === "" || str === "null" || str === "nan" || str === "-") return 0; 
@@ -712,32 +650,7 @@
         // ============================================================================
         // 🚀 [ACCELERATOR] 비동기 하드웨어 렌더링 코어
         // ============================================================================
-        const Y2C_Accelerator = {
-            renderReactively: function(targetId, htmlString) {
-                return new Promise(resolve => {
-                    requestAnimationFrame(() => {
-                        const el = document.getElementById(targetId);
-                        if (el) el.innerHTML = htmlString;
-                        resolve();
-                    });
-                });
-            },
-            processInChunks: async function(array, processFn, onComplete, chunkSize = 10) {
-                let index = 0;
-                function nextChunk() {
-                    const chunkEnd = Math.min(index + chunkSize, array.length);
-                    for (; index < chunkEnd; index++) {
-                        processFn(array[index], index);
-                    }
-                    if (index < array.length) {
-                        requestAnimationFrame(nextChunk);
-                    } else {
-                        if (onComplete) onComplete();
-                    }
-                }
-                requestAnimationFrame(nextChunk);
-            }
-        };
+        const Y2C_Accelerator = window.Y2C_Accelerator;
 
         // ============================================================================
         // 📈 [CRITICAL FIX 3] Chart.js SWR 파이프라인 (메모리 릭 방지)
@@ -764,12 +677,17 @@
             
             yearSelect.addEventListener('change', (e) => { 
                 sessionStorage.setItem('y2c_kpi_year', e.target.value); 
+                invalidateDashboardSales();
                 bootEnterpriseCore(); // 연도 변경 시 전체 엔진 순차 재부팅
             });
         }
 
         // 🚨 [CRITICAL FIX 2] MASTER 전용 동적 가맹점 선택기 (사용자별 그래프 오류 원천 봉쇄)
         async function fetchMasterDataForDashboard() {
+            const viewSession = Y2C_AuthEngine.cacheSessionKey();
+            const readCurrent = window.Y2C_Accelerator.readGuard('fetchMasterDataForDashboard', () => fetchMasterDataForDashboard());
+            const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
+            if (!sameSession()) return;
             if (AppState.role !== "MASTER") return; // 파트너는 자기 데이터만 열람
 
             const cacheKey = 'MASTER_DATA_CACHE';
@@ -781,27 +699,31 @@
             let clients = [];
             
             // 1. Load from SWR Cache first
+            if (!sameSession()) return;
             try {
                 const cached = await SWR_DB.get(cacheKey);
+                if (!sameSession()) return;
                 if (cached && cached.data) clients = cached.data;
-            } catch(e){}
+            } catch (e) { if (!sameSession()) return;}
 
             // 2. Fallback to API if empty
             if (clients.length === 0) {
                 try {
                     const res = await Y2C_AuthEngine.request("get_master_data");
+                if (!sameSession()) return;
                     if (res && res.success) {
                         clients = res.clients || [];
                         await SWR_DB.set(cacheKey, clients);
+                if (!sameSession()) return;
                     }
-                } catch (err) {
+                } catch (err) { if (!sameSession()) return;
                     console.warn("[Dashboard] Failed to fetch clients:", err);
                 }
             }
 
             // 3. Populate Dropdown
             if (clients.length > 0 && clientSel) {
-                const savedClient = sessionStorage.getItem('y2c_kpi_client');
+                const savedClient = clientSel.value || sessionStorage.getItem('y2c_kpi_client');
                 clientSel.innerHTML = "";
                 
                 clients.forEach(c => {
@@ -812,7 +734,7 @@
                 });
                 
                 // If no saved client and no valid selection, default to the first client in DB
-                if (!savedClient && clients.length > 0) {
+                if (!clients.some(c=>c.name===savedClient) && clients.length > 0) {
                     clientSel.value = clients[0].name;
                     sessionStorage.setItem('y2c_kpi_client', clients[0].name);
                 }
@@ -821,6 +743,7 @@
                 if (!clientSel.dataset.bound) {
                     clientSel.addEventListener('change', (e) => { 
                         sessionStorage.setItem('y2c_kpi_client', e.target.value); 
+                        invalidateDashboardSales();
                         bootEnterpriseCore(); 
                     });
                     clientSel.dataset.bound = true;
@@ -961,7 +884,23 @@
             });
         }
 
+        const dashboardSelection=()=>JSON.stringify([document.getElementById('dashYearSelector')?.value||String(new Date().getFullYear()),AppState.role==='MASTER'?(document.getElementById('kpiClientSelector')?.value||sessionStorage.getItem('y2c_kpi_client')||AppState.clientName):AppState.clientName]);
+        let dashboardSalesEpoch=0;
+        function clearDashboardSales(message) {
+            const notice=document.getElementById('historicalSalesNotice');if(notice){notice.textContent='';notice.classList.add('hidden');}
+            for(const id of ['kpiTotalSales','kpiPosSales','kpiDelSales','legendPosVal','legendDelVal','kpiPosRatio','kpiDelRatio']){const el=document.getElementById(id);if(el)el.textContent='—';}
+            for(const name of ['salesChartInstance','channelShareInstance']){if(window[name]){window[name].destroy();window[name]=null;}}
+            const table=document.getElementById('salesTrendBody');if(table)table.innerHTML=`<tr><td colspan="4" class="py-8 text-center text-gray-500 text-xs">${Y2C_AuthEngine.escapeHtml(message)}</td></tr>`;
+        }
+        function invalidateDashboardSales(){dashboardSalesEpoch++;clearDashboardSales('선택한 가맹점·연도의 데이터를 조회 중입니다.');}
         async function loadDashboardSalesFast() {
+            const viewSession = Y2C_AuthEngine.cacheSessionKey();
+            const readCurrent = window.Y2C_Accelerator.readGuard('loadDashboardSalesFast', () => loadDashboardSalesFast());
+            const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
+            if (!sameSession()) return;
+            const selection=dashboardSelection(), epoch=++dashboardSalesEpoch;
+            const isCurrent=()=>sameSession()&&epoch===dashboardSalesEpoch&&selection===dashboardSelection();
+            clearDashboardSales('선택한 가맹점·연도의 데이터를 조회 중입니다.');
             const yearSelect = document.getElementById('dashYearSelector');
             const targetYear = yearSelect ? parseInt(yearSelect.value) : new Date().getFullYear();
             
@@ -979,59 +918,66 @@
             const cacheKey = `DASHBOARD_DATA_${targetYear}_${targetClient}`;
             let cachedDashboardData = null;
 
+            if (!sameSession()) return;
             try {
                 // 1. SWR Cache Load
-                const cachedRaw = await SWR_DB.get(cacheKey);
+                const cachedRaw = await SWR_DB.get(cacheKey).catch(()=>null);
+                if (!sameSession()) return;
                 if (cachedRaw && cachedRaw.data) {
                     cachedDashboardData = cachedRaw.data;
-                    renderDashboardKpiAndChart(cachedDashboardData);
+                    if(isCurrent())renderDashboardKpiAndChart(cachedDashboardData,isCurrent);
                 }
 
                 // 2. Sequential API Request (No Parallel.all)
                 const salesRes = await Y2C_AuthEngine.request("get_sales_records", { year: targetYear, clientName: targetClient });
+                if (!sameSession()) return;
                 if (salesRes && salesRes.success) {
                     
                     // Transform raw records to dashboard data format
-                    let ytdPos = 0, ytdDelivery = 0;
+                    let ytdPos = 0, ytdDelivery = 0, ytdTotal = 0;
                     const records = salesRes.records || [];
                     
                     records.forEach(r => {
-                        ytdPos += (r.pos || 0);
-                        ytdDelivery += (r.delivery || 0);
+                        ytdPos += parseStrictDecimal(r.pos);
+                        ytdDelivery += parseStrictDecimal(r.delivery);
+                        ytdTotal += parseStrictDecimal(r.total) > 0 ? parseStrictDecimal(r.total) : parseStrictDecimal(r.pos) + parseStrictDecimal(r.delivery);
                     });
 
                     const dataToRender = {
                         rawRecords: records, // For table & chart iteration
-                        ytdTotal: ytdPos + ytdDelivery,
+                        ytdTotal: ytdTotal,
                         ytdPos: ytdPos,
                         ytdDelivery: ytdDelivery
                     };
 
                     if (JSON.stringify(cachedDashboardData) !== JSON.stringify(dataToRender)) {
                         await SWR_DB.set(cacheKey, dataToRender);
-                        renderDashboardKpiAndChart(dataToRender);
+                if (!sameSession()) return;
+                        if(isCurrent())renderDashboardKpiAndChart(dataToRender,isCurrent);
                     }
-                }
-            } catch (err) {
+                } else {throw new Error(salesRes?.message||'매출 조회 실패');}
+            } catch (err) { if (!sameSession()) return;
                 console.warn("[Dashboard] Sales Data Error:", err);
+                if(isCurrent()&&!cachedDashboardData)clearDashboardSales('조회하지 못했습니다. 새로고침하여 다시 시도하십시오.');
                 // Fail silently to allow other sequential items to load
             }
         }
 
-        function renderDashboardKpiAndChart(data) {
+        function renderDashboardKpiAndChart(data, isCurrent = () => true) {
             if (!data) return;
 
             // 🚨 [CRITICAL FIX 3] Chart.js Load Defense: 라이브러리가 아직 로딩 중이라면 재시도
-            if (typeof Chart === 'undefined') {
-                setTimeout(() => renderDashboardKpiAndChart(data), 200);
-                return;
-            }
+            const chartsAvailable=typeof Chart!=='undefined';
 
             let safeYtdPos = parseStrictDecimal(data.ytdPos);
             let safeYtdDel = parseStrictDecimal(data.ytdDelivery);
-            let safeYtdTotal = roundToCents(safeYtdPos + safeYtdDel);
+            const records = data.rawRecords || [];
+            let safeYtdTotal = roundToCents(records.length ? records.reduce((sum, row) => sum + (parseStrictDecimal(row.total) > 0 ? parseStrictDecimal(row.total) : parseStrictDecimal(row.pos) + parseStrictDecimal(row.delivery)), 0) : safeYtdPos + safeYtdDel);
+            const unclassified = roundToCents(records.reduce((sum, row) => sum + ((row.totalOnly === true || (parseStrictDecimal(row.pos) === 0 && parseStrictDecimal(row.delivery) === 0)) ? parseStrictDecimal(row.total) : 0), 0));
+            const historicalNotice = document.getElementById('historicalSalesNotice');
+            if (historicalNotice) { historicalNotice.textContent = unclassified > 0 ? `Includes ${formatCurrencyNum(unclassified)} historical sales without channel breakdown.` : ''; historicalNotice.classList[unclassified > 0 ? 'remove' : 'add']('hidden'); }
 
-            const eTotal = document.getElementById('dashYtdTotal');
+            const eTotal = document.getElementById('kpiTotalSales');
             const ePos = document.getElementById('kpiPosSales');
             const eDel = document.getElementById('kpiDelSales');
 
@@ -1042,17 +988,17 @@
             // Channel Share Calculation
             if (safeYtdTotal > 0) {
                 const posPercent = Math.round((safeYtdPos / safeYtdTotal) * 100);
-                const delPercent = 100 - posPercent;
+                const delPercent = Math.round((safeYtdDel / safeYtdTotal) * 100);
                 const posShareEl = document.getElementById('kpiPosRatio');
                 const delShareEl = document.getElementById('kpiDelRatio');
                 if (posShareEl) posShareEl.textContent = `Share: ${posPercent}%`;
                 if (delShareEl) delShareEl.textContent = `Share: ${delPercent}%`;
+            } else {
+                for(const id of ['kpiPosRatio','kpiDelRatio']){const element=document.getElementById(id);if(element)element.textContent='Share: 0%';}
             }
 
-            const records = data.rawRecords || [];
-            
             // 🌟 1. Chart.js 렌더링 호출
-            renderSalesChart(records);
+            if(chartsAvailable)renderSalesChart(records);
 
             // 🌟 2. 테이블 렌더링 (하단 백업 뷰)
             let tableHtml = "";
@@ -1078,14 +1024,14 @@
                 tableHtml = `<tr><td colspan="4" class="py-8 text-center text-gray-400 font-bold text-xs">해당 연도의 정산 데이터가 없습니다.</td></tr>`;
             }
 
-            Y2C_Accelerator.renderReactively('salesTrendBody', tableHtml);
+            Y2C_Accelerator.renderReactively('salesTrendBody', tableHtml,isCurrent);
 
             // 🌟 3. Donut Chart (채널 쉐어)
             document.getElementById('legendPosVal').innerText = formatCurrencyNum(safeYtdPos);
             document.getElementById('legendDelVal').innerText = formatCurrencyNum(safeYtdDel);
 
             const canvasShare = document.getElementById('channelShareChart');
-            if (canvasShare) {
+            if (canvasShare && chartsAvailable) {
                 if (window.channelShareInstance) {
                     window.channelShareInstance.destroy();
                 }
@@ -1093,10 +1039,10 @@
                 window.channelShareInstance = new Chart(ctxShare, {
                     type: 'doughnut',
                     data: {
-                        labels: ['POS', 'Delivery'],
+                        labels: unclassified > 0 ? ['POS', 'Delivery', 'Historical (unclassified)'] : ['POS', 'Delivery'],
                         datasets: [{
-                            data: [safeYtdPos, safeYtdDel],
-                            backgroundColor: ['#111827', '#E3000F'],
+                            data: unclassified > 0 ? [safeYtdPos, safeYtdDel, unclassified] : [safeYtdPos, safeYtdDel],
+                            backgroundColor: ['#111827', '#E3000F', '#D4AF37'],
                             borderWidth: 0, hoverOffset: 6
                         }]
                     },
@@ -1121,14 +1067,20 @@
         // 🚢 [LOGISTICS SCM ENGINE] 한국발 화물 트래킹 & 타임라인 (SWR 가속화 적용)
         // ============================================================================
         async function loadDashboardLogisticsFast() {
+            const viewSession = Y2C_AuthEngine.cacheSessionKey();
+            const readCurrent = window.Y2C_Accelerator.readGuard('loadDashboardLogisticsFast', () => loadDashboardLogisticsFast());
+            const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
+            if (!sameSession()) return;
             if (AppState.role === "PARTNER") return; // 파트너는 권한 없음
             
             const cacheKeyProc = 'PROC_DATA_CACHE';
             let cachedOrders = null;
 
+            if (!sameSession()) return;
             try {
                 // 1. SWR Cache Load
                 const cachedProc = await SWR_DB.get(cacheKeyProc);
+                if (!sameSession()) return;
                 if (cachedProc && cachedProc.data) {
                     cachedOrders = cachedProc.data;
                     renderLogisticsKPIs(cachedOrders.hqOrders || []);
@@ -1136,14 +1088,16 @@
 
                 // 2. Sequential API Request
                 const procRes = await Y2C_AuthEngine.request("get_procurement_data");
+                if (!sameSession()) return;
                 if (procRes && procRes.success) {
                     const freshOrders = procRes.hqOrders || [];
                     if (JSON.stringify(cachedOrders?.hqOrders) !== JSON.stringify(freshOrders)) {
                         await SWR_DB.set(cacheKeyProc, procRes);
+                if (!sameSession()) return;
                         renderLogisticsKPIs(freshOrders);
                     }
                 }
-            } catch (err) {
+            } catch (err) { if (!sameSession()) return;
                 console.warn("[Dashboard] Logistics Data Error:", err);
             }
         }
@@ -1159,6 +1113,9 @@
         }
 
         function renderLogisticsKPIs(orders) {
+            const readOptions = {readBound:true,key:'logisticsTrackerContainer',onStale:()=>loadDashboardLogisticsFast()};
+            const epoch = renderLogisticsKPIs.epoch = (renderLogisticsKPIs.epoch || 0) + 1;
+            const isCurrent = () => renderLogisticsKPIs.epoch === epoch;
             const activeShipments = orders.filter(o => {
                 const st = String(o.status).toUpperCase();
                 return st !== "CANCELED" && st !== "COMPLETED";
@@ -1173,7 +1130,7 @@
                         <span class="text-3xl block mb-2 opacity-50">⚓</span>
                         현재 진행 중인 한국발 인바운드 화물이 없습니다.
                     </div>
-                `);
+                `,isCurrent,readOptions);
                 return;
             }
 
@@ -1251,14 +1208,14 @@
                             <span class="font-bold text-gray-700">Manifest:</span> ${escItems}
                         </div>
                         <div class="shrink-0 font-mono">
-                            <span class="font-bold text-gray-700">Issued:</span> ${shipment.date} | <span class="font-bold text-[#E3000F]">ETA:</span> ${shipment.eta || "TBD"}
+                            <span class="font-bold text-gray-700">Issued:</span> ${Y2C_AuthEngine.escapeHtml(shipment.date)} | <span class="font-bold text-[#E3000F]">ETA:</span> ${Y2C_AuthEngine.escapeHtml(shipment.eta || "TBD")}
                         </div>
                     </div>
                 </div>
                 `;
             }, () => {
-                Y2C_Accelerator.renderReactively('logisticsTrackerContainer', html);
-            });
+                Y2C_Accelerator.renderReactively('logisticsTrackerContainer', html,isCurrent,readOptions);
+            }, 200, {...readOptions,isCurrent});
         }
 
         // ==========================================
@@ -1285,11 +1242,13 @@
 
             // 🚨 [CRITICAL FIX 1] Global Sequential Boot Engine
             // 마스터 데이터 -> 매출 데이터 -> 물류 조달 순으로 1개씩 순차(Await) 실행하여 구글 서버의 리다이렉트 락(Lock)을 완전히 방지합니다.
+            let dashboardRefreshPending=false;
             window.bootEnterpriseCore = async function() {
-                if (AppState.isSubmitting) return; // Prevent manual double-clicks
+                if (AppState.isSubmitting) {dashboardRefreshPending=true;return;}
+                dashboardRefreshPending=false; // Prevent manual double-clicks
                 AppState.isSubmitting = true;
                 
-                const btnRefresh = document.getElementById('btnRefreshDashboard');
+                const btnRefresh = document.getElementById('refreshChartBtn');
                 if (btnRefresh) btnRefresh.classList.add('animate-spin');
 
                 try {
@@ -1312,6 +1271,7 @@
                     AppState.isBooting = false; 
                     AppState.isSubmitting = false;
                     if (btnRefresh) btnRefresh.classList.remove('animate-spin');
+                    if(dashboardRefreshPending)bootEnterpriseCore();
                 }
             };
             
@@ -1319,5 +1279,6 @@
             bootEnterpriseCore();
         });
     </script>
+    <script src="assets/js/mobile.js"></script>
 </body>
 </html>

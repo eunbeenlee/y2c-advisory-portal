@@ -13,7 +13,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content">
     
     <!-- 🌟 [PWA 엔진] 앱 명세서 및 모바일 네이티브 록다운 -->
     <link rel="manifest" href="manifest.json">
@@ -39,7 +39,6 @@
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     
     <!-- 🚀 가속: [V69 ACCELERATOR] 핵심 보안 통신 모듈 초고속 프리로드 (렌더링 차단 방지) -->
     <link rel="preload" href="assets/js/config.js" as="script">
@@ -93,61 +92,11 @@
     </script>
 
     <!-- Tailwind CSS Hijacker -->
-    <script>
-        (function() {
-            var originalWarn = console.warn;
-            console.warn = function() {
-                if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('cdn.tailwindcss.com should not be used')) return; 
-                originalWarn.apply(console, arguments);
-            };
-        })();
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
 
     <!-- 🌟 Tailwind 커스텀 테마 엔진 -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'], 
-                        montserrat: ['Montserrat', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'] 
-                    },
-                    colors: { 
-                        premium: { charcoal: '#111827', red: '#E3000F', hover: '#B9000C', gold: '#D4AF37', border: '#e2e8f0', bg: '#F8F9FA' }
-                    },
-                    animation: {
-                        'spin-slow': 'spin 3s linear infinite',
-                        'pulse-glow': 'pulseGlow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'heartbeat': 'heartbeat 2s ease-in-out infinite',
-                        'shimmer': 'shimmer 2s linear infinite',
-                    },
-                    keyframes: {
-                        pulseGlow: {
-                            '0%, 100%': { opacity: 1, textShadow: '0 0 15px rgba(227,0,15,0.2)' },
-                            '50%': { opacity: .7, textShadow: '0 0 5px rgba(227,0,15,0.05)' },
-                        },
-                        heartbeat: {
-                            '0%, 100%': { transform: 'scale(1)', opacity: 0.6 },
-                            '50%': { transform: 'scale(1.15)', opacity: 1 },
-                        },
-                        shimmer: {
-                            '0%': { backgroundPosition: '200% 0' },
-                            '100%': { backgroundPosition: '-200% 0' },
-                        }
-                    },
-                    boxShadow: {
-                        'premium-card': '0 35px 60px -15px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0,0,0,0.02)',
-                        'premium-input': 'inset 0 2px 4px 0 rgba(0,0,0,0.03)',
-                        'premium-input-focus': '0 4px 15px rgba(17, 24, 39, 0.06), 0 0 0 4px rgba(17, 24, 39, 0.08)',
-                        'premium-btn': '0 8px 20px rgba(227, 0, 15, 0.25), inset 0 1px 0 rgba(255,255,255,0.25)',
-                        'premium-btn-hover': '0 15px 30px rgba(227, 0, 15, 0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
-                    }
-                }
-            }
-        }
-    </script>
+    
 
     <style>
         :root {
@@ -280,6 +229,8 @@
         
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
     </style>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/tailwind-index.css">
 </head>
 
 <body id="mainBody" class="selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out;">
@@ -326,7 +277,7 @@
             <div class="flex items-center justify-center gap-4 mb-8">
                 <!-- 붉은 펜촉 신전 로고 (라운드 스퀘어) -->
                 <div class="w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-2.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group">
-                    <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='assets/images/favicon.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
+                    <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                     <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                 </div>
                 <!-- 황금색 테두리 Y2C 로고 (써클) -->
@@ -378,7 +329,7 @@
                         <input type="password" id="userPw" name="userPw" autocomplete="current-password" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-[0.3em] text-lg relative z-0">
                         <label for="userPw" class="floating-label">Passkey</label>
                         
-                        <button type="button" id="togglePwBtn" class="absolute right-4 text-gray-400 hover:text-[var(--premium-charcoal)] transition-colors focus:outline-none z-10 p-1">
+                        <button type="button" id="togglePwBtn" aria-label="Show password" aria-pressed="false" class="absolute right-4 text-gray-400 hover:text-[var(--premium-charcoal)] transition-colors focus:outline-none z-10 p-1">
                             <svg id="eyeIconClosed" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
                             <svg id="eyeIconOpen" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                         </button>
@@ -472,12 +423,14 @@
         if(togglePwBtn && userPwInput) {
             togglePwBtn.addEventListener('click', () => {
                 if(userPwInput.type === 'password') {
+                    togglePwBtn.setAttribute('aria-label','Hide password');togglePwBtn.setAttribute('aria-pressed','true');
                     userPwInput.type = 'text';
                     userPwInput.classList.remove('tracking-[0.3em]');
                     eyeClosed.classList.add('hidden');
                     eyeOpen.classList.remove('hidden');
                 } else {
                     userPwInput.type = 'password';
+                    togglePwBtn.setAttribute('aria-label','Show password');togglePwBtn.setAttribute('aria-pressed','false');
                     userPwInput.classList.add('tracking-[0.3em]');
                     eyeOpen.classList.add('hidden');
                     eyeClosed.classList.remove('hidden');
@@ -511,6 +464,7 @@
             // 🚨 Custom Login Listener override to implement Retry Feedback UI
             const form = document.getElementById('loginForm');
             if (form) {
+                let loginInFlight=false;
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     
@@ -531,6 +485,7 @@
                         return;
                     }
 
+                    if(loginInFlight)return;loginInFlight=true;
                     const btn = document.getElementById('loginBtn');
                     const btnText = document.getElementById('btnText');
                     const btnSpinner = document.getElementById('btnSpinner');
@@ -562,15 +517,10 @@
                         // Request is handled by NetworkEngine (auth.js)
                         const res = await Y2C_AuthEngine.request("login", { id: id, pw: pw });
 
+                        if(!res||res.success!==true)throw new Error(res&&res.message||'로그인이 확인되지 않았습니다.');
                         if (res && res.success) {
-                            res.id = id; 
-                            // Direct Session Saving bypass
-                            const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
-                            keysToClear.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
-                            localStorage.setItem("y2c_token", res.token); localStorage.setItem("y2c_role", res.role);
-                            localStorage.setItem("y2c_client", res.clientName); localStorage.setItem("y2c_region", res.allowedStates || res.clientState || "ON");
-                            localStorage.setItem("y2c_id", res.id || "");
-                            
+                            Y2C_AuthEngine.saveLoginSession({...res,id},true);
+
                             Y2C_AuthEngine.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
                             
                             setTimeout(() => {
@@ -594,6 +544,7 @@
                         void form.offsetWidth; 
                         form.classList.add('shake-animation');
                     } finally {
+                        loginInFlight=false;
                         clearInterval(loadingInterval);
                         if (spinnerTxt) spinnerTxt.innerText = "VERIFYING...";
                         if (btn) btn.disabled = false;
@@ -620,13 +571,13 @@
                     // 🚨 Fallback Deep Nuke (Service Worker & Cache)
                     if ('serviceWorker' in navigator) {
                         navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                            for(let registration of registrations) { registration.unregister(); }
+                            for(let registration of registrations) { if(registration.scope === new URL('./', window.location.href).href) registration.unregister(); }
                         });
                     }
                     if ('caches' in window) {
                         caches.keys().then(names => {
                             for (let name of names) { 
-                                if (name.includes('Y2C')) caches.delete(name); 
+                                if (name.startsWith('Y2C_ENTERPRISE_SCOPE_' + encodeURIComponent(new URL('./', window.location.href).pathname) + '_')) caches.delete(name); 
                             }
                         });
                     }
@@ -637,5 +588,6 @@
         }
     });
     </script>
+    <script src="assets/js/mobile.js"></script>
 </body>
 </html>

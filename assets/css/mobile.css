@@ -1,0 +1,41 @@
+/* Screen-only adaptations; invoice paper and PDF capture retain original sizing. */
+@media screen {
+ html,body {transform:none!important;}
+ /* Keep the sales dock positioned against the viewport through its ancestors. */
+ main.app-shell-enter {transform:none!important;will-change:opacity;}
+ #tab-sales {content-visibility:visible;}
+ body {min-height:100vh;min-height:100dvh;}
+ [data-portal-header] {padding-top:env(safe-area-inset-top,0px);}
+ [data-portal-header-row], [data-portal-mobile-navigation] {padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+ #recipeModal,#itemSelectionModal,#statusUpdateModal {padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:max(8px,env(safe-area-inset-bottom,0px));}
+ #recipeModalPanel,#itemModalPanel,#statusModalPanel {min-width:0!important;max-width:calc(100vw - 24px)!important;max-height:calc(100vh - 40px)!important;max-height:calc(100dvh - 40px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;}
+ .modal-scroll {min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+ @media (max-width:1023px) {
+  input:not([type=hidden]),select,textarea {font-size:16px!important;}
+  button:not(:disabled),[data-portal-mobile-navigation] a {min-height:44px;}
+  [data-portal-account] {flex-wrap:wrap;}
+  #cartActionContainer>div>div,#pdfActionContainer>div>div {gap:8px;padding-top:8px;padding-bottom:8px;}
+  #mobileSalesSaveContainer {padding-bottom:max(12px,env(safe-area-inset-bottom,0px));}
+  main {padding-bottom:max(180px,calc(160px + env(safe-area-inset-bottom,0px)))!important;}
+  [data-mobile-catalog-scroll] {overflow-x:auto!important;-webkit-overflow-scrolling:touch;}
+  [data-mobile-catalog-scroll]>div:first-child {overflow:visible;min-width:960px;}
+  [data-mobile-catalog-scroll] table {min-width:960px;}
+  #catalogVirtualViewport {width:960px!important;height:clamp(280px,60vh,600px)!important;height:clamp(280px,60svh,600px)!important;}
+ }
+ @media (max-width:359px) {
+  [data-portal-brand]>:last-child>:first-child {font-size:15px!important;}
+  [data-portal-header-row] {gap:6px;}
+ }
+ @media (max-height:500px) and (orientation:landscape) {
+  #cartActionContainer>div>div,#pdfActionContainer>div>div {flex-direction:row!important;flex-wrap:wrap;}
+ }
+}
+
+@media screen and (max-width:1023px) {
+ .mobile-keyboard-open #cartActionContainer,.mobile-keyboard-open #pdfActionContainer,.mobile-keyboard-open #mobileSalesSaveContainer {display:none!important;}
+}
+
+/* Transient feedback belongs to the screen, never to invoice paper/PDF. */
+@media print {
+ #premiumToastContainer,#toastContainer,#y2c-global-loader {display:none!important;}
+}

@@ -10,6 +10,7 @@
  */
 
 "use strict";
+importScripts("excel-model.js");
 
 const AdvancedAutoMapper = {
     normalize: function(str) { 
@@ -79,37 +80,29 @@ const AdvancedAutoMapper = {
 };
 
 function findBestKey(row, keywords) {
-    const keys = Object.keys(row);
-    for (let k of keys) {
-        let cleanK = k.replace(/[^a-zA-Z0-9가-힣]/g, '').toUpperCase();
-        for (let kw of keywords) { if (cleanK.includes(kw)) return k; }
-    }
-    return null;
+    return Y2C_ExcelModel.findKey(row,keywords);
 }
 
 function normalizeExcelDate(value) {
     if (value === undefined || value === null || value === "" || value === "-") return "-";
-    if (typeof value === 'number' && value > 20000) {
-        const date = new Date((value - 25569) * 86400 * 1000);
-        date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
+    const strVal=String(value).trim();
+    const serial=typeof value==='number'?value:(/^\d{5}(\.\d+)?$/.test(strVal)?Number(strVal):NaN);
+    if(Number.isFinite(serial)&&serial>20000&&serial<100000){
+        return new Date((Math.floor(serial)-25569)*86400000).toISOString().slice(0,10);
     }
-    const strVal = String(value).trim();
-    const match = strVal.match(/\d{4}-\d{2}-\d{2}/);
-    if (match) return match[0];
+    const match=strVal.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    if(match){const date=match[1]+'-'+match[2].padStart(2,'0')+'-'+match[3].padStart(2,'0');return Y2C_ExcelModel.validDate(date)?date:strVal;}
     return strVal;
 }
 
 // 메인 스레드로부터 데이터를 받아 백그라운드 연산 시작
 self.addEventListener('message', function(e) {
-    const { action, payload } = e.data;
+    const { action, payload, jobId } = e.data;
+    try {
     
     if (action === 'PROCESS_EXCEL') {
         const { jsonArray, catalogItems, mappings, currentHub } = payload;
-        let aggregatedData = {}; 
+        let aggregatedData = Object.create(null);let sourceRowIndex=0; 
         
         // 1. 데이터 파싱 및 QTY 통합
         jsonArray.forEach(row => {
@@ -120,19 +113,22 @@ self.addEventListener('message', function(e) {
             const priceKey = findBestKey(row, ['PRICE', 'UNITPRICE', '단가', '가격', 'COST']);
 
             let rawCode = codeKey ? String(row[codeKey]).trim().toUpperCase() : "";
-            let qtyStr = qtyKey ? String(row[qtyKey]).replace(/[^0-9]/g, '') : "0";
-            let qty = parseInt(qtyStr, 10);
+            let qtyStr=qtyKey?String(row[qtyKey]).trim():'';
+            if(/^\d{1,3}(,\d{3})+$/.test(qtyStr))qtyStr=qtyStr.replace(/,/g,'');
+            let qty=/^\d+$/.test(qtyStr)?Number(qtyStr):NaN;
             let rawExp = expKey ? row[expKey] : "-";
             let exp = normalizeExcelDate(rawExp);
             let rawName = nameKey ? String(row[nameKey]).trim() : "";
-            let rawPrice = priceKey ? parseFloat(String(row[priceKey]).replace(/[^0-9.]/g, '')) : null;
+            let priceText=priceKey?String(row[priceKey]).trim().replace(/^\$\s*/, ''):'';
+            if(/^\d{1,3}(,\d{3})+(\.\d{1,2})?$/.test(priceText))priceText=priceText.replace(/,/g,'');
+            let rawPrice=priceText===''?null:(/^\d+(\.\d{1,2})?$/.test(priceText)?Number(priceText):NaN);
 
-            if (rawCode && !isNaN(qty) && qty > 0) {
-                let aggKey = rawCode + '|' + exp;
+            if (true) {
+                let aggKey = String(sourceRowIndex++);
                 if (!aggregatedData[aggKey]) {
-                    aggregatedData[aggKey] = { rawCode: rawCode, rawName: rawName, exp: exp, qty: 0, price: rawPrice };
+                    aggregatedData[aggKey] = { rawCode: rawCode, rawName: rawName, exp: exp, qty: qty, price: rawPrice, inputError: !rawCode || !Number.isSafeInteger(qty) || qty<=0 || (exp!=="-"&&!Y2C_ExcelModel.validDate(exp)) || (rawPrice!==null&&!Number.isFinite(rawPrice)) };
                 }
-                aggregatedData[aggKey].qty += qty;
+
                 if(rawPrice !== null && !isNaN(rawPrice)) aggregatedData[aggKey].price = rawPrice;
             }
         });
@@ -146,7 +142,8 @@ self.addEventListener('message', function(e) {
             let hqCode = null;
             let isAiMapped = false;
             
-            let mapObj = mappings.find(m => String(m.vendorCode).toUpperCase() === item.rawCode);
+            const matches=mappings.filter(m=>String(m.vendorCode).toUpperCase()===item.rawCode);
+            let mapObj=new Set(matches.map(m=>m.hqCode)).size===1?matches[0]:null;
             if (mapObj) {
                 hqCode = mapObj.hqCode;
                 // 🚨 과거 캐시된 코드가 현재 마스터 DB에 없으면 유령 코드로 간주하고 폐기
@@ -171,35 +168,18 @@ self.addEventListener('message', function(e) {
 
             displayRows.push({
                 rawCode: item.rawCode, rawName: item.rawName, exp: item.exp, qty: item.qty, price: item.price,
-                hqCode: hqCode, status: hqCode ? (isAiMapped ? "AI_MAPPED" : "OK") : "ERROR", ignored: false
+                hqCode: hqCode, inputError:item.inputError, status: hqCode && !isAiMapped && !item.inputError ? "OK" : "ERROR", ignored: false
             });
 
-            // 3. 재고/단가 업데이트 객체 생성
-            if (hqCode) {
-                const masterItem = catalogItems.find(c => c.code === hqCode);
-                if (!tempUpdates[hqCode]) {
-                    tempUpdates[hqCode] = { code: hqCode, stockBreakdown: {}, expBreakdown: {} };
-                    tempUpdates[hqCode].stockBreakdown[currentHub] = 0;
-                    if (item.price !== null && !isNaN(item.price) && item.price > 0) {
-                         if(masterItem && Math.abs(item.price - masterItem.price) > 0.01) {
-                             tempUpdates[hqCode].newPrice = item.price;
-                         }
-                    }
-                }
-                tempUpdates[hqCode].stockBreakdown[currentHub] += item.qty;
-                if (item.exp !== "-") {
-                    let existingExp = tempUpdates[hqCode].expBreakdown[currentHub];
-                    if (existingExp) tempUpdates[hqCode].expBreakdown[currentHub] += ` | ${item.exp}:${item.qty}`;
-                    else tempUpdates[hqCode].expBreakdown[currentHub] = `${item.exp}:${item.qty}`;
-                }
-            }
+
         });
 
         // 4. 메인 스레드로 연산 결과 반환
         self.postMessage({
             status: 'SUCCESS',
             displayRows: displayRows,
-            tempUpdates: tempUpdates
+            tempUpdates: {}, jobId, currentHub
         });
     }
+    } catch(err){self.postMessage({status:"ERROR",message:err.message,jobId});}
 });
