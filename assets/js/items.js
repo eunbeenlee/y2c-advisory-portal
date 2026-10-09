@@ -961,7 +961,7 @@ window.cancelOrder = async function(batchId) {
     const safeBatchId = String(batchId).trim();
     if (safeBatchId.length > 50 || !/^[\w-]+$/.test(safeBatchId)) return showToast("주문 번호 형식이 올바르지 않습니다.", "error");
 
-    const confirmMsg = `정말 주문 [${escapeHtml(safeBatchId)}]을 취소하시겠습니까?\n\n✔️ 취소 시 차감되었던 재고가 100% 복구됩니다.`;
+    const confirmMsg = `정말 주문 [${escapeHtml(safeBatchId)}]을 취소하시겠습니까?\n\n주문 상태만 취소로 변경됩니다. 재고는 자동 복원되지 않습니다.\n관리자가 재고를 대조하고 필요한 조정을 별도로 진행해야 합니다.`;
     if (!confirm(confirmMsg)) return;
 
     isCanceling = true; isSubmitting = true; 
@@ -971,10 +971,10 @@ window.cancelOrder = async function(batchId) {
     submitLockTimer = setTimeout(() => { isCanceling = false; isSubmitting = false; showToast("취소 요청 시간이 초과되었습니다.", "error"); }, 35000);
 
     try {
-        const result = await executeApi("cancel_order", { batchId: safeBatchId });
+        const result = await executeApi("cancel_order", { orderId: safeBatchId });
         if (result && result.success) { showToast(`✅ ${escapeHtml(result.message)}`, "success"); setTimeout(() => fetchItems(), 1500); } 
     } catch (err) { 
-        if(err.ledgerPending) { showToast(`✅ 재고 복원 완료\n⚠️ 원장 지연 (TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); } 
+        if(err.ledgerPending) { showToast(`⚠️ 취소 결과 확인이 필요합니다. 재고 복원으로 간주하지 마세요.\n원장 지연 (TX: ${safeDisplay(err.txId)})`, "success"); setTimeout(() => fetchItems(), 2500); } 
         else { showToast(`❌ 취소 실패: ${escapeHtml(err.message)}`, "error"); }
     } finally { isCanceling = false; isSubmitting = false; clearTimeout(submitLockTimer); }
 }
