@@ -4,6 +4,8 @@
  let offset=0,busy=false,cancelBusy=false,serial=0;
  const $=id=>document.getElementById(id);
  const money=n=>new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD'}).format(n);
+ const statuses={PENDING:'PENDING / 접수 대기',CONFIRMED:'CONFIRMED / 접수 확인',PREPARING:'PREPARING / 준비 중',SHIPPED:'SHIPPED / 출고 완료',COMPLETED:'COMPLETED / 처리 완료',CANCELED:'CANCELED / 취소',MIXED:'MIXED / 상태 확인 필요'};
+ function dateLabel(value){if(typeof value==='string' && !/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value))return value || 'Date unavailable / 일시 없음';const d=new Date(value);return Number.isNaN(d.getTime())?String(value || 'Date unavailable / 일시 없음'):new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZoneName:'short'}).format(d)+' · Toronto';}
  function el(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}
  async function load(next){
   if(busy || cancelBusy)return;busy=true;const ticket=++serial;
@@ -17,8 +19,8 @@
    offset=next;$('orderHistoryList').replaceChildren();
    for(const o of res.orders){
     const card=el('details');card.className='order-history-card';
-    card.append(el('summary',o.id+' · '+o.clientName+' · '+o.region+' · '+o.status+' · '+money(o.total)));
-    card.append(el('p',o.date));
+    card.append(el('summary',o.id+' · '+o.clientName+' · '+o.region+' · '+(statuses[o.status] || o.status)+' · '+money(o.total)));
+    const date=el('p',dateLabel(o.date));date.title=String(o.date || '');card.append(date);
     const scroll=el('div');scroll.style.overflowX='auto';const table=el('table');
     const head=el('tr');for(const label of ['SKU','Item / 상품','Qty / 수량','Price / 단가','Amount / 금액'])head.append(el('th',label));table.append(head);
     for(const item of o.items){const row=el('tr');for(const value of [item.code,item.name,item.qty,money(item.price),money(item.total)])row.append(el('td',String(value)));table.append(row);}
