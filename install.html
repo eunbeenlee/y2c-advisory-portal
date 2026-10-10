@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover">
+<title>앱 설치 | SINJEON CANADA</title><meta name="theme-color" content="#FFFFFF">
+<meta name="description" content="Install the SINJEON CANADA Partner Portal on your home screen.">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/app-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="SINJEON Portal"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="assets/css/mobile.css"><link rel="stylesheet" href="assets/css/pwa.css"><script defer src="assets/js/pwa.js"></script>
+</head><body class="pwa-install-page">
+<header><img src="assets/icons/app-192.png" alt="Sinjeon"><a href="index.html">SINJEON CANADA <small>Partner Portal · Y2C Holdings</small></a></header>
+<main><span class="pwa-eyebrow">PARTNER PORTAL · APP ACCESS</span><h1>업무 포털을 홈 화면에</h1><p class="pwa-muted">매번 주소를 입력하지 않고 주문·재고·레시피를 확인하세요.<br>Keep orders, stock and recipes one tap away.</p>
+<section class="pwa-install-card" aria-labelledby="installTitle"><h2 id="installTitle">앱 설치 / Install app</h2><p id="installStatus" role="status" aria-live="polite">설치 버튼이 활성화되지 않으면 아래 브라우저 메뉴를 이용하세요.<br>If the button is unavailable, use the browser steps below.</p><div class="pwa-install-actions"><button id="installAppButton" type="button" disabled>앱 설치 / Install app</button><a href="index.html">포털 열기 / Open portal</a></div></section>
+<section class="pwa-install-card"><h2>iPhone · iPad</h2><ol><li>이 페이지를 <strong>Safari</strong>에서 여세요. / Open this page in Safari.</li><li><strong>공유 → 홈 화면에 추가</strong>를 선택하세요. / Share → Add to Home Screen.</li><li>‘웹 앱으로 열기’ 옵션이 있으면 켠 뒤 <strong>추가</strong>를 누르세요. / Enable Open as Web App if shown, then Add.</li></ol><p class="pwa-muted">홈 화면 아이콘으로 실행한 뒤 업무 계정으로 로그인하세요. / Launch from the home screen and sign in.</p></section>
+<section class="pwa-install-card"><h2>Android · Galaxy Fold — APK 설치</h2><p>설치 파일을 다운로드해 실행하세요. / Download and open the APK installation file.</p><div class="pwa-install-actions"><a href="apps/SinjeonPortal-1.0.0.apk" download>Android APK 다운로드 / Download APK</a></div><p class="pwa-muted">다운로드한 파일 → 설치. 요청되면 현재 브라우저의 앱 설치 허용을 켜주세요. iPhone에서는 APK를 설치할 수 없습니다. / Open the downloaded file and allow installation from your browser if requested. APK is Android only.</p><p>최신 Chrome 설치를 권장합니다. 웹사이트 연결 확인 전에는 주소창이 보일 수 있습니다. / Use an up-to-date Chrome browser. The address bar may remain until website verification completes.</p><h3>홈 화면 추가로 이용하기 / PWA option</h3><ol><li>이 페이지를 <strong>Chrome 또는 Samsung Internet</strong>에서 여세요. / Open in Chrome or Samsung Internet.</li><li>위의 <strong>앱 설치</strong> 버튼 또는 브라우저 메뉴의 <strong>앱 설치 / 홈 화면에 추가</strong>를 선택하세요. / Use Install app or Add to Home Screen in the browser menu.</li><li>설치 후 홈 화면에서 실행하세요. / Launch from the home screen.</li></ol></section>
+<section class="pwa-install-card"><h2>이용 안내 / Before you start</h2><p>카카오톡·메일 안의 브라우저에서는 설치 메뉴가 없을 수 있습니다. Safari 또는 Chrome으로 열어주세요. / Open in Safari or Chrome if using an in-app browser.</p><p>처음 로그인과 최신 재고·주문 확인에는 인터넷 연결이 필요합니다. ‘업로드 대기’는 서버 처리 완료가 아닙니다. 온라인으로 돌아온 뒤 완료 상태를 확인하세요. / Internet is required for sign-in and current order data. A queued upload is not a confirmed server operation.</p><p>업데이트 안내를 받으면 입력 중인 내용을 저장하고 앱을 모두 닫았다가 다시 실행하세요. / Save your work, close all app windows and reopen after an update.</p></section>
+<noscript><p>자동 설치 버튼을 사용하려면 JavaScript를 켜주세요. 위 브라우저 메뉴 안내는 그대로 이용할 수 있습니다.</p></noscript>
+</main><script>if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
+</body></html>

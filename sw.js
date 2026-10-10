@@ -1,12 +1,12 @@
 /**
- * Y2C release-scoped offline shell V88_24_3.
+ * Y2C release-scoped offline shell V88_24_5.
  * Compiled static assets use cache-first; API data and durable writes stay with AuthEngine.
  * Cache cleanup is restricted to this application path. IndexedDB queues are retained.
  */
 
 "use strict";
 
-const CACHE_VERSION = 'V88_24_3';
+const CACHE_VERSION = 'V88_24_5';
 const SCOPE_URL = new URL(self.registration.scope);
 const CACHE_FAMILY = `Y2C_ENTERPRISE_SCOPE_${encodeURIComponent(SCOPE_URL.pathname)}_`;
 const STATIC_CACHE = `${CACHE_FAMILY}STATIC_${CACHE_VERSION}`;
@@ -42,6 +42,8 @@ const CORE_ASSETS = [
     '/assets/css/tailwind-invoice.css',
     '/assets/css/tailwind-items.css',
     '/assets/css/tailwind-recipes.css',
+    '/install.html', '/assets/css/pwa.css', '/assets/js/pwa.js',
+    '/assets/icons/app-180.png', '/assets/icons/app-192.png', '/assets/icons/app-512.png', '/assets/icons/app-maskable-512.png',
     '/manifest.json',
     '/favicon.png',
     '/y2c_holdings_logo.png'

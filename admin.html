@@ -43,7 +43,7 @@
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/app-180.png">
 
     <!-- Deferred Font Loading -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
@@ -160,6 +160,8 @@
     <link rel="stylesheet" href="assets/css/mobile.css">
     <link rel="stylesheet" href="assets/css/tailwind-admin.css">
     <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="assets/css/pwa.css">
 </head>
 
 <body id="mainBody" class="portal-page flex flex-col min-h-screen selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out; background-color: #F8F9FA;">
@@ -1962,5 +1964,6 @@
     </script>
     <script src="assets/js/order-history.js"></script>
     <script src="assets/js/mobile.js"></script>
+    <script src="assets/js/pwa.js"></script>
 </body>
 </html>
