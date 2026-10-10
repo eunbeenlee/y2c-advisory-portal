@@ -1,0 +1,37 @@
+.y2c-order-review{box-sizing:border-box;width:min(640px,calc(100vw - 24px));max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);padding:0;border:1px solid #e5e7eb;border-radius:24px;color:#111827;background:#fff;box-shadow:0 24px 80px #11182730;font-family:inherit;overflow:auto;overscroll-behavior:contain}
+.y2c-order-review::backdrop{background:#11182770;backdrop-filter:blur(4px)}
+.y2c-order-review *{box-sizing:border-box;overflow-wrap:anywhere}
+.order-review-head{position:relative;padding:24px 60px 20px 24px;border-bottom:1px solid #eef0f3;background:#fafbfc}
+.order-review-eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;color:#e3000f}
+.order-review-head h2{margin:8px 0;font-size:24px;font-weight:900;letter-spacing:-.035em}
+.order-review-head p,.order-review-item p{margin:0;color:#64748b;font-size:13px}
+.order-review-close{position:absolute;right:12px;top:16px;min-width:44px;min-height:44px;border:1px solid #e5e7eb;border-radius:12px;background:white;font-size:24px}
+.order-review-body{padding:20px 24px}
+.order-review-lines{display:grid;gap:12px}
+.order-review-item{padding:16px;border:1px solid #e5e7eb;border-radius:16px;background:#fff}
+.order-review-code{font-size:10px;font-weight:800;color:#64748b;letter-spacing:.06em}
+.order-review-item h3{font-size:15px;font-weight:800;margin:4px 0 8px}
+.order-review-item-totals,.order-review-totals{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;font-size:13px;margin:12px 0 0}
+.order-review-item-totals dt{color:#64748b}.order-review-item-totals dd,.order-review-totals dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.order-review-totals{padding:18px;border:1px solid #e5e7eb;border-radius:16px;background:#f8fafc;margin:20px 0 12px}
+.order-review-grand{border-top:1px solid #e5e7eb;padding-top:12px;margin-top:4px!important;font-size:17px;font-weight:900;color:#e3000f}
+.order-review-note{font-size:12px;line-height:1.6;color:#64748b;margin:8px 0}
+.order-review-actions{display:flex;gap:12px;position:sticky;bottom:0;border-top:1px solid #e5e7eb;background:#fffffff5;padding:16px 24px max(16px,env(safe-area-inset-bottom))}
+.order-review-actions button{flex:1;min-width:0;min-height:48px;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer}
+.order-review-secondary{border:1px solid #e5e7eb;background:#fff;color:#374151}.order-review-primary{border:1px solid #e3000f;background:#e3000f;color:white;box-shadow:0 4px 12px #e3000f22}
+.y2c-order-review button:focus-visible{outline:3px solid #e3000f70;outline-offset:3px}
+@media(max-width:480px){.y2c-order-review{border-radius:20px}.order-review-head{padding:20px 60px 16px 16px}.order-review-head h2{font-size:21px}.order-review-body{padding:16px}.order-review-actions{padding-left:16px;padding-right:16px;gap:8px}.order-review-totals{padding:14px}}
+
+.y2c-order-review[open]{display:flex;flex-direction:column;overflow:hidden}.order-review-head,.order-review-actions{flex-shrink:0}.order-review-body{min-height:0;overflow:auto;overscroll-behavior:contain}.order-review-actions{position:static}
+
+/* Shared portal appearance for regional price and checkout dialogs. */
+.y2c-price-review{font-family:inherit;color:#111827;background:#fff;box-shadow:0 24px 80px #11182730}
+.y2c-price-review::backdrop{background:#11182770;backdrop-filter:blur(4px)}
+.y2c-price-review h2{font-size:22px;letter-spacing:-.035em;margin:0 0 10px}
+.y2c-price-review p{font-size:13px;line-height:1.6;color:#64748b;margin:8px 0}
+.y2c-price-review label{font-size:13px;font-weight:700;color:#374151}
+.y2c-price-review input{font-size:16px;background:#f8fafc}
+.y2c-price-review .order-review-primary{border-color:#e3000f!important;color:#fff}
+.y2c-price-review button{font-size:14px;font-weight:800;cursor:pointer}
+.y2c-price-review button:focus-visible,.y2c-price-review input:focus-visible{outline:3px solid #e3000f70;outline-offset:2px}
+.y2c-price-review button:disabled{opacity:.5;cursor:wait}

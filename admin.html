@@ -159,6 +159,7 @@
     <link rel="stylesheet" href="assets/css/portal-shell.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
     <link rel="stylesheet" href="assets/css/tailwind-admin.css">
+    <link rel="stylesheet" href="assets/css/design-system.css">
 </head>
 
 <body id="mainBody" class="portal-page flex flex-col min-h-screen selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out; background-color: #F8F9FA;">
@@ -208,7 +209,7 @@
 
             <div data-portal-brand class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
                 <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" role="link" tabindex="0" aria-label="Portal home" onclick="window.location.href=window.__INITIAL_ROLE__==='VENDOR'?'admin.html':'dashboard.html'" onkeydown="if(event.key==='Enter')window.location.href=window.__INITIAL_ROLE__==='VENDOR'?'admin.html':'dashboard.html'">
                         <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
@@ -256,7 +257,7 @@
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
-        <a href="admin.html" id="navAdmin_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
+        <a href="admin.html" id="navAdmin_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
 
@@ -305,7 +306,7 @@
             </div>
 
             <div class="p-4 sm:p-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2"><span class="opacity-80">🏢</span> Franchise Master DB</h2>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2">Franchise Master DB</h2>
                 <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Manage partner details, billing logic, and system access.</p>
                 <div class="enterprise-table-container overflow-x-auto border border-gray-200 rounded-xl">
                     <table class="w-full text-left enterprise-table" id="franchiseTable">
@@ -331,7 +332,7 @@
             </div>
 
             <div class="p-4 sm:p-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2"><span class="opacity-80">📊</span> ERP Sales Terminal</h2>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2">ERP Sales Terminal</h2>
                 <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Global financial data entry and tax synchronization.</p>
 
                 <div class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-50 p-6 rounded-[1.5rem] border border-gray-200">
@@ -385,7 +386,7 @@
         <!-- ========================================== -->
         <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-4 sm:p-8 relative">
             <header class="mb-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3"><span class="opacity-80">📥</span> Mass Inbound (Excel)</h2>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">Mass Inbound (Excel)</h2>
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Vendor-owned physical inventory. Box units. Upload vendor files. Auto-tracks price overrides & promotions. Worker Thread Enabled.</p>
             </header>
 
@@ -624,7 +625,7 @@
                 </p>
                 <div class="flex items-center gap-4">
                     <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System Online
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Partner Portal
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 -->
@@ -639,6 +640,7 @@
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
+    <script src="assets/js/portal-dialog.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/accelerator.js"></script>
@@ -1858,7 +1860,18 @@
                 const checked=Y2C_ExcelModel.build(window.currentExcelPreviewData||[],AppState.catalogItems,currentHub===excelSourceHub?currentHub:"");
                 pendingStockUpdates=checked.updates;
                 if (pendingStockUpdates.length === 0) { Y2C_AuthEngine.showToast("서버로 전송할 데이터가 없습니다.", "warning"); return; }
-                if (!confirm(`총 ${pendingStockUpdates.length}개 품목 (제외 행 ${(window.currentExcelPreviewData||[]).filter(r=>r.ignored).length}개)의 입고 데이터를 마스터 DB에 강제 병합(ADD)합니다. 단가가 변동된 항목은 마스터 DB의 가격표를 실시간으로 갱신합니다. 진행하시겠습니까?`)) return;
+                if(AppState.isReviewingStock||AppState.isSubmitting||AppState.isBooting)return;
+                const reviewedOwner=Y2C_AuthEngine.getAccountId(),reviewedUpdates=JSON.stringify(pendingStockUpdates);
+                let decision;AppState.isReviewingStock=true;
+                try{decision=await Y2C_Dialog.ask({title:'재고 입고 확인',message:`${currentHub} · ${pendingStockUpdates.length}개 품목\n제외 행 ${(window.currentExcelPreviewData||[]).filter(r=>r.ignored).length}개\n\n검증된 수량을 현재 재고에 추가합니다. 업로드에 단가가 포함되면 해당 지역 단가도 갱신합니다.`,confirmLabel:'입고 반영'});}
+                catch(e){Y2C_AuthEngine.showToast('확인창을 열 수 없습니다. 새로고침 후 다시 시도하세요.','error');return;}
+                finally{AppState.isReviewingStock=false;}
+                if(!decision.confirmed)return;
+                const freshCheck=Y2C_ExcelModel.build(window.currentExcelPreviewData||[],AppState.catalogItems,currentHub===excelSourceHub?currentHub:'');
+                if(reviewedOwner!==Y2C_AuthEngine.getAccountId()||currentHub!==inboundRegionSelector.value.trim().replace('Hub: ','')||reviewedUpdates!==JSON.stringify(freshCheck.updates)){
+                    Y2C_AuthEngine.showToast('확인 중 입고 정보가 변경되었습니다. 내용을 다시 확인하세요.','warning');return;
+                }
+                pendingStockUpdates=freshCheck.updates;
 
                 if (AppState.isSubmitting || AppState.isBooting) return;
                 AppState.isSubmitting = true;

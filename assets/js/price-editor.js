@@ -5,9 +5,9 @@
  global.Y2C_PriceEditor={open(item,region,refresh){
   if(dialog||!item.canChangePrice)return;
   const owner=Y2C_AuthEngine.getAccountId();returnFocus=document.activeElement;
-  dialog=node('dialog');dialog.setAttribute('aria-label','지역별 가격 변경');dialog.style.cssText='width:min(440px,calc(100vw - 32px));max-height:90dvh;overflow:auto;padding:24px;border:1px solid #ddd;border-radius:18px';
+  dialog=node('dialog');dialog.className='y2c-price-review';dialog.setAttribute('aria-label','지역별 가격 변경');dialog.style.cssText='width:min(440px,calc(100vw - 32px));max-height:90dvh;overflow:auto;padding:24px;border:1px solid #ddd;border-radius:18px';
   const form=node('form'),title=node('h2','가격 변경 · '+region),desc=node('p',item.code+' · '+item.name+' / 박스당 CAD'),price=node('input'),reason=node('input'),save=node('button','변경 저장'),cancel=node('button','닫기'),message=node('p');
-  title.style.fontWeight='800';price.type='number';price.min='0';price.step='0.01';price.required=true;price.value=item.priceAvailable===false?'':String(item.price);price.id='regionalPriceValue';price.inputMode='decimal';
+  save.className='order-review-primary';cancel.className='order-review-secondary';title.style.fontWeight='800';price.type='number';price.min='0';price.step='0.01';price.required=true;price.value=item.priceAvailable===false?'':String(item.price);price.id='regionalPriceValue';price.inputMode='decimal';
   reason.id='regionalPriceReason';reason.required=true;reason.minLength=3;reason.maxLength=300;save.type='submit';cancel.type='button';message.setAttribute('role','status');
   for(const [input,text] of [[price,'새 가격 (CAD / 박스)'],[reason,'변경 사유']]){const label=node('label',text);label.htmlFor=input.id;label.style.cssText='display:block;margin-top:16px';input.style.cssText='display:block;width:100%;min-height:44px;padding:8px;border:1px solid #aaa;border-radius:8px';form.append(label,input);}
   for(const b of [save,cancel])b.style.cssText='min-height:44px;padding:10px 16px;margin:16px 8px 0 0;border:1px solid #aaa;border-radius:10px';

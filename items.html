@@ -176,7 +176,9 @@
     </style>
     <link rel="stylesheet" href="assets/css/portal-shell.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
+    <link rel="stylesheet" href="assets/css/order-review.css">
     <link rel="stylesheet" href="assets/css/tailwind-items.css">
+    <link rel="stylesheet" href="assets/css/design-system.css">
 </head>
 
 <body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
@@ -227,7 +229,7 @@
 
             <div data-portal-brand class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
                 <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" role="link" tabindex="0" aria-label="Portal home" onclick="window.location.href=window.__INITIAL_ROLE__==='VENDOR'?'admin.html':'dashboard.html'" onkeydown="if(event.key==='Enter')window.location.href=window.__INITIAL_ROLE__==='VENDOR'?'admin.html':'dashboard.html'">
                         <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
@@ -273,7 +275,7 @@
     <!-- 🚨 모바일 노치 가림 보호망 -->
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
-        <a href="items.html" id="navCatalog_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
+        <a href="items.html" id="navCatalog_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
@@ -304,7 +306,7 @@
         <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 no-print">
             <div>
                 <h2 class="font-montserrat text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="opacity-90 drop-shadow-sm">📦</span> Inventory & Catalog
+                    Inventory & Catalog
                     <span id="regionBadge" class="px-2.5 py-1 bg-red-50 border border-red-100 text-[#E3000F] text-[10px] font-black rounded uppercase tracking-widest translate-y-[-4px]">ON PRICING</span>
                 </h2>
                 <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter">
@@ -413,24 +415,27 @@
                         </div>
                     </div>
                     <div class="text-right sm:hidden">
-                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter">Total</p>
+                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter">예상 총액 (CAD)</p>
+                        <p class="text-[11px] text-gray-600">상품 <span id="cartSubtotalMob">$0.00</span> · 세금 <span id="cartTaxMob">$0.00</span></p>
                         <p class="text-[16px] font-black text-[#E3000F] font-mono mt-0.5" id="cartTotalMob">$0.00</p>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-6 w-full sm:w-auto">
                     <div class="hidden sm:block text-right pr-6 border-r border-gray-200">
-                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter mb-0.5">Estimated Total (CAD)</p>
+                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter mb-0.5">예상 총액 (CAD)</p>
+                        <p class="text-[11px] text-gray-600">상품 <span id="cartSubtotalDesk">$0.00</span> · 세금 <span id="cartTaxDesk">$0.00</span></p>
                         <p class="text-2xl font-black text-[#E3000F] font-mono tracking-tighter" id="cartTotalDesk">$0.00</p>
                     </div>
                     <button type="button" id="btnSubmitCart" class="btn-solid-red w-full sm:w-auto px-10 py-3.5 rounded-xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 focus:outline-none">
-                        Submit Order <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        발주 확인 / Review Order <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <p id="cartEstimateNote" class="text-xs text-gray-600 px-4 py-3 text-center" role="status">표시 금액은 예상값이며, 저장 시 최신 단가와 세금 설정으로 재계산합니다.</p>
     <!-- 🌟 프리미엄 푸터 (Reset Session 통일) -->
     <footer class="bg-white border-t border-gray-200 mt-auto no-print flex-shrink-0 relative z-10">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -440,7 +445,7 @@
                 </p>
                 <div class="flex items-center gap-4">
                     <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System Online
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Partner Portal
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX 3] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Deep Nuke) -->
@@ -455,6 +460,7 @@
     <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
+    <script src="assets/js/portal-dialog.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/accelerator.js"></script>
@@ -1033,27 +1039,18 @@
         };
 
         function recalcCart() {
-            let totalAmt = 0;
-            let totalItemsCount = 0;
-
-            for (let code in AppState.cart) {
-                const qty = AppState.cart[code];
-                if (qty > 0) {
-                    totalItemsCount++;
-                    const item = AppState.catalogItems.find(i => i.code === code);
-                    if (item) totalAmt += (qty * (item.price || 0));
-                }
+            const totalItemsCount = Object.values(AppState.cart).filter(q=>q>0).length;
+            let estimate=null,error='';
+            try { estimate=Y2C_OrderMath.quote(AppState.cart,AppState.catalogItems,AppState.currentHub); }
+            catch(e) { error=e.message; }
+            const countEl=document.getElementById('cartItemsCount');
+            if(countEl)countEl.innerText=totalItemsCount;
+            for(const [id,value] of [['cartTotalDesk',estimate?.total],['cartTotalMob',estimate?.total],['cartSubtotalDesk',estimate?.subtotal],['cartSubtotalMob',estimate?.subtotal],['cartTaxDesk',estimate?.tax],['cartTaxMob',estimate?.tax]]) {
+                const node=document.getElementById(id);if(node)node.innerText=estimate?formatCurrency(value):'확인 필요';
             }
-
-            const countEl = document.getElementById('cartItemsCount');
-            if (countEl) countEl.innerText = totalItemsCount;
-            
-            const formattedTotal = formatCurrency(totalAmt);
-            const deskEl = document.getElementById('cartTotalDesk');
-            const mobEl = document.getElementById('cartTotalMob');
-            
-            if (deskEl) deskEl.innerText = formattedTotal;
-            if (mobEl) mobEl.innerText = formattedTotal;
+            const note=document.getElementById('cartEstimateNote');
+            if(note)note.textContent=error||'표시 금액은 예상값이며, 저장 시 최신 단가와 세금 설정으로 재계산합니다.';
+            const submit=document.getElementById('btnSubmitCart');if(submit&&!AppState.isSubmitting)submit.disabled=!!error;
 
             const dock = document.getElementById('cartActionContainer');
             if (dock) {
@@ -1076,7 +1073,7 @@
             btnSubmitCart.addEventListener('click', async () => {
                 
                 // 🚨 [CRITICAL FIX 1] Concurrency Lockdown: Stop submit if SWR is actively fetching
-                if (AppState.isSubmitting || AppState.isFetching) {
+                if (AppState.isSubmitting || AppState.isFetching || AppState.isReviewing) {
                     Y2C_AuthEngine.showToast("데이터 동기화 중입니다. 잠시 후 다시 시도해 주십시오.", "warning");
                     return;
                 }
@@ -1096,7 +1093,23 @@
                     Y2C_AuthEngine.showToast('선택한 허브의 미등록 단가를 확인하십시오. 주문 내용은 보존됩니다.', 'warning'); return;
                 }
 
-                if (!confirm(`[${AppState.currentHub} HUB] 박스 단위로 주문을 예약합니다. 출고 시 실물 재고가 차감되며, 수령 후 대시보드에서 수령 확인을 눌러주세요. 발주서를 전송하시겠습니까?`)) return;
+                let estimate;
+                try { estimate=Y2C_OrderMath.quote(AppState.cart,AppState.catalogItems,orderHub); }
+                catch(e) { Y2C_AuthEngine.showToast(e.message,'warning');return; }
+                const reviewedCart=cartSignature(AppState.cart), reviewedAccount=Y2C_AuthEngine.getAccountId();
+                let accepted=false;
+                AppState.isReviewing=true;
+                try { accepted=await Y2C_OrderReview.open(estimate); }
+                catch(e) { Y2C_AuthEngine.showToast("확인창을 열 수 없습니다. 새로고침 후 다시 시도해 주세요.","error"); }
+                finally { AppState.isReviewing=false; }
+                if(!accepted)return;
+                let latest;
+                try { latest=Y2C_OrderMath.quote(AppState.cart,AppState.catalogItems,AppState.currentHub); }
+                catch(e) { Y2C_AuthEngine.showToast(e.message,"warning");return; }
+                if(AppState.isFetching || AppState.currentHub!==orderHub || AppState.catalogHub!==orderHub ||
+                    reviewedAccount!==Y2C_AuthEngine.getAccountId() || reviewedCart!==cartSignature(AppState.cart) || JSON.stringify(latest)!==JSON.stringify(estimate)) {
+                    Y2C_AuthEngine.showToast("확인 중 주문 정보가 변경되었습니다. 내용을 다시 확인해 주세요. 장바구니는 보존됩니다.","warning");return;
+                }
 
                 AppState.isSubmitting = true;
                 btnSubmitCart.disabled = true;
@@ -1175,6 +1188,8 @@
         fetchCatalogFast();
     });
     </script>
+    <script src="assets/js/order-math.js"></script>
+    <script src="assets/js/order-review.js"></script>
     <script src="assets/js/price-editor.js"></script>
     <script src="assets/js/mobile.js"></script>
 </body>

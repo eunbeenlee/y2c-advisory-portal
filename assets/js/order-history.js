@@ -1,18 +1,23 @@
 /* Live server-scoped order lines. MASTER starts in monitoring mode. */
 (function(){
  'use strict';
- let offset=0,busy=false,mutating=false,serial=0,last=null,intervene=false;
+ let offset=0,busy=false,mutating=false,serial=0,last=null,intervene=false,reviewing=false;
  const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD'}).format(n);
  const statuses={PENDING:'PENDING / 접수 대기',CONFIRMED:'CONFIRMED / 접수 확인',PREPARING:'PREPARING / 준비 중',SHIPPED:'SHIPPED / 출고 완료',COMPLETED:'COMPLETED / 수령 완료',CANCELED:'CANCELED / 취소',MIXED:'MIXED / 품목별 부분 처리'};
  const nextStage={PENDING:'CONFIRMED',CONFIRMED:'PREPARING',PREPARING:'SHIPPED',SHIPPED:'COMPLETED'};
  function dateLabel(value){if(typeof value==='string'&&!/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value))return value||'일시 없음';const d=new Date(value);return Number.isNaN(d.getTime())?String(value||'일시 없음'):new Intl.DateTimeFormat('en-CA',{timeZone:'America/Toronto',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZoneName:'short'}).format(d)+' · Toronto';}
  function el(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}
  async function mutate(o,item,target){
-  if(busy||mutating)return;
-  if(!navigator.onLine){alert('온라인 연결 후 처리해 주세요.');return;}
+  if(busy||mutating||reviewing)return;
+  if(!navigator.onLine){Y2C_AuthEngine.showToast('온라인 연결 후 처리해 주세요.','warning');return;}
   const owner=Y2C_AuthEngine.getAccountId(),cancel=target==='CANCELED',whole=item.inventoryModel==='RESERVE_AT_ORDER_V1';
-  let reason='';if(cancel){reason=prompt('HQ 예외 정정 사유를 입력하세요 (5~300자).')||'';if(reason.trim().length<5)return;}
-  if(!confirm(o.id+(whole?' / 전체 주문':' / '+item.code)+'\n'+(cancel?(whole?'출고 전 전체 주문 예약을 해제하시겠습니까?':'기존 주문을 예외 취소하고 검증된 차감 수량을 복원하시겠습니까?'):'실제 처리한 단계를 '+statuses[target]+'로 기록하시겠습니까? 출고 이후 자동 취소는 차단됩니다.')))return;
+  reviewing=true;let decision;
+  try{decision=await Y2C_Dialog.ask({title:cancel?'HQ 예외 정정':'주문 처리 확인',message:o.id+(whole?' / 전체 주문':' / '+item.code)+'\n'+(cancel?(whole?'출고 전 전체 주문 예약을 해제합니다.':'기존 주문을 예외 취소하고 검증된 차감 수량을 복원합니다.'):'실제 처리한 단계를 '+statuses[target]+'로 기록합니다. 출고 이후 자동 취소는 차단됩니다.'),confirmLabel:cancel?'정정 확정':'처리 확정',reason:cancel?{label:'HQ 예외 정정 사유 (5~300자)',minLength:5,maxLength:300}:null});}
+  catch(e){Y2C_AuthEngine.showToast('확인창을 열 수 없습니다. 새로고침 후 다시 시도하세요.','error');return;}
+  finally{reviewing=false;}
+  if(!decision.confirmed||owner!==Y2C_AuthEngine.getAccountId()||(!intervene&&last?.viewerRole==='MASTER'))return;
+  const reason=decision.value;
+
   mutating=true;const controls=Array.from($('orderHistorySection').querySelectorAll('button,input')),disabled=controls.map(n=>n.disabled);controls.forEach(n=>n.disabled=true);
   try{
    const action=cancel?'cancel_order':'update_order_status',payload={orderId:o.id};if(!whole)payload.itemCode=item.code;
@@ -20,8 +25,8 @@
    const r=await Y2C_AuthEngine.request(action,payload);
    if(owner!==Y2C_AuthEngine.getAccountId())return;
    if(!r||r.success!==true)throw Error(r&&r.message||'저장 결과를 확인할 수 없습니다.');
-   await Y2C_AuthEngine.acknowledgeCommitted(r.requestKey);alert(r.message||'저장 완료');document.dispatchEvent(new Event('y2c-operations-updated'));
-  }catch(e){if(owner===Y2C_AuthEngine.getAccountId())alert('처리 결과 확인: '+e.message+'\n새로고침 후 현재 상태와 처리 기록을 대조하세요.');}
+   await Y2C_AuthEngine.acknowledgeCommitted(r.requestKey);Y2C_AuthEngine.showToast(r.message||'저장 완료','success');document.dispatchEvent(new Event('y2c-operations-updated'));
+  }catch(e){if(owner===Y2C_AuthEngine.getAccountId())Y2C_AuthEngine.showToast('처리 결과 확인: '+e.message+' · 새로고침 후 현재 상태와 처리 기록을 대조하세요.','error');}
   finally{mutating=false;controls.forEach((n,i)=>n.disabled=disabled[i]);if(owner===Y2C_AuthEngine.getAccountId())await load(offset);}
  }
  function render(res){
@@ -55,7 +60,7 @@
   }
  }
  async function load(next){
-  if(busy||mutating)return;busy=true;const ticket=++serial,owner=Y2C_AuthEngine.getAccountId();
+  if(busy||mutating||reviewing)return;busy=true;const ticket=++serial,owner=Y2C_AuthEngine.getAccountId();
   $('orderHistoryMessage').textContent='Loading / 조회 중…';for(const id of ['orderHistoryRefresh','orderHistoryNext','orderHistoryPrev'])$(id).disabled=true;
   try{
    const res=await Y2C_AuthEngine.request('get_orders',{offset:next,limit:20,clientState:'ALL'});

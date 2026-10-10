@@ -3,7 +3,7 @@
   🌟 V70.00 Enterprise Login Gateway GRAND FINALE - ZERO-CRASH & RESPONSIVE UX EDITION 🌟
   [CRITICAL FIX 1] ReferenceError Eradication: Added explicit `const userPwInput = document.getElementById('userPw');` declaration to permanently prevent the `userPwInput is not defined` crash during form submission.
   [CRITICAL FIX 2] Core Engine Preloading: Injected `<link rel="preload">` for `auth.js` and `config.js` to execute network policies instantaneously.
-  [CRITICAL FIX 3] Retry Visualization Engine: Enhanced the loading spinner logic to display "BYPASSING LATENCY..." to provide UX peace-of-mind during background silent retries.
+  [CRITICAL FIX 3] Retry Visualization Engine: Enhanced the loading spinner logic to display "로그인 확인 중…" to provide UX peace-of-mind during background silent retries.
   [CRITICAL FIX 4] Deep Nuke Fallback: `RESET SESSION` button aggressively forces unregistration of rogue Service Workers and wipes all `Y2C` caches.
   [CRITICAL FIX 5] Mobile Virtual Keyboard Squish Bug Resolved: `overflow-y-auto` with `100dvh`.
   [UX UPGRADE 1] Input Sanity Trim: Automatically trims trailing whitespaces on ID input blur to prevent accidental 404/Auth errors.
@@ -229,28 +229,36 @@
         
         #premiumToastContainer { position: fixed; top: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
     </style>
+    <link rel="stylesheet" href="assets/css/portal-shell.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
     <link rel="stylesheet" href="assets/css/tailwind-index.css">
+    <link rel="stylesheet" href="assets/css/design-system.css">
 </head>
 
-<body id="mainBody" class="selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out;">
+<body id="mainBody" class="portal-page portal-login selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out;">
 
     <!-- 🌟 제로 레이턴시 라우팅 (Zero-Latency Routing) & Fade-out UX -->
     <script>
         (function() {
             try {
-                var _sysRole = String(localStorage.getItem("y2c_role") || sessionStorage.getItem("y2c_role") || "").toUpperCase().trim();
-                var _sysToken = String(localStorage.getItem("y2c_token") || sessionStorage.getItem("y2c_token") || "").trim();
-                
-                if (_sysRole && _sysRole !== "NULL" && _sysToken && _sysToken.length > 10) {
-                    // 로그인 세션이 존재하면 즉각적으로 페이드아웃 후 무지연 라우팅 실행
+                // Use the same storage priority and expiry checks as the auth engine.
+                var _sysToken = String(sessionStorage.getItem("y2c_token") || localStorage.getItem("y2c_token") || "").trim();
+                var _claims=null;
+                try {
+                    var _parts=_sysToken.split('.');
+                    if(_parts.length!==3)throw new Error('Invalid token');
+                    _claims=JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(_parts[1].replace(/-/g,'+').replace(/_/g,'/')),function(c){return '%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2)}).join('')));
+                    if(!_claims.id||typeof _claims.exp!=='number'||!Number.isFinite(_claims.exp)||_claims.exp<=0||(_claims.exp>10000000000?_claims.exp<=Date.now():_claims.exp<=Math.floor(Date.now()/1000)))throw new Error('Expired token');
+                    if(!['MASTER','VENDOR','PARTNER'].includes(String(_claims.role||'').toUpperCase().trim()))throw new Error('Invalid role');
+                }catch(_invalid){_claims=null;}
+                if(_claims){
+                    var _sysRole=String(_claims.role).toUpperCase().trim();
                     document.documentElement.classList.add('fade-out-route');
-                    if (_sysRole === "VENDOR") { window.location.replace("admin.html"); } 
-                    else if (_sysRole === "MASTER" || _sysRole === "PARTNER") { window.location.replace("dashboard.html"); } 
-                    else { window.location.replace("items.html"); }
-                } else {
-                    const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
-                    keysToClear.forEach(function(k) { localStorage.removeItem(k); sessionStorage.removeItem(k); });
+                    window.location.replace(_sysRole==='VENDOR'?'admin.html':'dashboard.html');
+                }else{
+                    // Clear login credentials only. Durable drafts and pending uploads stay intact.
+                    ["y2c_token","y2c_role","y2c_client","y2c_id","y2c_premium_state","y2c_region","y2c_cache_proof"].forEach(function(k){localStorage.removeItem(k);sessionStorage.removeItem(k)});
+                    document.documentElement.classList.remove('fade-out-route');
                 }
             } catch (e) { console.error("[Y2C Boot Init]", e); }
         })();
@@ -263,42 +271,32 @@
         </div>
     </noscript>
 
-    <!-- 🌟 은은한 블러 광원 애니메이션 -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#E3000F]/8 rounded-full blur-[100px] animate-pulse"></div>
-        <div class="absolute bottom-[5%] -right-[5%] w-[40%] h-[40%] bg-amber-500/5 rounded-full blur-[120px]"></div>
-    </div>
-
+<header data-portal-header class="no-print"><div data-portal-header-row class="portal-login-header">            <div data-portal-brand class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" role="link" tabindex="0" aria-label="Portal home" onclick="window.location.href='index.html'" onkeydown="if(event.key==='Enter')window.location.href='index.html'">
+                        <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
+                        <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
+                    </div>
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-full shadow-sm border-[2px] border-[#D4AF37] transform hover:scale-105 transition-transform duration-300 overflow-hidden relative group">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white to-gray-50 flex items-center justify-center">
+                            <span class="font-black text-[#D4AF37] text-[10px] sm:text-[12px] tracking-tighter" style="text-shadow: 0 1px 2px rgba(0,0,0,0.08);">Y2C</span>
+                        </div>
+                        <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
+                </div>
+            </div><span class="portal-access-label">PARTNER ACCESS</span></div></header>
     <!-- 🌟 메인 컨테이너 (모바일 Y스크롤 대응을 위한 margin: auto) -->
     <main class="w-full max-w-[440px] z-10 block relative my-auto cinematic-enter">
         
-        <header class="text-center mb-8 block w-full relative z-20 mt-8">
-            <!-- 🌟 [복원 완수] Y2C 오리지널 듀얼 샌드박스 로고 -->
-            <div class="flex items-center justify-center gap-4 mb-8">
-                <!-- 붉은 펜촉 신전 로고 (라운드 스퀘어) -->
-                <div class="w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-2.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group">
-                    <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
-                    <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
-                </div>
-                <!-- 황금색 테두리 Y2C 로고 (써클) -->
-                <div class="w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] flex items-center justify-center bg-white rounded-full shadow-sm border-[2px] border-[#D4AF37] transform hover:scale-105 transition-transform duration-300 overflow-hidden relative group">
-                    <div class="absolute inset-0 bg-gradient-to-br from-white to-gray-50 flex items-center justify-center">
-                        <span class="font-black text-[#D4AF37] text-[15px] sm:text-[17px] tracking-tighter" style="text-shadow: 0 1px 2px rgba(0,0,0,0.08);">Y2C</span>
-                    </div>
-                    <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
-                </div>
-            </div>
-            
-            <div class="flex items-center justify-center gap-2 mb-2">
-                <span class="font-montserrat text-3xl sm:text-[2.5rem] font-black text-[var(--premium-charcoal)] tracking-tighter uppercase text-glow">SINJEON</span>
-                <span class="font-montserrat text-3xl sm:text-[2.5rem] font-black text-[#E3000F] tracking-tight uppercase text-glow-red">CANADA</span>
-            </div>
-            
-            <div class="flex items-center justify-center gap-3 mt-4 opacity-80">
-                <span class="w-8 h-[1px] bg-gradient-to-r from-transparent to-gray-300"></span>
-                <span id="dynamicGreeting" class="font-montserrat text-[10px] font-black text-gray-500 tracking-[0.25em] uppercase">Enterprise Portal</span>
-                <span class="w-8 h-[1px] bg-gradient-to-l from-transparent to-gray-300"></span>
-            </div>
+        <header class="portal-login-intro">
+            <span class="portal-eyebrow">SINJEON CANADA · Y2C HOLDINGS</span>
+            <h1>파트너 로그인</h1>
+            <p id="dynamicGreeting">Enterprise Portal</p>
+            <p>업무 계정으로 로그인해 주문과 운영 현황을 확인하세요.</p>
         </header>
 
         <!-- 🌟 엔터 키 렌더 붕괴 방어망 -->
@@ -356,7 +354,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span id="btnSpinnerText" class="tracking-[0.25em] animate-pulse font-bold text-white drop-shadow-md">VERIFYING...</span>
+                        <span id="btnSpinnerText" class="tracking-[0.25em] animate-pulse font-bold text-white drop-shadow-md">로그인 확인 중…</span>
                     </div>
                 </button>
             </div>
@@ -367,11 +365,11 @@
                 </p>
                 <div class="flex items-center justify-center gap-2">
                     <p class="font-montserrat text-[8.5px] font-black text-emerald-600 tracking-[0.2em] uppercase flex items-center justify-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System V70.00
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Partner Portal
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 및 Deep Nuke 강제 실행 버튼 -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches, zombie workers, and session tokens.">
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="로그인 세션 정리">
                         RESET SESSION
                     </button>
                 </div>
@@ -382,6 +380,7 @@
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
+    <script src="assets/js/portal-dialog.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
 
@@ -479,7 +478,7 @@
                     if (userPwInput) userPwInput.classList.remove('input-error');
 
                     if (!id || !pw) {
-                        Y2C_AuthEngine.showToast("보안 인가 실패: 파트너 식별자(ID) 및 패스키(Passkey)를 모두 입력해 주십시오.", "error");
+                        Y2C_AuthEngine.showToast("아이디와 비밀번호를 입력해 주세요.", "error");
                         if (!id && userIdInput) userIdInput.classList.add('input-error');
                         if (!pw && userPwInput) userPwInput.classList.add('input-error');
                         return;
@@ -506,10 +505,10 @@
                     let loadingInterval = setInterval(() => {
                         if(spinnerTxt) {
                             txtState++;
-                            if(txtState % 4 === 1) spinnerTxt.innerText = "SECURING...";
-                            else if(txtState % 4 === 2) spinnerTxt.innerText = "WAKING SERVER...";
-                            else if(txtState % 4 === 3) spinnerTxt.innerText = "BYPASSING LATENCY..."; 
-                            else spinnerTxt.innerText = "VERIFYING...";
+                            if(txtState % 4 === 1) spinnerTxt.innerText = "로그인 확인 중…";
+                            else if(txtState % 4 === 2) spinnerTxt.innerText = "서버 응답을 기다리고 있습니다…";
+                            else if(txtState % 4 === 3) spinnerTxt.innerText = "로그인 확인 중…"; 
+                            else spinnerTxt.innerText = "로그인 확인 중…";
                         }
                     }, 2500);
 
@@ -521,7 +520,7 @@
                         if (res && res.success) {
                             Y2C_AuthEngine.saveLoginSession({...res,id},true);
 
-                            Y2C_AuthEngine.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
+                            Y2C_AuthEngine.showToast(`${res.clientName} 계정으로 로그인했습니다.`, "success");
                             
                             setTimeout(() => {
                                 document.documentElement.classList.add('fade-out-route');
@@ -534,7 +533,7 @@
                         let finalMsg = err.message;
                         // 백그라운드 최대 재시도(Max Retries)마저 모두 소진되어 최종 실패했을 때의 안내 표출
                         if(err.message.includes("초과") || err.message.includes("장애") || err.message.includes("유실") || err.name === 'AbortError') {
-                            finalMsg = "서버 응답 지연: 구글 데이터 노드 연결을 재시도합니다. 로그인 버튼을 한 번 더 눌러주십시오.";
+                            finalMsg = "로그인 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.";
                         }
                         
                         Y2C_AuthEngine.showToast(finalMsg, "error");
@@ -546,7 +545,7 @@
                     } finally {
                         loginInFlight=false;
                         clearInterval(loadingInterval);
-                        if (spinnerTxt) spinnerTxt.innerText = "VERIFYING...";
+                        if (spinnerTxt) spinnerTxt.innerText = "로그인 확인 중…";
                         if (btn) btn.disabled = false;
                         if (btnText) btnText.classList.remove('hidden');
                         if (btnSpinner) btnSpinner.classList.add('hidden');

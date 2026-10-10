@@ -169,6 +169,7 @@
     <link rel="stylesheet" href="assets/css/portal-shell.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
     <link rel="stylesheet" href="assets/css/tailwind-recipes.css">
+    <link rel="stylesheet" href="assets/css/design-system.css">
 </head>
 
 <body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
@@ -214,7 +215,7 @@
 
             <div data-portal-brand class="flex items-center gap-3 sm:gap-4 shrink-0 w-auto lg:w-[320px]">
                 <div class="flex items-center gap-2">
-                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" onclick="window.location.href='dashboard.html'">
+                    <div class="w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 p-1.5 transform hover:scale-105 transition-transform duration-300 relative overflow-hidden group cursor-pointer" role="link" tabindex="0" aria-label="Portal home" onclick="window.location.href=window.__INITIAL_ROLE__==='VENDOR'?'admin.html':'dashboard.html'" onkeydown="if(event.key==='Enter')window.location.href=window.__INITIAL_ROLE__==='VENDOR'?'admin.html':'dashboard.html'">
                         <img src="favicon.png" fetchpriority="high" decoding="async" onerror="this.onerror=null; this.src='Sinjeon_Logo_Pink.png';" alt="Sinjeon Logo" class="w-full h-full object-contain relative z-10">
                         <div class="absolute inset-0 w-[200%] h-[100%] bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer z-20"></div>
                     </div>
@@ -261,7 +262,7 @@
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
-        <a href="recipes.html" id="navRecipes_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-[#E3000F] bg-red-50/50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
+        <a href="recipes.html" id="navRecipes_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
         <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
@@ -409,7 +410,7 @@
                 </p>
                 <div class="flex items-center gap-4">
                     <span class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-mono">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> System Online
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Partner Portal
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
@@ -425,6 +426,7 @@
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
+    <script src="assets/js/portal-dialog.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/accelerator.js"></script>
