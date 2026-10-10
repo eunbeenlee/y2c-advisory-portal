@@ -310,8 +310,8 @@
     // 🎨 [MODULE 2] ENTERPRISE UI CONTROLLER (High-End Toasts)
     // ============================================================================
 const RequestPolicy = {
-    mutations: ['save_order','update_stock','update_master_data','save_sales_records','upsert_hq_order','update_hq_order_status','cancel_order'],
-    reads: ['get_session_context','get_master_data','get_sales_records','get_dashboard','get_invoice','get_items','get_procurement_data','get_recipes','check_system_alerts'],
+    mutations: ['save_order','update_stock','update_master_data','save_sales_records','upsert_hq_order','update_hq_order_status','cancel_order','update_order_status','update_price'],
+    reads: ['get_orders','get_ops_monitor','get_session_context','get_master_data','get_sales_records','get_dashboard','get_invoice','get_items','get_procurement_data','get_recipes','check_system_alerts'],
     flights: new Map(),
     readRevision: 0,
     readListeners: new Set(),
@@ -846,7 +846,7 @@ const RegionContext = {
                 payload.clientState = RegionContext.resolve(payload, context.region);
             }
 
-            const isMutation = ["save_order", "update_stock", "update_master_data", "save_sales_records", "upsert_hq_order", "update_hq_order_status", "cancel_order"].includes(action);
+            const isMutation = ["save_order", "update_stock", "update_master_data", "save_sales_records", "upsert_hq_order", "update_hq_order_status", "cancel_order", "update_order_status", "update_price"].includes(action);
 
             if (!navigator.onLine) {
                 return this.handleOfflineScenario(action, payload, isMutation, null, context);
@@ -1119,13 +1119,13 @@ const SyncDaemon = {
             if(!scope)return null;
             let context;
             try { context = await CacheAccess.verify(); } catch (_) { return null; }
-            if (!context || scope!==RequestPolicy.cacheSessionKey()) return null;
+            if (!context || context.role==='VENDOR' || scope!==RequestPolicy.cacheSessionKey()) return null;
             return this.cacheKey(JSON.stringify([context.role,context.clientName,context.clientState,context.allowedStates,key]));
         },
         cacheKey: function(key) {
             if (!SessionManager.isSessionValid()) return null;
             const claims = RequestPolicy.claims(SessionManager.getToken());
-            return 'Y2C_ACTOR_V4:' + JSON.stringify([claims.id,claims.role,claims.clientName,claims.tokenVersion || 1,claims.allowedStates || '',SessionManager.getRegion(),key]);
+            return 'Y2C_ACTOR_V5:' + JSON.stringify([claims.id,claims.role,claims.clientName,claims.tokenVersion || 1,claims.allowedStates || '',SessionManager.getRegion(),key]);
         },
 
         inlineArgs: function(...values) { return values.map(value=>UIController.escapeHtml(JSON.stringify(value))).join(','); },
@@ -1244,9 +1244,9 @@ const SyncDaemon = {
                         UIController.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
                         
                         setTimeout(() => {
-                            if (res.role === "MASTER" || res.role === "VENDOR") {
+                            if (res.role === "VENDOR") {
                                 global.location.replace("admin.html");
-                            } else if (res.role === "PARTNER") {
+                            } else if (res.role === "MASTER" || res.role === "PARTNER") {
                                 global.location.replace("dashboard.html");
                             } else {
                                 global.location.replace("items.html");

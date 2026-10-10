@@ -400,7 +400,7 @@
     </main>
 
     <!-- 🌟 [하단 마그네틱 장바구니 바] -->
-    <div id="cartActionContainer" class="fixed bottom-0 left-0 w-full z-50 transform translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) no-print">
+    <div id="cartActionContainer" hidden class="fixed bottom-0 left-0 w-full z-50 transform translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) no-print">
         <div class="bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-dock" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
             <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                 
@@ -529,8 +529,9 @@
         // 🚨 [UX UPGRADE] AI Auto-Fill Event
         const btnAutoFillAI = document.getElementById('btnAutoFillAI');
         if (btnAutoFillAI) {
+            btnAutoFillAI.disabled=true;btnAutoFillAI.title='자동 추천은 아직 활성화되지 않았습니다.';btnAutoFillAI.textContent='자동 추천 준비 중';if(AppState.role!=='PARTNER')btnAutoFillAI.style.display='none';
             btnAutoFillAI.addEventListener('click', () => {
-                Y2C_AuthEngine.showToast("AI 스마트 발주 예측 엔진이 패턴을 학습 중입니다. (V99 업데이트 예정)", "success");
+                Y2C_AuthEngine.showToast("자동 추천은 아직 활성화되지 않았습니다. 수량을 직접 입력해 주세요.", "warning");
             });
         }
 
@@ -888,7 +889,7 @@
                         </div>
                     `;
                 } else {
-                    actionHtml = `<span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">READ ONLY</span>`;
+                    actionHtml = item.canChangePrice===true ? `<button type="button" style="min-height:44px;padding:8px 14px;border:1px solid #cbd5e1;border-radius:10px" onclick="openCatalogPrice(${Y2C_AuthEngine.inlineArgs(item.code)})">가격 변경</button>` : `<span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">READ ONLY</span>`;
                 }
 
                 html += `
@@ -910,6 +911,8 @@
                     <td class="w-48 text-center">
                         <div class="stock-cell-details" ${expBadgesHtml !== "" ? `tabindex="0" role="region" aria-label="Stock and expiry lots for ${name}; scroll for all lots"` : ''}>
                             <div class="text-[18px] font-black ${stockColor} font-mono tracking-tighter">${stockUninitialized ? '—' : localStock}</div>
+                            <small style="display:block;font-size:10px">주문 가능 / 박스</small>
+                            ${(AppState.role==='MASTER'||AppState.role==='VENDOR')&&item.physicalBreakdown ? `<small style="display:block;font-size:10px">실물 ${parseStrictDecimal(item.physicalBreakdown[myRegion])} · 예약 ${parseStrictDecimal(item.reservedBreakdown?.[myRegion])}</small>` : ''}
                             ${stockUninitialized ? '<span class="block text-[9px] text-amber-700 font-bold" title="첫 입고 시 0 기준으로 수량이 반영됩니다.">미입력 · 첫 입고 0 기준</span>' : ''}
                             ${expBadgesHtml !== "" ? `<div class="flex flex-col items-center mt-1">${expBadgesHtml}</div>` : ''}
                         </div>
@@ -976,7 +979,7 @@
             // 🚨 재고 초과 록다운
             if (cur > localStock) {
                 cur = localStock;
-                Y2C_AuthEngine.showToast(`[재고 한도 도달] 현재 ${localStock}개까지만 발주 가능합니다.`, "warning", 2000);
+                Y2C_AuthEngine.showToast(`[재고 한도 도달] 현재 ${localStock}박스까지만 발주 가능합니다.`, "warning", 2000);
             }
             
             AppState.cart[code] = cur;
@@ -1017,7 +1020,7 @@
             // 🚨 재고 초과 록다운
             if (cur > localStock) {
                 cur = localStock;
-                Y2C_AuthEngine.showToast(`[재고 한도 도달] 현재 ${localStock}개까지만 발주 가능합니다.`, "warning", 2000);
+                Y2C_AuthEngine.showToast(`[재고 한도 도달] 현재 ${localStock}박스까지만 발주 가능합니다.`, "warning", 2000);
             }
             
             AppState.cart[code] = cur;
@@ -1054,6 +1057,7 @@
 
             const dock = document.getElementById('cartActionContainer');
             if (dock) {
+                dock.hidden=AppState.role!=='PARTNER'||totalItemsCount===0;
                 if (totalItemsCount > 0) {
                     dock.classList.remove('translate-y-full');
                     dock.classList.add('translate-y-0');
@@ -1092,7 +1096,7 @@
                     Y2C_AuthEngine.showToast('선택한 허브의 미등록 단가를 확인하십시오. 주문 내용은 보존됩니다.', 'warning'); return;
                 }
 
-                if (!confirm(`[${AppState.currentHub} HUB] 로 발주서를 전송하시겠습니까?`)) return;
+                if (!confirm(`[${AppState.currentHub} HUB] 박스 단위로 주문을 예약합니다. 출고 시 실물 재고가 차감되며, 수령 후 대시보드에서 수령 확인을 눌러주세요. 발주서를 전송하시겠습니까?`)) return;
 
                 AppState.isSubmitting = true;
                 btnSubmitCart.disabled = true;
@@ -1134,6 +1138,7 @@
             return JSON.stringify(Object.keys(cart).filter(k=>cart[k]>0).sort().map(code=>({code,qty:cart[code]})));
         }
         window.addEventListener('y2c:mutation-completed',async e=>{
+            if(e.detail.action==='update_price'){await Y2C_AuthEngine.acknowledgeCommitted(e.detail.key);updatePendingStatus();fetchCatalogFast();return;}
             if(e.detail.action!=='save_order')return;
             const pending=AppState.pendingOrders && AppState.pendingOrders[e.detail.key];
             if(!pending)return;
@@ -1153,21 +1158,24 @@
             const node=document.getElementById('mutationSyncStatus');
             try {
                 const rows=await Y2C_AuthEngine.getPendingTransactions();
-                const pending=rows.filter(r=>r.action==='save_order');
+                const pending=rows.filter(r=>['save_order','update_price'].includes(r.action));
                 AppState.pendingOrders=AppState.pendingOrders||{};
-                pending.forEach(r=>{if(r.key&&r.items)AppState.pendingOrders[r.key]={hub:r.hub,items:r.items};});
-                if(node){node.textContent=pending.length?`서버 저장 대기·확인 필요: ${pending.length}건. 입력 내용은 보존됩니다.`:'';node.classList.toggle('hidden',!pending.length);}
+                pending.forEach(r=>{if(r.action==='save_order'&&r.key&&r.items)AppState.pendingOrders[r.key]={hub:r.hub,items:r.items};});
+                if(node){node.textContent=pending.length?`발주·가격 저장 대기·확인 필요: ${pending.length}건. 입력 내용은 보존됩니다. ${pending.find(r=>r.lastError)?.lastError||''}`:'';node.classList.toggle('hidden',!pending.length);}
                 if(node && pending.length) {
                     const retry=document.createElement('button');retry.type='button';retry.textContent='다시 동기화';retry.className='ml-3 underline font-bold';
                     retry.addEventListener('click',async()=>{retry.disabled=true;await Y2C_AuthEngine.retryPending();updatePendingStatus();});node.appendChild(retry);
                 }
             }catch(err){if(node){node.textContent='기기 저장 상태를 확인할 수 없습니다. 입력 내용은 유지됩니다.';node.classList.remove('hidden');}}
         }
+        document.addEventListener('y2c-price-pending',updatePendingStatus);
         updatePendingStatus();
+        window.openCatalogPrice = function(code){const item=AppState.catalogItems.find(x=>x.code===code);if(!item||!item.canChangePrice)return;Y2C_PriceEditor.open(item,AppState.currentHub,fetchCatalogFast);}
         // 🚀 초기 구동
         fetchCatalogFast();
     });
     </script>
+    <script src="assets/js/price-editor.js"></script>
     <script src="assets/js/mobile.js"></script>
 </body>
 </html>

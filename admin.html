@@ -281,13 +281,15 @@
 
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative pb-24 sm:pb-32">
+        <nav aria-label="벤더 업무 바로가기" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px"><a href="#orderHistorySection" style="padding:12px 16px;min-height:44px;border:1px solid #cbd5e1;border-radius:12px;background:white;font-weight:700">가맹점 발주 관리 ↓</a><span style="padding:12px;color:#64748b">공장 발주 공유·입고는 아래 업무 탭, 가격 변경은 카탈로그를 사용하세요.</span></nav>
+
 
         <!-- 🌟 서브 네비게이션 -->
         <nav class="flex flex-wrap items-center justify-start gap-2 mb-10 border-b border-gray-200 pb-2 no-print" id="adminSubNav">
             <button class="sub-nav-btn active" data-target="tab-franchise">FRANCHISE DB</button>
             <button class="sub-nav-btn" data-target="tab-sales">ERP SALES</button>
             <button class="sub-nav-btn" data-target="tab-excel">INBOUND (EXCEL)</button>
-            <button class="sub-nav-btn" data-target="tab-procurement">HQ PROCUREMENT</button>
+            <button class="sub-nav-btn" data-target="tab-procurement">FACTORY ORDERS</button>
         </nav>
 
         <!-- ========================================== -->
@@ -384,7 +386,7 @@
         <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-4 sm:p-8 relative">
             <header class="mb-8">
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3"><span class="opacity-80">📥</span> Mass Inbound (Excel)</h2>
-                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Upload vendor files. Auto-tracks price overrides & promotions. Worker Thread Enabled.</p>
+                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Vendor-owned physical inventory. Box units. Upload vendor files. Auto-tracks price overrides & promotions. Worker Thread Enabled.</p>
             </header>
 
             <div class="mb-6 flex flex-col md:flex-row gap-4 items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm relative z-20">
@@ -433,12 +435,13 @@
         </section>
 
         <!-- ========================================== -->
+        <p style="padding:12px;color:#475569">한국공장 발주는 벤더가 직접 진행하며 이 화면은 HQ 공유 기록입니다. HQ 승인을 기다릴 필요가 없습니다. 물품 인보이스 발행·수금은 벤더가 별도로 관리합니다.</p>
         <!-- 🌐 SECTION 4: HQ PROCUREMENT & SHIPPING TRACKER -->
         <!-- ========================================== -->
         <section id="tab-procurement" class="tab-section">
             <header class="mb-8 px-4 sm:px-0">
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="opacity-80">🌐</span> HQ Procurement Console
+                    <span class="opacity-80">🌐</span> Factory Orders / 공장 발주 공유
                 </h2>
                 <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Global logistics procurement status, digital cart, and EMS/Ocean freight tracking.</p>
             </header>
@@ -528,6 +531,24 @@
         </section>
 
     <div id="mutationSyncStatus" role="status" class="hidden px-4 py-3 mb-4 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl"></div>
+<section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
+ <h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2>
+ <p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p>
+ <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> HQ 개입 모드 — 직접 처리할 때만 켜기</label>
+ <button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button>
+ <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
+ <div id="orderHistoryList"></div>
+ <button type="button" id="orderHistoryPrev" disabled>Previous / 이전</button>
+ <button type="button" id="orderHistoryNext" disabled>Next / 다음</button>
+</section>
+<style>
+#hqInterventionLabel{padding:12px 0;display:block}#hqInterventionLabel[hidden]{display:none}#hqIntervention{min-width:24px;min-height:24px;vertical-align:middle;margin-right:8px}
+#orderHistorySection button{padding:10px 16px;margin:8px 8px 8px 0;border:1px solid #cbd5e1;border-radius:10px;background:#fff;min-height:44px;cursor:pointer}
+#orderHistorySection button:disabled{opacity:.45;cursor:default}
+.order-history-card{margin:12px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;overflow-wrap:anywhere}
+.order-history-card summary{cursor:pointer;font-weight:700;min-height:44px}
+.order-history-card table{width:100%;min-width:680px;text-align:left}.order-history-card th,.order-history-card td{padding:10px;border-bottom:1px solid #eee}
+</style>
     </main>
 
     <!-- 🌟 [모달 1] 아이템 선택 팝업 (모바일 사이즈 최적화 max-h-[90dvh]) -->
@@ -1375,13 +1396,13 @@
                 let trClass = "border-b border-gray-50 transition-colors";
                 let actionAttr = "";
 
-                if (AppState.role === "MASTER") {
+                if (["MASTER","VENDOR"].includes(AppState.role)) {
                     trClass += " hover:bg-gray-50/80 cursor-pointer";
                     actionAttr = `onclick="openStatusUpdateModal(${Y2C_AuthEngine.inlineArgs(order.id,st,order.shippingMethod||'NONE',order.trackingNo&&order.trackingNo!=='-'?order.trackingNo:'')})"`;
                 }
 
                 html += `
-                <tr class="${trClass}" ${actionAttr} title="${AppState.role === 'MASTER' ? 'Click to update Status & Tracking' : ''}">
+                <tr class="${trClass}" ${actionAttr} title="${['MASTER','VENDOR'].includes(AppState.role) ? 'Click to update Status & Tracking' : ''}">
                     <td class="px-6 py-4 font-mono font-bold text-[11px] text-gray-500 align-middle">${Y2C_AuthEngine.escapeHtml(order.id)}</td>
                     <td class="px-6 py-4 text-xs text-[var(--premium-charcoal)] font-bold align-middle">${Y2C_AuthEngine.escapeHtml(order.date)}</td>
                     <td class="px-6 py-4 font-bold text-[13px] text-[var(--premium-charcoal)] align-middle"><span class="truncate-text" title="${Y2C_AuthEngine.escapeHtml(order.vendor)}">${Y2C_AuthEngine.escapeHtml(order.vendor)}</span></td>
@@ -1389,8 +1410,8 @@
                     <td class="px-6 py-4 text-xs text-gray-600 align-middle"><span class="truncate-text" title="${Y2C_AuthEngine.escapeHtml(order.items)}">${Y2C_AuthEngine.escapeHtml(order.items)}</span></td>
                     <td class="px-4 py-4 text-center align-middle">${trackingHtml}</td>
                     <td class="px-6 py-4 text-center align-middle">
-                        <span class="${badgeClass} mb-1">${icon} ${Y2C_AuthEngine.escapeHtml(st)}</span>
-                        ${AppState.role === 'MASTER' ? `<div class="text-[9px] text-blue-500 font-bold underline mt-1">Update</div>` : ''}
+                        <span class="${badgeClass} mb-1">${icon} ${Y2C_AuthEngine.escapeHtml(st==='HQ_PENDING'?'벤더 작성 / HQ 공유':st)}</span>
+                        ${['MASTER','VENDOR'].includes(AppState.role) ? `<div class="text-[9px] text-blue-500 font-bold underline mt-1">Update</div>` : ''}
                     </td>
                 </tr>`;
             }, () => {
@@ -1408,6 +1429,7 @@
         const btnClose = document.getElementById('btnCloseModal');
         const btnConfirm = document.getElementById('btnConfirmModal');
 
+        document.getElementById('procHubSelect')?.addEventListener('change',()=>{AppState.cart={};document.getElementById('procItemsSummary').value='';document.getElementById('modalSelectedCount').innerText='0';});
         let procurementModalEpoch=0;
         function openModal() {
             const epoch=++procurementModalEpoch;
@@ -1436,6 +1458,7 @@
 
             let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">`;
             AppState.catalogItems.forEach(item => {
+                if(AppState.role==="VENDOR"&&!Object.prototype.hasOwnProperty.call(item.stockBreakdown||{},document.getElementById('procHubSelect').value))return;
                 const qty = AppState.cart[item.code] || 0;
                 html += `
                 <div class="flex items-center justify-between p-3 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
@@ -1501,7 +1524,8 @@
                         date: new Date().toISOString().split('T')[0], 
                         vendor: vName, 
                         region: hub, 
-                        items: itemsStr, 
+                        items: itemsStr,
+                        lineItems: Object.keys(AppState.cart).filter(code=>AppState.cart[code]>0).map(code=>({code,qty:AppState.cart[code]})), 
                         status: "HQ_PENDING", 
                         eta: "-",
                         shippingMethod: sMethod,
@@ -1541,6 +1565,10 @@
             document.body.style.overflow = 'hidden'; 
 
             document.getElementById('statusModalOrderId').value = orderId;
+            document.getElementById('statusModalOrderId').dataset.expectedStatus=currentStatus;
+            const nextHQ={HQ_PENDING:'PREPARING',PREPARING:'ORDERED',ORDERED:'SHIPPED',SHIPPED:'ARRIVED',ARRIVED:'RECEIVED',RECEIVED:'COMPLETED'};
+            for(const option of document.getElementById('statusModalStatus').options){option.disabled=AppState.role==='VENDOR' && !(option.value===currentStatus || option.value===nextHQ[currentStatus] || (option.value==='CANCELED'&&['HQ_PENDING','PREPARING','ORDERED'].includes(currentStatus)));}
+            document.getElementById('btnSubmitStatusUpdate').disabled=AppState.role==='VENDOR'&&['CANCELED','COMPLETED'].includes(currentStatus);
             document.getElementById('statusModalStatus').value = currentStatus;
             document.getElementById('statusModalMethod').value = currentMethod || "NONE";
             document.getElementById('statusModalTracking').value = currentTracking && currentTracking !== "null" ? currentTracking : "";
@@ -1573,6 +1601,7 @@
                 try {
                     const payload = {
                         orderId: oId,
+                        expectedStatus: document.getElementById('statusModalOrderId').dataset.expectedStatus,
                         status: newStatus,
                         shippingMethod: newMethod,
                         trackingNo: newTracking || "-"
@@ -1918,6 +1947,7 @@
         bootEnterpriseCore();
     });
     </script>
+    <script src="assets/js/order-history.js"></script>
     <script src="assets/js/mobile.js"></script>
 </body>
 </html>

@@ -280,6 +280,31 @@
 
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative">
+<section id="operationsMonitor" hidden aria-labelledby="operationsTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px;overflow-wrap:anywhere">
+ <h2 id="operationsTitle" style="font-size:22px;font-weight:800">HQ Operations / 운영 모니터링</h2>
+ <p>주문 품목별 현황 · 담당 매핑 · 처리자 기록. 재고 입고는 별도 검증된 재고 업로드에서 반영됩니다.</p>
+ <button type="button" id="operationsRefresh" style="min-height:44px;padding:10px 16px;border:1px solid #cbd5e1;border-radius:10px;margin:8px 0">모니터링 새로고침</button>
+ <p id="operationsMessage" role="status" aria-live="polite"></p><div id="operationsContent"></div>
+</section>
+<section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
+ <h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2>
+ <p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p>
+ <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> HQ 개입 모드 — 직접 처리할 때만 켜기</label>
+ <button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button>
+ <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
+ <div id="orderHistoryList"></div>
+ <button type="button" id="orderHistoryPrev" disabled>Previous / 이전</button>
+ <button type="button" id="orderHistoryNext" disabled>Next / 다음</button>
+</section>
+<style>
+#hqInterventionLabel{padding:12px 0;display:block}#hqInterventionLabel[hidden]{display:none}#hqIntervention{min-width:24px;min-height:24px;vertical-align:middle;margin-right:8px}
+#orderHistorySection button{padding:10px 16px;margin:8px 8px 8px 0;border:1px solid #cbd5e1;border-radius:10px;background:#fff;min-height:44px;cursor:pointer}
+#orderHistorySection button:disabled{opacity:.45;cursor:default}
+.order-history-card{margin:12px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;overflow-wrap:anywhere}
+.order-history-card summary{cursor:pointer;font-weight:700;min-height:44px}
+.order-history-card table{width:100%;min-width:680px;text-align:left}.order-history-card th,.order-history-card td{padding:10px;border-bottom:1px solid #eee}
+</style>
+
         
         <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
             <header>
@@ -461,22 +486,7 @@
         </section>
 
     
-<section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
- <h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2>
- <p style="color:#64748b">가맹점은 본인 매장의 발주만 조회할 수 있습니다. 관리자에게는 전체 발주가 표시됩니다.</p>
- <button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button>
- <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
- <div id="orderHistoryList"></div>
- <button type="button" id="orderHistoryPrev" disabled>Previous / 이전</button>
- <button type="button" id="orderHistoryNext" disabled>Next / 다음</button>
-</section>
-<style>
-#orderHistorySection button{padding:10px 16px;margin:8px 8px 8px 0;border:1px solid #cbd5e1;border-radius:10px;background:#fff;min-height:44px;cursor:pointer}
-#orderHistorySection button:disabled{opacity:.45;cursor:default}
-.order-history-card{margin:12px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;overflow-wrap:anywhere}
-.order-history-card summary{cursor:pointer;font-weight:700;min-height:44px}
-.order-history-card table{width:100%;min-width:480px;text-align:left}.order-history-card th,.order-history-card td{padding:10px;border-bottom:1px solid #eee}
-</style>
+
 
 </main>
 
@@ -1299,6 +1309,7 @@
     </script>
     <script src="assets/js/dashboard-session.js"></script>
     <script src="assets/js/order-history.js"></script>
+    <script src="assets/js/operations-monitor.js"></script>
     <script src="assets/js/mobile.js"></script>
 </body>
 </html>

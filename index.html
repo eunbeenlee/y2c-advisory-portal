@@ -245,8 +245,8 @@
                 if (_sysRole && _sysRole !== "NULL" && _sysToken && _sysToken.length > 10) {
                     // 로그인 세션이 존재하면 즉각적으로 페이드아웃 후 무지연 라우팅 실행
                     document.documentElement.classList.add('fade-out-route');
-                    if (_sysRole === "VENDOR" || _sysRole === "MASTER") { window.location.replace("admin.html"); } 
-                    else if (_sysRole === "PARTNER") { window.location.replace("dashboard.html"); } 
+                    if (_sysRole === "VENDOR") { window.location.replace("admin.html"); } 
+                    else if (_sysRole === "MASTER" || _sysRole === "PARTNER") { window.location.replace("dashboard.html"); } 
                     else { window.location.replace("items.html"); }
                 } else {
                     const keysToClear = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang"];
@@ -525,8 +525,8 @@
                             
                             setTimeout(() => {
                                 document.documentElement.classList.add('fade-out-route');
-                                if (res.role === "MASTER" || res.role === "VENDOR") { window.location.replace("admin.html"); } 
-                                else if (res.role === "PARTNER") { window.location.replace("dashboard.html"); } 
+                                if (res.role === "VENDOR") { window.location.replace("admin.html"); } 
+                                else if (res.role === "MASTER" || res.role === "PARTNER") { window.location.replace("dashboard.html"); } 
                                 else { window.location.replace("items.html"); }
                             }, 800);
                         }
