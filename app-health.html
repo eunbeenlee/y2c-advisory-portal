@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><title>앱 상태 점검 | SINJEON CANADA</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f8f9fa;color:#172033;font:16px/1.6 system-ui,sans-serif}header{background:white;border-bottom:1px solid #e2e8f0;padding:18px 24px;font-weight:800}header a{color:inherit;text-decoration:none}main{max-width:820px;margin:auto;padding:32px 20px max(40px,env(safe-area-inset-bottom))}.eyebrow{color:#be123c;font-size:12px;font-weight:800;letter-spacing:.1em}h1{font-size:clamp(26px,6vw,36px);line-height:1.3;margin:10px 0}h2{font-size:19px;margin:0 0 12px}.muted{color:#64748b}.card{border:1px solid #e2e8f0;border-radius:20px;padding:24px;background:white;margin-top:20px}button,.back{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;border-radius:12px;border:1px solid #e2e8f0;background:white;color:#172033;text-decoration:none;font:700 15px/1.4 system-ui;cursor:pointer}button{background:#e3000f;color:white;border-color:#e3000f}button:disabled{opacity:.6;cursor:wait}:focus-visible{outline:3px solid #e3000f;outline-offset:4px}.actions{display:flex;flex-wrap:wrap;gap:12px}#status{min-height:3em;overflow-wrap:anywhere}ol{padding-left:24px}li{margin:12px 0;overflow-wrap:anywhere}.pass{color:#166534}.fail{color:#b91c1c}.warn{color:#92400e}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5f9;padding:16px;border-radius:12px;font:13px/1.6 ui-monospace,monospace}summary{min-height:44px;cursor:pointer;font-weight:700}@media(max-width:400px){.card{padding:18px}.actions>*{width:100%}}
+</style></head><body><header><a href="index.html">SINJEON CANADA · Partner Portal</a></header><main><span class="eyebrow">APP HEALTH · READ ONLY</span><h1>앱 상태 점검</h1><p class="muted">배포 파일·캐시 버전·Android 연결 설정을 확인합니다.<br>Check deployment files, cache version and Android association.</p><section class="card"><h2>데이터를 보존하는 점검 / Keep your data</h2><p>주문·재고·로그인 정보·저장 대기 요청을 삭제하거나 재전송하지 않습니다. 인터넷 연결 후 점검하세요.</p><p class="muted">This check does not delete data, submit orders or retry queued requests. An internet connection is required.</p><div class="actions"><button id="check" type="button">점검 시작 / Start check</button><a class="back" href="index.html">포털 열기 / Open portal</a></div><p id="status" role="status" aria-live="polite">점검을 시작하면 결과가 여기에 표시됩니다.</p><ol id="results"></ol></section><section class="card"><h2>오류가 계속되면 / If the error continues</h2><p>아래 결과와 휴대폰 오류 화면을 함께 전달해 주세요. 앱 삭제나 브라우저 데이터 초기화는 하지 마세요.</p><p class="muted">Share the result and the exact phone error. Do not uninstall the app or clear browser data while requests may be queued.</p><details><summary>점검 결과 / Diagnostic result</summary><pre id="report">아직 점검하지 않았습니다. / Not checked yet.</pre></details></section><noscript>점검하려면 JavaScript를 켜주세요. / Enable JavaScript to run diagnostics.</noscript></main>
+<script>
+(function(){'use strict';
+ const button=document.getElementById('check'), status=document.getElementById('status'), list=document.getElementById('results'), output=document.getElementById('report');
+ const base=new URL('./',location.href);let busy=false;
+ const say=text=>{status.textContent=text;};
+ function line(text,kind){const li=document.createElement('li');li.textContent=text;li.className=kind;list.appendChild(li);}
+ async function request(file){
+  const url=new URL(file,base);if(url.origin!==base.origin || !url.pathname.startsWith(base.pathname)) throw Error('INVALID_PATH');
+  url.searchParams.set('y2c_diagnostic','1');url.searchParams.set('check',String(Date.now()));
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
+  try {const r=await fetch(url,{cache:'no-store',signal:controller.signal,redirect:'error'});if(!r.ok)throw Error('HTTP '+r.status);return await r.arrayBuffer();}
+  finally{clearTimeout(timer);}
+ }
+ async function workerInfo(worker){
+  if(!worker)return null;
+  return new Promise(resolve=>{const channel=new MessageChannel();let done=false;const finish=value=>{if(done)return;done=true;clearTimeout(timer);channel.port1.close();resolve(value);};const timer=setTimeout(()=>finish({version:'legacy / unavailable'}),1500);channel.port1.onmessage=e=>finish(e.data);worker.postMessage({type:'Y2C_RELEASE_STATUS'},[channel.port2]);});
+ }
+ button.addEventListener('click',async()=>{
+  if(busy)return;busy=true;button.disabled=true;list.replaceChildren();say('파일을 확인하고 있습니다. / Checking files…');
+  const report={checkedAt:new Date().toISOString(),origin:base.origin,readOnly:true,files:[]};
+  try {
+   const sw=navigator.serviceWorker;
+   report.controller=sw?await workerInfo(sw.controller):null;
+   let reg;
+   if(sw){try{reg=await sw.register('sw.js',{updateViaCache:'none'});await reg.update();report.waiting=!!reg.waiting;}catch(e){report.updateError=String(e.message);}}
+   const manifest=JSON.parse(new TextDecoder().decode(await request('release-manifest.json')));
+   if(!Array.isArray(manifest.files)||manifest.files.length>150)throw Error('INVALID_MANIFEST');
+   report.serverRelease=manifest.version;report.serverDigest=manifest.digest;
+   line('배포 버전 / Release: '+manifest.version,'');
+   if(sw && sw.controller && !(report.controller && report.controller.networkDiagnostics)){
+    report.complete=false;report.result='LEGACY_WORKER';
+    line('구버전 캐시가 열려 있습니다. 입력 내용을 저장하고 이 사이트의 앱과 브라우저 탭을 모두 닫은 뒤 다시 점검하세요. / Save your work, close all portal windows and reopen.','warn');
+    say('전체 파일 점검 보류 / File check deferred: legacy worker');return;
+   }
+   let cursor=0,complete=0;
+   await Promise.all(Array.from({length:4},async()=>{
+    while(cursor<manifest.files.length){
+     const entry=manifest.files[cursor++];const result={path:entry.path,category:entry.category};
+     try{const bytes=await request(entry.path);const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');if(hash!==entry.sha256)throw Error('RELEASE_MISMATCH');result.ok=true;}
+     catch(e){result.ok=false;result.error=e.name==='AbortError'?'TIMEOUT':String(e.message);line(entry.path+' — '+result.error,'fail');}
+     report.files.push(result);say('파일 확인 / Files checked: '+(++complete)+' / '+manifest.files.length);
+    }
+   }));
+   report.complete=true;report.failed=report.files.filter(r=>!r.ok).length;report.result=report.failed?'FILES_NEED_ATTENTION':'FILES_MATCH';report.waiting=!!(reg&&reg.waiting);
+   if(!report.failed)line('배포 파일 '+report.files.length+'개 일치 / All '+report.files.length+' deployment files match.','pass');
+   if(report.waiting)line('새 버전 준비 완료. 입력 내용을 저장하고 앱과 사이트 탭을 모두 닫았다가 다시 실행하세요. / Update ready: save work and close all portal windows.','warn');
+   line('주문 처리·서버 DB·휴대폰 설치 상태는 별도 확인 대상입니다. / Business data and native installation are not tested here.','');
+   say(report.failed?'일부 파일에 문제가 있습니다. 아래 결과를 전달해 주세요. / Some files need attention. Share the result below.':'파일 점검 완료 / File check complete');
+  }catch(e){report.complete=false;report.error=e.name==='AbortError'?'TIMEOUT':String(e.message);say('점검을 완료하지 못했습니다. 연결·배포 파일을 확인하세요. / Check incomplete. Verify connection and deployment.');line(report.error,'fail');}
+  finally{output.textContent=JSON.stringify(report,null,2);busy=false;button.disabled=false;}
+ });
+})();
+</script></body></html>

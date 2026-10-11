@@ -35,7 +35,7 @@
     <link rel="preload" href="assets/js/auth.js" as="script">
     
     <!-- 🚀 [V93 ACCELERATOR] Chart.js Engine -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 
     <link rel="prefetch" href="items.html" as="document">
     <link rel="prefetch" href="recipes.html" as="document">
@@ -156,6 +156,7 @@
     <link rel="stylesheet" href="assets/css/mobile.css">
     <link rel="stylesheet" href="assets/css/tailwind-dashboard.css">
     <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
 </head>
@@ -285,14 +286,14 @@
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative">
 <section id="operationsMonitor" hidden aria-labelledby="operationsTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px;overflow-wrap:anywhere">
  <h2 id="operationsTitle" style="font-size:22px;font-weight:800">HQ Operations / 운영 모니터링</h2>
- <p>주문 품목별 현황 · 담당 매핑 · 처리자 기록. 재고 입고는 별도 검증된 재고 업로드에서 반영됩니다.</p>
+ <p data-ux-ko="주문 품목별 현황 · 담당 매핑 · 처리자 기록. 재고 입고는 검증된 업로드로 반영됩니다." data-ux-en="Order items, vendor assignments and activity records. Stock receipts use the validated upload workflow.">주문 품목별 현황 · 담당 매핑 · 처리자 기록. 재고 입고는 검증된 업로드로 반영됩니다.</p>
  <button type="button" id="operationsRefresh" style="min-height:44px;padding:10px 16px;border:1px solid #cbd5e1;border-radius:10px;margin:8px 0">모니터링 새로고침</button>
  <p id="operationsMessage" role="status" aria-live="polite"></p><div id="operationsContent"></div>
 </section>
 <section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
  <h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2>
  <p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p>
- <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> HQ 개입 모드 — 직접 처리할 때만 켜기</label>
+ <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> <span data-ux-ko="HQ 개입 모드 — 직접 처리할 때만 켜기" data-ux-en="HQ intervention — enable only for direct action">HQ 개입 모드 — 직접 처리할 때만 켜기</span></label>
  <button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button>
  <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
  <div id="orderHistoryList"></div>
@@ -518,6 +519,7 @@
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
+    <script src="assets/js/experience.js"></script>
     <script src="assets/js/portal-dialog.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
@@ -527,7 +529,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('sw.js', {updateViaCache:'none'})
                     .then(reg => console.log('[Y2C PWA] Service Worker Registered.', reg.scope))
                     .catch(err => console.error('[Y2C PWA] SW Registration Failed.', err));
             });
@@ -602,6 +604,7 @@
                 btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none";
             }
             if (typeof window.applyTranslations === 'function') window.applyTranslations();
+            document.dispatchEvent(new Event('y2c-language-changed'));
             
             // 🚨 차트 레이블 즉각 갱신
             if (salesChartInstance) {

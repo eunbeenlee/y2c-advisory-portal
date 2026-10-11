@@ -274,6 +274,7 @@
     <link rel="stylesheet" href="assets/css/mobile.css">
     <link rel="stylesheet" href="assets/css/tailwind-invoice.css">
     <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
 </head>
@@ -408,7 +409,7 @@
         <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 items-start">
             
             <!-- 🎛️ 좌측 통제 패널 (Control Sidebar) -->
-            <aside class="w-full lg:w-[320px] xl:w-[340px] shrink-0 bg-white border border-gray-200 rounded-[1.5rem] p-5 sm:p-6 shadow-sm sticky top-24 no-print flex flex-col gap-4 sm:gap-5">
+            <aside id="invoiceControls" class="w-full lg:w-[320px] xl:w-[340px] shrink-0 bg-white border border-gray-200 rounded-[1.5rem] p-5 sm:p-6 shadow-sm sticky top-24 no-print flex flex-col gap-4 sm:gap-5">
                 
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
@@ -691,6 +692,7 @@
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
+    <script src="assets/js/experience.js"></script>
     <script src="assets/js/portal-dialog.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
@@ -702,7 +704,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('sw.js', {updateViaCache:'none'})
                     .then(reg => console.log('[Y2C PWA] Service Worker Registered.', reg.scope))
                     .catch(err => console.error('[Y2C PWA] SW Registration Failed.', err));
             });
@@ -795,6 +797,7 @@
                 btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none";
             }
             if (typeof window.applyTranslations === 'function') window.applyTranslations();
+            document.dispatchEvent(new Event('y2c-language-changed'));
         };
 
         window.applyTranslations = function() {

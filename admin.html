@@ -160,6 +160,7 @@
     <link rel="stylesheet" href="assets/css/mobile.css">
     <link rel="stylesheet" href="assets/css/tailwind-admin.css">
     <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
 </head>
@@ -425,7 +426,7 @@
                             <tr>
                                 <th class="w-24 text-center border-r border-gray-200">Status</th>
                                 <th class="w-64 border-r border-gray-200">HQ Master Code</th>
-                                <th class="w-64">Product Name</th>
+                                <th class="w-64" data-ux-ko="상품명" data-ux-en="Product Name">Product Name</th>
                                 <th class="w-32 text-center">Unit Price (CAD)</th>
                                 <th class="w-32 text-center">Exp. Date</th>
                                 <th class="w-24 text-center text-[#E3000F]">Inbound Qty</th>
@@ -537,7 +538,7 @@
 <section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
  <h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2>
  <p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p>
- <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> HQ 개입 모드 — 직접 처리할 때만 켜기</label>
+ <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> <span data-ux-ko="HQ 개입 모드 — 직접 처리할 때만 켜기" data-ux-en="HQ intervention — enable only for direct action">HQ 개입 모드 — 직접 처리할 때만 켜기</span></label>
  <button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button>
  <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
  <div id="orderHistoryList"></div>
@@ -642,6 +643,7 @@
     <div id="premiumToastContainer"></div>
 
     <!-- 🚨 코어 엔진 바인딩 -->
+    <script src="assets/js/experience.js"></script>
     <script src="assets/js/portal-dialog.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
@@ -653,7 +655,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('sw.js', {updateViaCache:'none'})
                     .then(reg => console.log('[Y2C PWA] Service Worker Registered.', reg.scope))
                     .catch(err => console.error('[Y2C PWA] SW Registration Failed.', err));
             });
@@ -723,6 +725,7 @@
                 btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none";
             }
             if (typeof window.applyTranslations === 'function') window.applyTranslations();
+            document.dispatchEvent(new Event('y2c-language-changed'));
         };
 
         window.applyTranslations = function() {
@@ -1912,11 +1915,7 @@
             try {
                 const rows=await Y2C_AuthEngine.getPendingTransactions();
                 const waiting=rows.filter(r=>r.action!=='save_order');
-                if(node){node.textContent=waiting.length?`서버 저장 대기·확인 필요: ${waiting.length}건. 입력 내용은 유지됩니다.`:'';node.classList.toggle('hidden',!waiting.length);}
-                if(node && waiting.length) {
-                    const retry=document.createElement('button');retry.type='button';retry.textContent='다시 동기화';retry.className='ml-3 underline font-bold';
-                    retry.addEventListener('click',async()=>{retry.disabled=true;await Y2C_AuthEngine.retryPending();updatePendingStatus();});node.appendChild(retry);
-                }
+                if(node&&window.Y2C_UX)Y2C_UX.renderSync(node,rows);
             }catch(err){if(node){node.textContent='기기 대기열을 확인할 수 없습니다. 입력 내용은 유지됩니다.';node.classList.remove('hidden');}}
         }
         window.addEventListener('y2c:mutation-completed',()=>updatePendingStatus());

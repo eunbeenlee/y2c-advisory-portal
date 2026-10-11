@@ -825,8 +825,28 @@ const RegionContext = {
     // ============================================================================
     // 🌐 [MODULE 4] NETWORK ENGINE (Hyper-Gap Accelerated Fast-Fail Proxy)
     // ============================================================================
+    const NetworkFeedback = {
+        next:0, active:new Map(), listeners:new Set(),
+        snapshot() {
+            const scope=RequestPolicy.cacheSessionKey();
+            return Array.from(this.active.values()).filter(x=>x.scope===scope).map(x=>({id:x.id,kind:x.kind,phase:x.phase,attempt:x.attempt,started:x.started}));
+        },
+        notify() { const rows=this.snapshot(); this.listeners.forEach(fn=>{try{fn(rows);}catch(_){}}); },
+        begin(action, kind) {
+            const id=++this.next;
+            this.active.set(id,{id,scope:RequestPolicy.cacheSessionKey(),kind:kind||(RequestPolicy.reads.includes(action)?'read':action==='login'?'login':'write'),phase:'connecting',attempt:1,started:Date.now()});
+            this.notify();return id;
+        },
+        update(id,phase,attempt) {const row=this.active.get(id);if(row){row.phase=phase;row.attempt=attempt;this.notify();}},
+        finish(id) {this.active.delete(id);this.notify();}
+    };
     const NetworkEngine = {
-        dispatch: async function(action, payload = {}, retryCount = 0, context = null) {
+        dispatch: async function(action,payload={},retryCount=0,context=null) {
+            const activity=NetworkFeedback.begin(action);
+            try{return await this._dispatch(action,payload,retryCount,context,activity);}
+            finally{NetworkFeedback.finish(activity);}
+        },
+        _dispatch: async function(action, payload = {}, retryCount = 0, context = null, activity = null) {
             if (!CFG.API.BASE_URL || CFG.API.BASE_URL.trim() === "") {
                 throw new Y2CNetworkError("크리티컬 에러: 글로벌 API 엔드포인트(BASE_URL)가 구성되지 않았습니다. 인프라 관리자에게 문의하십시오.");
             }
@@ -856,7 +876,9 @@ const RegionContext = {
             const targetUrl = `${CFG.API.BASE_URL}?_t=${Date.now()}&action=${action}`;
 
             // 🚨 [보안] 구글 서버의 콜드 스타트를 견디기 위해 전체 타임아웃 45초 유지
-            const timeoutDuration = (action === "login") ? 20000 : CFG.API.TIMEOUT_MS || 45000;
+            const readOnly = RequestPolicy.reads.includes(action);
+            const timeoutDuration = (action === "login") ? 20000 : readOnly ? Math.min(CFG.API.TIMEOUT_MS || 45000, 25000) : CFG.API.TIMEOUT_MS || 45000;
+            NetworkFeedback.update(activity,'connecting',retryCount+1);
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
@@ -928,20 +950,15 @@ const RegionContext = {
                 // Never retry or enqueue another account's request after a session change.
                 if(action!=='login')RequestPolicy.assertSession(context);
                 // 🚨 Exponential Backoff with Jitter
-                if (isNetworkError && retryCount < (CFG.API.MAX_RETRIES ?? 2)) {
+                if (isNetworkError && retryCount < (readOnly ? Math.min(CFG.API.MAX_RETRIES ?? 2, 1) : (CFG.API.MAX_RETRIES ?? 2))) {
                     // 서버 부하를 막고 동시성 충돌을 피하기 위해 지수적 백오프에 난수(Jitter)를 더합니다. 
                     const delay = Math.pow(2, retryCount) * 1500 + Math.floor(Math.random() * 1500); 
                     
-                    // 🚨 [CRITICAL FIX 5] Stealth Logging: 경고가 아닌 방어 성공 로그로 승격
-                    console.log(`%c[Y2C Network Shield] Connection stabilized. Bypassing Google 302 Latency (${error.message}). Retrying silently in ${delay}ms...`, 'color: #10B981; font-weight: bold;');
-                    
-                    // 두 번째 재시도(더 긴 대기시간)에 진입할 때만 사용자에게 부드러운 경고 토스트를 띄웁니다.
-                    if (retryCount === 1) {
-                        UIController.showToast("서버 응답이 지연되고 있습니다. 안전한 백업 채널로 재연결을 시도합니다...", "warning", 3000);
-                    }
-                    
+                    NetworkFeedback.update(activity,'retrying',retryCount+2);
+                    console.log('[Y2C Network] Same endpoint retry',retryCount+2);
+
                     await new Promise(res => setTimeout(res, delay));
-                    return this.dispatch(action, payload, retryCount + 1, context);
+                    return this._dispatch(action, payload, retryCount + 1, context, activity);
                 }
 
                 return this.handleOfflineScenario(action, payload, isMutation, error, context);
@@ -994,6 +1011,7 @@ const SyncDaemon = {
                 if(record.status==='AUTH_REQUIRED'&&(record.blockedToken||record.payload.token)===SessionManager.getToken())break;
                 if(!(await OfflineEngine.claim(record,owner)))break;
                 if(!RequestPolicy.isCurrentSession(context)) {await OfflineEngine.updateRecord(record.id,{leaseUntil:0});break;}
+                const activity=NetworkFeedback.begin(record.action,"sync");
                 const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),CFG.API.TIMEOUT_MS||45000);
                 try {
                     const body={...record.payload,token:context.token,_intentKey:undefined,
@@ -1027,7 +1045,7 @@ const SyncDaemon = {
                     await OfflineEngine.updateRecord(record.id,{status:count>=5?'RETRY_PAUSED':'FAILED_RETRYABLE',retryCount:count,leaseUntil:0,
                         nextAttemptAt:Date.now()+Math.min(60000,1000*Math.pow(2,Math.min(count,6))),lastError:e.message});
                     break;
-                }finally{clearTimeout(timer);}
+                }finally{clearTimeout(timer);NetworkFeedback.finish(activity);}
             }
         }catch(e){console.warn('[Y2C Sync] Local recovery unavailable:',e.message);}
         finally{this.isSyncing=false;}
@@ -1106,6 +1124,11 @@ const SyncDaemon = {
             const result = await RequestPolicy.execute(action, payload,context);
             if (action !== 'login')RequestPolicy.assertSession(context);
             return result;
+        },
+        getNetworkStatus: function() { return NetworkFeedback.snapshot(); },
+        onNetworkStatus: function(listener) {
+            if(typeof listener!=='function')return ()=>{};
+            NetworkFeedback.listeners.add(listener);return ()=>NetworkFeedback.listeners.delete(listener);
         },
         cacheSessionKey: function() { return RequestPolicy.cacheSessionKey(); },
         getReadRevision: function() { return RequestPolicy.readRevision; },

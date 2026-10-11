@@ -1,0 +1,306 @@
+{
+  "version": "V88_24_9",
+  "digest": "a1f5823bd436fbc4",
+  "files": [
+    {
+      "path": "Sinjeon_Logo_Pink.png",
+      "sha256": "9e1c774adf9a2a3421d2429ba6b92975ce7014d6de77ae63be5a597bf1820840",
+      "bytes": 2289,
+      "category": "web"
+    },
+    {
+      "path": "admin.html",
+      "sha256": "add3f83c9fdf8c72b685e932185dc20f96c409ce7596ca198dea9b9c75176257",
+      "bytes": 139176,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/design-system.css",
+      "sha256": "bea729f0f8d21f0915355af188201587bd6e494e6d0f2ad22e7e3c2419209158",
+      "bytes": 14383,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/experience.css",
+      "sha256": "232e4ad9320cf96430bcdb6437cece857e2bf0a5319feb9817d04ea2997f6d4b",
+      "bytes": 10856,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/mobile.css",
+      "sha256": "fb4081df3732f0c114c1454b2d89f99e0bc0f04c7f963d2079a7f5b681b9ce51",
+      "bytes": 10023,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/order-review.css",
+      "sha256": "395836d644bb8b397eb922f47e3240d5306dd65a07c45c7594abf6fd1356365b",
+      "bytes": 3977,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/portal-shell.css",
+      "sha256": "067d9893f62184ae9562336d7fd5c2d8b2483cbf575441d46abd944530463272",
+      "bytes": 4328,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/pwa.css",
+      "sha256": "a339d72f954d49cf624c445b3ae7f54c248bd1873d13d816a177b2d213054bcd",
+      "bytes": 3594,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/tailwind-admin.css",
+      "sha256": "70f6a90bed832bfd526e731c7ef7fc48072c43f94d538829aa7bf7e1981734a2",
+      "bytes": 42009,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/tailwind-dashboard.css",
+      "sha256": "923c0894d3505729c627dff0ffeb44f9c46c7f8096032c30a39aa638ac3242c7",
+      "bytes": 39775,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/tailwind-index.css",
+      "sha256": "136b5fdd3674b719fb365098840d565f32732e46e2d2225d371b1801107e03bc",
+      "bytes": 36870,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/tailwind-invoice.css",
+      "sha256": "eece7c70ef8295cb05ca9f0452938e6da703e4e30014241c7453598fbc8d443d",
+      "bytes": 40870,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/tailwind-items.css",
+      "sha256": "b4b23dbe25dc05e9024ee2cf26db77b09c7582e38e0d8961ac720fe38d25ebd9",
+      "bytes": 39797,
+      "category": "web"
+    },
+    {
+      "path": "assets/css/tailwind-recipes.css",
+      "sha256": "54e1d574b2a522bea36a2448e015894bcc26a9e23cad1a72fbf224e802f78126",
+      "bytes": 39432,
+      "category": "web"
+    },
+    {
+      "path": "assets/icons/app-180.png",
+      "sha256": "f40d04aa8dedaf2a31cf7695aa7e8e86efa8bcc98011e44aa74120784396f806",
+      "bytes": 12819,
+      "category": "web"
+    },
+    {
+      "path": "assets/icons/app-192.png",
+      "sha256": "72c906f6ba1c691868034b7f5c600c5941c93152c97596e654275b2c9da05ee3",
+      "bytes": 14869,
+      "category": "web"
+    },
+    {
+      "path": "assets/icons/app-512.png",
+      "sha256": "075e0e43b10f03a6fd6032274699c08ef9240b6363602ad62a820a1edf5ada81",
+      "bytes": 154550,
+      "category": "web"
+    },
+    {
+      "path": "assets/icons/app-maskable-512.png",
+      "sha256": "009950f64e51709b8651a0a51401ef9a7fdb619c82ea2a997d0cd24f8a3f6f79",
+      "bytes": 87269,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/accelerator.js",
+      "sha256": "25bfef1c509bd75bf66a81ff533f8ec65f41a94b8c05a34656d6249db5602f74",
+      "bytes": 12549,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/android-install.js",
+      "sha256": "8b2958f055b95aae67803d9a8da31ad0308d8991d3437378053623c70310de95",
+      "bytes": 3806,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/auth.js",
+      "sha256": "aff0359f7830f49b3311b6f9944da70f415f6dd7988274131d54b1ad5a6211eb",
+      "bytes": 76578,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/config.js",
+      "sha256": "d106fabb29915958f998d8b5e0076d6612a1cb49f8a30fe134cc91f35d281d0a",
+      "bytes": 12997,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/dashboard-session.js",
+      "sha256": "3c1a2020be7d93638e0ea18160bd31abb8588e7fe0248d0ed98b101ed82d0093",
+      "bytes": 1474,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/document-io.js",
+      "sha256": "f60b1370a2acd82ef9b935fc9dc3ad257a38872152c89ad7d7864688f9986143",
+      "bytes": 2799,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/excel-model.js",
+      "sha256": "b45fe8227526711a55d441617d8393e1eadbeef3f7d3551a9668eb8f5e0c2aed",
+      "bytes": 5272,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/excel-worker.js",
+      "sha256": "691d6ce5cbfd938a48d2617fb40ae42fde1e5333bccc71611bd027577b89074c",
+      "bytes": 9473,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/experience.js",
+      "sha256": "261b82c613f52560a5829ed3e335237f2fce37cb29afd49c1bc8c284418e7e50",
+      "bytes": 10333,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/invoice-math.js",
+      "sha256": "510aaef3c5b9de56fe36a4a93e5a5ed909365e0de318d61da406fd3240f9a65e",
+      "bytes": 2483,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/mobile.js",
+      "sha256": "e85feeb47029fb39495246abd7649bdf695776d0d0e0121418f116f8d60d0311",
+      "bytes": 4825,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/mutation-ui.js",
+      "sha256": "42770e9c2f4c672a0026882116e9a8aa47db030483c9d0f20809d4b95705bf43",
+      "bytes": 3712,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/operations-monitor.js",
+      "sha256": "3c9af2dd194d09477a3bf27e8073ad1fbc93f104494ddf48608a9a46cffd308b",
+      "bytes": 9597,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/order-history.js",
+      "sha256": "58ef29de11a6203fc22ebb198b6c73e223b3256d3f88c32c75f983b21c2ac581",
+      "bytes": 15873,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/order-math.js",
+      "sha256": "78b2ef2662f77f650d35a7f11133fbe9c8b9430fed7fb7e7bed4574a5d888750",
+      "bytes": 2136,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/order-review.js",
+      "sha256": "4916e6c7d8d2f03aa0a901a7ada0419a6945e373182199e778299d3dc61f2daf",
+      "bytes": 3856,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/portal-dialog.js",
+      "sha256": "3ce70238b0597af1e935996d644e0aed849ee2d2a20b7ea4b53d947615bc8353",
+      "bytes": 3072,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/price-editor.js",
+      "sha256": "293db60560e57dc14f469ba3475c1d54ebf58bd365363e56323547a1c03261f9",
+      "bytes": 4404,
+      "category": "web"
+    },
+    {
+      "path": "assets/js/pwa.js",
+      "sha256": "854e61da543a183a38aa728752ba5bf541eb324cbf297caf4645ce0159e9b53d",
+      "bytes": 6091,
+      "category": "web"
+    },
+    {
+      "path": "dashboard.html",
+      "sha256": "60cc7d89bc783eb614ebe35c6aee3f66dd6aad26d51373e456c9f596bcbdb12b",
+      "bytes": 83475,
+      "category": "web"
+    },
+    {
+      "path": "favicon.png",
+      "sha256": "493619db1d0e64e0dda864f0111347058325a2da1fdb0924a63d684dff9b03f3",
+      "bytes": 711875,
+      "category": "web"
+    },
+    {
+      "path": "index.html",
+      "sha256": "42d0df7c6010afbc2ee11fd91b76f569ce6b99ccbc7f70a19ca644d643d9123d",
+      "bytes": 37848,
+      "category": "web"
+    },
+    {
+      "path": "install.html",
+      "sha256": "ebd231ac3a3d5c0f9f85b96b37e9cac389117c9775bcf955183b12e88dffe135",
+      "bytes": 7637,
+      "category": "web"
+    },
+    {
+      "path": "invoice.html",
+      "sha256": "6e7d34f0adcb37822ab2f930b65990b0cea2e9b603794f09bff94aa3280925b8",
+      "bytes": 80641,
+      "category": "web"
+    },
+    {
+      "path": "items.html",
+      "sha256": "2bb52987a4689cfb84fc34a0c44e21939bad51d1e9436b686e2a7e8b4ad1cb56",
+      "bytes": 89312,
+      "category": "web"
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "d8ca5a2034d0eb079d4def2e79af057502dbf5922dfc85258f4d7c5cc2dc3029",
+      "bytes": 1586,
+      "category": "web"
+    },
+    {
+      "path": "recipes.html",
+      "sha256": "513dbaab8844e78b0f294f8daaee3704750b47201ec583bd72d04d3ac55edfb3",
+      "bytes": 54350,
+      "category": "web"
+    },
+    {
+      "path": "y2c_holdings_logo.png",
+      "sha256": "0369ebf9bea898e3ad65320da67f1963704da85e2665a36caf6419089d9d6097",
+      "bytes": 3101,
+      "category": "web"
+    },
+    {
+      "path": "sw.js",
+      "sha256": "6e07ab3e87e630e48a083c14440ef69fdcda85257bfc91f6f6f64714a077d8b9",
+      "bytes": 18524,
+      "category": "web"
+    },
+    {
+      "path": "app-health.html",
+      "sha256": "b08ffd635cd0bd83e06e9e21f77b2563de975f6685a43b8a534e2cb1484b3155",
+      "bytes": 8235,
+      "category": "web"
+    },
+    {
+      "path": ".well-known/assetlinks.json",
+      "sha256": "b11031933794aba9bd297919104daa7601ad419615dac64f4a2dcde02c8da83d",
+      "bytes": 351,
+      "category": "android"
+    },
+    {
+      "path": "apps/SinjeonPortal-1.0.5.apk",
+      "sha256": "812fbcccfa0a5dc9fe43058d518305d6be35e343ede80902b00dbe8d2c715b88",
+      "bytes": 3847175,
+      "category": "android"
+    }
+  ]
+}

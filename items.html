@@ -179,6 +179,7 @@
     <link rel="stylesheet" href="assets/css/order-review.css">
     <link rel="stylesheet" href="assets/css/tailwind-items.css">
     <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
 </head>
@@ -305,18 +306,18 @@
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative pb-32">
         
-        <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 no-print">
+        <header id="catalogHeading" class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 no-print">
             <div>
                 <h2 class="font-montserrat text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
                     Inventory & Catalog
                     <span id="regionBadge" class="px-2.5 py-1 bg-red-50 border border-red-100 text-[#E3000F] text-[10px] font-black rounded uppercase tracking-widest translate-y-[-4px]">ON PRICING</span>
                 </h2>
-                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter">
+                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter" data-ux-ko="상품과 수량을 선택하여 발주하거나 재고를 확인하세요." data-ux-en="Select items and quantities to request procurement or view stock.">
                     Select items and quantities to request procurement or view stock.
                 </p>
             </div>
             
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+            <div id="catalogToolbar" tabindex="-1" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
                 <div id="hubSelectorContainer" class="hidden relative w-full sm:w-auto">
                     <select id="hubSelector" class="premium-input bg-white cursor-pointer appearance-none pl-10 text-[12px] font-black uppercase tracking-widest text-[#E3000F]">
                         <!-- Populated by JS -->
@@ -330,13 +331,17 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" id="catalogSearchInput" class="premium-input bg-white pl-12 !rounded-full text-[14px]" placeholder="Search SKU or Name..." autocomplete="off">
+                    <input enterkeyhint="search" type="search" id="catalogSearchInput" class="premium-input bg-white pl-12 !rounded-full text-[14px]" placeholder="Search SKU or Name..." autocomplete="off">
                 </div>
             </div>
         </header>
 
+        <div class="catalog-quick-actions">
+          <button type="button" id="catalogSelectedToggle" class="ux-button" aria-pressed="false" onclick="toggleSelectedCatalog()" data-ux-ko="선택한 상품만" data-ux-en="Selected items">Selected items</button>
+          <button type="button" class="ux-button" onclick="retryCatalogRead()" data-ux-ko="재고 새로고침" data-ux-en="Refresh stock">Refresh stock</button>
+        </div>
         <!-- 🌟 4대 KPI 카드 -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div id="catalogKpis" class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white flex flex-col justify-center shadow-premium-card">
                 <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total SKUs</h3>
                 <div class="text-3xl font-black font-montserrat tracking-tighter mt-1" id="kpiTotalSkus">
@@ -344,7 +349,7 @@
                 </div>
             </div>
             <div class="kpi-card flex flex-col justify-center">
-                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Inventory Value</h3>
+                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1" data-ux-ko="재고 금액" data-ux-en="Inventory Value">Inventory Value</h3>
                 <div class="text-xl font-bold text-[var(--premium-charcoal)] font-mono mt-1" id="kpiInvValue">
                     ● ● ●
                 </div>
@@ -358,7 +363,7 @@
                 </div>
             </div>
             <div class="kpi-card flex flex-col justify-center hidden sm:flex">
-                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Last Synced</h3>
+                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1" data-ux-ko="최근 동기화" data-ux-en="Last Synced">Last Synced</h3>
                 <div class="text-xs font-bold text-gray-600 font-mono mt-1" id="kpiLastSync">
                     ● ● ●
                 </div>
@@ -373,18 +378,20 @@
             </button>
         </div>
 
+        <section id="inventoryComparison" class="ux-stock-summary" aria-label="Stock comparison" hidden></section>
+        <div id="catalogFilterSummary" class="ux-filter-bar" role="status"></div>
         <!-- 🌟 메인 카탈로그 테이블 (가상 스크롤 영역) -->
         <div data-mobile-catalog-scroll class="accelerated-container bg-white border border-gray-200 rounded-[1.5rem] overflow-hidden shadow-sm relative min-h-[400px]">
             <div class="overflow-x-auto hide-scrollbar">
                 <table class="w-full text-left enterprise-table" style="table-layout: fixed;">
                     <thead>
                         <tr>
-                            <th class="w-32 border-r border-gray-100">Item Code</th>
-                            <th class="w-auto">Product Name</th>
-                            <th class="w-32 text-center border-l border-gray-100">Category</th>
-                            <th class="w-32 text-center">Unit Price</th>
+                            <th class="w-32 border-r border-gray-100" data-ux-ko="상품 코드" data-ux-en="Item Code">Item Code</th>
+                            <th class="w-auto" data-ux-ko="상품명" data-ux-en="Product Name">Product Name</th>
+                            <th class="w-32 text-center border-l border-gray-100" data-ux-ko="분류" data-ux-en="Category">Category</th>
+                            <th class="w-32 text-center" data-ux-ko="박스 단가" data-ux-en="Unit Price">Unit Price</th>
                             <th class="w-48 text-center" id="thLocalStock">Local Hub (Stock)</th>
-                            <th class="w-40 text-center">Order Qty</th>
+                            <th class="w-40 text-center" data-ux-ko="발주 수량" data-ux-en="Order Qty">Order Qty</th>
                         </tr>
                     </thead>
                 </table>
@@ -400,6 +407,7 @@
             </div>
         </div>
 
+    <nav id="catalogPagination" class="catalog-pagination" aria-label="상품 페이지" hidden></nav>
     <div id="mutationSyncStatus" role="status" class="hidden px-4 py-3 mb-4 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl"></div>
     </main>
 
@@ -462,6 +470,7 @@
     <!-- 글로벌 토스트 앵커 -->
     <div id="premiumToastContainer"></div>
 
+    <script src="assets/js/experience.js"></script>
     <script src="assets/js/portal-dialog.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
@@ -470,7 +479,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
+                navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).catch(() => {});
             });
         }
     </script>
@@ -523,6 +532,7 @@
                 btnKo.className = safeLang === 'ko' ? "px-2.5 py-1 text-[10px] font-black rounded-md bg-white shadow-sm text-[var(--premium-charcoal)] transition-all focus:outline-none" : "px-2.5 py-1 text-[10px] font-black rounded-md text-gray-400 hover:text-gray-600 transition-all focus:outline-none";
             }
             if (typeof window.applyTranslations === 'function') window.applyTranslations();
+            document.dispatchEvent(new Event('y2c-language-changed'));
         };
 
         window.applyTranslations = function() {
@@ -667,13 +677,14 @@
             let readCurrent = window.Y2C_Accelerator.readGuard('fetchCatalogFast', () => fetchCatalogFast());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) { AppState.isFetching = false; return; }
-            if (AppState.isFetching) { AppState.fetchQueued = true; return; }
+            if (AppState.isFetching) { if(AppState.fetchingHub!==AppState.currentHub)AppState.fetchQueued = true; return; }
             AppState.isFetching = true;
 
             const tbodyId = 'catalogTableBody';
             const allowed = getAuthorizedRegions();
             if (allowed.length && !allowed.includes(AppState.currentHub)) AppState.currentHub = allowed[0];
             let requestedHub = AppState.currentHub;
+            AppState.fetchingHub=requestedHub;
 
             // Region-scoped catalog cache. ITEMS_DATA_CACHE to instantly share data with admin/dashboard
             let cacheKey = catalogCacheKey(requestedHub);
@@ -683,10 +694,12 @@
             if(regionBadge) regionBadge.innerText = `${AppState.currentHub} PRICING`;
             if(thLocalStock) thLocalStock.innerText = `${AppState.currentHub} Hub (Stock)`;
 
+            const liveCatalog = Y2C_AuthEngine.request("get_items", { clientState: requestedHub });
+            liveCatalog.catch(()=>{}); // Cache verification can finish later; always observe early failures.
             let isCachedRendered = false;
             if (!sameSession()) { AppState.isFetching = false; return; }
             try {
-                const cached = await SWR_DB.get(cacheKey);
+                const cached = await Promise.race([SWR_DB.get(cacheKey), liveCatalog.then(()=>null,()=>null)]);
                 if (!sameSession()) { AppState.isFetching = false; return; }
                 if (cached && cached.data && cached.data.items && cached.data.appliedState === requestedHub &&
                     !(AppState.role === 'PARTNER' && ['ALL', 'DEFAULT'].includes(AppState.region)) && AppState.currentHub === requestedHub) {
@@ -699,12 +712,13 @@
                 }
             } catch (e) { if (!sameSession()) { AppState.isFetching = false; return; }}
 
-            if (!isCachedRendered) { document.getElementById(tbodyId).innerHTML = `<tr><td colspan="6" class="py-16 text-center text-gray-500 font-bold"><span class="animate-pulse">🔄 SYNCING INVENTORY...</span></td></tr>`; }
+            if (!isCachedRendered) { document.getElementById(tbodyId).innerHTML = '<tr><td colspan="6" id="catalogLoadingState"></td></tr>';if(window.Y2C_UX)Y2C_UX.skeleton(document.getElementById('catalogLoadingState')); }
+            window.Y2C_UX?.busy(document.getElementById(tbodyId),true);
 
             if (!sameSession()) return;
             try {
                 // Ensure backend `get_items` works without relying solely on cache
-                const res = await Y2C_AuthEngine.request("get_items", { clientState: requestedHub });
+                const res = await liveCatalog;
                 if (!sameSession()) return;
                 if (AppState.currentHub !== requestedHub) return;
                 if (res && res.success) {
@@ -722,21 +736,23 @@
                     } else if (applied !== requestedHub) throw new Error('선택한 허브와 서버 허브가 다릅니다.');
                     AppState.catalogHub = applied;
                 }
+                if(!res||res.success!==true||!Array.isArray(res.items))throw new Error(res?.message||'상품 응답을 확인할 수 없습니다.');
                 if (res && res.success && res.items) {
                     const newItems = res.items;
                     if (JSON.stringify(AppState.catalogItems) !== JSON.stringify(newItems)) {
-                        await SWR_DB.set(cacheKey, res);
+                        SWR_DB.set(cacheKey, res).catch(()=>{}); // Read cache never delays an authorized live response.
                         if (!sameSession()) return;
                         AppState.catalogItems = newItems;
                         AppState.filteredItems = [...AppState.catalogItems];
                         if (AppState.currentHub !== requestedHub) return;
                         
-                        document.getElementById('kpiLastSync').innerText = "Just Now";
+                        document.getElementById('kpiLastSync').innerText = window.Y2C_UX?Y2C_UX.t('방금 동기화','Just synced'):'Just Now';
+                        document.getElementById('kpiLastSync').classList.remove('text-[#E3000F]');
                         if(AppState.catalogItems.length > 0 && isCachedRendered) { Y2C_AuthEngine.showToast("데이터베이스 실시간 동기화가 완료되었습니다.", "success", 2000); }
                         
                         executeSearch(document.getElementById('catalogSearchInput')?.value || "");
                         recalcCart();
-                    }
+                    } else if(!isCachedRendered){executeSearch(document.getElementById('catalogSearchInput')?.value||'');recalcCart();}
                 }
             } catch (err) { if (!sameSession()) return;
                 if (AppState.currentHub !== requestedHub) return;
@@ -745,9 +761,9 @@
                         <tr>
                             <td colspan="6" class="py-16 text-center bg-red-50/20 border-y border-red-100">
                                 <div class="text-4xl mb-4 opacity-80">⚠️</div>
-                                <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">엔터프라이즈 데이터 노드 연결 실패</h4>
-                                <p class="text-gray-500 font-medium text-[11px] mb-4">네트워크 또는 인증 오류가 발생했습니다.</p>
-                                <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">보안 세션 재연결 시도</button>
+                                <h4 class="text-[var(--sinjeon-pink)] font-bold font-inter text-[14px] tracking-wide mb-2">상품 정보를 불러오지 못했습니다</h4>
+                                <p class="text-gray-500 font-medium text-[11px] mb-4">연결 상태를 확인하고 다시 조회하세요. 장바구니 입력은 유지됩니다.</p>
+                                <button type="button" onclick="retryCatalogRead()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">다시 조회</button>
                             </td>
                         </tr>
                     `;
@@ -757,6 +773,7 @@
                 }
             } finally {
                 AppState.isFetching = false;
+                window.Y2C_UX?.busy(document.getElementById(tbodyId),false);
                 if (sameSession() && AppState.fetchQueued) { AppState.fetchQueued = false; fetchCatalogFast(); }
             }
         }
@@ -775,6 +792,21 @@
             return url;
         }
 
+        const catalogCompact = () => window.matchMedia('(max-width: 1023px)').matches;
+        let catalogPage=0, catalogSelectedOnly=false;
+        const catalogPageSize=6;
+        function catalogPageControls() {
+            const panel=document.getElementById('catalogPagination');if(!panel)return;
+            panel.hidden=!catalogCompact();panel.replaceChildren();
+            const ux=window.Y2C_UX, total=Math.max(1,Math.ceil(AppState.filteredItems.length/catalogPageSize));
+            const previous=ux.el('button',ux.t('이전','Previous'),'ux-button');previous.type='button';previous.disabled=catalogPage===0;
+            const next=ux.el('button',ux.t('다음','Next'),'ux-button');next.type='button';next.disabled=catalogPage>=total-1;
+            const label=ux.el('span',(catalogPage+1)+' / '+total);label.setAttribute('role','status');
+            function move(delta){catalogPage+=delta;renderVisibleRows();catalogPageControls();const anchor=document.getElementById('catalogToolbar');anchor.scrollIntoView({block:'start',behavior:'instant'});anchor.focus({preventScroll:true});}
+            previous.addEventListener('click',()=>move(-1));next.addEventListener('click',()=>move(1));panel.append(previous,label,next);
+        }
+        window.toggleSelectedCatalog=function(){catalogSelectedOnly=!catalogSelectedOnly;document.getElementById('catalogSelectedToggle').setAttribute('aria-pressed',String(catalogSelectedOnly));executeSearch(document.getElementById('catalogSearchInput').value);};
+        window.matchMedia('(max-width: 1023px)').addEventListener('change',()=>{catalogPage=0;initVirtualScroll();});
         let virtualScrollEngine = {
             rowHeight: 85, 
             visibleRowsCount: 12, 
@@ -785,7 +817,10 @@
         };
 
         function initVirtualScroll() {
+            if(typeof updateInventoryOverview==='function')updateInventoryOverview();
             const data = AppState.filteredItems;
+            catalogPage=Math.min(catalogPage,Math.max(0,Math.ceil(data.length/catalogPageSize)-1));
+            catalogPageControls();
             const viewport = document.getElementById('catalogVirtualViewport');
             const container = document.getElementById('catalogVirtualContainer');
             const tbody = document.getElementById('catalogTableBody');
@@ -793,7 +828,8 @@
             if (data.length === 0) {
                 container.style.height = 'auto';
                 tbody.style.transform='translateY(0px)';viewport.scrollTop=0;virtualScrollEngine.scrollTop=0;
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-20 text-gray-500 font-bold">No items found.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="6" id="catalogEmptyState"></td></tr>';
+                if(typeof window!=='undefined'&&window.Y2C_UX)Y2C_UX.empty(document.getElementById('catalogEmptyState'),Y2C_UX.t('검색된 상품이 없습니다','No matching items'),Y2C_UX.t('상품명 또는 코드를 확인하거나 검색 조건을 지워보세요.','Check the item name or code, or clear your search.'),window.resetCatalogFilters,Y2C_UX.t('검색 초기화','Clear search'));
                 updateKPIs(0, 0, 0);
                 return;
             }
@@ -803,7 +839,7 @@
             virtualScrollEngine.tbodyElement = tbody;
             
             const totalHeight = data.length * virtualScrollEngine.rowHeight;
-            container.style.height = `${totalHeight}px`;
+            container.style.height = catalogCompact() ? "auto" : `${totalHeight}px`;
             viewport.scrollTop=Math.min(Math.max(0,viewport.scrollTop),Math.max(0,totalHeight-(viewport.clientHeight||600)));
 
             let totalVal = 0; let lowStockCount = 0;
@@ -845,7 +881,8 @@
             let endIndex = Math.min(data.length - 1, startIndex + virtualScrollEngine.visibleRowsCount + 4);
 
             let html = "";
-            const offsetY = startIndex * virtualScrollEngine.rowHeight;
+            if(catalogCompact()){startIndex=catalogPage*catalogPageSize;endIndex=Math.min(data.length-1,startIndex+catalogPageSize-1);}
+            const offsetY = catalogCompact() ? 0 : startIndex * virtualScrollEngine.rowHeight;
             virtualScrollEngine.tbodyElement.style.transform = `translateY(${offsetY}px)`;
 
             for (let i = startIndex; i <= endIndex; i++) {
@@ -891,17 +928,17 @@
                 if (AppState.role === "PARTNER") {
                     actionHtml = `
                         <div class="qty-input-wrapper mx-auto flex items-center justify-center gap-1">
-                            <button type="button" id="qtyMinus_${code}" class="${btnClass}" onclick="updateCart(${Y2C_AuthEngine.inlineArgs(item.code)}, -1)" ${currentCartQty<=0?'disabled':''}>−</button>
-                            <input type="text" id="qty_${code}" value="${currentCartQty}" class="qty-input ${isOutOfStock ? 'bg-gray-100' : ''}" oninput="manualUpdateCart(${Y2C_AuthEngine.inlineArgs(item.code)}, this.value)" autocomplete="off">
-                            <button type="button" class="${btnClass}" onclick="updateCart(${Y2C_AuthEngine.inlineArgs(item.code)}, 1)" ${inputState}>+</button>
+                            <button type="button" id="qtyMinus_${code}" aria-label="${code} decrease quantity" class="${btnClass}" onclick="updateCart(${Y2C_AuthEngine.inlineArgs(item.code)}, -1)" ${currentCartQty<=0?'disabled':''}>−</button>
+                            <input type="text" id="qty_${code}" aria-label="${code} quantity in boxes" inputmode="numeric" value="${currentCartQty}" class="qty-input ${isOutOfStock ? 'bg-gray-100' : ''}" oninput="manualUpdateCart(${Y2C_AuthEngine.inlineArgs(item.code)}, this.value)" autocomplete="off">
+                            <button type="button" class="${btnClass}" aria-label="${code} increase quantity" onclick="updateCart(${Y2C_AuthEngine.inlineArgs(item.code)}, 1)" ${inputState}>+</button>
                         </div>
                     `;
                 } else {
-                    actionHtml = item.canChangePrice===true ? `<button type="button" style="min-height:44px;padding:8px 14px;border:1px solid #cbd5e1;border-radius:10px" onclick="openCatalogPrice(${Y2C_AuthEngine.inlineArgs(item.code)})">가격 변경</button>` : `<span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">READ ONLY</span>`;
+                    actionHtml = item.canChangePrice===true ? `<button type="button" style="min-height:44px;padding:8px 14px;border:1px solid #cbd5e1;border-radius:10px" onclick="openCatalogPrice(${Y2C_AuthEngine.inlineArgs(item.code)})">${window.Y2C_UX?Y2C_UX.t('가격 변경','Edit price'):'가격 변경'}</button>` : `<span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">READ ONLY</span>`;
                 }
 
                 html += `
-                <tr class="hover:bg-red-50/10 transition-colors virtual-row">
+                <tr class="hover:bg-red-50/10 transition-colors virtual-row" data-code="${code}">
                     <td class="w-32 font-mono text-[11px] font-bold text-gray-500 border-r border-gray-100">${code}</td>
                     <td class="w-auto">
                         <div class="flex items-center gap-3">
@@ -919,10 +956,10 @@
                     <td class="w-48 text-center">
                         <div class="stock-cell-details" ${expBadgesHtml !== "" ? `tabindex="0" role="region" aria-label="Stock and expiry lots for ${name}; scroll for all lots"` : ''}>
                             <div class="text-[18px] font-black ${stockColor} font-mono tracking-tighter">${stockUninitialized ? '—' : localStock}</div>
-                            <small style="display:block;font-size:10px">주문 가능 / 박스</small>
-                            ${(AppState.role==='MASTER'||AppState.role==='VENDOR')&&item.physicalBreakdown ? `<small style="display:block;font-size:10px">실물 ${parseStrictDecimal(item.physicalBreakdown[myRegion])} · 예약 ${parseStrictDecimal(item.reservedBreakdown?.[myRegion])}</small>` : ''}
+                            <small style="display:block;font-size:10px">${typeof window!=='undefined'&&window.Y2C_UX?Y2C_UX.t('주문 가능 / 박스','Available / boxes'):'주문 가능 / 박스'}</small>
+                            ${(AppState.role==='MASTER'||AppState.role==='VENDOR')&&item.physicalBreakdown ? `<small style="display:block;font-size:10px">${window.Y2C_UX?Y2C_UX.t('실물','Physical'):'실물'} ${parseStrictDecimal(item.physicalBreakdown[myRegion])} · ${window.Y2C_UX?Y2C_UX.t('예약','Reserved'):'예약'} ${parseStrictDecimal(item.reservedBreakdown?.[myRegion])}</small>` : ''}
                             ${stockUninitialized ? '<span class="block text-[9px] text-amber-700 font-bold" title="첫 입고 시 0 기준으로 수량이 반영됩니다.">미입력 · 첫 입고 0 기준</span>' : ''}
-                            ${expBadgesHtml !== "" ? `<div class="flex flex-col items-center mt-1">${expBadgesHtml}</div>` : ''}
+                            ${expBadgesHtml !== "" ? (catalogCompact() ? `<details class="catalog-expiry"><summary>${expBadgesHtml.includes('⚠️')?'⚠️ ':''}${window.Y2C_UX.t('유통기한 · 배치 보기','Expiry · view lots')}</summary><div>${expBadgesHtml}</div></details>` : `<div class="flex flex-col items-center mt-1">${expBadgesHtml}</div>`) : ''}
                         </div>
                     </td>
                     <td class="w-40 text-center">${actionHtml}</td>
@@ -942,6 +979,27 @@
             else lowEl.parentElement.classList.remove('border-l-[#E3000F]', 'bg-red-50/10');
         }
 
+        const stockSnapshot=new Map();
+        function updateInventoryOverview(){
+            const ux=window.Y2C_UX;if(!ux)return;
+            const summary=document.getElementById('inventoryComparison'),filters=document.getElementById('catalogFilterSummary');if(!summary||!filters)return;
+            const query=document.getElementById('catalogSearchInput')?.value.trim()||'';
+            filters.replaceChildren(ux.el('span',AppState.currentHub+' · '+ux.t('표시 '+AppState.filteredItems.length+' / 전체 '+AppState.catalogItems.length+'개 상품','Showing '+AppState.filteredItems.length+' / '+AppState.catalogItems.length+' items')));
+            if(query){const chip=ux.el('span',ux.t('검색: ','Search: ')+query,'ux-chip'),clear=ux.el('button',ux.t('검색 초기화','Clear search'));clear.type='button';clear.addEventListener('click',window.resetCatalogFilters);filters.append(chip,clear);}
+            const canView=AppState.role==='MASTER'||AppState.role==='VENDOR';
+            const ready=AppState.filteredItems.length>0&&AppState.filteredItems.every(i=>i.physicalBreakdown&&i.reservedBreakdown&&Object.prototype.hasOwnProperty.call(i.physicalBreakdown,AppState.currentHub));
+            summary.hidden=!canView||!ready;if(summary.hidden){summary.replaceChildren();return;}
+            const sum=key=>AppState.filteredItems.reduce((n,i)=>n+parseStrictDecimal(i[key]?.[AppState.currentHub]),0),physical=sum('physicalBreakdown'),reserved=sum('reservedBreakdown'),available=sum('stockBreakdown');
+            const values=[physical,reserved,available];summary.replaceChildren();
+            [[ux.t('실물 재고','Physical stock'),physical],[ux.t('예약 수량','Reserved'),reserved],[ux.t('주문 가능','Available'),available]].forEach(([label,value],i)=>{const card=ux.stat(label,value,ux.t('검색된 상품 · 박스','Filtered items · boxes'));summary.append(card);});
+            stockSnapshot.set(AppState.currentHub,values);
+            // Visualization is descriptive only: never derives the available stock used by order validation.
+            const meter=ux.el('div',undefined,'ux-stock-meter'),fill=ux.el('span');meter.setAttribute('role','img');meter.setAttribute('aria-label',ux.t('실물 대비 예약 비율','Reserved share of physical stock')+' '+(physical>0?Math.round(reserved/physical*100):0)+'%');fill.style.setProperty('--reserved-width',Math.min(100,Math.max(0,physical>0?reserved/physical*100:0))+'%');meter.append(fill);summary.children[1].append(meter);
+        }
+        window.resetCatalogFilters=function(){catalogSelectedOnly=false;document.getElementById('catalogSelectedToggle').setAttribute('aria-pressed','false');const input=document.getElementById('catalogSearchInput');if(input)input.value='';executeSearch('');input?.focus();};
+        window.retryCatalogRead=function(){fetchCatalogFast();};
+        document.addEventListener('y2c-language-changed',()=>{updateInventoryOverview();if(virtualScrollEngine.tbodyElement)renderVisibleRows();recalcCart();});
+
         let searchTimeout = null;
         const searchInput = document.getElementById('catalogSearchInput');
         
@@ -954,6 +1012,8 @@
                     return String(item.name).toLowerCase().includes(q) || String(item.code).toLowerCase().includes(q);
                 });
             }
+            if(catalogSelectedOnly)AppState.filteredItems=AppState.filteredItems.filter(item=>Number(AppState.cart[item.code])>0);
+            catalogPage=0;
             if (virtualScrollEngine.viewportElement) virtualScrollEngine.viewportElement.scrollTop = 0;
             initVirtualScroll();
         }
@@ -996,9 +1056,7 @@
             const inputEl = document.getElementById(`qty_${code}`);
             if (inputEl) {
                 inputEl.value = cur;
-                inputEl.parentElement.classList.remove('animate-cart-bounce');
-                void inputEl.parentElement.offsetWidth;
-                inputEl.parentElement.classList.add('animate-cart-bounce');
+                if(window.Y2C_UX)Y2C_UX.pulse(inputEl.parentElement,'#fff0f1');
             }
             recalcCart();
         };
@@ -1048,10 +1106,10 @@
             const countEl=document.getElementById('cartItemsCount');
             if(countEl)countEl.innerText=totalItemsCount;
             for(const [id,value] of [['cartTotalDesk',estimate?.total],['cartTotalMob',estimate?.total],['cartSubtotalDesk',estimate?.subtotal],['cartSubtotalMob',estimate?.subtotal],['cartTaxDesk',estimate?.tax],['cartTaxMob',estimate?.tax]]) {
-                const node=document.getElementById(id);if(node)node.innerText=estimate?formatCurrency(value):'확인 필요';
+                const node=document.getElementById(id);if(node){const text=estimate?formatCurrency(value):'확인 필요';if(window.Y2C_UX)Y2C_UX.changed(node,text);else node.innerText=text;}
             }
             const note=document.getElementById('cartEstimateNote');
-            if(note)note.textContent=error||'표시 금액은 예상값이며, 저장 시 최신 단가와 세금 설정으로 재계산합니다.';
+            if(note)note.textContent=error||(window.Y2C_UX?Y2C_UX.t('표시 금액은 예상값이며, 저장 시 최신 단가와 세금 설정으로 재계산합니다.','Estimates are recalculated using current prices and tax settings when saved.'):'표시 금액은 예상값이며, 저장 시 최신 단가와 세금 설정으로 재계산합니다.');
             const submit=document.getElementById('btnSubmitCart');if(submit&&!AppState.isSubmitting)submit.disabled=!!error;
 
             const dock = document.getElementById('cartActionContainer');
@@ -1176,11 +1234,7 @@
                 const pending=rows.filter(r=>['save_order','update_price'].includes(r.action));
                 AppState.pendingOrders=AppState.pendingOrders||{};
                 pending.forEach(r=>{if(r.action==='save_order'&&r.key&&r.items)AppState.pendingOrders[r.key]={hub:r.hub,items:r.items};});
-                if(node){node.textContent=pending.length?`발주·가격 저장 대기·확인 필요: ${pending.length}건. 입력 내용은 보존됩니다. ${pending.find(r=>r.lastError)?.lastError||''}`:'';node.classList.toggle('hidden',!pending.length);}
-                if(node && pending.length) {
-                    const retry=document.createElement('button');retry.type='button';retry.textContent='다시 동기화';retry.className='ml-3 underline font-bold';
-                    retry.addEventListener('click',async()=>{retry.disabled=true;await Y2C_AuthEngine.retryPending();updatePendingStatus();});node.appendChild(retry);
-                }
+                if(node&&window.Y2C_UX)Y2C_UX.renderSync(node,rows);else if(node)node.textContent=pending.map(r=>r.lastError||r.status).join(' · ');
             }catch(err){if(node){node.textContent='기기 저장 상태를 확인할 수 없습니다. 입력 내용은 유지됩니다.';node.classList.remove('hidden');}}
         }
         document.addEventListener('y2c-price-pending',updatePendingStatus);
