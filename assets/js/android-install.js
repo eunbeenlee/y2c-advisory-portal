@@ -1,7 +1,7 @@
 /* APK delivery checks only. This is not a Play Protect verdict and never changes device security. */
 (function () {
  'use strict';
- const RELEASE = Object.freeze({file:'SinjeonPortal-1.0.5.apk',bytes:3847175,sha256:'812fbcccfa0a5dc9fe43058d518305d6be35e343ede80902b00dbe8d2c715b88'});
+ const RELEASE = Object.freeze({file:'SinjeonPortal-1.0.6.apk',bytes:3856271,sha256:'fb943910852bee6516d18125698bf9a6bc52ebde6a91286856d1acc1fdcca29b'});
  let busy=false,controller=null;
  function init() {
   const button=document.getElementById('downloadApkButton');

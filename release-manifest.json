@@ -1,6 +1,6 @@
 {
-  "version": "V88_24_9",
-  "digest": "a1f5823bd436fbc4",
+  "version": "V88_24_10",
+  "digest": "8e6502f0b473dd5e",
   "files": [
     {
       "path": "Sinjeon_Logo_Pink.png",
@@ -118,7 +118,7 @@
     },
     {
       "path": "assets/js/android-install.js",
-      "sha256": "8b2958f055b95aae67803d9a8da31ad0308d8991d3437378053623c70310de95",
+      "sha256": "fa536168eb9e39347cc103ba8aef99021c68b5f742beaf5c23ecad2f0ce5531d",
       "bytes": 3806,
       "category": "web"
     },
@@ -244,7 +244,7 @@
     },
     {
       "path": "install.html",
-      "sha256": "ebd231ac3a3d5c0f9f85b96b37e9cac389117c9775bcf955183b12e88dffe135",
+      "sha256": "70dedc31ecab173360510c740afb69b597eea92650827769be7c89bff22cc4ef",
       "bytes": 7637,
       "category": "web"
     },
@@ -280,8 +280,8 @@
     },
     {
       "path": "sw.js",
-      "sha256": "6e07ab3e87e630e48a083c14440ef69fdcda85257bfc91f6f6f64714a077d8b9",
-      "bytes": 18524,
+      "sha256": "95e834f3b6af07c0f5467f81e19a428f82c38d8b59b0dd3a0c55c1d48eb51d9c",
+      "bytes": 18526,
       "category": "web"
     },
     {
@@ -297,9 +297,9 @@
       "category": "android"
     },
     {
-      "path": "apps/SinjeonPortal-1.0.5.apk",
-      "sha256": "812fbcccfa0a5dc9fe43058d518305d6be35e343ede80902b00dbe8d2c715b88",
-      "bytes": 3847175,
+      "path": "apps/SinjeonPortal-1.0.6.apk",
+      "sha256": "fb943910852bee6516d18125698bf9a6bc52ebde6a91286856d1acc1fdcca29b",
+      "bytes": 3856271,
       "category": "android"
     }
   ]

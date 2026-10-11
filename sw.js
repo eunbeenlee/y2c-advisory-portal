@@ -1,17 +1,17 @@
 /**
- * Y2C release-scoped offline shell V88_24_9.
+ * Y2C release-scoped offline shell V88_24_10.
  * Compiled static assets use cache-first; API data and durable writes stay with AuthEngine.
  * Cache cleanup is restricted to this application path. IndexedDB queues are retained.
  */
 
 "use strict";
 
-const CACHE_VERSION = 'V88_24_9';
+const CACHE_VERSION = 'V88_24_10';
 const SCOPE_URL = new URL(self.registration.scope);
 const CACHE_FAMILY = `Y2C_ENTERPRISE_SCOPE_${encodeURIComponent(SCOPE_URL.pathname)}_`;
 // Generated hashes pin this worker to one complete release, including its cache namespace.
 // BEGIN RELEASE INTEGRITY
-const RELEASE_DIGEST = "a1f5823bd436fbc4";
+const RELEASE_DIGEST = "8e6502f0b473dd5e";
 const RELEASE_HASHES = {
   "Sinjeon_Logo_Pink.png": "9e1c774adf9a2a3421d2429ba6b92975ce7014d6de77ae63be5a597bf1820840",
   "admin.html": "add3f83c9fdf8c72b685e932185dc20f96c409ce7596ca198dea9b9c75176257",
@@ -32,7 +32,7 @@ const RELEASE_HASHES = {
   "assets/icons/app-512.png": "075e0e43b10f03a6fd6032274699c08ef9240b6363602ad62a820a1edf5ada81",
   "assets/icons/app-maskable-512.png": "009950f64e51709b8651a0a51401ef9a7fdb619c82ea2a997d0cd24f8a3f6f79",
   "assets/js/accelerator.js": "25bfef1c509bd75bf66a81ff533f8ec65f41a94b8c05a34656d6249db5602f74",
-  "assets/js/android-install.js": "8b2958f055b95aae67803d9a8da31ad0308d8991d3437378053623c70310de95",
+  "assets/js/android-install.js": "fa536168eb9e39347cc103ba8aef99021c68b5f742beaf5c23ecad2f0ce5531d",
   "assets/js/auth.js": "aff0359f7830f49b3311b6f9944da70f415f6dd7988274131d54b1ad5a6211eb",
   "assets/js/config.js": "d106fabb29915958f998d8b5e0076d6612a1cb49f8a30fe134cc91f35d281d0a",
   "assets/js/dashboard-session.js": "3c1a2020be7d93638e0ea18160bd31abb8588e7fe0248d0ed98b101ed82d0093",
@@ -53,7 +53,7 @@ const RELEASE_HASHES = {
   "dashboard.html": "60cc7d89bc783eb614ebe35c6aee3f66dd6aad26d51373e456c9f596bcbdb12b",
   "favicon.png": "493619db1d0e64e0dda864f0111347058325a2da1fdb0924a63d684dff9b03f3",
   "index.html": "42d0df7c6010afbc2ee11fd91b76f569ce6b99ccbc7f70a19ca644d643d9123d",
-  "install.html": "ebd231ac3a3d5c0f9f85b96b37e9cac389117c9775bcf955183b12e88dffe135",
+  "install.html": "70dedc31ecab173360510c740afb69b597eea92650827769be7c89bff22cc4ef",
   "invoice.html": "6e7d34f0adcb37822ab2f930b65990b0cea2e9b603794f09bff94aa3280925b8",
   "items.html": "2bb52987a4689cfb84fc34a0c44e21939bad51d1e9436b686e2a7e8b4ad1cb56",
   "manifest.json": "d8ca5a2034d0eb079d4def2e79af057502dbf5922dfc85258f4d7c5cc2dc3029",
