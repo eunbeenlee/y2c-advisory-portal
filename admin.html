@@ -163,6 +163,9 @@
     <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
+<link rel="stylesheet" href="assets/css/order-lifecycle.css?v=1.1.0">
+    <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page flex flex-col min-h-screen selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out; background-color: #F8F9FA;">
@@ -285,15 +288,24 @@
 
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative pb-24 sm:pb-32">
-        <nav aria-label="벤더 업무 바로가기" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px"><a href="#orderHistorySection" style="padding:12px 16px;min-height:44px;border:1px solid #cbd5e1;border-radius:12px;background:white;font-weight:700">가맹점 발주 관리 ↓</a><span style="padding:12px;color:#64748b">공장 발주 공유·입고는 아래 업무 탭, 가격 변경은 카탈로그를 사용하세요.</span></nav>
 
+
+<section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
+ <div class="workspace-section-head"><div><h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2><p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p></div><button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button></div>
+ <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> <span data-ux-ko="HQ 개입 모드 — 직접 처리할 때만 켜기" data-ux-en="HQ intervention — enable only for direct action">HQ 개입 모드 — 직접 처리할 때만 켜기</span></label>
+ 
+ <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
+ <div id="orderHistoryList"></div>
+ <nav class="workspace-pagination" aria-label="발주 내역 페이지 / Order pages"><button type="button" id="orderHistoryPrev" disabled>Previous / 이전</button>
+ <button type="button" id="orderHistoryNext" disabled>Next / 다음</button></nav>
+</section>
 
         <!-- 🌟 서브 네비게이션 -->
         <nav class="flex flex-wrap items-center justify-start gap-2 mb-10 border-b border-gray-200 pb-2 no-print" id="adminSubNav">
-            <button class="sub-nav-btn active" data-target="tab-franchise">FRANCHISE DB</button>
-            <button class="sub-nav-btn" data-target="tab-sales">ERP SALES</button>
-            <button class="sub-nav-btn" data-target="tab-excel">INBOUND (EXCEL)</button>
-            <button class="sub-nav-btn" data-target="tab-procurement">FACTORY ORDERS</button>
+            <button class="sub-nav-btn active" data-target="tab-franchise" data-ux-ko="가맹점 정보" data-ux-en="Franchises">Franchises</button>
+            <button class="sub-nav-btn" data-target="tab-sales" data-ux-ko="매출 관리" data-ux-en="Sales">Sales</button>
+            <button class="sub-nav-btn" data-target="tab-excel" data-ux-ko="재고 입고" data-ux-en="Stock receipt">Stock receipt</button>
+            <button class="sub-nav-btn" data-target="tab-procurement" data-ux-ko="공장 발주 공유" data-ux-en="Factory orders">Factory orders</button>
         </nav>
 
         <!-- ========================================== -->
@@ -535,16 +547,7 @@
         </section>
 
     <div id="mutationSyncStatus" role="status" class="hidden px-4 py-3 mb-4 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl"></div>
-<section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
- <h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2>
- <p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p>
- <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> <span data-ux-ko="HQ 개입 모드 — 직접 처리할 때만 켜기" data-ux-en="HQ intervention — enable only for direct action">HQ 개입 모드 — 직접 처리할 때만 켜기</span></label>
- <button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button>
- <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
- <div id="orderHistoryList"></div>
- <button type="button" id="orderHistoryPrev" disabled>Previous / 이전</button>
- <button type="button" id="orderHistoryNext" disabled>Next / 다음</button>
-</section>
+
 <style>
 #hqInterventionLabel{padding:12px 0;display:block}#hqInterventionLabel[hidden]{display:none}#hqIntervention{min-width:24px;min-height:24px;vertical-align:middle;margin-right:8px}
 #orderHistorySection button{padding:10px 16px;margin:8px 8px 8px 0;border:1px solid #cbd5e1;border-radius:10px;background:#fff;min-height:44px;cursor:pointer}
@@ -867,19 +870,20 @@
         document.getElementById('masterTableBody')?.addEventListener('input',()=>{masterDraftEdited=true;masterViewEpoch++;});
         async function fetchMasterDataFast() {
             const viewSession = Y2C_AuthEngine.cacheSessionKey();
-            const readCurrent = window.Y2C_Accelerator.readGuard('fetchMasterDataFast', () => fetchMasterDataFast());
+            const readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('fetchMasterDataFast', () => fetchMasterDataFast());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) return;
             if (AppState.role === "VENDOR") return;
             const cacheKey = 'MASTER_DATA_CACHE';
+            const liveRead = Y2C_AuthEngine.request("get_master_data");liveRead.catch(()=>{});
             const clientSel = document.getElementById('salesClientSelector');
 
             if (!sameSession()) return;
             try {
-                const cached = await SWR_DB.get(cacheKey);
+                const cached = await Promise.race([SWR_DB.get(cacheKey),liveRead.then(()=>null,()=>null)]);
                 if (!sameSession()) return;
                 if (cached && cached.data) {
-                    if(!masterDraftEdited){AppState.cachedClients = cached.data;renderMasterDataFast();populateSalesClientSelector();}
+                    if(!masterDraftEdited){AppState.cachedClients = cached.data;renderMasterDataFast();populateSalesClientSelector();readCurrent.cached?.(cached.timestamp);}
                 }
             } catch (e) { if (!sameSession()) return;}
 
@@ -889,17 +893,19 @@
                     clientSel.innerHTML = `<option value="">-- Connecting to Node... --</option>`;
                 }
 
-                const res = await Y2C_AuthEngine.request("get_master_data");
+                const res = await liveRead;
                 if (!sameSession()) return;
+                if(!res || res.success!==true || !Array.isArray(res.clients))throw new Error(res?.message||'가맹점 조회 실패');
                 if (res && res.success) {
-                    const freshData = res.clients || [];
+                    if(masterDraftEdited)readCurrent.deferred?.();else readCurrent.live?.();
+                    const freshData = res.clients || [];SWR_DB.set(cacheKey,freshData,sameSession).catch(()=>{});
                     if (JSON.stringify(AppState.cachedClients) !== JSON.stringify(freshData)) {
-                        await SWR_DB.set(cacheKey, freshData);
+                        
                 if (!sameSession()) return;
                         if(!masterDraftEdited){AppState.cachedClients = freshData;renderMasterDataFast();populateSalesClientSelector();}
                     }
                 }
-            } catch (err) { if (!sameSession()) return;
+            } catch (err) { if (!sameSession()) return;readCurrent.failed?.();
                 if(clientSel && !AppState.cachedClients.length) clientSel.innerHTML = `<option value="">-- Connection Failed --</option>`;
                 if(AppState.cachedClients.length === 0) {
                     Y2C_Accelerator.renderReactively('masterTableBody', `
@@ -1020,9 +1026,14 @@
                         setTimeout(()=>{if(document.getElementById(`saveBtn_${rowIdx}`)===btn)btn.innerHTML=originalHtml;},2000);
                     },
                     refresh:async()=>{
+                        const current=window.Y2C_Accelerator.readGuard();
+                        const fresh=await Y2C_AuthEngine.request('get_master_data');
+                        if(!current())return;
+                        if(!fresh.success||!Array.isArray(fresh.clients))throw new Error(fresh.message||'가맹점 조회 실패');
                         const cached=AppState.cachedClients.find(c=>Number(c.rowIdx)===Number(rowIdx));
-                        if(cached&&cached.name===payload.client.expectedClientName)Object.assign(cached,payload.client);
-                        await SWR_DB.set('MASTER_DATA_CACHE',AppState.cachedClients);
+                        const confirmed=fresh.clients.find(c=>Number(c.rowIdx)===Number(rowIdx));
+                        if(cached&&confirmed&&cached.name===payload.client.expectedClientName)Object.assign(cached,confirmed);
+                        SWR_DB.set('MASTER_DATA_CACHE',fresh.clients,current).catch(()=>{});
                     }
                 });
                 updatePendingStatus();
@@ -1086,8 +1097,9 @@
         const salesSelection=()=>JSON.stringify([document.getElementById('salesYearSelector')?.value,document.getElementById('salesClientSelector')?.value]);
         for(const id of ['salesYearSelector','salesClientSelector'])document.getElementById(id)?.addEventListener('change',()=>{salesViewEpoch++;salesRenderedSelection=null;});
         window.loadSalesGridFast = async function() {
+            if (AppState.isSubmitting) return;
             const viewSession = Y2C_AuthEngine.cacheSessionKey();
-            const readCurrent = window.Y2C_Accelerator.readGuard('loadSalesGridFast', () => loadSalesGridFast());
+            const readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('loadSalesGridFast', () => loadSalesGridFast());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) return;
             if (AppState.isSubmitting) return;
@@ -1110,37 +1122,40 @@
             const epoch=++salesViewEpoch, selection=JSON.stringify([year,client]);
             const isCurrent=()=>sameSession()&&epoch===salesViewEpoch&&selection===salesSelection();
             const cacheKey = `SALES_DATA_${year}_${client}`;
+            const liveRead = Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client });liveRead.catch(()=>{});
             let isCached = false;
 
-            if (!sameSession()) { releaseLoad(); return; }
+            if (!isCurrent()) { readCurrent.outdated?.();releaseLoad(); return; }
             try {
-                const cachedRaw = await SWR_DB.get(cacheKey);
-                if (!sameSession()) { releaseLoad(); return; }
+                const cachedRaw = await Promise.race([SWR_DB.get(cacheKey),liveRead.then(()=>null,()=>null)]);
+                if (!isCurrent()) { readCurrent.outdated?.();releaseLoad(); return; }
                 if (cachedRaw && cachedRaw.data) {
                     if(isCurrent())renderSalesGrid(cachedRaw.data, isCurrent, selection);
-                    isCached = true;
+                    isCached = true;readCurrent.cached?.(cachedRaw.timestamp);
                 }
-            } catch (e) { if (!sameSession()) { releaseLoad(); return; }}
+            } catch (e) { if (!isCurrent()) { readCurrent.outdated?.();releaseLoad(); return; }}
 
             if(!isCached && isCurrent()) {
                 salesRenderedSelection=null;
                 Y2C_Accelerator.renderReactively('salesGridBody', `<tr><td colspan="5" class="py-16 text-center text-gray-500 font-bold"><span class="animate-pulse">🔄 로딩 중...</span></td></tr>`,isCurrent);
             }
 
-            if (!sameSession()) { releaseLoad(); return; }
+            if (!isCurrent()) { readCurrent.outdated?.();releaseLoad(); return; }
             try {
-                // 🌟 [CRITICAL FIX 1] Promise.all 충돌 방지: 순차적(Sequential) Await 호출로 404 에러 원천 차단
-                const salesRes = await Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client }).catch(e => { console.warn(e); return { success: false, message: e.message }; });
-                if (!sameSession()) { releaseLoad(); return; }
+                // Await the authorized live read already in flight.
+                const salesRes = await liveRead.catch(e => { console.warn(e); return { success: false, message: e.message }; });
+                if (!isCurrent()) { readCurrent.outdated?.();releaseLoad(); return; }
                 
+                if(salesRes?.success===true&&!Array.isArray(salesRes.records))throw new Error('매출 응답 형식을 확인할 수 없습니다.');
                 if (salesRes && salesRes.success) {
-                    await SWR_DB.set(cacheKey, salesRes.records || []);
-                if (!sameSession()) { releaseLoad(); return; }
+                    readCurrent.live?.();
+                    SWR_DB.set(cacheKey, salesRes.records || [], isCurrent).catch(()=>{});
+                if (!isCurrent()) { readCurrent.outdated?.();releaseLoad(); return; }
                     if(isCurrent())renderSalesGrid(salesRes.records || [], isCurrent, selection);
                 } else {
                     throw new Error(salesRes.message || "서버 통신 실패");
                 }
-            } catch (err) { if (!sameSession()) { releaseLoad(); return; }
+            } catch (err) { if (!isCurrent()) { readCurrent.outdated?.();releaseLoad(); return; }readCurrent.failed?.();
                 if(!isCached && isCurrent()) Y2C_Accelerator.renderReactively('salesGridBody', `<tr><td colspan="5" class="py-10 text-center text-[#E3000F] font-bold">⚠️ ${Y2C_AuthEngine.escapeHtml(err.message)}</td></tr>`,isCurrent);
             } finally {
                 releaseLoad();
@@ -1297,18 +1312,19 @@
         // ==========================================
         async function fetchInitialDataFast() {
             const viewSession = Y2C_AuthEngine.cacheSessionKey();
-            const readCurrent = window.Y2C_Accelerator.readGuard('fetchInitialDataFast', () => fetchInitialDataFast());
+            const readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('fetchInitialDataFast', () => fetchInitialDataFast());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) return;
             const cacheKeyProc = 'PROC_DATA_CACHE';
             const cacheKeyItems = 'ITEMS_DATA_CACHE';
+            const liveInitial = Promise.all([Y2C_AuthEngine.request("get_procurement_data").catch(()=>null),Y2C_AuthEngine.request("get_items").catch(()=>null)]);liveInitial.catch(()=>{});
 
             if (!sameSession()) return;
             try {
-                const [cachedProc, cachedItems] = await Promise.all([ SWR_DB.get(cacheKeyProc), SWR_DB.get(cacheKeyItems) ]);
+                const [cachedProc, cachedItems] = await Promise.race([Promise.all([SWR_DB.get(cacheKeyProc),SWR_DB.get(cacheKeyItems)]),liveInitial.then(()=>[null,null],()=>[null,null])]);
                 if (!sameSession()) return;
 
-                if (cachedProc && cachedProc.data) {
+                if (cachedProc && cachedProc.data) {readCurrent.cached?.(cachedProc.timestamp);
                     AppState.hqOrders = cachedProc.data.hqOrders || [];
                     AppState.mappings = cachedProc.data.mappings || [];
                     if (AppState.role === "VENDOR") {
@@ -1318,18 +1334,19 @@
                     renderHqOrders();
                 }
 
-                if (cachedItems && cachedItems.data) {
+                if (cachedItems && cachedItems.data) {readCurrent.cached?.(cachedItems.timestamp);
                     AppState.catalogItems = cachedItems.data.items || [];
                 }
             } catch (e) { if (!sameSession()) return;}
 
             if (!sameSession()) return;
             try {
-                // 🌟 [CRITICAL FIX 1] Promise.all 충돌 방지: 순차적(Sequential) Await 호출로 404 에러 원천 차단
-                const procRes = await Y2C_AuthEngine.request("get_procurement_data").catch(e => null);
+                // Independent authorized reads share transport deduplication and do not wait on cache.
+                const [procRes,itemRes] = await liveInitial;
+                const complete=!!(procRes?.success===true&&Array.isArray(procRes.hqOrders)&&Array.isArray(procRes.mappings)&&itemRes?.success===true&&Array.isArray(itemRes.items));
                 if (!sameSession()) return;
-                if (procRes && procRes.success) {
-                    await SWR_DB.set(cacheKeyProc, procRes);
+                if (procRes?.success===true&&Array.isArray(procRes.hqOrders)&&Array.isArray(procRes.mappings)) {
+                    SWR_DB.set(cacheKeyProc, procRes, sameSession).catch(()=>{});
                     if (!sameSession()) return;
                     AppState.hqOrders = procRes.hqOrders || [];
                     AppState.mappings = procRes.mappings || [];
@@ -1340,15 +1357,16 @@
                     renderHqOrders();
                 }
 
-                const itemRes = await Y2C_AuthEngine.request("get_items").catch(e => null);
+                
                 if (!sameSession()) return;
-                if (itemRes && itemRes.success) {
-                    await SWR_DB.set(cacheKeyItems, itemRes);
+                if (itemRes?.success===true&&Array.isArray(itemRes.items)) {
+                    SWR_DB.set(cacheKeyItems, itemRes, sameSession).catch(()=>{});
                     if (!sameSession()) return;
                     AppState.catalogItems = itemRes.items || [];
                 }
 
-            } catch (err) { if (!sameSession()) return;
+                if(complete)readCurrent.live?.();else readCurrent.failed?.();
+            } catch (err) { if (!sameSession()) return;readCurrent.failed?.();
                 if(AppState.hqOrders.length === 0) {
                     Y2C_Accelerator.renderReactively('hqOrdersTableBody', `
                         <tr>
@@ -1961,7 +1979,7 @@
         bootEnterpriseCore();
     });
     </script>
-    <script src="assets/js/order-history.js"></script>
+    <script src="assets/js/order-history.js?v=V88_25_0"></script>
     <script src="assets/js/mobile.js"></script>
     <script src="assets/js/pwa.js"></script>
 </body>

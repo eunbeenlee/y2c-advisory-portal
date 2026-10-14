@@ -173,6 +173,8 @@
     <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
+    <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
@@ -557,16 +559,17 @@
         // ==========================================
         async function fetchRecipesFast() {
             const viewSession = Y2C_AuthEngine.cacheSessionKey();
-            const readCurrent = window.Y2C_Accelerator.readGuard('fetchRecipesFast', () => fetchRecipesFast());
+            const readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('fetchRecipesFast', () => fetchRecipesFast());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) return;
             const cacheKey = `RECIPES_ALL`;
+            const liveRead = Y2C_AuthEngine.request("get_recipes");liveRead.catch(()=>{});
 
             // 1. SWR: 로컬 캐시 즉시 렌더링
             let isCachedRendered = false;
             if (!sameSession()) return;
             try {
-                const cached = await SWR_DB.get(cacheKey);
+                const cached = await Promise.race([SWR_DB.get(cacheKey),liveRead.then(()=>null,()=>null)]);
                 if (!sameSession()) return;
                 if (cached && Array.isArray(cached.data) && cached.data.length > 0) {
                     AppState.recipes = cached.data;
@@ -574,22 +577,23 @@
                     
                     extractCategories();
                     filterEngine();
-                    isCachedRendered = true;
+                    isCachedRendered = true;readCurrent.cached?.(cached.timestamp);
                 }
             } catch (e) { if (!sameSession()) return;}
 
             // 2. SWR: 백그라운드 서버 동기화
             if (!sameSession()) return;
             try {
-                const res = await Y2C_AuthEngine.request("get_recipes");
+                const res = await liveRead;
                 if (!sameSession()) return;
                 if (!res || !res.success || !Array.isArray(res.recipes)) throw new Error(res?.message || '레시피 목록을 불러올 수 없습니다.');
                 if (res.success) {
-                    const newRecipes = res.recipes;
+                    readCurrent.live?.();
+                    const newRecipes = res.recipes;SWR_DB.set(cacheKey,newRecipes,sameSession).catch(()=>{});
                     
                     // Diff Check
                     if (!isCachedRendered || JSON.stringify(AppState.recipes) !== JSON.stringify(newRecipes)) {
-                        await SWR_DB.set(cacheKey, newRecipes);
+                        
                         if (!sameSession()) return;
                         AppState.recipes = newRecipes;
                         AppState.filteredRecipes = [...AppState.recipes];
@@ -601,7 +605,7 @@
                         }
                     }
                 }
-            } catch (err) { if (!sameSession()) return;
+            } catch (err) { if (!sameSession()) return;readCurrent.failed?.();
                 if (AppState.recipes.length === 0) {
                     recipeRenderEpoch++;
                     emptyState.classList.add('hidden');

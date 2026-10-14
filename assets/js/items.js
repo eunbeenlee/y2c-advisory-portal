@@ -914,7 +914,7 @@ async function submitOrder() {
   
   const grandTotal = document.getElementById('orderGrandTotal')?.innerText || "$0.00";
   const taxNameDisp = taxRateObj ? taxRateObj.name : "Standard Tax";
-  const confirmMsg = `[발주 내역 요약]\n• 식품/식자재(0% 면세): ${formatCurrency(currentOrderTaxSummary.foodSubtotal)}\n• 과세 비품/소모품: ${formatCurrency(currentOrderTaxSummary.taxableSubtotal)}\n• 적용 세금 (${taxNameDisp}): ${formatCurrency(currentOrderTaxSummary.taxAmount)}\n• 최종 결제액: ${grandTotal}\n\nB2B 물류업체로 발주 이메일을 전송하시겠습니까?`;
+  const confirmMsg = `[발주 내역 요약]\n• 식품/식자재(0% 면세): ${formatCurrency(currentOrderTaxSummary.foodSubtotal)}\n• 과세 비품/소모품: ${formatCurrency(currentOrderTaxSummary.taxableSubtotal)}\n• 적용 세금 (${taxNameDisp}): ${formatCurrency(currentOrderTaxSummary.taxAmount)}\n• 최종 결제액: ${grandTotal}\n\n발주를 저장하고 담당 벤더 알림을 대기열에 등록하시겠습니까?`;
 
   if (!confirm(confirmMsg)) return;
 
@@ -933,7 +933,7 @@ async function submitOrder() {
   try {
     const result = await executeApi("save_order", { clientName: clientName, clientState: currentClientState, items: orderItems, taxSummary: currentOrderTaxSummary, batchId: uniqueBatchId });
     if (result && result.success) { 
-        showToast(result.message || `발주 완료 및 이메일 전송 성공 (번호: ${escapeHtml(result.batchId)})`, "success"); 
+        showToast(result.message || `발주 저장 완료 · 메일 상태는 발주 내역에서 확인 (번호: ${escapeHtml(result.batchId)})`, "success"); 
         try{ localStorage.removeItem(`Y2C_CART_STATE_${clientName}`); }catch(e){}
         setTimeout(() => fetchItems(), 1500); 
     } 

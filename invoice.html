@@ -277,6 +277,8 @@
     <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
+    <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
@@ -393,7 +395,7 @@
     </script>
 
     <!-- 📊 메인 컨텐츠 영역 -->
-    <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative pb-32">
+    <main class="workspace-paper-main flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative pb-32">
         
         <header class="mb-6 sm:mb-8 no-print">
             <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
@@ -927,36 +929,40 @@
         // ==========================================
         async function fetchClientsFast() {
             const viewSession = Y2C_AuthEngine.cacheSessionKey();
-            const readCurrent = window.Y2C_Accelerator.readGuard('fetchClientsFast', () => fetchClientsFast());
+            const readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('fetchClientsFast', () => fetchClientsFast());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) return;
             const cacheKey = 'MASTER_DATA_CACHE';
+            const liveRead = Y2C_AuthEngine.request("get_master_data");liveRead.catch(()=>{});
 
             // 1. SWR: 캐시 즉시 렌더링
             if (!sameSession()) return;
             try {
-                const cachedRaw = await SWR_DB.get(cacheKey);
+                const cachedRaw = await Promise.race([SWR_DB.get(cacheKey),liveRead.then(()=>null,()=>null)]);
                 if (!sameSession()) return;
                 if (cachedRaw && cachedRaw.data) {
                     AppState.clients = cachedRaw.data || [];
-                    populateClientSelector(AppState.clients);
+                    populateClientSelector(AppState.clients);readCurrent.cached?.(cachedRaw.timestamp);
                 }
             } catch (e) { if (!sameSession()) return;}
 
             // 2. 백그라운드 동기화
             if (!sameSession()) return;
             try {
-                const res = await Y2C_AuthEngine.request("get_master_data");
+                const res = await liveRead;
                 if (!sameSession()) return;
+                if (!res || res.success!==true || !Array.isArray(res.clients)) throw new Error(res?.message||'가맹점 조회 실패');
                 if (res && res.success && res.clients) {
+                    SWR_DB.set(cacheKey,res.clients,sameSession).catch(()=>{});
+                    readCurrent.live?.();
                     if (JSON.stringify(AppState.clients) !== JSON.stringify(res.clients)) {
-                        await SWR_DB.set(cacheKey, res.clients);
+                        
                         if (!sameSession()) return;
                         AppState.clients = res.clients;
                         populateClientSelector(AppState.clients);
                     }
                 }
-            } catch (err) { if (!sameSession()) return; 
+            } catch (err) { if (!sameSession()) return;readCurrent.failed?.(); 
                 if (AppState.clients.length === 0) {
                     clientSel.innerHTML = '<option value="" disabled selected>⚠️ 서버 통신 실패 (새로고침 요망)</option>';
                     clientSel.classList.add('border-[#E3000F]', 'text-[#E3000F]');

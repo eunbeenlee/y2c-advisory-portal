@@ -1,4 +1,4 @@
-/* Y2C browser accelerator v17. Read cache only; never opens or clears the durable write queue. */
+/* Y2C browser accelerator v18. Read cache only; never opens or clears the durable write queue. */
 (function (global) {
     'use strict';
     const SCHEMA = 2, MAX_AGE = 24 * 60 * 60 * 1000, FRESH_AGE = 5 * 60 * 1000;
@@ -9,6 +9,11 @@
     ]);
     const GENERATION_KEY = 'Y2C_SWR_GENERATION_V17:' + deployment;
     let db = null, opening = null, localGeneration = '0', volatileGeneration = false;
+    const writeTickets=new Map(), views=new Map(), viewTickets=new Map(), readListeners=new Set();
+    let nextWrite=0,nextView=0;
+    function readStatus(){return Array.from(views.values()).filter(v=>v.scope===scope()).map(v=>({key:v.key,phase:v.phase,cachedAt:v.cachedAt||0,at:v.at}));}
+    function notifyReads(){const rows=readStatus();readListeners.forEach(fn=>{try{fn(rows);}catch(_){}});}
+
     const auth = () => global.Y2C_AuthEngine;
     const scope = () => auth() && (auth().cacheSessionKey ? auth().cacheSessionKey() : auth().cacheKey('__SWR_SCOPE__'));
     const revision = () => auth() && auth().getReadRevision ? auth().getReadRevision() : 0;
@@ -18,7 +23,11 @@
         catch (_) { return localGeneration; }
     }
     function invalidate(change) {
-        if (!change || change.reason !== 'mutation-committed') return;
+        if(!change)return;
+        if(['mutation-start','mutation-committed'].includes(change.reason)){
+            views.forEach(v=>{if(v.scope===scope()&&['live','cached','stale'].includes(v.phase))v.phase='outdated';});notifyReads();
+        }
+        if (change.reason !== 'mutation-committed') return;
         localGeneration = Date.now().toString(36) + ':' + Math.random().toString(36).slice(2);
         try { global.localStorage.setItem(GENERATION_KEY, localGeneration); volatileGeneration = false; }
         catch (_) { volatileGeneration = true; }
@@ -100,19 +109,24 @@
                 return {id:record.id, data:record.data, timestamp:record.timestamp, stale:age > FRESH_AGE};
             } catch (_) { return null; }
         },
-        async set(key, data) {
+        async set(key, data, isCurrent = () => true) {
+            let ticket;const permitted=()=>writeTickets.get(key)===ticket && isCurrent();
             try {
-                if (!this.isSupported) return false;
+                if(!isCurrent())return false;
+                ticket=++nextWrite;writeTickets.set(key,ticket);
+                if (!this.isSupported || !permitted()) return false;
+                // Snapshot before any permission/storage await so form edits cannot change cached data.
+                const frozen=JSON.parse(JSON.stringify(data));
                 const access = await capture(key);
-                if (!access) return false;
+                if (!access || !permitted()) return false;
                 await openDB();
-                if (!access.current()) return false;
+                if (!access.current() || !permitted()) return false;
                 // The same connection is reused by transaction(); no await between its callback and put.
                 await transaction('readwrite', store => {
-                    if (!access.current()) throw new Error('Read cache session changed');
-                    return store.put({id:access.id, data, timestamp:Date.now(), schema:SCHEMA, generation:access.stamp});
+                    if (!access.current() || !permitted()) throw new Error('Read cache source changed');
+                    return store.put({id:access.id, data:frozen, timestamp:Date.now(), schema:SCHEMA, generation:access.stamp});
                 });
-                return access.current();
+                return access.current() && permitted();
             } catch (_) { return false; }
         }
     };
@@ -150,6 +164,18 @@
             return true;
         };
     }
+    function latestRead(key, reload) {
+        const identity=scope(), ticket=++nextView, base=readGuard(key,reload);
+        viewTickets.set(key,ticket);
+        const current=()=>viewTickets.get(key)===ticket && identity===scope() && base();
+        const report=(phase,timestamp)=>{if(!current())return;views.set(key,{key,scope:identity,phase,cachedAt:timestamp||0,at:Date.now(),reload});notifyReads();};
+        current.cached=timestamp=>report('cached',timestamp);
+        current.live=()=>report('live');
+        current.deferred=()=>report('draft');
+        current.outdated=()=>report('outdated');
+        current.failed=()=>{const old=views.get(key);report(old&&old.cachedAt?'stale':'failed',old&&old.cachedAt);};
+        report('loading');return current;
+    }
     function schedule(callback) {
         let finished = false, frame = null, timer = null;
         const run = () => {
@@ -180,6 +206,10 @@
     const accelerator = {
         cache,
         readGuard,
+        latestRead,
+        getReadStatus:readStatus,
+        onReadStatus(listener){if(typeof listener!=='function')return ()=>{};readListeners.add(listener);return ()=>readListeners.delete(listener);},
+        refreshVisibleReads(){const identity=scope();views.forEach(v=>{if(v.scope===identity&&['cached','stale','failed','outdated'].includes(v.phase))refreshRead(v.key,v.reload,identity);});},
         renderReactively(target, html, guard = () => true, options = {}) {
             const currentData = options.readBound ? readGuard(options.key || target, options.onStale) : () => true;
             return new Promise(resolve => {

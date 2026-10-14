@@ -1,23 +1,24 @@
 /**
- * Y2C release-scoped offline shell V88_24_10.
+ * Y2C release-scoped offline shell V88_25_0.
  * Compiled static assets use cache-first; API data and durable writes stay with AuthEngine.
  * Cache cleanup is restricted to this application path. IndexedDB queues are retained.
  */
 
 "use strict";
 
-const CACHE_VERSION = 'V88_24_10';
+const CACHE_VERSION = "V88_27_3";
 const SCOPE_URL = new URL(self.registration.scope);
 const CACHE_FAMILY = `Y2C_ENTERPRISE_SCOPE_${encodeURIComponent(SCOPE_URL.pathname)}_`;
 // Generated hashes pin this worker to one complete release, including its cache namespace.
 // BEGIN RELEASE INTEGRITY
-const RELEASE_DIGEST = "8e6502f0b473dd5e";
+const RELEASE_DIGEST = "ecc7df23112339b5";
 const RELEASE_HASHES = {
   "Sinjeon_Logo_Pink.png": "9e1c774adf9a2a3421d2429ba6b92975ce7014d6de77ae63be5a597bf1820840",
-  "admin.html": "add3f83c9fdf8c72b685e932185dc20f96c409ce7596ca198dea9b9c75176257",
+  "admin.html": "1ffee0b0939f91b5aff4844d1b1d78f00571f7664566dc4ee84e220f4d48b80b",
   "assets/css/design-system.css": "bea729f0f8d21f0915355af188201587bd6e494e6d0f2ad22e7e3c2419209158",
   "assets/css/experience.css": "232e4ad9320cf96430bcdb6437cece857e2bf0a5319feb9817d04ea2997f6d4b",
-  "assets/css/mobile.css": "fb4081df3732f0c114c1454b2d89f99e0bc0f04c7f963d2079a7f5b681b9ce51",
+  "assets/css/mobile.css": "d1d6fb2c26e9ce7ab234839f0dfca1d2cd57b217b8f4936307754e31718e5788",
+  "assets/css/order-lifecycle.css": "94650791e70752e4cf6b839a7c8cbd3b584226fc1fe1e7f3d228fee878e2d4d7",
   "assets/css/order-review.css": "395836d644bb8b397eb922f47e3240d5306dd65a07c45c7594abf6fd1356365b",
   "assets/css/portal-shell.css": "067d9893f62184ae9562336d7fd5c2d8b2483cbf575441d46abd944530463272",
   "assets/css/pwa.css": "a339d72f954d49cf624c445b3ae7f54c248bd1873d13d816a177b2d213054bcd",
@@ -27,37 +28,39 @@ const RELEASE_HASHES = {
   "assets/css/tailwind-invoice.css": "eece7c70ef8295cb05ca9f0452938e6da703e4e30014241c7453598fbc8d443d",
   "assets/css/tailwind-items.css": "b4b23dbe25dc05e9024ee2cf26db77b09c7582e38e0d8961ac720fe38d25ebd9",
   "assets/css/tailwind-recipes.css": "54e1d574b2a522bea36a2448e015894bcc26a9e23cad1a72fbf224e802f78126",
+  "assets/css/workspace-ui.css": "4bed4de977f5fa1eb0fc63fc242c72b214f374341a81fd4877f981602423e5b1",
   "assets/icons/app-180.png": "f40d04aa8dedaf2a31cf7695aa7e8e86efa8bcc98011e44aa74120784396f806",
   "assets/icons/app-192.png": "72c906f6ba1c691868034b7f5c600c5941c93152c97596e654275b2c9da05ee3",
   "assets/icons/app-512.png": "075e0e43b10f03a6fd6032274699c08ef9240b6363602ad62a820a1edf5ada81",
   "assets/icons/app-maskable-512.png": "009950f64e51709b8651a0a51401ef9a7fdb619c82ea2a997d0cd24f8a3f6f79",
-  "assets/js/accelerator.js": "25bfef1c509bd75bf66a81ff533f8ec65f41a94b8c05a34656d6249db5602f74",
+  "assets/js/accelerator.js": "10e2d71c85f685568fe8890b96fd0effdac8f250b7bfd79d8805ece3c2081cf7",
   "assets/js/android-install.js": "fa536168eb9e39347cc103ba8aef99021c68b5f742beaf5c23ecad2f0ce5531d",
-  "assets/js/auth.js": "aff0359f7830f49b3311b6f9944da70f415f6dd7988274131d54b1ad5a6211eb",
+  "assets/js/auth.js": "98c1fd99a04bc5b61346f32ed0cfbf43225bd637c2f2bd16a325a0b02bfb436c",
   "assets/js/config.js": "d106fabb29915958f998d8b5e0076d6612a1cb49f8a30fe134cc91f35d281d0a",
   "assets/js/dashboard-session.js": "3c1a2020be7d93638e0ea18160bd31abb8588e7fe0248d0ed98b101ed82d0093",
   "assets/js/document-io.js": "f60b1370a2acd82ef9b935fc9dc3ad257a38872152c89ad7d7864688f9986143",
   "assets/js/excel-model.js": "b45fe8227526711a55d441617d8393e1eadbeef3f7d3551a9668eb8f5e0c2aed",
   "assets/js/excel-worker.js": "691d6ce5cbfd938a48d2617fb40ae42fde1e5333bccc71611bd027577b89074c",
-  "assets/js/experience.js": "261b82c613f52560a5829ed3e335237f2fce37cb29afd49c1bc8c284418e7e50",
+  "assets/js/experience.js": "d3aaf47fc12ea9b5d8b27e896dc3318dc8d93ff3d68eacb86bd6b708c2c81d01",
   "assets/js/invoice-math.js": "510aaef3c5b9de56fe36a4a93e5a5ed909365e0de318d61da406fd3240f9a65e",
-  "assets/js/mobile.js": "e85feeb47029fb39495246abd7649bdf695776d0d0e0121418f116f8d60d0311",
+  "assets/js/mobile.js": "acde86948b5d226ffd0da405571043fe7b72ba6a5079e962789e3fa00e2ba71b",
   "assets/js/mutation-ui.js": "42770e9c2f4c672a0026882116e9a8aa47db030483c9d0f20809d4b95705bf43",
-  "assets/js/operations-monitor.js": "3c9af2dd194d09477a3bf27e8073ad1fbc93f104494ddf48608a9a46cffd308b",
-  "assets/js/order-history.js": "58ef29de11a6203fc22ebb198b6c73e223b3256d3f88c32c75f983b21c2ac581",
+  "assets/js/operations-monitor.js": "3a54fddff729f7b3d2ff267842119bddbf2cc7958870e990840dde67b4b5c96a",
+  "assets/js/order-history.js": "00293d848eeaa83beff891496febdf506aa7854dac62aa6af6c69cc34b005bc5",
   "assets/js/order-math.js": "78b2ef2662f77f650d35a7f11133fbe9c8b9430fed7fb7e7bed4574a5d888750",
   "assets/js/order-review.js": "4916e6c7d8d2f03aa0a901a7ada0419a6945e373182199e778299d3dc61f2daf",
   "assets/js/portal-dialog.js": "3ce70238b0597af1e935996d644e0aed849ee2d2a20b7ea4b53d947615bc8353",
-  "assets/js/price-editor.js": "293db60560e57dc14f469ba3475c1d54ebf58bd365363e56323547a1c03261f9",
+  "assets/js/price-editor.js": "7c838069b80a1c79f786bcda29e16b91848d78995a21b704cbf8a4ced1957ced",
   "assets/js/pwa.js": "854e61da543a183a38aa728752ba5bf541eb324cbf297caf4645ce0159e9b53d",
-  "dashboard.html": "60cc7d89bc783eb614ebe35c6aee3f66dd6aad26d51373e456c9f596bcbdb12b",
+  "assets/js/workspace-ui.js": "4915efb597167b0148a8dbeb5bce3df566ed0c741d14a3502b8c8e51e5f62242",
+  "dashboard.html": "a71a3b0f8d999d252b92569f51ba2c92c18612de837ebe8a4de79eeadaffd19a",
   "favicon.png": "493619db1d0e64e0dda864f0111347058325a2da1fdb0924a63d684dff9b03f3",
-  "index.html": "42d0df7c6010afbc2ee11fd91b76f569ce6b99ccbc7f70a19ca644d643d9123d",
-  "install.html": "70dedc31ecab173360510c740afb69b597eea92650827769be7c89bff22cc4ef",
-  "invoice.html": "6e7d34f0adcb37822ab2f930b65990b0cea2e9b603794f09bff94aa3280925b8",
-  "items.html": "2bb52987a4689cfb84fc34a0c44e21939bad51d1e9436b686e2a7e8b4ad1cb56",
+  "index.html": "20e410e9992cec252ff6b67d33998c1eb0f63afecd9122206ced03069123f668",
+  "install.html": "d55860dfddb3d09aa86bf48bcba878731ec2eabea703a0e0dd3f7071582c5ef4",
+  "invoice.html": "fcd5aab2578b1f6b210d9a6c1feabec30e5d8b10922c93399007e4cffdfaa673",
+  "items.html": "22383c0a2042c0f60c766d430dca7d1eb75eca1bbc11dea991aff9ccdf0dc402",
   "manifest.json": "d8ca5a2034d0eb079d4def2e79af057502dbf5922dfc85258f4d7c5cc2dc3029",
-  "recipes.html": "513dbaab8844e78b0f294f8daaee3704750b47201ec583bd72d04d3ac55edfb3",
+  "recipes.html": "72035db236310ebb0850f185ab506a5eb0b80e372ae02bb4c95c997a7215691c",
   "y2c_holdings_logo.png": "0369ebf9bea898e3ad65320da67f1963704da85e2665a36caf6419089d9d6097"
 };
 // END RELEASE INTEGRITY
@@ -68,6 +71,8 @@ const QUEUE_STORE = 'mutation_queue';
 
 // 🌟 오프라인 코어 자산 (최소 부팅에 필요한 필수 파일들)
 const CORE_ASSETS = [
+    '/assets/css/order-lifecycle.css',
+    '/assets/css/workspace-ui.css', '/assets/js/workspace-ui.js',
     '/',
     '/index.html',
     '/dashboard.html',
@@ -248,15 +253,19 @@ self.addEventListener('fetch', event => {
     }
     if (inScope && CORE_URLS.has(canonical)) {
         event.respondWith((async()=>{
-            const cache=await caches.open(STATIC_CACHE);
-            const cached=await cache.match(canonical);
-            if(cached)return cached;
+            // CacheStorage can be unavailable. Network fallback must still belong to this release.
+            let cache=null;
+            try {
+                cache=await caches.open(STATIC_CACHE);
+                const cached=await cache.match(canonical);
+                if(cached)return cached;
+            } catch(error) { cache=null; }
             try {
                 const response=await verifiedAsset(canonical, req);
-                if(response.status===200 && response.type==='basic')keepAlive(event,cache.put(canonical,response.clone()));
+                if(cache && response.status===200 && response.type==='basic')keepAlive(event,cache.put(canonical,response.clone()));
                 return response;
             } catch(error){return offlineResponse(req);}
-        })().catch(()=>fetch(req).catch(()=>offlineResponse(req))));
+        })());
         return;
     }
     const asset=(inScope && /\.(png|jpe?g|svg|webp|gif|ico|woff2?|ttf|css|js)$/i.test(url.pathname)) || ASSET_HOSTS.has(url.hostname);

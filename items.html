@@ -182,6 +182,8 @@
     <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
+    <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
@@ -309,7 +311,7 @@
         <header id="catalogHeading" class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 no-print">
             <div>
                 <h2 class="font-montserrat text-3xl sm:text-4xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    Inventory & Catalog
+                    <span data-ux-ko="상품 · 재고" data-ux-en="Items &amp; stock">Items &amp; stock</span>
                     <span id="regionBadge" class="px-2.5 py-1 bg-red-50 border border-red-100 text-[#E3000F] text-[10px] font-black rounded uppercase tracking-widest translate-y-[-4px]">ON PRICING</span>
                 </h2>
                 <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter" data-ux-ko="상품과 수량을 선택하여 발주하거나 재고를 확인하세요." data-ux-en="Select items and quantities to request procurement or view stock.">
@@ -673,8 +675,9 @@
         // 🚀 [CORE] 카탈로그 로드 파이프라인 (SWR + Concurrency Shield)
         // ==========================================
         async function fetchCatalogFast() {
+            if (AppState.isFetching) { if(AppState.fetchingHub!==AppState.currentHub)AppState.fetchQueued = true; return; }
             let viewSession = Y2C_AuthEngine.cacheSessionKey();
-            let readCurrent = window.Y2C_Accelerator.readGuard('fetchCatalogFast', () => fetchCatalogFast());
+            let readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('fetchCatalogFast', () => fetchCatalogFast());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) { AppState.isFetching = false; return; }
             if (AppState.isFetching) { if(AppState.fetchingHub!==AppState.currentHub)AppState.fetchQueued = true; return; }
@@ -708,7 +711,7 @@
                     AppState.filteredItems = [...AppState.catalogItems];
                     document.getElementById('kpiLastSync').innerText = new Date(cached.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     executeSearch(document.getElementById('catalogSearchInput')?.value||''); recalcCart();
-                    isCachedRendered = true;
+                    isCachedRendered = true;readCurrent.cached?.(cached.timestamp);
                 }
             } catch (e) { if (!sameSession()) { AppState.isFetching = false; return; }}
 
@@ -729,7 +732,7 @@
                         const storage = sessionStorage.getItem('y2c_token') ? sessionStorage : localStorage;
                         storage.setItem('y2c_region', applied);
                         viewSession = Y2C_AuthEngine.cacheSessionKey();
-                        readCurrent = window.Y2C_Accelerator.readGuard('fetchCatalogFast', () => fetchCatalogFast());
+                        readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('fetchCatalogFast', () => fetchCatalogFast());
                         cacheKey = catalogCacheKey(applied);
                         if (regionBadge) regionBadge.innerText = `${applied} PRICING`;
                         if (thLocalStock) thLocalStock.innerText = `${applied} Hub (Stock)`;
@@ -739,8 +742,11 @@
                 if(!res||res.success!==true||!Array.isArray(res.items))throw new Error(res?.message||'상품 응답을 확인할 수 없습니다.');
                 if (res && res.success && res.items) {
                     const newItems = res.items;
+                    SWR_DB.set(cacheKey,res,sameSession).catch(()=>{});readCurrent.live?.();
+                    document.getElementById('kpiLastSync').innerText=window.Y2C_UX?Y2C_UX.t('방금 조회','Just checked'):'Just checked';
+                    document.getElementById('kpiLastSync').classList.remove('text-[#E3000F]');
                     if (JSON.stringify(AppState.catalogItems) !== JSON.stringify(newItems)) {
-                        SWR_DB.set(cacheKey, res).catch(()=>{}); // Read cache never delays an authorized live response.
+                         // Read cache never delays an authorized live response.
                         if (!sameSession()) return;
                         AppState.catalogItems = newItems;
                         AppState.filteredItems = [...AppState.catalogItems];
@@ -754,7 +760,7 @@
                         recalcCart();
                     } else if(!isCachedRendered){executeSearch(document.getElementById('catalogSearchInput')?.value||'');recalcCart();}
                 }
-            } catch (err) { if (!sameSession()) return;
+            } catch (err) { if (!sameSession()) return;readCurrent.failed?.();
                 if (AppState.currentHub !== requestedHub) return;
                 if (AppState.catalogItems.length === 0) {
                     document.getElementById(tbodyId).innerHTML = `

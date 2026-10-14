@@ -310,7 +310,7 @@
     // 🎨 [MODULE 2] ENTERPRISE UI CONTROLLER (High-End Toasts)
     // ============================================================================
 const RequestPolicy = {
-    mutations: ['save_order','update_stock','update_master_data','save_sales_records','upsert_hq_order','update_hq_order_status','cancel_order','update_order_status','update_price'],
+    mutations: ['save_order','update_stock','update_master_data','save_sales_records','upsert_hq_order','update_hq_order_status','cancel_order','update_order_status','update_price','review_order_mail'],
     reads: ['get_orders','get_ops_monitor','get_session_context','get_master_data','get_sales_records','get_dashboard','get_invoice','get_items','get_procurement_data','get_recipes','check_system_alerts'],
     flights: new Map(),
     readRevision: 0,
@@ -535,6 +535,8 @@ const IntentRegistry = {
     }
 };
 
+// Observers receive no account data; each view reads its current session's records.
+const PendingFeedback={listeners:new Set(),notify(){this.listeners.forEach(fn=>{try{fn();}catch(_){}});}};
 Object.assign(OfflineEngine, {
     getQueuedRequests: async function() {
         const db=await this.openDB();
@@ -548,7 +550,7 @@ Object.assign(OfflineEngine, {
         const db=await this.openDB();
         try {return await new Promise((resolve,reject)=>{
             const tx=db.transaction(QUEUE_STORE,'readwrite');tx.objectStore(QUEUE_STORE).delete(id);
-            tx.oncomplete=()=>resolve(true);tx.onerror=tx.onabort=()=>reject(tx.error||new Error('완료 요청 정리 실패.'));
+            tx.oncomplete=()=>{PendingFeedback.notify();resolve(true);};tx.onerror=tx.onabort=()=>reject(tx.error||new Error('완료 요청 정리 실패.'));
         });}finally{db.close();}
     },
     ownerOf: function(record) {
@@ -568,7 +570,7 @@ Object.assign(OfflineEngine, {
                     store.put({...old,action,payload:{...payload},owner,queueKey:key,intentKey:payload._intentKey,
                         timestamp:old?old.timestamp:Date.now(),retryCount:old?old.retryCount:0,status:'QUEUED',lastError:null});
                 };
-                tx.oncomplete=()=>resolve(true);tx.onerror=tx.onabort=()=>reject(tx.error||new Error('대기열 보관 실패.'));
+                tx.oncomplete=()=>{PendingFeedback.notify();resolve(true);};tx.onerror=tx.onabort=()=>reject(tx.error||new Error('대기열 보관 실패.'));
             });
         } finally {db.close();}
     },
@@ -578,7 +580,7 @@ Object.assign(OfflineEngine, {
             return await new Promise((resolve,reject)=>{
                 const tx=db.transaction(QUEUE_STORE,'readwrite'),store=tx.objectStore(QUEUE_STORE),get=store.get(id);
                 get.onsuccess=()=>{if(get.result)store.put({...get.result,...changes});};
-                tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(tx.error||new Error('대기열 상태 변경 실패.'));
+                tx.oncomplete=()=>{PendingFeedback.notify();resolve();};tx.onerror=tx.onabort=()=>reject(tx.error||new Error('대기열 상태 변경 실패.'));
             });
         } finally {db.close();}
     },
@@ -587,10 +589,28 @@ Object.assign(OfflineEngine, {
         try {
             return await new Promise((resolve,reject)=>{
                 const tx=db.transaction(QUEUE_STORE,'readwrite'),store=tx.objectStore(QUEUE_STORE),get=store.get(record.id);let claimed=false;
-                get.onsuccess=()=>{const value=get.result;if(value&&this.ownerOf(value)===owner&&!(value.leaseUntil>Date.now())) {claimed=true;store.put({...value,leaseUntil:Date.now()+90000});}};
-                tx.oncomplete=()=>resolve(claimed);tx.onerror=tx.onabort=()=>reject(tx.error);
+                get.onsuccess=()=>{const value=get.result;if(value&&this.ownerOf(value)===owner&&['QUEUED','FAILED_RETRYABLE','AUTH_REQUIRED'].includes(value.status)&&!(value.nextAttemptAt>Date.now())&&!(value.leaseUntil>Date.now())) {claimed=true;store.put({...value,leaseUntil:Date.now()+90000});}};
+                tx.oncomplete=()=>{if(claimed)PendingFeedback.notify();resolve(claimed);};tx.onerror=tx.onabort=()=>reject(tx.error);
             });
         } finally {db.close();}
+    },
+    resumeRetryable: async function(context) {
+        RequestPolicy.assertSession(context);
+        const db=await this.openDB();
+        try {return await new Promise((resolve,reject)=>{
+            const tx=db.transaction(QUEUE_STORE,'readwrite'),store=tx.objectStore(QUEUE_STORE),get=store.getAll();
+            let failure=null,resumed=0;
+            get.onsuccess=()=>{
+                // Check fresh rows inside the same transaction that updates them. Never release an active lease.
+                try{RequestPolicy.assertSession(context);}catch(e){failure=e;return;}
+                const rows=(get.result||[]).filter(r=>this.ownerOf(r)===context.owner);
+                if(rows.some(r=>!['QUEUED','FAILED_RETRYABLE','RETRY_PAUSED'].includes(r.status))){failure=new Y2CBackendError('로그인 또는 오류 기록을 먼저 확인하세요. 대기 요청은 유지됩니다.');return;}
+                if(rows.some(r=>r.leaseUntil>Date.now())){failure=new Y2CBackendError('이미 전송 중인 요청이 있습니다. 결과 확인 후 다시 시도하세요.');return;}
+                for(const row of rows){store.put({...row,status:'QUEUED',retryCount:0,nextAttemptAt:0});resumed++;}
+            };
+            tx.oncomplete=()=>{if(failure)reject(failure);else{if(resumed)PendingFeedback.notify();resolve(resumed);}};
+            tx.onerror=tx.onabort=()=>reject(tx.error||new Error('대기 요청 상태를 확인하지 못했습니다.'));
+        });}finally{db.close();}
     },
     allForOwner: async function(owner = RequestPolicy.owner()) {
         const db=await this.openDB();
@@ -795,6 +815,7 @@ const RegionContext = {
             RequestPolicy.invalidateReads('session');
             const keys = ["y2c_token", "y2c_role", "y2c_client", "y2c_id", "y2c_premium_state", "y2c_region", "y2c_lang", "y2c_cache_proof"];
             keys.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
+            PendingFeedback.notify();
         },
         isSessionValid: function() {
             const token = this.getToken();
@@ -829,7 +850,7 @@ const RegionContext = {
         next:0, active:new Map(), listeners:new Set(),
         snapshot() {
             const scope=RequestPolicy.cacheSessionKey();
-            return Array.from(this.active.values()).filter(x=>x.scope===scope).map(x=>({id:x.id,kind:x.kind,phase:x.phase,attempt:x.attempt,started:x.started}));
+            return Array.from(this.active.values()).filter(x=>x.scope===scope).map(x=>({id:x.id,kind:x.kind,phase:x.phase,attempt:x.attempt,started:x.started,retryAt:x.retryAt||0}));
         },
         notify() { const rows=this.snapshot(); this.listeners.forEach(fn=>{try{fn(rows);}catch(_){}}); },
         begin(action, kind) {
@@ -837,7 +858,7 @@ const RegionContext = {
             this.active.set(id,{id,scope:RequestPolicy.cacheSessionKey(),kind:kind||(RequestPolicy.reads.includes(action)?'read':action==='login'?'login':'write'),phase:'connecting',attempt:1,started:Date.now()});
             this.notify();return id;
         },
-        update(id,phase,attempt) {const row=this.active.get(id);if(row){row.phase=phase;row.attempt=attempt;this.notify();}},
+        update(id,phase,attempt,retryAt=0) {const row=this.active.get(id);if(row){row.phase=phase;row.attempt=attempt;row.retryAt=retryAt;this.notify();}},
         finish(id) {this.active.delete(id);this.notify();}
     };
     const NetworkEngine = {
@@ -866,7 +887,7 @@ const RegionContext = {
                 payload.clientState = RegionContext.resolve(payload, context.region);
             }
 
-            const isMutation = ["save_order", "update_stock", "update_master_data", "save_sales_records", "upsert_hq_order", "update_hq_order_status", "cancel_order", "update_order_status", "update_price"].includes(action);
+            const isMutation = ["save_order", "update_stock", "update_master_data", "save_sales_records", "upsert_hq_order", "update_hq_order_status", "cancel_order", "update_order_status", "update_price", "review_order_mail"].includes(action);
 
             if (!navigator.onLine) {
                 return this.handleOfflineScenario(action, payload, isMutation, null, context);
@@ -954,7 +975,7 @@ const RegionContext = {
                     // 서버 부하를 막고 동시성 충돌을 피하기 위해 지수적 백오프에 난수(Jitter)를 더합니다. 
                     const delay = Math.pow(2, retryCount) * 1500 + Math.floor(Math.random() * 1500); 
                     
-                    NetworkFeedback.update(activity,'retrying',retryCount+2);
+                    NetworkFeedback.update(activity,'retrying',retryCount+2,Date.now()+delay);
                     console.log('[Y2C Network] Same endpoint retry',retryCount+2);
 
                     await new Promise(res => setTimeout(res, delay));
@@ -1126,6 +1147,10 @@ const SyncDaemon = {
             return result;
         },
         getNetworkStatus: function() { return NetworkFeedback.snapshot(); },
+        onPendingChanged: function(listener) {
+            if(typeof listener!=='function')return ()=>{};
+            PendingFeedback.listeners.add(listener);return ()=>PendingFeedback.listeners.delete(listener);
+        },
         onNetworkStatus: function(listener) {
             if(typeof listener!=='function')return ()=>{};
             NetworkFeedback.listeners.add(listener);return ()=>NetworkFeedback.listeners.delete(listener);
@@ -1169,13 +1194,17 @@ const SyncDaemon = {
             const context=RequestPolicy.session(),rows=await OfflineEngine.allForOwner(context.owner);
             RequestPolicy.assertSession(context);
             return rows.map(r => ({id:r.id,key:RequestPolicy.completionKey(r.intentKey,r.payload),action:r.action,status:r.status,
-                lastError:r.lastError,hub:r.payload.clientState,items:r.payload.items}));
+                lastError:r.lastError,hub:r.payload.clientState,items:r.payload.items,createdAt:r.timestamp,
+                retryCount:r.retryCount||0,nextAttemptAt:r.nextAttemptAt||0,leaseUntil:r.leaseUntil||0}));
         },
         retryPending: async function() {
-            const context=RequestPolicy.session(),rows=await OfflineEngine.allForOwner(context.owner);
-            for (const row of rows) {RequestPolicy.assertSession(context);await OfflineEngine.updateRecord(row.id,{status:'QUEUED',retryCount:0,blockedToken:undefined,nextAttemptAt:0,leaseUntil:0});}
+            const context=RequestPolicy.session();
+            if(!navigator.onLine)throw new Y2CNetworkError('연결이 돌아온 뒤 같은 요청을 다시 확인하세요.');
+            if(SyncDaemon.isSyncing)throw new Y2CBackendError('대기 요청을 전송 중입니다. 결과를 기다려 주세요.');
+            const resumed=await OfflineEngine.resumeRetryable(context);
             RequestPolicy.assertSession(context);
-            return SyncDaemon.flushQueue();
+            await SyncDaemon.flushQueue();
+            return {resumed};
         },
         showToast: function(message, type, duration) {
             UIController.showToast(message, type, duration);

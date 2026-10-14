@@ -1,0 +1,14 @@
+/* Order cancellation and server audit trail, scoped to existing portal theme. */
+.ux-cancel-panel{margin:16px 0;padding:18px;border:1px solid #ddd5d0;border-radius:16px;background:#fcfaf8;color:#25262b}
+.ux-cancel-panel p{margin:8px 0;line-height:1.6;overflow-wrap:anywhere}
+.ux-cancel-panel small,.ux-order-audit small{display:block;color:#64646c;line-height:1.6}
+.ux-cancel-actions{display:flex;gap:10px;flex-wrap:wrap}
+#orderHistorySection .ux-cancel-actions button{min-height:46px;margin:8px 0 0;padding:10px 18px;font-weight:700;border-color:#a43a50;color:#912b42;background:white}
+#orderHistorySection .ux-cancel-actions button[data-cancel-action="DIRECT"],#orderHistorySection .ux-cancel-actions button[data-cancel-action="APPROVE"]{background:#982e47;color:white}
+.ux-cancel-actions button:focus-visible,.ux-order-audit summary:focus-visible{outline:3px solid #a43a50;outline-offset:3px}
+.ux-order-audit{margin:12px 0;padding:14px 18px;border:1px solid #e5e1de;border-radius:14px;background:#fff}
+.ux-order-audit ol{padding-left:20px}.ux-order-audit li{padding:10px 0 10px 6px;line-height:1.6;border-bottom:1px solid #eeebe7;overflow-wrap:anywhere}
+.ux-order-audit time,.ux-order-audit li>span{display:block;font-size:13px;color:#5b5b65}.ux-order-audit li>p{margin:4px 0}
+@media(max-width:600px){.ux-cancel-panel,.ux-order-audit{padding:14px}.ux-cancel-actions{display:grid;grid-template-columns:1fr;width:100%}#orderHistorySection .ux-cancel-actions button{width:100%;margin-top:6px}}
+
+.ux-mail-job{border-top:1px solid var(--border-color,#e5e7eb);padding:1rem 0}.ux-mail-job strong,.ux-mail-job small{display:block}.ux-mail-job p{overflow-wrap:anywhere}.ux-mail-panel .ux-cancel-actions{margin-top:.75rem}

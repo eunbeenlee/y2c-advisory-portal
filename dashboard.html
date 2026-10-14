@@ -159,6 +159,9 @@
     <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
+<link rel="stylesheet" href="assets/css/order-lifecycle.css?v=1.1.0">
+    <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page fouc-lock flex flex-col min-h-screen relative overflow-x-hidden selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
@@ -285,20 +288,17 @@
     <!-- 📊 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative">
 <section id="operationsMonitor" hidden aria-labelledby="operationsTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px;overflow-wrap:anywhere">
- <h2 id="operationsTitle" style="font-size:22px;font-weight:800">HQ Operations / 운영 모니터링</h2>
- <p data-ux-ko="주문 품목별 현황 · 담당 매핑 · 처리자 기록. 재고 입고는 검증된 업로드로 반영됩니다." data-ux-en="Order items, vendor assignments and activity records. Stock receipts use the validated upload workflow.">주문 품목별 현황 · 담당 매핑 · 처리자 기록. 재고 입고는 검증된 업로드로 반영됩니다.</p>
- <button type="button" id="operationsRefresh" style="min-height:44px;padding:10px 16px;border:1px solid #cbd5e1;border-radius:10px;margin:8px 0">모니터링 새로고침</button>
+ <div class="workspace-section-head"><div><h2 id="operationsTitle" style="font-size:22px;font-weight:800">HQ Operations / 운영 모니터링</h2><p data-ux-ko="주문 품목별 현황 · 담당 매핑 · 처리자 기록. 재고 입고는 검증된 업로드로 반영됩니다." data-ux-en="Order items, vendor assignments and activity records. Stock receipts use the validated upload workflow.">주문 품목별 현황 · 담당 매핑 · 처리자 기록. 재고 입고는 검증된 업로드로 반영됩니다.</p></div><button type="button" id="operationsRefresh" style="min-height:44px;padding:10px 16px;border:1px solid #cbd5e1;border-radius:10px;margin:8px 0">모니터링 새로고침</button></div>
  <p id="operationsMessage" role="status" aria-live="polite"></p><div id="operationsContent"></div>
 </section>
 <section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
- <h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2>
- <p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p>
+ <div class="workspace-section-head"><div><h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2><p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p></div><button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button></div>
  <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> <span data-ux-ko="HQ 개입 모드 — 직접 처리할 때만 켜기" data-ux-en="HQ intervention — enable only for direct action">HQ 개입 모드 — 직접 처리할 때만 켜기</span></label>
- <button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button>
+ 
  <p id="orderHistoryMessage" role="status" aria-live="polite"></p>
  <div id="orderHistoryList"></div>
- <button type="button" id="orderHistoryPrev" disabled>Previous / 이전</button>
- <button type="button" id="orderHistoryNext" disabled>Next / 다음</button>
+ <nav class="workspace-pagination" aria-label="발주 내역 페이지 / Order pages"><button type="button" id="orderHistoryPrev" disabled>Previous / 이전</button>
+ <button type="button" id="orderHistoryNext" disabled>Next / 다음</button></nav>
 </section>
 <style>
 #hqInterventionLabel{padding:12px 0;display:block}#hqInterventionLabel[hidden]{display:none}#hqIntervention{min-width:24px;min-height:24px;vertical-align:middle;margin-right:8px}
@@ -720,7 +720,7 @@
         // 🚨 [CRITICAL FIX 2] MASTER 전용 동적 가맹점 선택기 (사용자별 그래프 오류 원천 봉쇄)
         async function fetchMasterDataForDashboard() {
             const viewSession = Y2C_AuthEngine.cacheSessionKey();
-            const readCurrent = window.Y2C_Accelerator.readGuard('fetchMasterDataForDashboard', () => fetchMasterDataForDashboard());
+            const readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('fetchMasterDataForDashboard', () => fetchMasterDataForDashboard());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) return;
             if (AppState.role !== "MASTER") return; // 파트너는 자기 데이터만 열람
@@ -733,33 +733,23 @@
 
             let clients = [];
             
-            // 1. Load from SWR Cache first
-            if (!sameSession()) return;
-            try {
-                const cached = await SWR_DB.get(cacheKey);
-                if (!sameSession()) return;
-                if (cached && cached.data) clients = cached.data;
-            } catch (e) { if (!sameSession()) return;}
-
-            // 2. Fallback to API if empty
-            if (clients.length === 0) {
-                try {
-                    const res = await Y2C_AuthEngine.request("get_master_data");
-                if (!sameSession()) return;
-                    if (res && res.success) {
-                        clients = res.clients || [];
-                        await SWR_DB.set(cacheKey, clients);
-                if (!sameSession()) return;
-                    }
-                } catch (err) { if (!sameSession()) return;
-                    console.warn("[Dashboard] Failed to fetch clients:", err);
-                }
-            }
-
+            const liveRead=Y2C_AuthEngine.request("get_master_data");liveRead.catch(()=>{});
+            try{
+                const cached=await Promise.race([SWR_DB.get(cacheKey),liveRead.then(()=>null,()=>null)]);
+                if(!sameSession())return;
+                if(cached&&Array.isArray(cached.data)){clients=cached.data;populate();readCurrent.cached?.(cached.timestamp);}
+            }catch(e){if(!sameSession())return;}
+            try{
+                const res=await liveRead;if(!sameSession())return;
+                if(!res||res.success!==true||!Array.isArray(res.clients))throw new Error(res?.message||'가맹점 조회 실패');
+                clients=res.clients;SWR_DB.set(cacheKey,clients,sameSession).catch(()=>{});populate();readCurrent.live?.();
+            }catch(e){if(!sameSession())return;readCurrent.failed?.();console.warn('[Dashboard] Client refresh unavailable:',e.message);}
+            function populate(){
             // 3. Populate Dropdown
-            if (clients.length > 0 && clientSel) {
+            if (clientSel) {
                 const savedClient = clientSel.value || sessionStorage.getItem('y2c_kpi_client');
                 clientSel.innerHTML = "";
+                if(!clients.length){sessionStorage.removeItem('y2c_kpi_client');invalidateDashboardSales();}
                 
                 clients.forEach(c => {
                     const opt = document.createElement('option');
@@ -784,6 +774,8 @@
                     clientSel.dataset.bound = true;
                 }
             }
+        }
+
         }
 
         function renderSalesChart(records) {
@@ -930,7 +922,7 @@
         function invalidateDashboardSales(){dashboardSalesEpoch++;clearDashboardSales('선택한 가맹점·연도의 데이터를 조회 중입니다.');}
         async function loadDashboardSalesFast() {
             const viewSession = Y2C_AuthEngine.cacheSessionKey();
-            const readCurrent = window.Y2C_Accelerator.readGuard('loadDashboardSalesFast', () => loadDashboardSalesFast());
+            const readCurrent = (window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('loadDashboardSalesFast', () => loadDashboardSalesFast());
             const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
             if (!sameSession()) return;
             const selection=dashboardSelection(), epoch=++dashboardSalesEpoch;
@@ -951,22 +943,25 @@
             }
 
             const cacheKey = `DASHBOARD_DATA_${targetYear}_${targetClient}`;
+            const liveRead = Y2C_AuthEngine.request("get_sales_records", { year: targetYear, clientName: targetClient });liveRead.catch(()=>{});
             let cachedDashboardData = null;
 
-            if (!sameSession()) return;
+            if (!isCurrent()){readCurrent.outdated?.();return;}
             try {
                 // 1. SWR Cache Load
-                const cachedRaw = await SWR_DB.get(cacheKey).catch(()=>null);
-                if (!sameSession()) return;
+                const cachedRaw = await Promise.race([SWR_DB.get(cacheKey),liveRead.then(()=>null,()=>null)]).catch(()=>null);
+                if (!isCurrent()){readCurrent.outdated?.();return;}
                 if (cachedRaw && cachedRaw.data) {
                     cachedDashboardData = cachedRaw.data;
-                    if(isCurrent())renderDashboardKpiAndChart(cachedDashboardData,isCurrent);
+                    if(isCurrent()){renderDashboardKpiAndChart(cachedDashboardData,isCurrent);readCurrent.cached?.(cachedRaw.timestamp);}
                 }
 
-                // 2. Sequential API Request (No Parallel.all)
-                const salesRes = await Y2C_AuthEngine.request("get_sales_records", { year: targetYear, clientName: targetClient });
-                if (!sameSession()) return;
+                // 2. Apply the authorized live response.
+                const salesRes = await liveRead;
+                if (!isCurrent()){readCurrent.outdated?.();return;}
+                if(salesRes?.success===true&&!Array.isArray(salesRes.records))throw new Error('매출 응답 형식을 확인할 수 없습니다.');
                 if (salesRes && salesRes.success) {
+                    readCurrent.live?.();
                     
                     // Transform raw records to dashboard data format
                     let ytdPos = 0, ytdDelivery = 0, ytdTotal = 0;
@@ -985,13 +980,14 @@
                         ytdDelivery: ytdDelivery
                     };
 
+                    SWR_DB.set(cacheKey,dataToRender,isCurrent).catch(()=>{});
                     if (JSON.stringify(cachedDashboardData) !== JSON.stringify(dataToRender)) {
-                        await SWR_DB.set(cacheKey, dataToRender);
-                if (!sameSession()) return;
+                        
+                if (!isCurrent()){readCurrent.outdated?.();return;}
                         if(isCurrent())renderDashboardKpiAndChart(dataToRender,isCurrent);
                     }
                 } else {throw new Error(salesRes?.message||'매출 조회 실패');}
-            } catch (err) { if (!sameSession()) return;
+            } catch (err) { if (!isCurrent()){readCurrent.outdated?.();return;}readCurrent.failed?.();
                 console.warn("[Dashboard] Sales Data Error:", err);
                 if(isCurrent()&&!cachedDashboardData)clearDashboardSales('조회하지 못했습니다. 새로고침하여 다시 시도하십시오.');
                 // Fail silently to allow other sequential items to load
@@ -1315,7 +1311,7 @@
         });
     </script>
     <script src="assets/js/dashboard-session.js"></script>
-    <script src="assets/js/order-history.js"></script>
+    <script src="assets/js/order-history.js?v=V88_25_0"></script>
     <script src="assets/js/operations-monitor.js"></script>
     <script src="assets/js/mobile.js"></script>
     <script src="assets/js/pwa.js"></script>
