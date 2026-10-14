@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sinjeoncanada.partnerportal",
+      "sha256_cert_fingerprints": [
+        "95:3B:60:84:2D:00:90:E8:11:96:89:4B:53:26:B0:63:68:64:C5:89:83:47:CF:57:DA:41:DE:B9:BD:DE:94:04"
+      ]
+    }
+  }
+]
