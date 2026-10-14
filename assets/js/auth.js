@@ -1142,9 +1142,13 @@ const SyncDaemon = {
         
         request: async function(action, payload = {}) {
             const context=action==='login'?null:RequestPolicy.session();
-            const result = await RequestPolicy.execute(action, payload,context);
-            if (action !== 'login')RequestPolicy.assertSession(context);
-            return result;
+            const finish = global.Y2C_Performance?.startAPI(action);
+            try {
+                const result = await RequestPolicy.execute(action, payload,context);
+                if (action !== 'login')RequestPolicy.assertSession(context);
+                finish?.(result && result.success === true);
+                return result;
+            } catch (error) { finish?.(false); throw error; }
         },
         getNetworkStatus: function() { return NetworkFeedback.snapshot(); },
         onPendingChanged: function(listener) {
@@ -1189,6 +1193,8 @@ const SyncDaemon = {
             logoutButtons.add(element);element.addEventListener('click',()=>AuthEngine.logout());
         },
         getAccountId: function() { return SessionManager.isSessionValid() ? RequestPolicy.owner() : null; },
+        // Presentation only. Every server request still verifies the live account and permissions.
+        getAccountRole: function() { return SessionManager.isSessionValid() ? RequestPolicy.claims(SessionManager.getToken()).role : null; },
         acknowledgeCommitted: function(key) { return IntentRegistry.acknowledge(key); },
         getPendingTransactions: async function() {
             const context=RequestPolicy.session(),rows=await OfflineEngine.allForOwner(context.owner);

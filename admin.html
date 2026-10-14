@@ -34,24 +34,18 @@
 
     <link rel="preload" href="assets/js/config.js" as="script">
     <link rel="preload" href="assets/js/auth.js" as="script">
-    <link rel="prefetch" href="assets/js/excel-worker.js" as="script">
-
-    <link rel="prefetch" href="dashboard.html" as="document">
-    <link rel="prefetch" href="items.html" as="document">
-    <link rel="prefetch" href="recipes.html" as="document">
-    <link rel="prefetch" href="invoice.html" as="document">
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/app-180.png">
 
     <!-- Deferred Font Loading -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
 
     <!-- Deferred Heavy Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+    
 
     <!-- 🚨 FOUC Preventer & White Screen Death Fix -->
     <style>
@@ -165,6 +159,7 @@
     <link rel="stylesheet" href="assets/css/pwa.css">
 <link rel="stylesheet" href="assets/css/order-lifecycle.css?v=1.1.0">
     <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <script defer src="assets/js/performance.js"></script>
     <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 
@@ -1680,6 +1675,7 @@
         function handleExcelFiles(files) {
             if(!files || files.length===0)return;
             excelDraftRevision++;
+            const excelSession=Y2C_AuthEngine.cacheSessionKey();
             const revision=excelDraftRevision; const selectedHub=inboundRegionSelector?.value?.trim().replace("Hub: ", "")||""; excelSourceHub=""; excelRenderEpoch++; excelJobId++; pendingStockUpdates=[]; if(btnSyncExcel)btnSyncExcel.disabled=true;
             if(!files || files.length === 0) return;
             const file = files[0];
@@ -1706,17 +1702,19 @@
             document.getElementById('excelPreviewContainer').classList.remove('hidden');
 
             const reader = new FileReader();
-            reader.onload = function(e) {
-                if(revision!==excelDraftRevision)return;
+            reader.onload = async function(e) {
+                if(revision!==excelDraftRevision || excelSession!==Y2C_AuthEngine.cacheSessionKey())return;
                 try {
                     const data = new Uint8Array(e.target.result);
+                    if(typeof XLSX==='undefined')await window.Y2C_Performance.load('excel');
+                    if(revision!==excelDraftRevision || excelSession!==Y2C_AuthEngine.cacheSessionKey())return;
                     const workbook = XLSX.read(data, {type: 'array'});
                     const json = Y2C_ExcelModel.parseWorkbook(workbook, XLSX);
 
                     if(json.length === 0) throw new Error("엑셀 파일에 데이터가 비어있습니다.");
 
                     processAndMapExcelData(json, selectedHub);
-                } catch(err) {failExcelImport("엑셀 파싱 실패: "+err.message);}
+                } catch(err) {if(revision===excelDraftRevision && excelSession===Y2C_AuthEngine.cacheSessionKey())failExcelImport("엑셀 준비/파싱 실패: "+err.message);}
             };
             reader.onerror=()=>{if(revision===excelDraftRevision)failExcelImport('파일을 읽을 수 없습니다.');};
             reader.onabort=()=>{if(revision===excelDraftRevision)failExcelImport('파일 읽기가 중단되었습니다.');};

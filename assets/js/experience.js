@@ -50,7 +50,7 @@
   const panel=el('aside',undefined,'ux-read-freshness');panel.id='portalReadFreshness';panel.hidden=true;
   const message=el('p'),button=el('button',undefined,'ux-button');message.setAttribute('role','status');message.setAttribute('aria-live','polite');button.type='button';
   panel.append(message,button);if(location.pathname.endsWith('/invoice.html'))main.before(panel);else main.prepend(panel);
-  const names={fetchCatalogFast:['상품·재고','Items / stock'],fetchRecipesFast:['레시피','Recipes'],fetchMasterDataForDashboard:['가맹점 목록','Client list'],fetchMasterDataFast:['가맹점 목록','Client list'],fetchClientsFast:['가맹점 목록','Client list'],loadDashboardSalesFast:['매출','Sales'],loadSalesGridFast:['매출','Sales'],fetchInitialDataFast:['조달·재고','Procurement / stock']};
+  const names={loadDashboardLogisticsFast:['물류 현황','Logistics'],fetchCatalogFast:['상품·재고','Items / stock'],fetchRecipesFast:['레시피','Recipes'],fetchMasterDataForDashboard:['가맹점 목록','Client list'],fetchMasterDataFast:['가맹점 목록','Client list'],fetchClientsFast:['가맹점 목록','Client list'],loadDashboardSalesFast:['매출','Sales'],loadSalesGridFast:['매출','Sales'],fetchInitialDataFast:['조달·재고','Procurement / stock']};
   let signature='',owner=scope();
   function render(){
    const identity=scope();if(owner!==identity){owner=identity;signature='';message.textContent='';panel.hidden=true;}

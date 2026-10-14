@@ -35,21 +35,16 @@
     <link rel="preload" href="assets/js/auth.js" as="script">
     
     <!-- 🚀 [V93 ACCELERATOR] Chart.js Engine -->
-    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
-
-    <link rel="prefetch" href="items.html" as="document">
-    <link rel="prefetch" href="recipes.html" as="document">
-    <link rel="prefetch" href="admin.html" as="document">
-    <link rel="prefetch" href="invoice.html" as="document">
+    
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/app-180.png">
     
     <!-- Deferred & Asynchronous Font Loading -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
 
     <!-- 🚨 [CRITICAL FIX] FOUC Preventer (White Screen Death Resolved) -->
     <style>
@@ -161,6 +156,7 @@
     <link rel="stylesheet" href="assets/css/pwa.css">
 <link rel="stylesheet" href="assets/css/order-lifecycle.css?v=1.1.0">
     <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <script defer src="assets/js/performance.js"></script>
     <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 
@@ -994,11 +990,18 @@
             }
         }
 
+        let dashboardChartTicket = 0;
         function renderDashboardKpiAndChart(data, isCurrent = () => true) {
             if (!data) return;
 
             // 🚨 [CRITICAL FIX 3] Chart.js Load Defense: 라이브러리가 아직 로딩 중이라면 재시도
-            const chartsAvailable=typeof Chart!=='undefined';
+            const chartsAvailable=typeof Chart!=='undefined', chartTicket=++dashboardChartTicket;
+            if(!chartsAvailable && window.Y2C_Performance){
+                const current=()=>chartTicket===dashboardChartTicket && isCurrent();
+                window.Y2C_Performance.load('charts').then(()=>{
+                    if(current()){window.Y2C_Performance.libraryNotice('salesChartCanvas',null);renderDashboardKpiAndChart(data,isCurrent);}
+                }).catch(()=>{if(current())window.Y2C_Performance.libraryNotice('salesChartCanvas',()=>{if(current())renderDashboardKpiAndChart(data,isCurrent);});});
+            }
 
             let safeYtdPos = parseStrictDecimal(data.ytdPos);
             let safeYtdDel = parseStrictDecimal(data.ytdDelivery);
@@ -1098,39 +1101,26 @@
         // 🚢 [LOGISTICS SCM ENGINE] 한국발 화물 트래킹 & 타임라인 (SWR 가속화 적용)
         // ============================================================================
         async function loadDashboardLogisticsFast() {
-            const viewSession = Y2C_AuthEngine.cacheSessionKey();
-            const readCurrent = window.Y2C_Accelerator.readGuard('loadDashboardLogisticsFast', () => loadDashboardLogisticsFast());
-            const sameSession = () => !!viewSession && viewSession === Y2C_AuthEngine.cacheSessionKey() && readCurrent();
-            if (!sameSession()) return;
-            if (AppState.role === "PARTNER") return; // 파트너는 권한 없음
-            
-            const cacheKeyProc = 'PROC_DATA_CACHE';
-            let cachedOrders = null;
-
-            if (!sameSession()) return;
+            if (AppState.role === "PARTNER") return;
+            const viewSession=Y2C_AuthEngine.cacheSessionKey();
+            const readCurrent=(window.Y2C_Accelerator.latestRead || window.Y2C_Accelerator.readGuard)('loadDashboardLogisticsFast',()=>loadDashboardLogisticsFast());
+            const current=()=>!!viewSession && viewSession===Y2C_AuthEngine.cacheSessionKey() && readCurrent();
+            if(!current())return;
+            const live=Y2C_AuthEngine.request('get_procurement_data');live.catch(()=>{});
+            const key='PROC_DATA_CACHE';let cachedOrders=null;
             try {
-                // 1. SWR Cache Load
-                const cachedProc = await SWR_DB.get(cacheKeyProc);
-                if (!sameSession()) return;
-                if (cachedProc && cachedProc.data) {
-                    cachedOrders = cachedProc.data;
-                    renderLogisticsKPIs(cachedOrders.hqOrders || []);
+                const cached=await Promise.race([SWR_DB.get(key),live.then(()=>null,()=>null)]).catch(()=>null);
+                if(!current())return;
+                if(cached?.data && Array.isArray(cached.data.hqOrders)){
+                    cachedOrders=cached.data;renderLogisticsKPIs(cachedOrders.hqOrders);readCurrent.cached?.(cached.timestamp);
                 }
-
-                // 2. Sequential API Request
-                const procRes = await Y2C_AuthEngine.request("get_procurement_data");
-                if (!sameSession()) return;
-                if (procRes && procRes.success) {
-                    const freshOrders = procRes.hqOrders || [];
-                    if (JSON.stringify(cachedOrders?.hqOrders) !== JSON.stringify(freshOrders)) {
-                        await SWR_DB.set(cacheKeyProc, procRes);
-                if (!sameSession()) return;
-                        renderLogisticsKPIs(freshOrders);
-                    }
-                }
-            } catch (err) { if (!sameSession()) return;
-                console.warn("[Dashboard] Logistics Data Error:", err);
-            }
+                const fresh=await live;if(!current())return;
+                if(!fresh?.success || !Array.isArray(fresh.hqOrders))throw Error('Invalid logistics response');
+                // Never put storage latency on the live rendering path.
+                Promise.resolve(SWR_DB.set(key,fresh,current)).catch(()=>{});
+                if(JSON.stringify(cachedOrders?.hqOrders)!==JSON.stringify(fresh.hqOrders))renderLogisticsKPIs(fresh.hqOrders);
+                readCurrent.live?.();
+            } catch(error){if(current()){readCurrent.failed?.();console.warn('[Dashboard] Logistics read failed');}}
         }
 
         function getStepIndex(status) {

@@ -6,15 +6,15 @@
 
 "use strict";
 
-const CACHE_VERSION = "V88_27_3";
+const CACHE_VERSION = "V88_28_0";
 const SCOPE_URL = new URL(self.registration.scope);
 const CACHE_FAMILY = `Y2C_ENTERPRISE_SCOPE_${encodeURIComponent(SCOPE_URL.pathname)}_`;
 // Generated hashes pin this worker to one complete release, including its cache namespace.
 // BEGIN RELEASE INTEGRITY
-const RELEASE_DIGEST = "ecc7df23112339b5";
+const RELEASE_DIGEST = "3b90847e0fc0703e";
 const RELEASE_HASHES = {
   "Sinjeon_Logo_Pink.png": "9e1c774adf9a2a3421d2429ba6b92975ce7014d6de77ae63be5a597bf1820840",
-  "admin.html": "1ffee0b0939f91b5aff4844d1b1d78f00571f7664566dc4ee84e220f4d48b80b",
+  "admin.html": "084199c60c35536bf71fd6620672c398b4c75f26a07d9cc5028a52fa3acb09ad",
   "assets/css/design-system.css": "bea729f0f8d21f0915355af188201587bd6e494e6d0f2ad22e7e3c2419209158",
   "assets/css/experience.css": "232e4ad9320cf96430bcdb6437cece857e2bf0a5319feb9817d04ea2997f6d4b",
   "assets/css/mobile.css": "d1d6fb2c26e9ce7ab234839f0dfca1d2cd57b217b8f4936307754e31718e5788",
@@ -35,32 +35,33 @@ const RELEASE_HASHES = {
   "assets/icons/app-maskable-512.png": "009950f64e51709b8651a0a51401ef9a7fdb619c82ea2a997d0cd24f8a3f6f79",
   "assets/js/accelerator.js": "10e2d71c85f685568fe8890b96fd0effdac8f250b7bfd79d8805ece3c2081cf7",
   "assets/js/android-install.js": "fa536168eb9e39347cc103ba8aef99021c68b5f742beaf5c23ecad2f0ce5531d",
-  "assets/js/auth.js": "98c1fd99a04bc5b61346f32ed0cfbf43225bd637c2f2bd16a325a0b02bfb436c",
+  "assets/js/auth.js": "fa47636fe54e0bec37c08dbb7f0c3a2158eb2322a9bc2e834d2d0c804e165beb",
   "assets/js/config.js": "d106fabb29915958f998d8b5e0076d6612a1cb49f8a30fe134cc91f35d281d0a",
   "assets/js/dashboard-session.js": "3c1a2020be7d93638e0ea18160bd31abb8588e7fe0248d0ed98b101ed82d0093",
   "assets/js/document-io.js": "f60b1370a2acd82ef9b935fc9dc3ad257a38872152c89ad7d7864688f9986143",
   "assets/js/excel-model.js": "b45fe8227526711a55d441617d8393e1eadbeef3f7d3551a9668eb8f5e0c2aed",
   "assets/js/excel-worker.js": "691d6ce5cbfd938a48d2617fb40ae42fde1e5333bccc71611bd027577b89074c",
-  "assets/js/experience.js": "d3aaf47fc12ea9b5d8b27e896dc3318dc8d93ff3d68eacb86bd6b708c2c81d01",
+  "assets/js/experience.js": "f35242d2b6cb3e6de8ed18b61466a7ccc24ef5a5dc03f3fedec1ff0286870fdf",
   "assets/js/invoice-math.js": "510aaef3c5b9de56fe36a4a93e5a5ed909365e0de318d61da406fd3240f9a65e",
   "assets/js/mobile.js": "acde86948b5d226ffd0da405571043fe7b72ba6a5079e962789e3fa00e2ba71b",
   "assets/js/mutation-ui.js": "42770e9c2f4c672a0026882116e9a8aa47db030483c9d0f20809d4b95705bf43",
-  "assets/js/operations-monitor.js": "3a54fddff729f7b3d2ff267842119bddbf2cc7958870e990840dde67b4b5c96a",
+  "assets/js/operations-monitor.js": "419ca6717aa17fe474191b2f1220ae219fce703b5c62ca6c6fae3a8cdb91c5b0",
   "assets/js/order-history.js": "00293d848eeaa83beff891496febdf506aa7854dac62aa6af6c69cc34b005bc5",
   "assets/js/order-math.js": "78b2ef2662f77f650d35a7f11133fbe9c8b9430fed7fb7e7bed4574a5d888750",
   "assets/js/order-review.js": "4916e6c7d8d2f03aa0a901a7ada0419a6945e373182199e778299d3dc61f2daf",
+  "assets/js/performance.js": "6f171a468647cbcec2bb948772d2c205b231afcbc4241c8707568e197599d0b5",
   "assets/js/portal-dialog.js": "3ce70238b0597af1e935996d644e0aed849ee2d2a20b7ea4b53d947615bc8353",
   "assets/js/price-editor.js": "7c838069b80a1c79f786bcda29e16b91848d78995a21b704cbf8a4ced1957ced",
   "assets/js/pwa.js": "854e61da543a183a38aa728752ba5bf541eb324cbf297caf4645ce0159e9b53d",
   "assets/js/workspace-ui.js": "4915efb597167b0148a8dbeb5bce3df566ed0c741d14a3502b8c8e51e5f62242",
-  "dashboard.html": "a71a3b0f8d999d252b92569f51ba2c92c18612de837ebe8a4de79eeadaffd19a",
+  "dashboard.html": "d60a8efbb9e8327712302371f3ec670bdf95a4b5297f22609677182fd04179f2",
   "favicon.png": "493619db1d0e64e0dda864f0111347058325a2da1fdb0924a63d684dff9b03f3",
-  "index.html": "20e410e9992cec252ff6b67d33998c1eb0f63afecd9122206ced03069123f668",
+  "index.html": "b14d2ba0aa8856e69ae948e7479860ae9d60f4252f0d656441129c80f709080f",
   "install.html": "d55860dfddb3d09aa86bf48bcba878731ec2eabea703a0e0dd3f7071582c5ef4",
-  "invoice.html": "fcd5aab2578b1f6b210d9a6c1feabec30e5d8b10922c93399007e4cffdfaa673",
-  "items.html": "22383c0a2042c0f60c766d430dca7d1eb75eca1bbc11dea991aff9ccdf0dc402",
+  "invoice.html": "5e570e56b9a165042567355fba019b4ea3373537ec4e4e9a42396788fbd4b6a8",
+  "items.html": "5555cc3bc247c1088d7ae29f326df19a6eac13a1920ab6c34d025c42bfe655ce",
   "manifest.json": "d8ca5a2034d0eb079d4def2e79af057502dbf5922dfc85258f4d7c5cc2dc3029",
-  "recipes.html": "72035db236310ebb0850f185ab506a5eb0b80e372ae02bb4c95c997a7215691c",
+  "recipes.html": "213e23b91ef99c721b1d885c188cb2f4af2a1ae57cd98c0a20c68501f3bc94c0",
   "y2c_holdings_logo.png": "0369ebf9bea898e3ad65320da67f1963704da85e2665a36caf6419089d9d6097"
 };
 // END RELEASE INTEGRITY
@@ -82,6 +83,7 @@ const CORE_ASSETS = [
     '/invoice.html',
     '/assets/js/auth.js',
     '/assets/js/accelerator.js',
+  '/assets/js/performance.js',
     '/assets/js/mutation-ui.js',
     '/assets/js/excel-model.js',
     '/assets/js/excel-worker.js',

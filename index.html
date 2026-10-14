@@ -45,19 +45,14 @@
     <link rel="preload" href="assets/js/auth.js" as="script">
 
     <!-- 핵심 리소스 사전 다운로드 (Sub-resource Prefetching) -->
-    <link rel="prefetch" href="dashboard.html" as="document">
-    <link rel="prefetch" href="admin.html" as="document">
-    <link rel="prefetch" href="items.html" as="document">
-    <link rel="prefetch" href="recipes.html" as="document">
-    <link rel="prefetch" href="invoice.html" as="document">
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     
     <!-- 🚀 가속: CSSOM 블로킹 타파 폰트 아키텍처 -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
 
     <!-- 🌟 FOUC Absolute Fail-Safe -->
     <style>
@@ -236,6 +231,7 @@
     <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="stylesheet" href="assets/css/pwa.css">
     <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <script defer src="assets/js/performance.js"></script>
     <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 

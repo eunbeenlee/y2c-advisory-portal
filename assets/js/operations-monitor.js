@@ -1,6 +1,7 @@
 /* MASTER-only read model. Display scope is not an authorization rule. No writes. */
 (function(){
- 'use strict';let busy=false,last=null,lastOwner=null;const $=id=>document.getElementById(id),u=()=>window.Y2C_UX,t=(ko,en)=>u().t(ko,en),el=(tag,text,cls)=>u().el(tag,text,cls);
+ 'use strict';let busy=false,last=null,lastOwner=null,serial=0,again=false,logRows=null,logFlight=null;
+ const actor=()=>window.Y2C_AuthEngine.cacheSessionKey(),role=()=>window.Y2C_AuthEngine.getAccountRole();const $=id=>document.getElementById(id),u=()=>window.Y2C_UX,t=(ko,en)=>u().t(ko,en),el=(tag,text,cls)=>u().el(tag,text,cls);
  const activeRegions=['ON']; // Current business rollout only. Retain and expose all other regions below.
  function table(parent,title,headers,rows,emptyLabel){
   const details=el('details'),summary=el('summary',title+' ('+rows.length+')');details.append(summary);
@@ -31,22 +32,51 @@
   table(area,t('최근 가격 변경 50건','Latest 50 price changes'),[t('일시','Date'),t('계정 / 회사','Account / company'),t('품목','Item'),t('지역','Region'),t('변경 전','Before'),t('변경 후','After'),t('사유','Reason')],(r.priceChanges||[]).map(e=>[e.date,e.change.actor+' / '+e.change.company,e.change.code,e.change.region,e.change.before,e.change.after,e.change.reason]));
   table(area,t('주문 담당 확인 (최대 100건)','Order mapping issues (up to 100)'),[t('발주','Order'), 'SKU',t('지역','Region'),t('사유','Reason')],(r.mappingIssues||[]).map(i=>[i.orderId,i.code,i.region,i.reason]));
   table(area,t('최근 거래 50건','Latest 50 transactions'),[t('일시','Date'),t('계정','Account'),t('작업','Action'),t('발주 / SKU','Order / SKU'),t('처리','Transition'),t('상태','State'),t('거래 참조','Reference')],(r.events||[]).map(e=>[e.date,e.actor,e.action,e.orderId+' / '+e.itemCode,e.from+' → '+e.to,e.state,e.refId]));
-  table(area,t('최근 감사 로그 50건','Latest 50 audit records'),[t('일시','Date'),t('처리자','Actor'),t('작업','Action'),t('대상','Target'),t('내용','Details')],r.audit||[]);
-  table(area,t('최근 오류 로그 50건','Latest 50 error records'),[t('일시','Date'),t('작업','Action'),t('처리자','Actor'),t('내용','Message'),t('상세','Details')],r.errors||[]);
+  if(r.logsDeferred && !logRows){deferredLogs(area);return;}
+  const logs=logRows||r;
+  table(area,t('최근 감사 로그 50건','Latest 50 audit records'),[t('일시','Date'),t('처리자','Actor'),t('작업','Action'),t('대상','Target'),t('내용','Details')],logs.audit||[]);
+  table(area,t('최근 오류 로그 50건','Latest 50 error records'),[t('일시','Date'),t('작업','Action'),t('처리자','Actor'),t('내용','Message'),t('상세','Details')],logs.errors||[]);
+ }
+ function deferredLogs(area){
+  const box=el('details'),summary=el('summary',t('최근 감사·오류 로그 보기','View recent audit and error logs')),body=el('div');box.append(summary,body);area.append(box);
+  const ticket=serial,owner=actor();let loaded=false,loading=false;
+  async function fetchLogs(){
+   if(loaded || loading || !box.open || ticket!==serial || owner!==actor() || role()!=='MASTER')return;
+   loading=true;u().skeleton(body);
+   if(!logFlight)logFlight=Y2C_AuthEngine.request('get_ops_monitor',{view:'LOGS',limit:50,clientState:'ALL'});
+   const flight=logFlight;
+   try{
+    const r=await flight;
+    if(ticket!==serial || owner!==actor() || role()!=='MASTER')return;
+    if(!r?.success || r.readOnly!==true || !Array.isArray(r.audit)||!Array.isArray(r.errors))throw Error(t('로그 응답을 확인할 수 없습니다.','Unable to verify log response.'));
+    logRows=r;loaded=true;body.replaceChildren();
+    table(body,t('최근 감사 로그 50건','Latest 50 audit records'),[t('일시','Date'),t('처리자','Actor'),t('작업','Action'),t('대상','Target'),t('내용','Details')],r.audit);
+    table(body,t('최근 오류 로그 50건','Latest 50 error records'),[t('일시','Date'),t('작업','Action'),t('처리자','Actor'),t('내용','Message'),t('상세','Details')],r.errors);
+   }catch(e){if(ticket===serial && owner===actor())u().error(body,e.message,fetchLogs);}
+   finally{loading=false;if(logFlight===flight)logFlight=null;}
+  }
+  box.addEventListener('toggle',()=>{if(box.open)fetchLogs();});
  }
  async function load(){
-  if(busy||!$('operationsMonitor'))return;busy=true;const owner=Y2C_AuthEngine.getAccountId();$('operationsRefresh').disabled=true;u().busy($('operationsRefresh'),true);
+  if(!$('operationsMonitor'))return;
+  if(busy){again=true;return;}
+  const owner=actor();
+  if(!owner || role()!=='MASTER'){last=null;logRows=null;lastOwner=null;$('operationsContent').replaceChildren();$('operationsMonitor').hidden=true;return;}
+  busy=true;const ticket=++serial;logRows=null;logFlight=null;
+  const current=()=>ticket===serial && owner===actor() && role()==='MASTER';
+  $('operationsRefresh').disabled=true;u().busy($('operationsRefresh'),true);
   try{
-   const session=await Y2C_AuthEngine.request('get_session_context',{});if(owner!==Y2C_AuthEngine.getAccountId()||session.role!=='MASTER')return;
-   $('operationsMonitor').hidden=false;$('operationsMessage').textContent=t('전체 운영 기록 조회 중…','Loading operations…');u().busy($('operationsContent'),true);if(!last)u().skeleton($('operationsContent'));
-   const r=await Y2C_AuthEngine.request('get_ops_monitor',{limit:50,clientState:'ALL'});if(owner!==Y2C_AuthEngine.getAccountId())return;
+   $('operationsMonitor').hidden=false;$('operationsMessage').textContent=t('운영 현황 조회 중…','Loading operations…');u().busy($('operationsContent'),true);if(!last || lastOwner!==owner){last=null;u().skeleton($('operationsContent'));}
+   // The endpoint verifies the live MASTER account. No separate client-side permission round trip.
+   const r=await Y2C_AuthEngine.request('get_ops_monitor',{view:'SUMMARY',limit:50,clientState:'ALL'});if(!current())return;
    if(r.success!==true||r.readOnly!==true)throw Error(r.message||t('운영 현황 조회 실패','Unable to load operations'));
    const previous=last;last=r;lastOwner=owner;render(r);
    if(previous){const values=$('operationsContent').querySelectorAll('.ux-stat-value');[previous.activeOrderAmount!==r.activeOrderAmount,previous.pendingCount!==r.pendingCount,previous.shipmentReadiness?.reservedBoxes!==r.shipmentReadiness?.reservedBoxes,previous.mappingIssueCount!==r.mappingIssueCount].forEach((changed,i)=>{if(changed)u().pulse(values[i]);});}
-  }catch(e){if(owner===Y2C_AuthEngine.getAccountId()){last=null;u().error($('operationsContent'),e.message,load);$('operationsMessage').textContent=t('조회 실패 · 다시 조회할 수 있습니다','Load failed · retry available');}}
-  finally{busy=false;$('operationsRefresh').disabled=false;u().busy($('operationsRefresh'),false);u().busy($('operationsContent'),false);}
+  }catch(e){if(current()){last=null;u().error($('operationsContent'),e.message,load);$('operationsMessage').textContent=t('조회 실패 · 다시 조회할 수 있습니다','Load failed · retry available');}}
+  finally{busy=false;$('operationsRefresh').disabled=false;u().busy($('operationsRefresh'),false);u().busy($('operationsContent'),false);if(again){again=false;load();}}
  }
+ window.Y2C_AuthEngine.onReadInvalidated?.(change=>{if(change.reason==='session'){serial++;last=null;lastOwner=null;logRows=null;logFlight=null;$('operationsContent')?.replaceChildren();if($('operationsMonitor'))$('operationsMonitor').hidden=true;}});
  document.addEventListener('DOMContentLoaded',()=>{if(!$('operationsRefresh'))return;const monitorRefresh=document.getElementById('operationsRefresh');monitorRefresh.addEventListener('click',load);load();});
  document.addEventListener('y2c-operations-updated',load);
- document.addEventListener('y2c-language-changed',()=>{if(last&&lastOwner===Y2C_AuthEngine.getAccountId())render(last);});
+ document.addEventListener('y2c-language-changed',()=>{if(last&&lastOwner===actor())render(last);});
 })();
