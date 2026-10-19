@@ -136,3 +136,14 @@
  @media(prefers-reduced-motion:reduce){.portal-page .workspace-link{transition:none}.portal-page .workspace-art *{animation:none}}
 }
 @media print{.workspace-bar,.workspace-scroll-hint,.workspace-login-art{display:none!important}}
+
+/* Inventory receipt workspace — existing brand tokens, mobile stacked review rows. */
+.inventory-entry{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;margin:0 0 20px;background:#fff;border:1px solid #dce3eb;border-radius:14px;font-weight:700}
+.inventory-entry button,.inventory-tools button{min-height:44px;padding:10px 16px;border:1px solid #cbd5e1;border-radius:10px;background:white;cursor:pointer;font:inherit}
+.inventory-entry button{background:#a22640;color:white;border-color:#a22640}.inventory-tools{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.inventory-help{font-size:13px;line-height:1.7;color:#586779}.inventory-label{display:grid;gap:5px;font-size:11px;font-weight:600;text-align:left;min-width:120px;color:#475569}
+#excelTable input:not([type=checkbox]),#excelTable select{width:100%;min-height:44px;padding:9px;border:1px solid #b8c4d2;border-radius:8px;background:white;color:#202b3c;font-size:14px;min-width:0;box-sizing:border-box}
+#excelTable select{max-width:260px}#excelTable small{white-space:normal;display:block;margin-top:6px;font-size:11px;font-weight:500}.inventory-confirm{display:flex;gap:8px;align-items:center;min-height:44px;font-size:12px;text-align:left}.inventory-confirm input{width:22px;height:22px;flex:none}.inventory-text-button{padding:10px;font-size:12px;text-decoration:underline}
+#inventorySource{margin:16px 0;padding:14px;background:#f6f8fa;border:1px solid #dce3eb;border-radius:10px}#inventorySource summary{cursor:pointer;min-height:44px}#inventorySourceText{white-space:pre-wrap;overflow-wrap:anywhere;max-height:240px;overflow:auto;font-size:12px}
+#excelPreviewContainer>div:first-child{position:sticky;top:var(--portal-header-height,80px);z-index:21;background:#fff;padding:12px 0;border-bottom:1px solid #dce3eb}
+@media(max-width:767px){.inventory-entry{align-items:stretch;flex-direction:column}.inventory-tools button{flex:1 1 40%}#excelTable,#excelTable tbody,#excelTable tr{display:block;width:100%;min-width:0!important}#excelTable thead{display:none}#excelTable tr{padding:12px;border-bottom:4px solid #edf1f5}#excelTable td{display:block;width:100%!important;border:0;white-space:normal;padding:7px 0}#excelTable select{max-width:none}.inventory-source-line{overflow-wrap:anywhere}#excelPreviewContainer .workspace-table-region{max-height:none;overflow:visible}#excelPreviewContainer>div:first-child{position:static}#btnSyncExcel{width:100%;min-height:48px}}

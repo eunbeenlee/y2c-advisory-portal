@@ -8,11 +8,12 @@ function build(rows,catalog,hub){
   const list=issues[index];
   if(!hub)list.push('업로드 당시 허브와 현재 선택이 다릅니다. 원래 허브로 돌아가거나 파일을 다시 업로드하십시오.');
   if(!Number.isSafeInteger(r.qty)||r.qty<=0)list.push('수량은 1 이상의 안전한 정수여야 합니다. 원본 파일을 수정하고 다시 업로드하십시오.');
-  if(r.exp!=='-'&&!validDate(r.exp))list.push('날짜는 YYYY-MM-DD 또는 YYYY/M/D 형식의 실제 날짜여야 합니다.');
+  if(r.exp!=='-'&&!validDate(r.exp))list.push('유통기한은 YYYY-MM-DD 형식의 실제 날짜여야 합니다.');
   if(r.price!==null&&(!Number.isFinite(r.price)||r.price<0||!Number.isSafeInteger(Math.round(r.price*100))))list.push('단가는 처리 가능한 범위의 0 이상 숫자여야 합니다.');
+  if(r.needsReview&&!r.reviewed)list.push('이미지 원문과 품목·박스 수량·유통기한을 대조하고 확인 체크를 눌러 주세요.');
   if(r.inputError)list.push('원본의 품번·수량·날짜·단가를 확인하십시오. 품목 매핑만으로 입력 오류는 해제되지 않습니다.');
   if(r.status==='ERROR')list.push('품목 확인이 필요합니다. 아래에서 마스터 품목을 직접 선택하십시오.');
-  const c=products.get(String(r.hqCode));if(!c)list.push('등록된 마스터 품목이 없습니다. 품목을 선택하거나 행을 제외하십시오.');
+  const c=products.get(String(r.hqCode));if(c&&c.stockBreakdown&&!Object.prototype.hasOwnProperty.call(c.stockBreakdown,hub))list.push('현재 지역에서 관리할 수 없는 품목입니다.');if(!c)list.push('등록된 마스터 품목이 없습니다. 품목을 선택하거나 행을 제외하십시오.');
   if(c&&r.exp==='-'&&Object.prototype.hasOwnProperty.call(c.expBreakdown||{},hub))list.push('선택한 허브는 유통기한 관리 대상입니다. 원본에 유통기한을 입력하십시오.');
   if(list.length){errors++;continue;}
   const code=String(c.code);
@@ -33,7 +34,7 @@ function build(rows,catalog,hub){
 function validDate(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s)))return false;const d=new Date(s+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===s;}
 function findKey(row,keywords){
  const keys=Object.keys(row),norm=k=>k.replace(/[^a-zA-Z0-9가-힣]/g,'').toUpperCase();
- const aliases={ITEM:['ITEMCODE','PRODUCTCODE','ITEMNUMBER','CODE','품번','SKU','BARCODE'],PRODUCT:['PRODUCTNAME','ITEMNAME','NAME','품명','제품명'],QTY:['QTY','QUANTITY','수량','STOCK'],EXP:['EXPIRYDATE','EXPIRATIONDATE','EXP','유통기한','DATE'],PRICE:['UNITPRICE','PRICE','단가','가격','COST']};
+ const aliases={ITEM:['ITEMCODE','PRODUCTCODE','ITEMNUMBER','CODE','품번','품목코드','상품코드','SKU','BARCODE'],PRODUCT:['PRODUCTNAME','ITEMNAME','NAME','DESCRIPTION','품명','제품명','상품명'],QTY:['QTY','QUANTITY','수량','입고수량','박스수량','BOXQTY','STOCK'],EXP:['EXPIRYDATE','EXPIRATIONDATE','EXP','BESTBEFORE','BB','BBE','유통기한','소비기한','DATE'],PRICE:['UNITPRICE','PRICE','단가','가격','COST']};
  for(const word of aliases[keywords[0]]||keywords){const k=keys.find(k=>norm(k)===word);if(k)return k;}
  const matches=keys.filter(k=>keywords.some(w=>norm(k).includes(w))&&!(keywords[0]==='ITEM'&&/NAME|명/.test(norm(k)))&&!(keywords[0]==='PRODUCT'&&/CODE|번호/.test(norm(k))));
  return matches.length===1?matches[0]:null;
@@ -41,14 +42,21 @@ function findKey(row,keywords){
 function parseWorkbook(workbook,XLSX){
  const worksheet=workbook.Sheets[workbook.SheetNames[0]];
  if(!worksheet)throw new Error('첫 번째 워크시트를 찾을 수 없습니다.');
- const formatted=XLSX.utils.sheet_to_json(worksheet,{raw:false}),raw=XLSX.utils.sheet_to_json(worksheet,{raw:true});
+ const bounds=XLSX.utils.decode_range(worksheet['!ref']||'A1');
+ if(bounds.e.r-bounds.s.r>10100||bounds.e.c>500)throw new Error('파일 범위가 너무 큽니다. 필요한 입고 행과 열만 남겨 주세요.');
+ const scan=XLSX.utils.sheet_to_json(worksheet,{header:1,raw:false,blankrows:true,defval:'',range:{s:bounds.s,e:{r:Math.min(bounds.e.r,bounds.s.r+49),c:bounds.e.c}}});
+ const offset=scan.findIndex(cells=>{const row=Object.fromEntries(cells.filter(v=>String(v).trim()).map(v=>[String(v),'']));return findKey(row,['QTY','QUANTITY','수량','STOCK'])&&(findKey(row,['ITEM','CODE','품번','SKU'])||findKey(row,['PRODUCT','NAME','품명','제품']));});
+ if(offset<0)throw new Error('첫 번째 시트에서 상품명 또는 품번, 수량 헤더를 찾지 못했습니다. 입고 양식을 사용해 주세요.');
+ const labels=scan[offset].map(v=>String(v).trim()).filter(Boolean);if(new Set(labels).size!==labels.length)throw new Error('같은 이름의 열이 여러 개 있습니다. 열 제목을 구분해 주세요.');
+ const range=bounds.s.r+offset;
+ const formatted=XLSX.utils.sheet_to_json(worksheet,{raw:false,range}),raw=XLSX.utils.sheet_to_json(worksheet,{raw:true,range});
  if(formatted.length!==raw.length)throw new Error('워크시트 행 위치를 확인할 수 없습니다.');
  const date1904=!!(workbook.Workbook&&workbook.Workbook.WBProps&&workbook.Workbook.WBProps.date1904);
  return formatted.map((display,index)=>{
   // Keep formatted codes (including leading zeroes), but never infer a numeric
   // quantity, amount, or date from a rounded or locale-specific display string.
   const source=raw[index],row=Object.assign({},display);
-  for(const keywords of [['QTY','QUANTITY','수량','STOCK'],['PRICE','UNITPRICE','단가','가격','COST'],['EXP','유통기한','DATE']]){
+  for(const keywords of [['QTY','QUANTITY','수량','입고수량','박스수량','BOXQTY','STOCK'],['PRICE','UNITPRICE','단가','가격','COST'],['EXP','BESTBEFORE','BB','BBE','유통기한','소비기한','DATE']]){
    const key=findKey(row,keywords);if(!key||typeof source[key]!=='number')continue;
    row[key]=source[key];
    if(keywords[0]==='EXP'){

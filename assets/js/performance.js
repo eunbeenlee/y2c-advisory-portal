@@ -3,6 +3,7 @@
  'use strict';
  const libraries=Object.freeze({
   charts:{url:'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js',ready:()=>typeof w.Chart==='function'},
+  ocr:{url:'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js',ready:()=>!!w.Tesseract?.createWorker},
   excel:{url:'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',ready:()=>!!w.XLSX?.read}
  });
  const allowedAPI=new Set(['login','get_orders','get_ops_monitor','get_session_context','get_master_data','get_sales_records','get_dashboard','get_invoice','get_items','get_procurement_data','get_recipes','check_system_alerts','save_order','update_stock','update_price','cancel_order','update_order_status','review_order_mail','upsert_hq_order','update_hq_order_status','update_master_data','save_sales_records']);

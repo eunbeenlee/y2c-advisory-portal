@@ -19,7 +19,7 @@
    {key:'orders',name:['발주 내역','Orders'],note:['진행 · 취소 · 수령','Progress · cancellations · receipt'],source:['navAdmin','navDashboard'],target:'orderHistorySection'},
    {key:'catalog',name:['상품 · 재고','Items & stock'],note:['수량 선택 · 재고 확인','Select quantities · view stock'],source:['navCatalog'],target:'catalogSearchInput'},
    {key:'monitor',name:['운영 모니터링','Operations'],note:['재고 대조 · 처리 기록','Reconciliation · activity'],source:['navDashboard'],target:'operationsMonitor',onlyTarget:true},
-   {key:'inbound',name:['재고 입고','Stock receipt'],note:['엑셀 검증 · 반영','Validate · import'],source:['navAdmin'],tab:'tab-excel'},
+   {key:'inbound',name:['재고 입고','Stock receipt'],note:['엑셀 · 사진 · 직접 입력','Excel · photo · manual'],source:['navAdmin'],tab:'tab-excel'},
    {key:'factory',name:['공장 발주 공유','Factory orders'],note:['조달 요청 · 현황 공유','Procurement · shared status'],source:['navAdmin'],tab:'tab-procurement'},
    {key:'recipes',name:['레시피','Recipes'],note:['제조 기준 · 상세 안내','Preparation · guidance'],source:['navRecipes']}
   ];

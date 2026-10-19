@@ -6,15 +6,15 @@
 
 "use strict";
 
-const CACHE_VERSION = "V88_28_0";
+const CACHE_VERSION = "V88_28_1";
 const SCOPE_URL = new URL(self.registration.scope);
 const CACHE_FAMILY = `Y2C_ENTERPRISE_SCOPE_${encodeURIComponent(SCOPE_URL.pathname)}_`;
 // Generated hashes pin this worker to one complete release, including its cache namespace.
 // BEGIN RELEASE INTEGRITY
-const RELEASE_DIGEST = "3b90847e0fc0703e";
+const RELEASE_DIGEST = "8cd2e1cf495bcfbd";
 const RELEASE_HASHES = {
   "Sinjeon_Logo_Pink.png": "9e1c774adf9a2a3421d2429ba6b92975ce7014d6de77ae63be5a597bf1820840",
-  "admin.html": "084199c60c35536bf71fd6620672c398b4c75f26a07d9cc5028a52fa3acb09ad",
+  "admin.html": "1e53a9b9780decfeed984da886ee807866611ad774ce4f68b2bacae316ecda6c",
   "assets/css/design-system.css": "bea729f0f8d21f0915355af188201587bd6e494e6d0f2ad22e7e3c2419209158",
   "assets/css/experience.css": "232e4ad9320cf96430bcdb6437cece857e2bf0a5319feb9817d04ea2997f6d4b",
   "assets/css/mobile.css": "d1d6fb2c26e9ce7ab234839f0dfca1d2cd57b217b8f4936307754e31718e5788",
@@ -28,7 +28,7 @@ const RELEASE_HASHES = {
   "assets/css/tailwind-invoice.css": "eece7c70ef8295cb05ca9f0452938e6da703e4e30014241c7453598fbc8d443d",
   "assets/css/tailwind-items.css": "b4b23dbe25dc05e9024ee2cf26db77b09c7582e38e0d8961ac720fe38d25ebd9",
   "assets/css/tailwind-recipes.css": "54e1d574b2a522bea36a2448e015894bcc26a9e23cad1a72fbf224e802f78126",
-  "assets/css/workspace-ui.css": "4bed4de977f5fa1eb0fc63fc242c72b214f374341a81fd4877f981602423e5b1",
+  "assets/css/workspace-ui.css": "0d92e481cab64ad9cbdbf154849e5e8dd7ceb75bd8b878faed81e5e32656f64f",
   "assets/icons/app-180.png": "f40d04aa8dedaf2a31cf7695aa7e8e86efa8bcc98011e44aa74120784396f806",
   "assets/icons/app-192.png": "72c906f6ba1c691868034b7f5c600c5941c93152c97596e654275b2c9da05ee3",
   "assets/icons/app-512.png": "075e0e43b10f03a6fd6032274699c08ef9240b6363602ad62a820a1edf5ada81",
@@ -39,9 +39,11 @@ const RELEASE_HASHES = {
   "assets/js/config.js": "d106fabb29915958f998d8b5e0076d6612a1cb49f8a30fe134cc91f35d281d0a",
   "assets/js/dashboard-session.js": "3c1a2020be7d93638e0ea18160bd31abb8588e7fe0248d0ed98b101ed82d0093",
   "assets/js/document-io.js": "f60b1370a2acd82ef9b935fc9dc3ad257a38872152c89ad7d7864688f9986143",
-  "assets/js/excel-model.js": "b45fe8227526711a55d441617d8393e1eadbeef3f7d3551a9668eb8f5e0c2aed",
-  "assets/js/excel-worker.js": "691d6ce5cbfd938a48d2617fb40ae42fde1e5333bccc71611bd027577b89074c",
+  "assets/js/excel-model.js": "f03e1ebeafb02ce0a719f8801f7dffafc41310d8503f79f20569d034ae99bb28",
+  "assets/js/excel-worker.js": "3db9c5d433b9c7c5772919e22c61cd9c1a853ba0213a04d57b8a602ff3b92303",
   "assets/js/experience.js": "f35242d2b6cb3e6de8ed18b61466a7ccc24ef5a5dc03f3fedec1ff0286870fdf",
+  "assets/js/inventory-import.js": "6c633487fda1b62732ab03a005e9e25225bc532f615c3775a8fd36e5098da03f",
+  "assets/js/inventory-ocr.js": "b0aaf905f88f6c3a472072fc5e61789c115b3c3c3b8e0a252b2b1be9a792760c",
   "assets/js/invoice-math.js": "510aaef3c5b9de56fe36a4a93e5a5ed909365e0de318d61da406fd3240f9a65e",
   "assets/js/mobile.js": "acde86948b5d226ffd0da405571043fe7b72ba6a5079e962789e3fa00e2ba71b",
   "assets/js/mutation-ui.js": "42770e9c2f4c672a0026882116e9a8aa47db030483c9d0f20809d4b95705bf43",
@@ -49,11 +51,11 @@ const RELEASE_HASHES = {
   "assets/js/order-history.js": "00293d848eeaa83beff891496febdf506aa7854dac62aa6af6c69cc34b005bc5",
   "assets/js/order-math.js": "78b2ef2662f77f650d35a7f11133fbe9c8b9430fed7fb7e7bed4574a5d888750",
   "assets/js/order-review.js": "4916e6c7d8d2f03aa0a901a7ada0419a6945e373182199e778299d3dc61f2daf",
-  "assets/js/performance.js": "6f171a468647cbcec2bb948772d2c205b231afcbc4241c8707568e197599d0b5",
+  "assets/js/performance.js": "b081112c4dc804d9615166a5793585acd54593f03dccdca5382be04d01de876d",
   "assets/js/portal-dialog.js": "3ce70238b0597af1e935996d644e0aed849ee2d2a20b7ea4b53d947615bc8353",
   "assets/js/price-editor.js": "7c838069b80a1c79f786bcda29e16b91848d78995a21b704cbf8a4ced1957ced",
   "assets/js/pwa.js": "854e61da543a183a38aa728752ba5bf541eb324cbf297caf4645ce0159e9b53d",
-  "assets/js/workspace-ui.js": "4915efb597167b0148a8dbeb5bce3df566ed0c741d14a3502b8c8e51e5f62242",
+  "assets/js/workspace-ui.js": "cc2d6a1b8809d85157887c992bd321bf2d8e5da7fbaa91b4e8472f990cd92abe",
   "dashboard.html": "d60a8efbb9e8327712302371f3ec670bdf95a4b5297f22609677182fd04179f2",
   "favicon.png": "493619db1d0e64e0dda864f0111347058325a2da1fdb0924a63d684dff9b03f3",
   "index.html": "b14d2ba0aa8856e69ae948e7479860ae9d60f4252f0d656441129c80f709080f",
@@ -72,6 +74,8 @@ const QUEUE_STORE = 'mutation_queue';
 
 // 🌟 오프라인 코어 자산 (최소 부팅에 필요한 필수 파일들)
 const CORE_ASSETS = [
+    '/assets/js/inventory-ocr.js',
+    '/assets/js/inventory-import.js',
     '/assets/css/order-lifecycle.css',
     '/assets/css/workspace-ui.css', '/assets/js/workspace-ui.js',
     '/',

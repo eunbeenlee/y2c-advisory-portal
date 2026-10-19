@@ -285,6 +285,7 @@
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 app-shell-enter relative pb-24 sm:pb-32">
 
 
+<div class="inventory-entry"><span>재고 입고 / Stock receipt</span><button type="button" id="inventoryQuickOpen">엑셀·사진으로 재고 업데이트</button></div>
 <section id="orderHistorySection" aria-labelledby="orderHistoryTitle" style="margin:0 0 2rem;padding:24px;background:white;border:1px solid #e5e7eb;border-radius:24px">
  <div class="workspace-section-head"><div><h2 id="orderHistoryTitle" style="font-size:22px;font-weight:800">Order History / 발주 내역</h2><p id="orderHistoryHint" style="color:#64748b">계정 권한 확인 중…</p></div><button type="button" id="orderHistoryRefresh">Refresh / 새로고침</button></div>
  <label id="hqInterventionLabel" hidden><input type="checkbox" id="hqIntervention"> <span data-ux-ko="HQ 개입 모드 — 직접 처리할 때만 켜기" data-ux-en="HQ intervention — enable only for direct action">HQ 개입 모드 — 직접 처리할 때만 켜기</span></label>
@@ -396,8 +397,8 @@
         <!-- ========================================== -->
         <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-4 sm:p-8 relative">
             <header class="mb-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">Mass Inbound (Excel)</h2>
-                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Vendor-owned physical inventory. Box units. Upload vendor files. Auto-tracks price overrides & promotions. Worker Thread Enabled.</p>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">재고 입고 · 파일 인식 / Stock receipt</h2>
+                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">엑셀·CSV·사진을 읽어 품목과 유통기한별 박스 수량을 확인합니다. 반영 버튼을 누르면 기존 실물 재고에 더해집니다. 현재고 총량표를 그대로 입고하면 중복 합산되므로 입고분만 올려 주세요.</p>
             </header>
 
             <div class="mb-6 flex flex-col md:flex-row gap-4 items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm relative z-20">
@@ -408,23 +409,31 @@
             </div>
 
             <div id="dropZone" class="drop-zone flex flex-col items-center justify-center py-16 px-4 text-center mb-8 relative overflow-hidden group">
-                <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv,.jpg,.jpeg,.png,.webp" aria-label="엑셀·CSV·이미지 입고 파일 선택" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                 <div class="w-16 h-16 bg-white shadow-sm border border-gray-200 rounded-full flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform">📄</div>
-                <h3 class="font-bold text-[15px] text-[var(--premium-charcoal)] mb-1">2. Drag & Drop Excel File</h3>
-                <p class="text-[12px] font-medium text-gray-400">Auto-detects Item, QTY, EXP, and Price columns (.xlsx)</p>
+                <h3 class="font-bold text-[15px] text-[var(--premium-charcoal)] mb-1">2. 엑셀·CSV·사진 선택 / Choose a file</h3>
+                <p class="text-[12px] font-medium text-gray-400">XLSX · XLS · CSV · JPG · PNG · WEBP / 최대 15 MB · 수량 단위: 박스 · 엑셀은 첫 번째 시트</p>
             </div>
 
+            <p class="inventory-help">벤더: 담당 지역·품목 입고 / 마스터: 전체 지역 입고. 같은 품목도 유통기한마다 한 행씩 입력하세요. 이미지 인식은 기기에서 처리하며 인식 결과를 확인한 후 반영합니다.</p>
+            <div class="inventory-tools">
+                <button type="button" id="inventoryAddRow">직접 입력 / Add row</button>
+                <button type="button" id="inventoryChooseFile">파일 다시 선택 / Choose file</button>
+                <button type="button" id="inventoryTemplate">입고 양식 받기 / Template</button>
+                <button type="button" id="inventoryCancelScan" hidden>인식 중지 / Stop scan</button>
+            </div>
+            <details id="inventorySource" hidden><summary>이미지 인식 원문 확인 / OCR source</summary><pre id="inventorySourceText"></pre></details>
             <div id="excelPreviewContainer" class="hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-4">
                     <div>
                         <h4 class="font-black text-lg text-[var(--premium-charcoal)] flex items-center gap-2">
-                            Data Preview <span id="excelErrorBadge" class="hidden px-2 py-0.5 bg-red-100 text-[#E3000F] text-[10px] rounded font-black tracking-widest border border-red-200">ERROR DETECTED</span>
+                            입고 미리보기 / Review <span id="excelErrorBadge" class="hidden px-2 py-0.5 bg-red-100 text-[#E3000F] text-[10px] rounded font-black tracking-widest border border-red-200">ERROR DETECTED</span>
                         </h4>
-                        <p class="text-[11px] text-gray-500 font-bold mt-1" id="excelMetaText">Parsed 0 rows</p>
+                        <p class="text-[11px] text-gray-500 font-bold mt-1" id="excelMetaText" role="status" aria-live="polite">Parsed 0 rows</p>
                     </div>
-                    <button type="button" id="btnSyncExcel" class="btn-solid-red px-6 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-all">
+                    <button type="button" id="btnSyncExcel" disabled class="btn-solid-red px-6 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-all">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        <span id="btnSyncExcelText">Commit to Master</span>
+                        <span id="btnSyncExcelText">입고 반영 / Add stock</span>
                     </button>
                 </div>
                 <div class="enterprise-table-container overflow-x-auto border border-gray-200 rounded-xl max-h-[500px] overflow-y-auto">
@@ -648,6 +657,8 @@
     <script src="assets/js/accelerator.js"></script>
     <script src="assets/js/mutation-ui.js"></script>
     <script src="assets/js/excel-model.js"></script>
+    <script src="assets/js/inventory-import.js"></script>
+    <script src="assets/js/inventory-ocr.js"></script>
 
     <!-- 🌟 [PWA 엔진 점화] 모바일 네이티브 앱 설치 지원 -->
     <script>
@@ -818,6 +829,9 @@
             });
         });
 
+        window.openStockReceipt=function(){switchTab('tab-excel');document.getElementById('tab-excel').scrollIntoView({block:'start',behavior:'instant'});};
+        document.getElementById('inventoryQuickOpen')?.addEventListener('click',window.openStockReceipt);
+
         // ==========================================
         // ⚙️ Synchronous Hub Dropdown
         // ==========================================
@@ -853,7 +867,7 @@
                     const opt = document.createElement('option'); opt.value = reg; opt.innerText = "Hub: " + reg;
                     inboundEl.appendChild(opt);
                 });
-                if(AppState.role !== "MASTER" && allowed.length === 1) inboundEl.value = allowed[0];
+                if(allowed.includes("ON"))inboundEl.value="ON";else if(allowed.length===1)inboundEl.value=allowed[0];
             }
         }
         populateHubDropdown();
@@ -1645,7 +1659,8 @@
         // ==========================================
         let pendingStockUpdates = [];
         let excelDraftRevision=0;
-        let excelRenderEpoch=0, excelSourceHub="", excelJobId=0; 
+        let excelRenderEpoch=0, excelSourceHub="", excelJobId=0;
+        let inventoryDraftSession=Y2C_AuthEngine.cacheSessionKey(); 
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('excelFileInput');
         const btnSyncExcel = document.getElementById('btnSyncExcel');
@@ -1669,16 +1684,21 @@
             if(btnSyncExcel)btnSyncExcel.disabled=true;
             if(fileInput)fileInput.value='';
             document.getElementById('dropZone').classList.remove('hidden');
-            document.getElementById('excelMetaText').innerText='처리 실패: '+message+' 기존 미리보기는 보존되며 전송은 차단됩니다. 파일을 다시 선택하십시오.';
+            document.getElementById('excelMetaText').innerText='처리 실패: '+message+' 파일을 다시 선택하거나 직접 입력하세요.';
             Y2C_AuthEngine.showToast(message,'error');
         }
         function handleExcelFiles(files) {
             if(!files || files.length===0)return;
+            if(AppState.isSubmitting||AppState.isReviewingStock)return;
+            window.Y2C_InventoryOCR?.abort();
+            document.getElementById('inventoryCancelScan').hidden=true;
             excelDraftRevision++;
-            const excelSession=Y2C_AuthEngine.cacheSessionKey();
+            const excelSession=Y2C_AuthEngine.cacheSessionKey();inventoryDraftSession=excelSession;
             const revision=excelDraftRevision; const selectedHub=inboundRegionSelector?.value?.trim().replace("Hub: ", "")||""; excelSourceHub=""; excelRenderEpoch++; excelJobId++; pendingStockUpdates=[]; if(btnSyncExcel)btnSyncExcel.disabled=true;
             if(!files || files.length === 0) return;
             const file = files[0];
+            window.currentExcelPreviewData=[];window.currentExcelTempUpdates={};
+            document.getElementById('excelTbody').innerHTML='';
 
             if (AppState.catalogItems.length === 0) {
                 Y2C_AuthEngine.showToast("마스터 상품 DB가 아직 로드되지 않았거나 통신에 실패했습니다. 새로고침 후 다시 시도하십시오.", "error");
@@ -1692,15 +1712,32 @@
                 if(fileInput) fileInput.value = ''; return;
             }
 
-            if(!file.name.match(/\.(xlsx|xls)$/i)) {
-                Y2C_AuthEngine.showToast("엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.", "error");
+            if(file.size>15*1024*1024){failExcelImport('파일은 15 MB 이하로 나누어 올려 주세요.');return;}
+            if(files.length>1){failExcelImport('한 번에 파일 하나씩 검증해 주세요.');return;}
+            if(!file.name.match(/\.(xlsx|xls|csv|jpe?g|png|webp)$/i)) {
+                Y2C_AuthEngine.showToast("엑셀·CSV·JPG·PNG·WEBP 파일을 선택해 주세요.", "error");
                 if(fileInput) fileInput.value = ''; return;
             }
 
-            document.getElementById('excelMetaText').innerText = "Processing massive file... please wait.";
+            document.getElementById('inventorySource').hidden=true;
+            document.getElementById('inventorySourceText').textContent='';
+            document.getElementById('excelMetaText').innerText = "파일을 읽고 있습니다. 아직 재고는 변경되지 않았습니다.";
             document.getElementById('dropZone').classList.add('hidden');
             document.getElementById('excelPreviewContainer').classList.remove('hidden');
 
+            if(/\.(jpe?g|png|webp)$/i.test(file.name)){
+                const current=()=>revision===excelDraftRevision&&excelSession===Y2C_AuthEngine.cacheSessionKey();
+                const cancel=document.getElementById('inventoryCancelScan');cancel.hidden=false;
+                window.Y2C_InventoryOCR.recognize(file,message=>{if(current())document.getElementById('excelMetaText').textContent=message;},current).then(text=>{
+                    if(!current())return;
+                    document.getElementById('inventorySource').hidden=false;
+                    document.getElementById('inventorySourceText').textContent=text||'인식된 글자가 없습니다.';
+                    const rows=Y2C_InventoryImport.ocrRows(text);
+                    if(!rows.length)throw Error('글자를 찾지 못했습니다. 선명한 사진 또는 직접 입력을 사용해 주세요.');
+                    processAndMapExcelData(rows,selectedHub);
+                }).catch(err=>{if(current())failExcelImport(err.message);}).finally(()=>{if(current())cancel.hidden=true;});
+                return;
+            }
             const reader = new FileReader();
             reader.onload = async function(e) {
                 if(revision!==excelDraftRevision || excelSession!==Y2C_AuthEngine.cacheSessionKey())return;
@@ -1708,7 +1745,7 @@
                     const data = new Uint8Array(e.target.result);
                     if(typeof XLSX==='undefined')await window.Y2C_Performance.load('excel');
                     if(revision!==excelDraftRevision || excelSession!==Y2C_AuthEngine.cacheSessionKey())return;
-                    const workbook = XLSX.read(data, {type: 'array'});
+                    const workbook = XLSX.read(data, {type: 'array', cellDates:false});
                     const json = Y2C_ExcelModel.parseWorkbook(workbook, XLSX);
 
                     if(json.length === 0) throw new Error("엑셀 파일에 데이터가 비어있습니다.");
@@ -1728,7 +1765,7 @@
                 const workerFailed=()=>{if(window.excelWorker!==worker)return;worker.terminate();window.excelWorker=null;excelJobId++;failExcelImport('엑셀 작업 스레드를 다시 시작해야 합니다. 파일을 다시 선택하십시오.');};
                 worker.onerror=workerFailed;worker.onmessageerror=workerFailed;
                 window.excelWorker.onmessage = function(e) {
-                    if(e.data.jobId!==excelJobId)return;
+                    if(e.data.jobId!==excelJobId||worker.importSession!==Y2C_AuthEngine.cacheSessionKey())return;
                     if (e.data.status === 'SUCCESS') {
                         excelSourceHub=e.data.currentHub;
                         window.currentExcelPreviewData = e.data.displayRows;
@@ -1739,22 +1776,60 @@
                     }
                 };
             }
-            const targetRegion = sourceHub; 
+            const targetRegion = sourceHub;
+            window.excelWorker.importSession=Y2C_AuthEngine.cacheSessionKey();
             window.excelWorker.postMessage({
                 action: 'PROCESS_EXCEL',
                 jobId: ++excelJobId,
                 payload: {
                     jsonArray: jsonArray,
-                    catalogItems: AppState.catalogItems,
+                    catalogItems: AppState.catalogItems.filter(c=>Y2C_InventoryImport.eligible(c,targetRegion)),
                     mappings: AppState.mappings,
                     currentHub: targetRegion
                 }
             });
         }
 
+        function touchInventoryDraft(){excelDraftRevision++;pendingStockUpdates=[];if(btnSyncExcel)btnSyncExcel.disabled=true;}
+        function inventoryWritable(){return inventoryDraftSession===Y2C_AuthEngine.cacheSessionKey()&&['MASTER','VENDOR'].includes(AppState.role)&&!AppState.isSubmitting&&!AppState.isReviewingStock;}
+        function inventoryInputsDisabled(){return AppState.isSubmitting||AppState.isReviewingStock;}
+        window.editInventoryRow=function(idx,field,value){
+            if(!inventoryWritable())return;
+            const row=window.currentExcelPreviewData?.[idx];if(!row)return;
+            if(field==='qty'){row.qtyInput=value;row.qty=Y2C_InventoryImport.quantity(value);}
+            else if(field==='exp'){row.expInput=value;row.exp=Y2C_InventoryImport.date(value);}
+            else if(field==='price'){row.priceInput=value;row.price=Y2C_InventoryImport.money(value);}
+            else return;
+            row.inputError=false;row.reviewed=false;touchInventoryDraft();renderAdvancedExcelPreviewFast();
+        };
+        window.confirmInventoryRow=function(idx,value){
+            if(!inventoryWritable())return;const row=window.currentExcelPreviewData?.[idx];if(!row)return;
+            row.reviewed=value===true;touchInventoryDraft();renderAdvancedExcelPreviewFast();
+        };
+        document.getElementById('inventoryChooseFile').addEventListener('click',()=>{if(inventoryWritable())fileInput.click();});
+        document.getElementById('inventoryCancelScan').addEventListener('click',()=>{
+            window.Y2C_InventoryOCR.abort();excelJobId++;touchInventoryDraft();
+            document.getElementById('inventoryCancelScan').hidden=true;failExcelImport('이미지 인식을 중지했습니다.');
+        });
+        document.getElementById('inventoryAddRow').addEventListener('click',()=>{
+            if(!inventoryWritable())return;
+            const hub=inboundRegionSelector.value;
+            if(!hub||!AppState.catalogItems.length){Y2C_AuthEngine.showToast('지역 선택과 상품 목록 로딩을 먼저 확인해 주세요.','warning');return;}
+            if(excelSourceHub&&excelSourceHub!==hub){Y2C_AuthEngine.showToast('기존 미리보기 지역으로 돌아가거나 파일을 다시 선택해 주세요.','warning');return;}
+            window.Y2C_InventoryOCR.abort();excelJobId++;touchInventoryDraft();excelSourceHub=hub;
+            if(!Array.isArray(window.currentExcelPreviewData))window.currentExcelPreviewData=[];
+            window.currentExcelPreviewData.push({rawCode:'',rawName:'직접 입력',hqCode:null,status:'ERROR',qty:NaN,qtyInput:'',exp:'-',expInput:'',price:null,priceInput:'',ignored:false,inputError:false,matchMethod:'직접 선택'});
+            document.getElementById('inventoryCancelScan').hidden=true;
+            document.getElementById('excelPreviewContainer').classList.remove('hidden');renderAdvancedExcelPreviewFast();
+        });
+        document.getElementById('inventoryTemplate').addEventListener('click',()=>{
+            const blob=new Blob(['\uFEFF품목코드,상품명,박스수량,유통기한,단가\r\n'],{type:'text/csv;charset=utf-8'});
+            const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Sinjeon_Stock_Receipt.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+        });
+
         window.renderAdvancedExcelPreviewFast = function() {
             const epoch=++excelRenderEpoch;
-            const rows=JSON.parse(JSON.stringify(window.currentExcelPreviewData||[]));
+            const rows=(window.currentExcelPreviewData||[]).map(row=>({...row}));
             const hub=inboundRegionSelector.value.trim().replace("Hub: ", "");
             const model=Y2C_ExcelModel.build(rows,AppState.catalogItems,hub===excelSourceHub?hub:"");
             let html = "";
@@ -1764,7 +1839,7 @@
             function getMappingOptions() {
                 if (mappingOptions === null) {
                     mappingOptions = `<option value="" disabled selected>마스터 품목 직접 확인</option>`;
-                    AppState.catalogItems.forEach(cat => { mappingOptions += `<option value="${Y2C_AuthEngine.escapeHtml(cat.code)}">[${Y2C_AuthEngine.escapeHtml(cat.code)}] ${Y2C_AuthEngine.escapeHtml(cat.name)}</option>`; });
+                    AppState.catalogItems.filter(c=>Y2C_InventoryImport.eligible(c,hub)).forEach(cat => { mappingOptions += `<option value="${Y2C_AuthEngine.escapeHtml(cat.code)}">[${Y2C_AuthEngine.escapeHtml(cat.code)}] ${Y2C_AuthEngine.escapeHtml(cat.name)}</option>`; });
                 }
                 return mappingOptions;
             }
@@ -1820,17 +1895,25 @@
                     }
                 }
 
+                const esc=Y2C_AuthEngine.escapeHtml,disabled=row.ignored?' disabled':'';
+                const options=getMappingOptions().replace(' disabled selected','');
+                hqCodeHtml=`<label class="inventory-label">품목 / Item<select aria-label="${idx+1}행 품목" onchange="resolveExcelMapping(${idx},this.value)"${disabled}>${options.replace('value="'+esc(row.hqCode||'')+'"','value="'+esc(row.hqCode||'')+'" selected')}</select></label><small>${esc(row.matchMethod||'직접 확인')}</small>`;
+                if(row.needsReview&&!row.ignored)statusHtml+=`<label class="inventory-confirm"><input type="checkbox" onchange="confirmInventoryRow(${idx},this.checked)" ${row.reviewed?'checked':''}>원문 대조 완료</label>`;
+                if(!row.ignored&&!model.issues[idx].length)statusHtml+=`<button type="button" class="inventory-text-button" onclick="ignoreExcelRow(${idx})">행 제외</button>`;
+                priceHtml=`<label class="inventory-label">단가 / Price<input type="text" inputmode="decimal" aria-label="${idx+1}행 단가" value="${esc(row.priceInput??(row.price===null?'':String(row.price)))}" placeholder="변경 없음" onchange="editInventoryRow(${idx},'price',this.value)"${disabled}></label>`;
+                const expHtml=`<label class="inventory-label">유통기한 / Expiry<input type="text" aria-label="${idx+1}행 유통기한" value="${esc(row.expInput??row.exp)}" placeholder="YYYY-MM-DD" onchange="editInventoryRow(${idx},'exp',this.value)"${disabled}></label>`;
+                const qtyHtml=`<label class="inventory-label">입고 박스 / Boxes<input type="text" inputmode="numeric" aria-label="${idx+1}행 박스 수량" value="${esc(row.qtyInput??String(row.qty??''))}" onchange="editInventoryRow(${idx},'qty',this.value)"${disabled}></label>`;
                 html += `
                     <tr class="${trClass}">
                         <td class="w-24 text-center border-r border-gray-200/50">${statusHtml}</td>
                         <td class="w-64 border-r border-gray-200/50">${hqCodeHtml}</td>
                         <td class="w-64">
                             <div class="text-[11px] font-mono text-gray-400 mb-0.5">${Y2C_AuthEngine.escapeHtml(row.rawCode)}</div>
-                            <div class="font-bold text-[13px] text-[var(--premium-charcoal)] truncate-text" title="${Y2C_AuthEngine.escapeHtml(row.rawName)}">${Y2C_AuthEngine.escapeHtml(row.rawName)}</div>
+                            <div class="font-bold text-[13px] text-[var(--premium-charcoal)] truncate-text" title="${Y2C_AuthEngine.escapeHtml(row.rawName)}">${Y2C_AuthEngine.escapeHtml(row.rawName)}</div><small class="inventory-source-line">${Y2C_AuthEngine.escapeHtml(row.sourceText||"")}</small>
                         </td>
                         <td class="w-32 text-center font-mono align-middle">${priceHtml}</td>
-                        <td class="w-32 text-center font-mono text-[12px] text-gray-600 align-middle">${Y2C_AuthEngine.escapeHtml(row.exp)}</td>
-                        <td class="w-24 text-center font-black text-[#E3000F] text-[15px] bg-red-50/10 align-middle">${Y2C_AuthEngine.escapeHtml(String(row.qty))}</td>
+                        <td class="w-32 text-center font-mono text-[12px] text-gray-600 align-middle">${expHtml}</td>
+                        <td class="w-24 text-center font-black text-[#E3000F] text-[15px] bg-red-50/10 align-middle">${qtyHtml}</td>
                     </tr>
                 `;
             }, () => {
@@ -1842,41 +1925,47 @@
                     if (errorBadge) {
                         if (errorCount > 0) {
                             errorBadge.classList.remove('hidden'); errorBadge.innerText = `${errorCount} ERRORS DETECTED`;
-                            btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "Fix Errors to Commit";
+                            btnSyncExcel.disabled = true; if(btnSyncExcelText) btnSyncExcelText.innerText = "확인 후 반영";
                         } else {
                             errorBadge.classList.add('hidden'); btnSyncExcel.disabled = pendingStockUpdates.length === 0;
-                            if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
+                            if(btnSyncExcelText) btnSyncExcelText.innerText = "입고 반영 / Add stock";
                         }
                     }
 
-                    document.getElementById('excelMetaText').innerText = `Processed ${rows.length} rows. ${errorCount ? "검증 오류 또는 허브 변경: 전송 차단" : "Ready to commit."}`;
+                    const boxes=model.updates.reduce((sum,u)=>sum+(u.stockBreakdown[hub]||0),0);
+                    const lots=new Set(rows.filter(r=>!r.ignored).map(r=>r.hqCode+'|'+r.exp)).size;
+                    document.getElementById('excelMetaText').innerText = `${rows.length}행 · ${rows.filter(r=>r.ignored).length}행 제외 · ${lots}개 유통기한 묶음 · ${errorCount ? errorCount+'행 확인 필요 — 반영 차단' : model.updates.length+'개 품목 / '+boxes+'박스 추가 예정'}`;
                 });
             }, 200, {key:"excelTbody",isCurrent:()=>epoch===excelRenderEpoch}); 
         }
 
         window.resolveExcelMapping = function(idx, newHqCode) {
+            if(!inventoryWritable())return;
             if (!newHqCode || !window.currentExcelPreviewData[idx] || !AppState.catalogItems.some(c=>String(c.code)===newHqCode)) return;
             window.currentExcelPreviewData[idx].hqCode = newHqCode;
             window.currentExcelPreviewData[idx].status = "OK";
-
+            window.currentExcelPreviewData[idx].matchMethod='직접 확인';window.currentExcelPreviewData[idx].reviewed=false;touchInventoryDraft();
             renderAdvancedExcelPreviewFast(); 
         };
 
         window.ignoreExcelRow = function(idx) {
-            if(!window.currentExcelPreviewData[idx])return;
+            if(!inventoryWritable()||!window.currentExcelPreviewData[idx])return;
+            touchInventoryDraft();
             window.currentExcelPreviewData[idx].ignored = true;
             renderAdvancedExcelPreviewFast();
         };
 
         window.restoreExcelRow = function(idx) {
-            if(!window.currentExcelPreviewData[idx])return;
+            if(!inventoryWritable()||!window.currentExcelPreviewData[idx])return;
+            touchInventoryDraft();
             window.currentExcelPreviewData[idx].ignored = false;
             renderAdvancedExcelPreviewFast();
         };
 
-        if(inboundRegionSelector)inboundRegionSelector.addEventListener('change',()=>{excelRenderEpoch++;pendingStockUpdates=[];if(btnSyncExcel)btnSyncExcel.disabled=true;if(window.currentExcelPreviewData?.length)renderAdvancedExcelPreviewFast();});
+        if(inboundRegionSelector)inboundRegionSelector.addEventListener('change',()=>{window.Y2C_InventoryOCR.abort();document.getElementById('inventoryCancelScan').hidden=true;excelDraftRevision++;excelJobId++;excelRenderEpoch++;pendingStockUpdates=[];if(btnSyncExcel)btnSyncExcel.disabled=true;if(window.currentExcelPreviewData?.length)renderAdvancedExcelPreviewFast();});
         if (btnSyncExcel) {
             btnSyncExcel.addEventListener('click', async () => {
+                if(!inventoryWritable())return;
                 const currentHub=inboundRegionSelector.value.trim().replace("Hub: ", "");
                 const checked=Y2C_ExcelModel.build(window.currentExcelPreviewData||[],AppState.catalogItems,currentHub===excelSourceHub?currentHub:"");
                 pendingStockUpdates=checked.updates;
@@ -1920,7 +2009,7 @@
                     else Y2C_AuthEngine.showToast("엑셀 커밋 실패: " + err.message, "error");
                 } finally {
                     AppState.isSubmitting = false;
-                    btnSyncExcel.disabled = pendingStockUpdates.length===0; if(btnSyncExcelText) btnSyncExcelText.innerText = "Commit to Master";
+                    btnSyncExcel.disabled = pendingStockUpdates.length===0; if(btnSyncExcelText) btnSyncExcelText.innerText = "입고 반영 / Add stock";
                 }
             });
         }
