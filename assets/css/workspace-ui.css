@@ -147,3 +147,93 @@
 #inventorySource{margin:16px 0;padding:14px;background:#f6f8fa;border:1px solid #dce3eb;border-radius:10px}#inventorySource summary{cursor:pointer;min-height:44px}#inventorySourceText{white-space:pre-wrap;overflow-wrap:anywhere;max-height:240px;overflow:auto;font-size:12px}
 #excelPreviewContainer>div:first-child{position:sticky;top:var(--portal-header-height,80px);z-index:21;background:#fff;padding:12px 0;border-bottom:1px solid #dce3eb}
 @media(max-width:767px){.inventory-entry{align-items:stretch;flex-direction:column}.inventory-tools button{flex:1 1 40%}#excelTable,#excelTable tbody,#excelTable tr{display:block;width:100%;min-width:0!important}#excelTable thead{display:none}#excelTable tr{padding:12px;border-bottom:4px solid #edf1f5}#excelTable td{display:block;width:100%!important;border:0;white-space:normal;padding:7px 0}#excelTable select{max-width:none}.inventory-source-line{overflow-wrap:anywhere}#excelPreviewContainer .workspace-table-region{max-height:none;overflow:visible}#excelPreviewContainer>div:first-child{position:static}#btnSyncExcel{width:100%;min-height:48px}}
+
+/* Inventory workspace 2. Local variable font; no third-party font request. */
+@font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+@media screen{
+ .portal-page,.portal-page .font-inter,.portal-page .font-montserrat{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:-.015em}
+ .portal-page{line-height:1.6;-webkit-font-smoothing:antialiased}
+ .portal-page :is(h1,h2,h3){letter-spacing:-.035em;text-wrap:balance}
+ .portal-page :is(button,.workspace-link){transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+ .portal-page :is(button,.workspace-link):active:not(:disabled){transform:translateY(1px) scale(.985)}
+ .portal-page :is(button,.workspace-link):disabled{cursor:not-allowed;transform:none;opacity:.55}
+ .portal-page dialog[open]{animation:workspace-dialog-in .18s ease-out both}
+ .portal-page dialog::backdrop{background:rgb(20 29 43 / 42%)}
+ .stock-modes{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+ [data-stock-mode]{border:1px solid #dce3eb;background:white;border-radius:12px;padding:12px 18px;min-height:46px;font-size:14px;font-weight:650}
+ [data-stock-mode][aria-pressed=true]{background:#fff1f3;border-color:#b7000c;color:#b7000c;box-shadow:inset 0 0 0 1px #b7000c}
+ #stockModeHelp{font-size:14px;color:#586779;margin:8px 0 16px}
+ .stock-replace-option{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 16px;margin:12px 0;border:1px solid #e8d1ad;background:#fff8ed;border-radius:12px;font-size:14px;font-weight:650}
+ .stock-replace-option small{display:block;flex-basis:100%;font-size:12px;font-weight:400;color:#76500f;margin-left:30px}
+ .portal-page #stockTools{margin:18px 0;border:1px solid #dfe5ec;border-radius:14px;background:#fff;padding:0 18px}
+ #stockTools>summary{cursor:pointer;min-height:54px;padding:15px 0;font-size:14px;font-weight:650}
+ .stock-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:12px 0}
+ .stock-toolbar button,#stockReset,.stock-text-button{min-height:44px;border:1px solid #dfe5ec;border-radius:10px;padding:10px 14px;background:#fff;font-size:13px;font-weight:600}
+ .stock-toolbar button:hover,.stock-text-button:hover{background:#f5f7fa}
+ #stockSearch{flex:1;min-width:160px;min-height:44px;padding:10px 12px;border:1px solid #ccd5df;border-radius:10px;font-size:14px}
+ #stockReset{color:#b7000c;border-color:#eac4cc;margin:14px 0;background:#fff8f9}
+ #stockSummary,#stockSelectionCount,#stockEmpty{font-size:13px;color:#586779;line-height:1.6}
+ .stock-table-wrap,.stock-review-table{overflow:auto;max-height:360px;border:1px solid #e1e6ec;border-radius:12px;overscroll-behavior-x:contain}
+ :is(.stock-table-wrap,.stock-review-table) table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+ :is(.stock-table-wrap,.stock-review-table) th{position:sticky;top:0;background:#f3f6f9;text-align:left;font-weight:600;z-index:1;white-space:nowrap}
+ :is(.stock-table-wrap,.stock-review-table) :is(th,td){padding:12px 14px;border-bottom:1px solid #e7ecf1;vertical-align:top}
+ :is(.stock-table-wrap,.stock-review-table) td:first-child{min-width:44px}
+ :is(.stock-table-wrap,.stock-review-table) td small{display:block;color:#586779;font-size:12px;overflow-wrap:anywhere;margin-top:4px}
+ #stockTools input[type=checkbox],#stockReplaceAll{width:20px;height:20px;accent-color:#b7000c;flex:none}
+ #stockTools td:has(input[type=checkbox]){padding:14px;min-width:48px}
+ #stockTools tbody tr:has(input:checked){background:#fff5f6}
+ .portal-page .stock-review{padding:0;width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 32px);border:1px solid #dfe5ec;box-shadow:0 20px 80px #18273a33;overflow:auto}
+ .stock-review .portal-dialog-head{position:relative;padding:24px 60px 18px 24px}
+ .stock-review h2{font-size:24px;line-height:1.4;font-weight:750;margin:6px 0}
+ .stock-review .portal-eyebrow{font-size:12px;color:#b7000c;font-weight:650}
+ .stock-review .portal-dialog-close{position:absolute;right:12px;top:12px}
+ .stock-review .portal-dialog-body{padding:20px 24px}
+ .stock-review #stockReviewHelp{font-size:14px;line-height:1.7;margin:0 0 16px;color:#586779}
+ .stock-review .stock-review-table{max-height:260px}
+ .stock-review .stock-review-table td:first-child{min-width:190px}
+ .stock-review .stock-text-button{margin:14px 0;color:#586779;font-size:12px}
+ .stock-review label{display:block;font-size:14px;font-weight:650;margin:10px 0 8px}
+ .stock-review textarea{width:100%;min-height:84px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;resize:vertical}
+ .stock-note{font-size:12px;line-height:1.6;color:#586779;margin:8px 0}
+ .stock-warning{color:#a33b16!important;font-size:12px;line-height:1.6}
+ .stock-review .portal-dialog-actions{position:sticky;bottom:0;padding:16px 24px calc(16px + env(safe-area-inset-bottom));display:flex;justify-content:flex-end;border-top:1px solid #e1e6ec;z-index:2}
+ .stock-review .portal-dialog-actions button{min-height:46px;padding:12px 20px;border-radius:12px;font-weight:650;font-size:14px}
+ .stock-review .portal-dialog-cancel{border:1px solid #dfe5ec;background:white}
+ .stock-review .portal-dialog-confirm{color:white}
+ @keyframes workspace-dialog-in{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
+}
+@media screen and (max-width:640px){
+ .portal-page .premium-input,.portal-page #stockSearch{font-size:16px!important}
+ .stock-modes>[data-stock-mode]{flex:1;padding:12px 8px}
+ .portal-page #stockTools{padding-inline:12px}
+ .stock-review .portal-dialog-body{padding:16px}
+ .stock-review .portal-dialog-head{padding:20px 56px 14px 16px}
+ .stock-review h2{font-size:21px}
+ .stock-review .portal-dialog-actions{padding-inline:16px}
+ .stock-review .portal-dialog-actions button{flex:1;padding-inline:10px}
+ .stock-toolbar #stockSearch{flex-basis:100%}
+}
+@media screen and (prefers-reduced-motion:reduce){
+ .portal-page,.portal-page *,.portal-page *::before,.portal-page *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+ .portal-page :is(button,.workspace-link):active:not(:disabled){transform:none}
+}
+
+@media screen{.stock-modes [data-stock-mode] strong,.stock-modes [data-stock-mode] span{display:block}.stock-modes [data-stock-mode] span{font-size:12px;font-weight:400;color:#586779;margin-top:3px}#stockTools label{font-size:13px}#stockTools .inventory-tools{gap:8px}}
+
+@media screen{.portal-page{--portal-font:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.portal-page :is(dialog,.order-review-dialog,.y2c-price-review){font-family:var(--portal-font)}}
+@media screen and (prefers-reduced-motion:reduce){.portal-page .app-shell-enter{opacity:1!important;transform:none!important}.portal-page .tab-section.active{opacity:1!important}}
+
+@media screen and (max-width:640px){
+ .stock-review .stock-review-table{max-height:none;border:0;overflow:visible}
+ .stock-review-table thead{font-size:12px}
+ .stock-review .stock-review-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .stock-review .stock-review-table tbody{display:grid;gap:12px}
+ .stock-review .stock-review-table tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #dfe5ec;border-radius:12px;background:#fff;overflow:hidden}
+ .stock-review .stock-review-table td:first-child{grid-column:1/-1;min-width:0;padding:14px}
+ .stock-review .stock-review-table td:not(:first-child){padding:10px 14px;border:0;background:#f5f7fa;font-size:16px}
+ .stock-review .stock-review-table td:not(:first-child)::before{display:block;font-size:11px;font-weight:500;color:#586779;margin-bottom:3px}
+ .stock-review .stock-review-table td:nth-child(2)::before{content:'현재'}
+ .stock-review .stock-review-table td:nth-child(3)::before{content:'변경 후'}
+ .stock-review .stock-review-table td:nth-child(4)::before{content:'차이'}
+ .stock-review .stock-lots{line-height:1.65!important;overflow-wrap:normal!important}
+}

@@ -1,26 +1,27 @@
 /* Current preview is the single source of stock mutations. */
 (function(root){
 'use strict';
-function build(rows,catalog,hub){
+function build(rows,catalog,hub,options){
+ const replace=options&&options.mode==='REPLACE';
  const products=new Map(catalog.map(c=>[String(c.code),c])), updates=new Map(), prices=new Map(), batches=new Map();let errors=0;const issues=rows.map(()=>[]);
  for(let index=0;index<rows.length;index++){
   const r=rows[index];if(r.ignored)continue;
   const list=issues[index];
-  if(!hub)list.push('업로드 당시 허브와 현재 선택이 다릅니다. 원래 허브로 돌아가거나 파일을 다시 업로드하십시오.');
-  if(!Number.isSafeInteger(r.qty)||r.qty<=0)list.push('수량은 1 이상의 안전한 정수여야 합니다. 원본 파일을 수정하고 다시 업로드하십시오.');
+  if(!hub)list.push('파일을 올린 지역과 현재 지역이 달라요. 지역을 되돌리거나 파일을 다시 올려 주세요.');
+  if(!Number.isSafeInteger(r.qty)||(replace?r.qty<0:r.qty<=0))list.push(replace?'수량은 0 이상의 정수로 입력하세요.':'입고 수량은 1 이상의 정수로 입력하세요.');
   if(r.exp!=='-'&&!validDate(r.exp))list.push('유통기한은 YYYY-MM-DD 형식의 실제 날짜여야 합니다.');
   if(r.price!==null&&(!Number.isFinite(r.price)||r.price<0||!Number.isSafeInteger(Math.round(r.price*100))))list.push('단가는 처리 가능한 범위의 0 이상 숫자여야 합니다.');
   if(r.needsReview&&!r.reviewed)list.push('이미지 원문과 품목·박스 수량·유통기한을 대조하고 확인 체크를 눌러 주세요.');
-  if(r.inputError)list.push('원본의 품번·수량·날짜·단가를 확인하십시오. 품목 매핑만으로 입력 오류는 해제되지 않습니다.');
-  if(r.status==='ERROR')list.push('품목 확인이 필요합니다. 아래에서 마스터 품목을 직접 선택하십시오.');
-  const c=products.get(String(r.hqCode));if(c&&c.stockBreakdown&&!Object.prototype.hasOwnProperty.call(c.stockBreakdown,hub))list.push('현재 지역에서 관리할 수 없는 품목입니다.');if(!c)list.push('등록된 마스터 품목이 없습니다. 품목을 선택하거나 행을 제외하십시오.');
-  if(c&&r.exp==='-'&&Object.prototype.hasOwnProperty.call(c.expBreakdown||{},hub))list.push('선택한 허브는 유통기한 관리 대상입니다. 원본에 유통기한을 입력하십시오.');
+  if(r.inputError)list.push('품목 코드·수량·날짜·단가를 확인해 주세요. 품목을 선택해도 다른 입력 오류는 그대로 남습니다.');
+  if(r.status==='ERROR')list.push('등록된 상품 중 맞는 품목을 선택해 주세요.');
+  const c=products.get(String(r.hqCode));if(c&&c.stockBreakdown&&!Object.prototype.hasOwnProperty.call(c.stockBreakdown,hub))list.push('현재 지역에서 관리할 수 없는 품목입니다.');if(!c)list.push('등록된 상품을 찾지 못했어요. 품목을 선택하거나 이 행을 제외해 주세요.');
+  if(c&&!(replace&&r.qty===0)&&r.exp==='-'&&Object.prototype.hasOwnProperty.call(c.expBreakdown||{},hub))list.push('유통기한을 입력해 주세요. 날짜별 수량이 함께 저장됩니다.');
   if(list.length){errors++;continue;}
   const code=String(c.code);
-  if(r.price!==null){if(prices.has(code)&&prices.get(code)!==r.price){errors++;list.push('동일 품목의 단가가 다른 행과 충돌합니다. 원본을 수정하거나 해당 행을 제외하십시오.');continue;}prices.set(code,r.price);}
+  if(r.price!==null){if(prices.has(code)&&prices.get(code)!==r.price){errors++;list.push('같은 상품에 다른 단가가 있어요. 단가를 맞추거나 이 행을 제외해 주세요.');continue;}prices.set(code,r.price);}
   let u=updates.get(code);if(!u){u={code,stockBreakdown:{[hub]:0},expBreakdown:{}};updates.set(code,u);}
   u.stockBreakdown[hub]+=r.qty;if(!Number.isSafeInteger(u.stockBreakdown[hub])){errors++;list.push('합산 수량이 안전한 정수 범위를 초과합니다.');}
-  if(r.exp!=='-'){
+  if(r.exp!=='-'&&r.qty>0){
    if(!batches.has(code))batches.set(code,new Map());
    const dates=batches.get(code);dates.set(r.exp,(dates.get(r.exp)||0)+r.qty);
   }
@@ -28,7 +29,7 @@ function build(rows,catalog,hub){
  for(const [code,dates] of batches)updates.get(code).expBreakdown[hub]=Array.from(dates).sort(([a],[b])=>a.localeCompare(b)).map(([date,qty])=>date+':'+qty).join(' | ');
  // The catalog price may belong to another hub. Every explicit import price,
  // including zero and one-cent changes, is authoritative for the chosen hub.
- for(const [code,price] of prices){const u=updates.get(code);if(u)u.newPrice=price;}
+ if(!replace)for(const [code,price] of prices){const u=updates.get(code);if(u)u.newPrice=price;}
  return {errors,issues,updates:errors?[]:Array.from(updates.values())};
 }
 function validDate(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(s)))return false;const d=new Date(s+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===s;}

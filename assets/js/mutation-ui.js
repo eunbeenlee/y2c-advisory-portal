@@ -13,10 +13,10 @@
             const unchanged=snapshot(record.spec.read())===record.snapshot;
             // Apply all form changes synchronously, before any refresh await.
             if(unchanged) record.spec.onMatch(response);
-            global.Y2C_AuthEngine.showToast(unchanged?'서버 저장 완료. 화면에 반영했습니다.':'서버 저장 완료. 이후 수정한 입력은 유지했습니다.','success');
+            global.Y2C_AuthEngine.showToast(unchanged?'저장했어요. 최신 내용으로 반영했습니다.':'저장했어요. 그 뒤에 수정한 내용은 그대로 뒀습니다.','success');
             handled.add(key);pending.delete(key);trimMap(handled);
             try { if(record.spec.refresh)await record.spec.refresh(response); }
-            catch(_) {global.Y2C_AuthEngine.showToast('저장은 완료됐습니다. 최신 목록은 다시 조회해 주십시오.','warning');}
+            catch(_) {global.Y2C_AuthEngine.showToast('저장은 완료됐어요. 최신 목록을 다시 불러와 주세요.','warning');}
             // Successful server result is consumed even if refreshing a read failed.
             if(record.owner===owner()) {
                 try {await global.Y2C_AuthEngine.acknowledgeCommitted(key);}

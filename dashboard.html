@@ -27,8 +27,6 @@
     <!-- 🚀 Resource Hints for Acceleration -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     
     <link rel="preload" href="assets/js/config.js" as="script">
@@ -42,9 +40,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/app-180.png">
     
     <!-- Deferred & Asynchronous Font Loading -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
+    <noscript></noscript>
 
     <!-- 🚨 [CRITICAL FIX] FOUC Preventer (White Screen Death Resolved) -->
     <style>
@@ -200,7 +196,7 @@
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
-            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Partner Portal.</span>
         </div>
     </noscript>
 
@@ -222,7 +218,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
-                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Partner Portal</span>
                     <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
@@ -230,8 +226,8 @@
             <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipes</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Administration</a>
                 <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
@@ -257,8 +253,8 @@
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
-        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipes</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Administration</a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
 
@@ -503,7 +499,7 @@
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX 4] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches and session tokens.">
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account.">
                         RESET SESSION
                     </button>
                 </div>
@@ -571,14 +567,14 @@
         // ============================================================================
         const I18N_DICT = {
             en: {
-                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
                 "logout": "LOGOUT",
                 "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization.",
                 "kpi_annual": "Total Annual Sales", "kpi_pos": "POS (Dine-in/Takeout)", "kpi_del": "Delivery Platforms",
                 "chart_title": "Monthly Revenue Trend"
             },
             ko: {
-                "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+                "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
                 "logout": "로그아웃",
                 "dash_title": "엔터프라이즈 대시보드", "dash_desc": "실시간 핵심 성과 지표 및 매출 데이터 동기화 현황입니다.",
                 "kpi_annual": "연간 총 매출액", "kpi_pos": "POS (홀/포장)", "kpi_del": "배달 플랫폼",
@@ -985,7 +981,7 @@
                 } else {throw new Error(salesRes?.message||'매출 조회 실패');}
             } catch (err) { if (!isCurrent()){readCurrent.outdated?.();return;}readCurrent.failed?.();
                 console.warn("[Dashboard] Sales Data Error:", err);
-                if(isCurrent()&&!cachedDashboardData)clearDashboardSales('조회하지 못했습니다. 새로고침하여 다시 시도하십시오.');
+                if(isCurrent()&&!cachedDashboardData)clearDashboardSales('조회하지 못했습니다. 새로고침하여 다시 시도해 주세요.');
                 // Fail silently to allow other sequential items to load
             }
         }

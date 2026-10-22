@@ -48,7 +48,7 @@ try {
 
 // 🌟 권한 무결성 1차 검증 (대기업식 멘트)
 if (!sessionToken || sessionToken.length < 10 || !["MASTER", "VENDOR", "PARTNER"].includes(userRole)) { 
-    alert("보안 세션이 유효하지 않습니다. 기업 데이터 보호를 위해 안전하게 로그아웃 되었습니다. 다시 로그인해 주십시오."); 
+    alert("로그인 상태이 유효하지 않습니다. 기업 데이터 보호를 위해 안전하게 로그아웃 되었습니다. 다시 로그인해 주세요."); 
     window.location.replace("index.html"); 
 }
 
@@ -104,14 +104,14 @@ const Y2C_DB = {
 // ============================================================================
 const I18N_DICT = {
     en: {
-        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
         "logout": "LOGOUT",
         "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization.",
         "kpi_annual": "Total Annual Sales", "kpi_pos": "POS (Dine-in/Takeout)", "kpi_del": "Delivery Platforms",
         "chart_title": "Monthly Revenue Trend"
     },
     ko: {
-        "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+        "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
         "logout": "로그아웃",
         "dash_title": "엔터프라이즈 대시보드", "dash_desc": "실시간 핵심 성과 지표 및 매출 데이터 동기화 현황입니다.",
         "kpi_annual": "연간 총 매출액", "kpi_pos": "POS (홀 및 포장 매출)", "kpi_del": "배달 플랫폼 매출",
@@ -236,7 +236,7 @@ async function executeApi(action, payload = {}, retries = 2) {
     
     const safePayload = (typeof payload === 'object' && payload !== null && !Array.isArray(payload)) ? payload : {};
     const hashKey = action;
-    if (apiInFlight.has(hashKey)) throw new Error("동일한 요청 트랜잭션이 처리 중입니다. 잠시 대기해 주십시오.");
+    if (apiInFlight.has(hashKey)) throw new Error("동일한 요청 트랜잭션이 처리 중입니다. 잠시 대기해 주세요.");
     apiInFlight.add(hashKey);
 
     let lastNetworkError;
@@ -257,7 +257,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             
             if (!response.ok) {
                 if (response.status === 404 || response.status === 401 || response.status === 403) {
-                    const explicitError = new Error(`서버 엔드포인트 접근이 거부되었습니다 (HTTP ${response.status}). 관리자에게 문의하십시오.`);
+                    const explicitError = new Error(`서버 엔드포인트 접근이 거부되었습니다 (HTTP ${response.status}). 관리자에게 문의해 주세요.`);
                     explicitError.httpStatus = response.status;
                     explicitError.isFatal = true;
                     throw explicitError;
@@ -281,7 +281,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             if (!jsonResult.success) {
                 if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
                     [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
-                    alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주십시오.");
+                    alert("로그인 상태이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
                     window.location.replace("index.html");
                     return;
                 }
@@ -315,7 +315,7 @@ async function executeApi(action, payload = {}, retries = 2) {
         }
     }
     apiInFlight.delete(hashKey);
-    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 대기 시간이 초과되었습니다. (35초 타임아웃)" : (lastNetworkError?.message || "서버 통신에 실패했습니다. 잠시 후 새로고침 해주십시오."));
+    throw new Error(lastNetworkError?.name === 'AbortError' ? "서버 응답 대기 시간이 초과되었습니다. (35초 타임아웃)" : (lastNetworkError?.message || "서버 통신에 실패했습니다. 잠시 후 새로고침 해주세요."));
 }
 
 // ============================================================================
@@ -370,7 +370,7 @@ async function fetchDashboardData() {
     dashboardLockTimer = setTimeout(() => {
         isFetchingDashboard = false;
         resetRefreshButton();
-        showToast("데이터 렌더링 시간이 초과되었습니다. 네트워크 환경을 확인해 주십시오.", "error");
+        showToast("데이터 렌더링 시간이 초과되었습니다. 네트워크 환경을 확인해 주세요.", "error");
     }, 35000);
 
     const cacheKey = `DASHBOARD_DATA_${targetYear}_${targetClient}`;

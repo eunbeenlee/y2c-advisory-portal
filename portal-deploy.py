@@ -35,7 +35,7 @@ def safe_path(name):
     require(isinstance(name, str) and name and not any(c in name for c in '\\%?#\r\n'), 'Invalid file path')
     p = PurePosixPath(name)
     require(not p.is_absolute() and str(p) == name and '..' not in p.parts, 'Unsafe file path: ' + name)
-    allowed = (name in [DAL, 'sw.js'] or
+    allowed = (name in [DAL, 'sw.js', 'assets/fonts/PretendardVariable.woff2', 'assets/fonts/OFL.txt'] or
                bool(re.fullmatch(r'[A-Za-z0-9_-]+\.(html|png|json)', name)) or
                bool(re.fullmatch(r'assets/(js|css|icons)/[A-Za-z0-9_.-]+\.(js|css|png)', name)) or
                bool(re.fullmatch(r'apps/SinjeonPortal-[A-Za-z0-9_.-]+\.apk', name)))

@@ -25,8 +25,6 @@
     <!-- 🚀 Resource Hints -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
@@ -34,9 +32,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/app-180.png">
     
     <!-- Ultra-premium Typography for Trade Documents -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap"></noscript>
+    <noscript></noscript>
     
     <!-- 🌟 [PDF 렌더링 엔진 탑재] -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -311,7 +307,7 @@
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
-            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Partner Portal.</span>
         </div>
     </noscript>
 
@@ -333,7 +329,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
-                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Partner Portal</span>
                     <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
@@ -341,8 +337,8 @@
             <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
+                <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipes</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Administration</a>
                 <a href="invoice.html" id="navInvoice" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
@@ -368,8 +364,8 @@
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
-        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
+        <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipes</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Administration</a>
         <a href="invoice.html" id="navInvoice_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
 
@@ -479,7 +475,7 @@
             <section id="invoiceCanvasContainer" class="flex-1 w-full overflow-x-auto pb-8 animate-slide-up">
                 
                 <!-- 🚨 id="invoiceDocument"는 html2pdf가 스캔할 최상위 타겟입니다. -->
-                <p id="invoiceResultStatus" role="status" class="no-print text-sm text-gray-500 mb-3">조회 조건을 선택하고 인보이스를 생성하십시오.</p>
+                <p id="invoiceResultStatus" role="status" class="no-print text-sm text-gray-500 mb-3">조회 조건을 선택하고 인보이스를 생성해 주세요.</p>
                 <div class="a4-paper shadow-paper" id="invoiceDocument">
                     
                     <div class="invoice-content-wrapper">
@@ -680,7 +676,7 @@
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches and session tokens.">
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account.">
                         RESET SESSION
                     </button>
                 </div>
@@ -774,11 +770,11 @@
         // ============================================================================
         const I18N_DICT = {
             en: {
-                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
                 "logout": "LOGOUT"
             },
             ko: {
-                "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+                "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
                 "logout": "로그아웃"
             }
         };
@@ -964,7 +960,7 @@
                 if (AppState.clients.length === 0) {
                     clientSel.innerHTML = '<option value="" disabled selected>⚠️ 서버 통신 실패 (새로고침 요망)</option>';
                     clientSel.classList.add('border-[#E3000F]', 'text-[#E3000F]');
-                    Y2C_AuthEngine.showToast("가맹점 목록을 불러오지 못했습니다. 네트워크를 확인하고 새로고침 하십시오.", "error"); 
+                    Y2C_AuthEngine.showToast("가맹점 목록을 불러오지 못했습니다. 네트워크를 확인하고 새로고침 해 주세요.", "error"); 
                 }
             }
         }
@@ -994,7 +990,7 @@
             if (title) title.textContent = {ready:'Ready to Export',generating:'Generating Invoice',changed:'Generate Again',failed:'Unable to Generate'}[state] || 'Awaiting Invoice';
             if (detail) detail.textContent = message;
         }
-        function invalidateInvoice(){AppState.invoiceReady=false;[btnPdf,btnDownload,printBtn].forEach(button=>{if(button)button.disabled=true;});setInvoiceResult('changed','조건이 변경되었습니다. 인보이스를 다시 생성하십시오.');}
+        function invalidateInvoice(){AppState.invoiceReady=false;[btnPdf,btnDownload,printBtn].forEach(button=>{if(button)button.disabled=true;});setInvoiceResult('changed','조건이 변경되었습니다. 인보이스를 다시 생성해 주세요.');}
         invoiceControls.forEach(element=>element.addEventListener('change',invalidateInvoice));
         window.printInvoice=function(){if(!AppState.invoiceReady||AppState.isSubmitting||AppState.renderedSelection!==JSON.stringify(invoiceSelection())||Y2C_DocumentIO.isBusy())return;window.print();};
 
@@ -1008,7 +1004,7 @@
                 const advRate = parseFloat(advSel.value);
                 const adfRate = parseFloat(adfSel.value);
 
-                if (!client || !year || !sM || !eM) { Y2C_AuthEngine.showToast("모든 검색 조건을 설정해주십시오.", "warning"); return; }
+                if (!client || !year || !sM || !eM) { Y2C_AuthEngine.showToast("모든 검색 조건을 설정해주세요.", "warning"); return; }
                 if (sM > eM) { Y2C_AuthEngine.showToast("시작 월은 종료 월보다 클 수 없습니다.", "error"); return; }
 
                 if (AppState.isSubmitting||Y2C_DocumentIO.isBusy()) return;
@@ -1026,7 +1022,7 @@
                         Y2C_AuthEngine.request("get_sales_records", { year: year, clientName: client }).catch(e => { console.warn(e); return { success: false, message: e.message }; })
                     ]);
                     
-                    if(submittedSelection!==JSON.stringify(invoiceSelection())){setInvoiceResult('changed','조회 중 조건이 변경되었습니다. 다시 생성하십시오.');return;}
+                    if(submittedSelection!==JSON.stringify(invoiceSelection())){setInvoiceResult('changed','조회 중 조건이 변경되었습니다. 다시 생성해 주세요.');return;}
                     if (invRes && salesRes && invRes.success && salesRes.success) {
                         // 🌟 월별 데이터 주입 및 애니메이션 실행
                         renderMonthlyBreakdown(invRes.invoiceData, salesRes.records, { targetYear: year, clientName: client, startMonth: sM, endMonth: eM }, advRate, adfRate);
@@ -1038,7 +1034,7 @@
                         
                         Y2C_AuthEngine.showToast("상세 인보이스가 성공적으로 렌더링되었습니다.", "success");
                     } else {
-                        throw new Error(invRes.message || salesRes.message || "서버와의 통신이 원활하지 않습니다. 다시 시도해 주십시오.");
+                        throw new Error(invRes.message || salesRes.message || "서버와의 통신이 원활하지 않습니다. 다시 시도해 주세요.");
                     }
                 } catch (e) {
                     setInvoiceResult('failed','검증 또는 조회에 실패했습니다. 이전 결과는 출력할 수 없습니다.');
@@ -1166,7 +1162,7 @@
         if (btnDownload) btnDownload.addEventListener('click', generatePDF); 
 
         async function generatePDF() {
-            if(!AppState.invoiceReady||AppState.isSubmitting||AppState.renderedSelection!==JSON.stringify(invoiceSelection())){Y2C_AuthEngine.showToast('현재 조건의 인보이스를 먼저 생성하십시오.','warning');return;}
+            if(!AppState.invoiceReady||AppState.isSubmitting||AppState.renderedSelection!==JSON.stringify(invoiceSelection())){Y2C_AuthEngine.showToast('현재 조건의 인보이스를 먼저 생성해 주세요.','warning');return;}
             if(Y2C_DocumentIO.isBusy())return;
             const element=document.getElementById('invoiceDocument');if(!element)return;
             const safe=value=>String(value).replace(/[\\/:*?"<>|\x00-\x1f]/g,'_').slice(0,100);
@@ -1175,7 +1171,7 @@
             try{
                 const saved=await Y2C_DocumentIO.exportPDF(element,[btnPdf,btnDownload,printBtn,btnGen,...invoiceControls],filename);
                 if(saved)Y2C_AuthEngine.showToast('PDF 다운로드 요청을 완료했습니다.','success');
-            }catch(error){Y2C_AuthEngine.showToast(error.message||'PDF 생성 실패. 다시 시도하십시오.','error');}
+            }catch(error){Y2C_AuthEngine.showToast(error.message||'PDF 생성 실패. 다시 시도해 주세요.','error');}
             finally{btnPdf.innerHTML=original;if(!AppState.invoiceReady)[btnPdf,btnDownload,printBtn].forEach(button=>{if(button)button.disabled=true;});}
         }
 

@@ -97,17 +97,17 @@ const Y2C_DB = {
 // ============================================================================
 const I18N_DICT = {
     en: {
-        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
         "logout": "LOGOUT", "cancel_order": "Cancel Order",
-        "recipe_title": "Official Recipe Center", "recipe_desc": "Standardized operational manuals and cooking instructions.",
+        "recipe_title": "Official Recipes", "recipe_desc": "Standardized operational manuals and cooking instructions.",
         "search_placeholder": "Search recipes by name or ingredient...",
         "all_recipes": "All Recipes", "no_recipes": "No recipes found.", "uncategorized": "Uncategorized",
         "btn_view": "View Instruction", "modal_close": "Close Recipe", "modal_ing": "Ingredients", "modal_inst": "Instructions", "modal_tips": "Pro Tips & Warnings"
     },
     ko: {
-        "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+        "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
         "logout": "로그아웃", "cancel_order": "발주 취소",
-        "recipe_title": "공식 레시피 센터", "recipe_desc": "표준 조리 매뉴얼, 식자재 정량 및 운영 가이드라인.",
+        "recipe_title": "공식 레시피", "recipe_desc": "표준 조리 매뉴얼, 식자재 정량 및 운영 가이드라인.",
         "search_placeholder": "요리명 또는 식자재로 레시피 검색...",
         "all_recipes": "전체 레시피", "no_recipes": "검색된 레시피가 없습니다.", "uncategorized": "미분류",
         "btn_view": "레시피 보기", "modal_close": "닫기", "modal_ing": "식자재 및 정량", "modal_inst": "조리 순서", "modal_tips": "팁 & 주의사항"
@@ -285,7 +285,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             if (!jsonResult.success) {
                 if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
                     [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
-                    alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
+                    alert("로그인 상태이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
                     window.location.replace("index.html");
                     return;
                 }

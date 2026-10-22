@@ -40,7 +40,7 @@ try {
 }
 
 if (!sessionToken || sessionToken.length < 10 || !clientName) { 
-    alert("보안 세션이 유효하지 않습니다. 다시 로그인해 주세요.");
+    alert("로그인 상태이 유효하지 않습니다. 다시 로그인해 주세요.");
     window.location.replace("index.html"); 
 }
 
@@ -49,23 +49,23 @@ if (!sessionToken || sessionToken.length < 10 || !clientName) {
 // ============================================================================
 const I18N_DICT = {
     en: {
-        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
         "logout": "LOGOUT", "cancel_order": "Cancel Order",
         "catalog_title": "Inventory & Catalog", "catalog_desc": "Select items and quantities to request procurement.",
-        "btn_ai": "Auto-Fill AI", "hub_view": "Hub View:", "btn_manage": "MANAGE INVENTORY",
+        "btn_ai": "Suggested quantities", "hub_view": "Hub View:", "btn_manage": "MANAGE INVENTORY",
         "kpi_skus": "Total SKUs", "kpi_value": "Inventory Value", "kpi_warning": "Low Stock Warning", "kpi_synced": "Last Synced",
         "th_code": "Item Code", "th_product": "Product Name", "th_category": "Category / Tax", "th_price": "Unit Price", "th_qty": "Order Qty",
         "loading_catalog": "Securely loading SCM data...",
         "order_sub": "Subtotal", "order_tax": "Estimated Tax", "order_total": "Total Due", "btn_submit": "Submit Order"
     },
     ko: {
-        "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+        "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
         "logout": "로그아웃", "cancel_order": "발주 취소",
-        "catalog_title": "카탈로그 및 발주", "catalog_desc": "품목과 수량을 선택하여 본사 조달을 요청하세요.",
-        "btn_ai": "AI 자동완성", "hub_view": "허브 보기:", "btn_manage": "재고 관리",
-        "kpi_skus": "전체 품목 수", "kpi_value": "총 재고 자산", "kpi_warning": "재고 부족 경고", "kpi_synced": "마지막 동기화",
+        "catalog_title": "상품·발주", "catalog_desc": "필요한 상품과 박스 수량을 골라 주세요.",
+        "btn_ai": "추천 수량", "hub_view": "지역:", "btn_manage": "재고 관리",
+        "kpi_skus": "전체 품목 수", "kpi_value": "총 재고 자산", "kpi_warning": "재고 부족 경고", "kpi_synced": "최근 업데이트",
         "th_code": "품번", "th_product": "품명", "th_category": "카테고리/세금", "th_price": "단가", "th_qty": "발주 수량",
-        "loading_catalog": "SCM 데이터를 안전하게 불러오는 중입니다...",
+        "loading_catalog": "상품을 불러오는 중…",
         "order_sub": "소계", "order_tax": "예상 세금", "order_total": "최종 결제액", "btn_submit": "발주서 제출"
     }
 };

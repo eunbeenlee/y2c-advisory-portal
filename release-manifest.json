@@ -1,6 +1,6 @@
 {
-  "version": "V88_28_1",
-  "digest": "8cd2e1cf495bcfbd",
+  "version": "V88_29_0",
+  "digest": "87e6ea74ada84ec5",
   "files": [
     {
       "path": ".well-known/assetlinks.json",
@@ -16,8 +16,8 @@
     },
     {
       "path": "admin.html",
-      "sha256": "1e53a9b9780decfeed984da886ee807866611ad774ce4f68b2bacae316ecda6c",
-      "bytes": 151486,
+      "sha256": "11b148aa0d1b2628916651cb949eedc4beb39ac42183e1e078f69d6a2ec96d6f",
+      "bytes": 154523,
       "category": "web"
     },
     {
@@ -52,9 +52,9 @@
     },
     {
       "path": "assets/css/order-lifecycle.css",
-      "category": "web",
       "sha256": "94650791e70752e4cf6b839a7c8cbd3b584226fc1fe1e7f3d228fee878e2d4d7",
-      "bytes": 1717
+      "bytes": 1717,
+      "category": "web"
     },
     {
       "path": "assets/css/order-review.css",
@@ -112,9 +112,21 @@
     },
     {
       "path": "assets/css/workspace-ui.css",
-      "category": "web",
-      "bytes": 21130,
-      "sha256": "0d92e481cab64ad9cbdbf154849e5e8dd7ceb75bd8b878faed81e5e32656f64f"
+      "sha256": "047426dc84745a0de26300391dced89c8570a2d90c5222ff8448c52ebe6f5945",
+      "bytes": 29266,
+      "category": "web"
+    },
+    {
+      "path": "assets/fonts/OFL.txt",
+      "sha256": "d31ddd9f2bed32fd7e302a205cf2380ba0de6529152d239ef99cfb6f261bfc04",
+      "bytes": 4418,
+      "category": "web"
+    },
+    {
+      "path": "assets/fonts/PretendardVariable.woff2",
+      "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4",
+      "bytes": 2057688,
+      "category": "web"
     },
     {
       "path": "assets/icons/app-180.png",
@@ -154,8 +166,8 @@
     },
     {
       "path": "assets/js/auth.js",
-      "sha256": "fa47636fe54e0bec37c08dbb7f0c3a2158eb2322a9bc2e834d2d0c804e165beb",
-      "bytes": 79566,
+      "sha256": "6392493a26c3d5ed1b8800fc0fa13042484333208682f5f464179285585ebce0",
+      "bytes": 79408,
       "category": "web"
     },
     {
@@ -178,8 +190,8 @@
     },
     {
       "path": "assets/js/excel-model.js",
-      "sha256": "f03e1ebeafb02ce0a719f8801f7dffafc41310d8503f79f20569d034ae99bb28",
-      "bytes": 6865,
+      "sha256": "4521b345147de0c7ca95a05088fef5a69e676c286a1a534e71847b81146c1420",
+      "bytes": 6898,
       "category": "web"
     },
     {
@@ -196,15 +208,21 @@
     },
     {
       "path": "assets/js/inventory-import.js",
-      "category": "web",
+      "sha256": "6c633487fda1b62732ab03a005e9e25225bc532f615c3775a8fd36e5098da03f",
       "bytes": 7000,
-      "sha256": "6c633487fda1b62732ab03a005e9e25225bc532f615c3775a8fd36e5098da03f"
+      "category": "web"
     },
     {
       "path": "assets/js/inventory-ocr.js",
-      "category": "web",
+      "sha256": "b0aaf905f88f6c3a472072fc5e61789c115b3c3c3b8e0a252b2b1be9a792760c",
       "bytes": 1900,
-      "sha256": "b0aaf905f88f6c3a472072fc5e61789c115b3c3c3b8e0a252b2b1be9a792760c"
+      "category": "web"
+    },
+    {
+      "path": "assets/js/inventory-workspace.js",
+      "sha256": "090e6ed61ce8935fe57a98b10fac5427be4eb86651bc56e07d38a2beb24159b8",
+      "bytes": 12117,
+      "category": "web"
     },
     {
       "path": "assets/js/invoice-math.js",
@@ -220,8 +238,8 @@
     },
     {
       "path": "assets/js/mutation-ui.js",
-      "sha256": "42770e9c2f4c672a0026882116e9a8aa47db030483c9d0f20809d4b95705bf43",
-      "bytes": 3712,
+      "sha256": "b7eb24d5d9e972027514439947c80ee5d982dd648162f9e983d95a6325a46478",
+      "bytes": 3714,
       "category": "web"
     },
     {
@@ -250,9 +268,9 @@
     },
     {
       "path": "assets/js/performance.js",
-      "category": "web",
+      "sha256": "b081112c4dc804d9615166a5793585acd54593f03dccdca5382be04d01de876d",
       "bytes": 4795,
-      "sha256": "b081112c4dc804d9615166a5793585acd54593f03dccdca5382be04d01de876d"
+      "category": "web"
     },
     {
       "path": "assets/js/portal-dialog.js",
@@ -274,14 +292,14 @@
     },
     {
       "path": "assets/js/workspace-ui.js",
-      "category": "web",
-      "bytes": 9639,
-      "sha256": "cc2d6a1b8809d85157887c992bd321bf2d8e5da7fbaa91b4e8472f990cd92abe"
+      "sha256": "be3b88f1102ae9259634a5ac112142c1427fb81c5946bcb1e951ba810a6bebbc",
+      "bytes": 9628,
+      "category": "web"
     },
     {
       "path": "dashboard.html",
-      "sha256": "d60a8efbb9e8327712302371f3ec670bdf95a4b5297f22609677182fd04179f2",
-      "bytes": 84774,
+      "sha256": "608ec97cb3f4b5f0d118c041153e58c6adc6d7859c606dd39320808a8e20d76f",
+      "bytes": 83908,
       "category": "web"
     },
     {
@@ -292,8 +310,8 @@
     },
     {
       "path": "index.html",
-      "sha256": "b14d2ba0aa8856e69ae948e7479860ae9d60f4252f0d656441129c80f709080f",
-      "bytes": 37720,
+      "sha256": "dfe6e663ce5ef4a4667e88fb84d2990547d373f9cdb9eadf6d2d925ce557fe47",
+      "bytes": 36880,
       "category": "web"
     },
     {
@@ -304,14 +322,14 @@
     },
     {
       "path": "invoice.html",
-      "sha256": "5e570e56b9a165042567355fba019b4ea3373537ec4e4e9a42396788fbd4b6a8",
-      "bytes": 81141,
+      "sha256": "170999bae58647846a52dbfc9e0d82232c3c8db270c67f3fa7cb993818e35efd",
+      "bytes": 80136,
       "category": "web"
     },
     {
       "path": "items.html",
-      "sha256": "5555cc3bc247c1088d7ae29f326df19a6eac13a1920ab6c34d025c42bfe655ce",
-      "bytes": 89865,
+      "sha256": "7db2eb3b8a2a0671dbc532c67eec9466fcb52ead0d40fae9ac9a6e15b23087e4",
+      "bytes": 88985,
       "category": "web"
     },
     {
@@ -322,14 +340,14 @@
     },
     {
       "path": "recipes.html",
-      "sha256": "213e23b91ef99c721b1d885c188cb2f4af2a1ae57cd98c0a20c68501f3bc94c0",
-      "bytes": 54550,
+      "sha256": "13943fbc6639e1480e52da716c31ee19f8b39a3a116872c2601af6635dbaf776",
+      "bytes": 53595,
       "category": "web"
     },
     {
       "path": "sw.js",
-      "sha256": "2b21ad12a766845dd74c4d54314ddea224e317a03ee24fdbef38da48c1ba8e83",
-      "bytes": 19488,
+      "sha256": "731ec54de776d048f877328d316dc046447a874a822b9dc862b035127da872ca",
+      "bytes": 19982,
       "category": "web"
     },
     {

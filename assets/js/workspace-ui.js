@@ -12,7 +12,7 @@
   const main=d.querySelector('main');if(!main)return;
   const page=location.pathname.split('/').pop()||'index.html';
   if(page==='index.html'){
-   const intro=d.querySelector('.portal-login-intro');if(intro&&!byId('workspaceLoginArt')){const art=el('div',undefined,'workspace-login-art');art.id='workspaceLoginArt';const text=el('p');const label=()=>text.textContent=t('주문부터 입고까지, 연결된 파트너 업무 공간','One workspace for orders, stock and partner operations');label();art.append(text,artwork());intro.append(art);d.addEventListener('y2c-language-changed',label);}
+   const intro=d.querySelector('.portal-login-intro');if(intro&&!byId('workspaceLoginArt')){const art=el('div',undefined,'workspace-login-art');art.id='workspaceLoginArt';const text=el('p');const label=()=>text.textContent=t('주문과 재고를 한곳에서 확인하세요.','One workspace for orders, stock and partner operations');label();art.append(text,artwork());intro.append(art);d.addEventListener('y2c-language-changed',label);}
   }
   const titles={'dashboard.html':['업무 현황','Workspace overview','주문 진행과 매장 운영을 한곳에서 확인하세요.','Follow orders and store activity in one place.'],'admin.html':['주문 · 공급 관리','Orders & supply','가맹점 발주, 입고, 공장 발주 공유를 관리하세요.','Manage franchise orders, stock receipts and factory order sharing.']};
   const destinations=[

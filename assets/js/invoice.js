@@ -94,7 +94,7 @@ const Y2C_DB = {
 // ============================================================================
 const I18N_DICT = {
     en: {
-        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+        "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
         "logout": "LOGOUT",
         "toast_generating": "Synchronizing data and generating invoice...",
         "toast_success": "Invoice successfully generated.",
@@ -113,7 +113,7 @@ const I18N_DICT = {
         "lbl_subtotal": "Subtotal:", "lbl_tax": "Estimated Tax:", "lbl_total_due": "TOTAL AMOUNT DUE", "lbl_thanks": "Thank you for your partnership"
     },
     ko: {
-        "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+        "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
         "logout": "로그아웃",
         "toast_generating": "데이터를 동기화하고 정산서를 생성합니다...",
         "toast_success": "정산서가 성공적으로 생성되었습니다.",
@@ -337,7 +337,7 @@ async function executeApi(action, payload = {}, retries = 2) {
             if (!jsonResult.success) {
                 if (jsonResult.message && (jsonResult.message.includes("만료") || jsonResult.message.includes("로그인"))) {
                     [STORAGE.ROLE, STORAGE.CLIENT_NAME, STORAGE.USER_TOKEN, 'y2c_premium_state', 'y2c_lang'].forEach(k => { try{ localStorage.removeItem(k); }catch(e){} });
-                    alert("보안 세션이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
+                    alert("로그인 상태이 만료되었습니다. 안전을 위해 다시 로그인해 주세요.");
                     window.location.replace("index.html");
                     return;
                 }

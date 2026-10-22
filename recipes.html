@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V71.00 Enterprise Recipe Center GRAND FINALE - SWR & MOBILE OPTIMIZED 🌟
+  🌟 V71.00 Recipes GRAND FINALE - SWR & MOBILE OPTIMIZED 🌟
   [MOBILE OPTIMIZED] 100dvh + overflow-y-auto injected to completely eradicate Virtual Keyboard squish bugs.
   [MOBILE OPTIMIZED] `safe-area-inset-bottom` injected to mobile nav to prevent iOS Notch clipping.
   [MOBILE OPTIMIZED] Session Safe-Escape: Added "RESET SESSION" button to footer.
@@ -20,25 +20,21 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="description" content="SINJEON CANADA Enterprise Recipe Center | Operated by Y2C Holdings">
+    <meta name="description" content="SINJEON CANADA Recipes | Operated by Y2C Holdings">
     <meta name="robots" content="noindex, nofollow">
     
-    <title>Recipe Center | Y2C Portal</title>
+    <title>Recipes | Y2C Portal</title>
     
     <!-- 🚀 Resource Hints -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/app-180.png">
     
     <!-- Deferred Font Loading -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:ital,wght@0,700;0,800;0,900;1,800&family=JetBrains+Mono:wght@400;700;800&display=swap"></noscript>
+    <noscript></noscript>
     
     <!-- 🚨 FOUC Preventer (White Screen Death Resolved) -->
     <style>
@@ -206,7 +202,7 @@
     <noscript>
         <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#E3000F; color:#fff; display:flex; align-items:center; justify-content:center; z-index:99999; font-weight:bold; font-size:18px; font-family:sans-serif; flex-direction:column;">
             <span>JavaScript is Disabled</span>
-            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Enterprise Portal.</span>
+            <span style="font-size:14px; margin-top:10px; opacity:0.8;">Please enable JavaScript to access the Partner Portal.</span>
         </div>
     </noscript>
 
@@ -228,7 +224,7 @@
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2 pl-3 sm:pl-4 border-l-[1.5px] border-gray-200">
-                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Enterprise Portal</span>
+                    <span class="font-montserrat text-lg lg:text-xl font-black text-[var(--premium-charcoal)] tracking-tight whitespace-nowrap" style="text-shadow: 0 0 10px rgba(0,0,0,0.05);">Partner Portal</span>
                     <span class="text-[9px] font-bold tracking-[0.2em] text-[#E3000F] uppercase whitespace-nowrap hidden xl:inline-block">Operated by Y2C</span>
                 </div>
             </div>
@@ -236,8 +232,8 @@
             <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
                 <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
-                <a href="recipes.html" id="navRecipes" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipe Center</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Master DB</a>
+                <a href="recipes.html" id="navRecipes" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipes</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Administration</a>
                 <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
             </nav>
 
@@ -263,8 +259,8 @@
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
         <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
-        <a href="recipes.html" id="navRecipes_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipe Center</a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Master DB</a>
+        <a href="recipes.html" id="navRecipes_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipes</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Administration</a>
         <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
     </div>
 
@@ -293,7 +289,7 @@
         <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
             <div>
                 <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">👨‍🍳</span> Standard Recipe Center
+                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">👨‍🍳</span> Standard Recipes
                     <span class="px-2 py-1 bg-red-100 text-[#E3000F] border border-red-200 text-[9px] font-black rounded uppercase tracking-widest align-middle ml-2">Strictly Confidential</span>
                 </h2>
                 <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter">
@@ -415,7 +411,7 @@
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Clear all local caches and session tokens.">
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account.">
                         RESET SESSION
                     </button>
                 </div>
@@ -446,7 +442,7 @@
 
     <script>
     /**
-     * 🌟 V71.00 Enterprise Recipe Center Logic (SWR + Mobile Optimized)
+     * 🌟 V71.00 Recipes Logic (SWR + Mobile Optimized)
      * [MOBILE] 100dvh + overflow-y-auto injected to completely eradicate Virtual Keyboard squish bugs.
      * [CRITICAL FIX] `ReferenceError` eliminated by injecting global I18N Engine (`currentLang`, `changeLanguage`).
      * [ACCELERATOR] IndexedDB SWR Architecture eliminates white screens by pre-rendering cached data in 0.1s.
@@ -488,11 +484,11 @@
         // ============================================================================
         const I18N_DICT = {
             en: {
-                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipe Center", "nav_admin": "Master DB", "nav_invoice": "Advisory Invoice",
+                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
                 "logout": "LOGOUT"
             },
             ko: {
-                "nav_dashboard": "대시보드", "nav_catalog": "카탈로그 및 발주", "nav_recipes": "레시피 센터", "nav_admin": "마스터 DB (물류)", "nav_invoice": "정산 인보이스",
+                "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
                 "logout": "로그아웃"
             }
         };
@@ -608,9 +604,9 @@
                     grid.innerHTML = `
                         <div class="col-span-full py-16 text-center bg-red-50/50 border border-red-100 rounded-3xl">
                             <span class="text-4xl mb-4 block opacity-80">⚠️</span>
-                            <h3 class="font-black text-[#E3000F] font-montserrat tracking-wide text-lg mb-2">엔터프라이즈 데이터 노드 접근 실패</h3>
+                            <h3 class="font-black text-[#E3000F] font-montserrat tracking-wide text-lg mb-2">정보를 불러오지 못했어요</h3>
                             <p class="text-xs font-bold text-gray-500 mb-4">${Y2C_AuthEngine.escapeHtml(err.message)}</p>
-                            <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">보안 세션 재연결 시도</button>
+                            <button type="button" onclick="location.reload()" class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-black tracking-widest uppercase text-[var(--premium-charcoal)] hover:bg-gray-50 hover:text-[#E3000F] shadow-sm transition-colors focus:outline-none">다시 불러오기</button>
                         </div>`;
                 }
             }

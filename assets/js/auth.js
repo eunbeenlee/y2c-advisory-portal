@@ -311,7 +311,7 @@
     // ============================================================================
 const RequestPolicy = {
     mutations: ['save_order','update_stock','update_master_data','save_sales_records','upsert_hq_order','update_hq_order_status','cancel_order','update_order_status','update_price','review_order_mail'],
-    reads: ['get_orders','get_ops_monitor','get_session_context','get_master_data','get_sales_records','get_dashboard','get_invoice','get_items','get_procurement_data','get_recipes','check_system_alerts'],
+    reads: ['get_orders','get_ops_monitor','get_session_context','get_master_data','get_sales_records','get_dashboard','get_invoice','get_items','get_inventory_snapshot','get_procurement_data','get_recipes','check_system_alerts'],
     flights: new Map(),
     readRevision: 0,
     readListeners: new Set(),
@@ -711,7 +711,7 @@ Object.assign(OfflineEngine, {
                     <div class="bg-white p-8 rounded-[2rem] shadow-2xl flex flex-col items-center transform scale-95 transition-transform duration-300" id="y2c-loader-box">
                         <div class="w-16 h-16 border-4 border-gray-100 border-t-[#E3000F] rounded-full animate-spin mb-4"></div>
                         <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight" id="y2c-loader-msg">${message}</h3>
-                        <p class="text-[10px] font-bold text-gray-400 mt-2 tracking-widest uppercase font-mono">Securing Connection...</p>
+                        <p class="text-[10px] font-bold text-gray-400 mt-2 tracking-widest uppercase font-mono">연결을 확인하고 있어요…</p>
                     </div>
                 `;
                 document.body.appendChild(overlay);
@@ -1091,13 +1091,13 @@ const SyncDaemon = {
 
     global.addEventListener('online', () => {
         console.log("[Y2C Network Status] Connectivity Restored. Triggering Sync Daemon.");
-        UIController.showToast("네트워크 세션이 복구되었습니다. 대기열 트랜잭션 동기화를 검사합니다.", "info");
+        UIController.showToast("다시 연결됐어요. 저장 대기 중인 작업을 확인하고 있습니다.", "info");
         SyncDaemon.flushQueue();
     });
 
     global.addEventListener('offline', () => {
         console.warn("[Y2C Network Status] Connectivity Lost. Offline Mode Active.");
-        UIController.showToast("네트워크 연결이 끊어졌습니다. 오프라인 안전 모드(Secure Cache Mode)로 전환됩니다.", "warning");
+        UIController.showToast("인터넷 연결이 끊겼어요. 대기 중인 작업은 이 기기에 보관됩니다.", "warning");
     });
 
     // [V67 호환성 업데이트] DOM 로딩 지연 방어망 (DOMContentLoaded 대신 직접 체크 지원)
@@ -1232,7 +1232,7 @@ const SyncDaemon = {
             SessionManager.clearSession();
             
             // Actor-scoped caches and pending writes remain available only to their owner.
-            UIController.showToast("보안 세션이 완전히 종료되었습니다.", "success", 2000);
+            UIController.showToast("로그아웃했어요.", "success", 2000);
             setTimeout(() => { global.location.replace("index.html"); }, 600);
         },
 
@@ -1266,7 +1266,7 @@ const SyncDaemon = {
                 userPwInput.classList.remove('input-error');
 
                 if (!id || !pw) {
-                    UIController.showToast("보안 인가 실패: 파트너 식별자(ID) 및 패스키(Passkey)를 모두 입력해 주십시오.", "error");
+                    UIController.showToast("아이디와 비밀번호를 입력해 주세요.", "error");
                     if (!id) userIdInput.classList.add('input-error');
                     if (!pw) userPwInput.classList.add('input-error');
                     return;
@@ -1299,7 +1299,7 @@ const SyncDaemon = {
                         res.id = id; 
                         SessionManager.saveSession(res, isRememberMe);
                         
-                        UIController.showToast(`보안 세션 인가 완료. ${res.clientName} 파트너님의 엔터프라이즈 워크스페이스로 접속합니다.`, "success");
+                        UIController.showToast(`${res.clientName}님, 로그인됐어요.`, "success");
                         
                         setTimeout(() => {
                             if (res.role === "VENDOR") {
