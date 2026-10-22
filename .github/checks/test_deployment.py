@@ -45,7 +45,7 @@ class DeploymentGate(unittest.TestCase):
 
     def test_valid_release_and_compatibility_assets_preserved(self):
         files, report = deploy.prepare(self.source)
-        self.assertEqual(report['verifiedFiles'], 56)
+        self.assertEqual(report['verifiedFiles'], 59)
         self.assertIn('apps/SinjeonPortal-1.0.5.apk', files)
         self.assertIn('assets/js/items.js', files)
         self.assertFalse(report['businessDataTouched'])
