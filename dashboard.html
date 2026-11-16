@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- 
-  🌟 V93.00 Enterprise Dashboard GRAND FINALE - SEQUENTIAL BOOT & DYNAMIC CHART EDITION 🌟
+  🌟 V93.00 Sales overview GRAND FINALE - SEQUENTIAL BOOT & DYNAMIC CHART EDITION 🌟
   [CRITICAL FIX 1] Promise.all() Eradication: Replaced parallel API calls with `bootEnterpriseCore()` sequential execution to prevent GAS 302 redirect collisions (404/AbortError).
   [CRITICAL FIX 2] Master Client Selector: Resolved the bug where MASTER roles saw empty graphs because they queried "Y2C_HQ" sales. Injected a dynamic `kpiClientSelector` that auto-populates via `fetchMasterDataForDashboard()`.
   [CRITICAL FIX 3] Chart.js Integration: Upgraded the raw table into a high-end enterprise Line Chart & Doughnut Chart with fluid gradients matching the Y2C color scheme. Handled `.destroy()` memory leaks.
@@ -19,10 +19,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="description" content="SINJEON CANADA Enterprise Dashboard | Operated by Y2C Holdings">
+    <meta name="description" content="SINJEON CANADA Sales overview | Operated by Y2C Holdings">
     <meta name="robots" content="noindex, nofollow">
     
-    <title>Enterprise Dashboard | Y2C Portal</title>
+    <title>Sales overview | Y2C Portal</title>
     
     <!-- 🚀 Resource Hints for Acceleration -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
@@ -152,8 +152,10 @@
     <link rel="stylesheet" href="assets/css/pwa.css">
 <link rel="stylesheet" href="assets/css/order-lifecycle.css?v=1.1.0">
     <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <link rel="stylesheet" href="assets/css/portal-refinement.css">
     <script defer src="assets/js/performance.js"></script>
     <script defer src="assets/js/workspace-ui.js"></script>
+    <script defer src="assets/js/portal-copy.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page fouc-lock flex flex-col min-h-screen relative overflow-x-hidden selection:bg-[#E3000F] selection:text-white" style="opacity: 0; transition: opacity 0.5s ease-out;">
@@ -225,10 +227,10 @@
 
             <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Items &amp; Orders</a>
                 <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipes</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Administration</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Order Management</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Invoices</a>
             </nav>
 
             <div data-portal-account class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
@@ -243,7 +245,7 @@
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
                     <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">Sign out</button>
                 </div>
             </div>
         </div>
@@ -252,10 +254,10 @@
     <!-- 🚨 모바일 네비게이션 -->
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
-        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
+        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Items &amp; Orders</a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipes</a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Administration</a>
-        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Order Management</a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Invoices</a>
     </div>
 
     <!-- 🚨 권한 기반 라우팅 동적으로 해제 -->
@@ -305,17 +307,17 @@
         <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
             <header>
                 <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span data-i18n="dash_title">Enterprise Dashboard</span>
+                    <span data-i18n="dash_title">Sales overview</span>
                 </h2>
                 <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter" data-i18n="dash_desc">
-                    Real-time performance metrics and sales synchronization.
+                    Review recorded sales by month, store and sales channel.
                 </p>
             </header>
             
             <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                 <!-- 🚨 [CRITICAL FIX 2] Master 전용 가맹점 선택기 (User Mapping Fix) -->
                 <div class="relative w-full sm:w-auto" id="kpiClientSelectorWrapper" style="display:none;">
-                    <select id="kpiClientSelector" class="appearance-none w-full bg-white border border-gray-200 text-gray-700 font-black text-sm px-5 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--sinjeon-pink)] focus:border-transparent pr-10 transition-all cursor-pointer text-ellipsis">
+                    <select id="kpiClientSelector" aria-label="Franchise" class="appearance-none w-full bg-white border border-gray-200 text-gray-700 font-black text-sm px-5 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--sinjeon-pink)] focus:border-transparent pr-10 transition-all cursor-pointer text-ellipsis">
                         <option value="">Loading Clients...</option>
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
@@ -324,7 +326,7 @@
                 </div>
 
                 <div class="relative w-full sm:w-auto">
-                    <select id="dashYearSelector" class="appearance-none w-full bg-white border border-gray-200 text-gray-700 font-black text-sm px-6 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--sinjeon-pink)] focus:border-transparent pr-10 transition-all cursor-pointer">
+                    <select id="dashYearSelector" aria-label="Sales year" class="appearance-none w-full bg-white border border-gray-200 text-gray-700 font-black text-sm px-6 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--sinjeon-pink)] focus:border-transparent pr-10 transition-all cursor-pointer">
                         <!-- JS populated -->
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
@@ -332,7 +334,7 @@
                     </div>
                 </div>
 
-                <button type="button" id="refreshChartBtn" onclick="bootEnterpriseCore()" class="w-full sm:w-11 h-11 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-xl shadow-sm hover:text-[var(--sinjeon-pink)] hover:bg-red-50 transition-all focus:outline-none shrink-0" title="Refresh Data">
+                <button type="button" id="refreshChartBtn" onclick="bootEnterpriseCore()" class="w-full sm:w-11 h-11 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-xl shadow-sm hover:text-[var(--sinjeon-pink)] hover:bg-red-50 transition-all focus:outline-none shrink-0" title="Refresh sales" aria-label="Refresh sales">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 </button>
             </div>
@@ -401,7 +403,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <div>
                         <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight" data-i18n="chart_title">Monthly Revenue Trend</h3>
-                        <p class="text-xs text-gray-400 font-semibold mt-0.5">Consolidated monthly gross sales volume</p>
+                        <p class="text-xs text-gray-400 font-semibold mt-0.5" data-ux-ko="등록된 월별 총매출 기준" data-ux-en="Monthly totals from recorded sales">Monthly totals from recorded sales</p>
                     </div>
                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 font-mono hidden sm:block">12-Month Grid</span>
                 </div>
@@ -433,8 +435,8 @@
                 <div>
                     <div class="flex justify-between items-center mb-6">
                         <div>
-                            <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight">Channel Share</h3>
-                            <p class="text-xs text-gray-400 font-semibold mt-0.5">Dine-in/Takeout vs Delivery Platform</p>
+                            <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight" data-ux-ko="판매 채널 비중" data-ux-en="Sales by channel">Sales by channel</h3>
+                            <p class="text-xs text-gray-400 font-semibold mt-0.5" data-ux-ko="매장·포장 및 배달 매출 비교" data-ux-en="In-store and takeout compared with delivery">In-store and takeout compared with delivery</p>
                         </div>
                     </div>
                     <!-- Doughnut Chart Canvas -->
@@ -464,13 +466,11 @@
             
             <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-gray-100 pb-4">
                 <div>
-                    <h3 class="font-montserrat text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-2">
-                        Korea-to-Canada Inbound Logistics Tracker
-                    </h3>
-                    <p class="text-xs font-semibold text-gray-500 mt-1 font-inter">Live EMS and Ocean Container Transit Status & Visual Milestones.</p>
+                    <h3 class="font-montserrat text-lg sm:text-xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-2" data-ux-ko="한국발 입고 운송 현황" data-ux-en="Inbound shipments from Korea">Inbound shipments from Korea</h3>
+                    <p class="text-xs font-semibold text-gray-500 mt-1 font-inter" data-ux-ko="최근 등록된 운송 상태와 단계별 진행 현황을 확인하세요." data-ux-en="Review the latest recorded shipping status and delivery milestones.">Review the latest recorded shipping status and delivery milestones.</p>
                 </div>
                 <span class="px-3 py-1 bg-red-50 text-[#E3000F] border border-red-100 rounded-full text-[10px] font-black uppercase tracking-widest font-mono">
-                    GLOBAL SCM LIVE
+                    SHIPMENT RECORDS
                 </span>
             </header>
 
@@ -499,9 +499,7 @@
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX 4] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account.">
-                        RESET SESSION
-                    </button>
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account." data-ux-ko="로그아웃" data-ux-en="Sign out">Sign out</button>
                 </div>
             </div>
         </div>
@@ -567,16 +565,16 @@
         // ============================================================================
         const I18N_DICT = {
             en: {
-                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
-                "logout": "LOGOUT",
-                "dash_title": "Enterprise Dashboard", "dash_desc": "Real-time performance metrics and sales synchronization.",
+                "nav_dashboard": "Dashboard", "nav_catalog": "Items & Orders", "nav_recipes": "Recipes", "nav_admin": "Order Management", "nav_invoice": "Invoices",
+                "logout": "Sign out",
+                "dash_title": "Sales overview", "dash_desc": "Review recorded sales by month, store and sales channel.",
                 "kpi_annual": "Total Annual Sales", "kpi_pos": "POS (Dine-in/Takeout)", "kpi_del": "Delivery Platforms",
                 "chart_title": "Monthly Revenue Trend"
             },
             ko: {
                 "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
                 "logout": "로그아웃",
-                "dash_title": "엔터프라이즈 대시보드", "dash_desc": "실시간 핵심 성과 지표 및 매출 데이터 동기화 현황입니다.",
+                "dash_title": "매출 현황", "dash_desc": "등록된 매출을 월별·가맹점별·판매 채널별로 확인하세요.",
                 "kpi_annual": "연간 총 매출액", "kpi_pos": "POS (홀/포장)", "kpi_del": "배달 플랫폼",
                 "chart_title": "월별 매출 동향"
             }

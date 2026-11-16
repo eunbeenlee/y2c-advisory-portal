@@ -1,0 +1,38 @@
+{
+  "release": "V88_30_0",
+  "source_archive": "Partner-Sinjeon-Canada-main.zip",
+  "source_sha256": "92c041e645a5cbf04578145cda36e154fe4f91fa792e28c7f8c8e714e3318007",
+  "scope": "Uploaded frontend source only; no live business API calls or production deployment",
+  "checks": {
+    "core_and_invoice_regressions": {
+      "passed": 27
+    },
+    "invoice_dom_workflows": {
+      "passed": 11,
+      "parent_container_excluded": true
+    },
+    "five_page_dom_checks": {
+      "passed": 21
+    },
+    "deployment_guard_regressions": {
+      "passed": 42
+    },
+    "javascript_programs_parsed": 63,
+    "release_files_verified": 62,
+    "static_references_verified": 242
+  },
+  "not_verified": [
+    "Real browser pixel layout and mobile overflow",
+    "Actual html2pdf rasterization / pagination",
+    "Live Apps Script schema, role checks and database transactions",
+    "Live email delivery or payment collection"
+  ],
+  "browser_limitation": "System Chromium cannot start in runtime; cloud browser local-file URL rejected by security policy. No workaround attempted after rejection.",
+  "deployment": {
+    "performed": false,
+    "repository_guard": "eunbeenlee/y2c-advisory-portal",
+    "domain_guard": "partner.sinjeoncanada.com",
+    "business_data_changed": false
+  },
+  "release_digest": "8d4c012654b90eee"
+}

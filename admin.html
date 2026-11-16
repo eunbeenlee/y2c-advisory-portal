@@ -155,8 +155,10 @@
     <link rel="stylesheet" href="assets/css/pwa.css">
 <link rel="stylesheet" href="assets/css/order-lifecycle.css?v=1.1.0">
     <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <link rel="stylesheet" href="assets/css/portal-refinement.css">
     <script defer src="assets/js/performance.js"></script>
     <script defer src="assets/js/workspace-ui.js"></script>
+    <script defer src="assets/js/portal-copy.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page flex flex-col min-h-screen selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out; background-color: #F8F9FA;">
@@ -225,10 +227,10 @@
 
             <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Items &amp; Orders</a>
                 <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipes</a>
-                <a href="admin.html" id="navAdmin" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Administration</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
+                <a href="admin.html" id="navAdmin" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Order Management</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Invoices</a>
             </nav>
 
             <div data-portal-account class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
@@ -243,7 +245,7 @@
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
                     <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">Sign out</button>
                 </div>
             </div>
         </div>
@@ -252,10 +254,10 @@
     <!-- 🚨 모바일 네비게이션 -->
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
-        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
+        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Items &amp; Orders</a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipes</a>
-        <a href="admin.html" id="navAdmin_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Administration</a>
-        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
+        <a href="admin.html" id="navAdmin_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Order Management</a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Invoices</a>
     </div>
 
     <!-- 🚨 권한 기반 라우팅 동적으로 해제 -->
@@ -308,13 +310,13 @@
                 <div class="lock-icon-wrapper">
                     <svg class="w-10 h-10 animate-lock-shake" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
-                <h3 class="font-montserrat font-black text-2xl text-[var(--premium-charcoal)] mb-2">ACCESS DENIED</h3>
-                <p class="font-inter text-gray-500 font-bold text-sm tracking-wide">Requires Master Clearance Level</p>
+                <h3 class="font-montserrat font-black text-2xl text-[var(--premium-charcoal)] mb-2" data-ux-ko="접근 권한이 필요합니다" data-ux-en="Access restricted">Access restricted</h3>
+                <p class="font-inter text-gray-500 font-bold text-sm tracking-wide" data-ux-ko="이 메뉴는 본사 관리자 계정에서 사용할 수 있습니다." data-ux-en="This section is available to HQ administrators.">This section is available to HQ administrators.</p>
             </div>
 
             <div class="p-4 sm:p-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2">Franchise Administration</h2>
-                <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Manage partner details, billing logic, and system access.</p>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2" data-ux-ko="가맹점 관리" data-ux-en="Franchise accounts">Franchise accounts</h2>
+                <p class="text-sm font-medium text-gray-500 mb-8 font-inter" data-ux-ko="가맹점 정보와 정산 기준을 확인하고 관리하세요." data-ux-en="Review franchise details and billing settings.">Review franchise details and billing settings.</p>
                 <div class="enterprise-table-container overflow-x-auto border border-gray-200 rounded-xl">
                     <table class="w-full text-left enterprise-table" id="franchiseTable">
                         <thead><tr><th class="w-48">Client Name</th><th class="w-24 text-center">Hub(State)</th><th class="w-32">City</th><th class="w-64">Full Address</th><th class="w-32">Manager</th><th class="w-48">Email</th><th class="w-32">Business ID</th><th class="w-28 text-center">Action</th></tr></thead>
@@ -334,27 +336,27 @@
                 <div class="lock-icon-wrapper">
                     <svg class="w-10 h-10 animate-lock-shake" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 </div>
-                <h3 class="font-montserrat font-black text-2xl text-[var(--premium-charcoal)] mb-2">ACCESS DENIED</h3>
-                <p class="font-inter text-gray-500 font-bold text-sm tracking-wide">Requires Master Clearance Level</p>
+                <h3 class="font-montserrat font-black text-2xl text-[var(--premium-charcoal)] mb-2" data-ux-ko="접근 권한이 필요합니다" data-ux-en="Access restricted">Access restricted</h3>
+                <p class="font-inter text-gray-500 font-bold text-sm tracking-wide" data-ux-ko="이 메뉴는 본사 관리자 계정에서 사용할 수 있습니다." data-ux-en="This section is available to HQ administrators.">This section is available to HQ administrators.</p>
             </div>
 
             <div class="p-4 sm:p-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2">ERP Sales Terminal</h2>
-                <p class="text-sm font-medium text-gray-500 mb-8 font-inter">Global financial data entry and tax synchronization.</p>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight mb-2 flex items-center gap-2" data-ux-ko="월별 매출 관리" data-ux-en="Monthly sales">Monthly sales</h2>
+                <p class="text-sm font-medium text-gray-500 mb-8 font-inter" data-ux-ko="가맹점별 POS·배달 매출을 입력하고 월별 합계를 확인하세요." data-ux-en="Record POS and delivery sales and review monthly totals.">Record POS and delivery sales and review monthly totals.</p>
 
                 <div class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-50 p-6 rounded-[1.5rem] border border-gray-200">
                     <div class="w-full md:w-48">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Fiscal Year</label>
+                        <label for="salesYearSelector" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="조회 연도" data-ux-en="Year">Year</label>
                         <select id="salesYearSelector" class="premium-input bg-white appearance-none"></select>
                     </div>
                     <div class="w-full md:w-[22rem]">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Franchise</label>
+                        <label for="salesClientSelector" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="가맹점" data-ux-en="Franchise">Franchise</label>
                         <select id="salesClientSelector" class="premium-input bg-white appearance-none text-ellipsis pr-8">
                             <option value="">-- Loading --</option>
                         </select>
                     </div>
                     <div class="flex items-end flex-1">
-                        <button type="button" id="btnLoadLedger" onclick="loadSalesGridFast()" class="btn-solid-red w-full h-[46px] px-8 rounded-xl font-black text-[12px] uppercase tracking-widest focus:outline-none">Load Ledger</button>
+                        <button type="button" id="btnLoadLedger" onclick="loadSalesGridFast()" class="btn-solid-red w-full h-[46px] px-8 rounded-xl font-black text-[12px] uppercase tracking-widest focus:outline-none" data-ux-ko="매출 불러오기" data-ux-en="Load sales">Load sales</button>
                     </div>
                 </div>
 
@@ -375,15 +377,15 @@
 
                 <div class="enterprise-table-container overflow-x-auto border border-gray-200 rounded-xl mb-6">
                     <table class="w-full text-left enterprise-table" id="salesTable">
-                        <thead><tr><th class="w-24">Month</th><th class="text-center w-40">POS Sales</th><th class="text-center w-40">Delivery Sales</th><th class="text-right w-40">Total</th><th class="text-center w-24">Status</th></tr></thead>
+                        <thead><tr><th class="w-24">Month</th><th class="text-center w-40">POS Sales</th><th class="text-center w-40">Delivery Sales</th><th class="text-right w-40">Total</th><th class="text-center w-24" data-ux-ko="상태" data-ux-en="Status">Status</th></tr></thead>
                         <tbody id="salesGridBody">
-                            <tr><td colspan="5" class="text-center py-16 text-gray-400 font-bold text-sm">연도와 가맹점을 선택하고 'LOAD LEDGER'를 클릭해 주세요.</td></tr>
+                            <tr><td colspan="5" class="text-center py-16 text-gray-400 font-bold text-sm">연도와 가맹점을 선택한 뒤 매출을 불러오세요.</td></tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div id="mobileSalesSaveContainer" class="fixed bottom-0 left-0 w-full z-50 bg-white/95 backdrop-blur-xl border-t border-gray-200 p-4 sm:p-0 sm:relative sm:bg-transparent sm:border-none sm:block flex justify-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)] sm:shadow-none hidden" style="padding-bottom: max(env(safe-area-inset-bottom), 1rem);">
-                    <button type="button" onclick="saveSalesGridData()" id="saveAllSalesBtn" class="btn-solid-red w-full sm:w-auto px-10 py-4 rounded-xl font-black text-[13px] uppercase tracking-widest shadow-md">Synchronize Data</button>
+                    <button type="button" onclick="saveSalesGridData()" id="saveAllSalesBtn" class="btn-solid-red w-full sm:w-auto px-10 py-4 rounded-xl font-black text-[13px] uppercase tracking-widest shadow-md" data-ux-ko="매출 저장" data-ux-en="Save sales">Save sales</button>
                 </div>
             </div>
         </section>
@@ -393,49 +395,49 @@
         <!-- ========================================== -->
         <section id="tab-excel" class="tab-section rounded-3xl bg-white shadow-premium-card p-4 sm:p-8 relative">
             <header class="mb-8">
-                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">재고 관리</h2>
-                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">파일을 올리거나 직접 입력해 재고를 맞춰 보세요. 같은 품목도 유통기한이 다르면 한 줄씩 나누어 입력하면 됩니다.</p>
+                <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3" data-ux-ko="재고 입고 및 조정" data-ux-en="Stock receipts and adjustments">Stock receipts and adjustments</h2>
+                <p class="text-sm font-medium text-gray-500 mt-2 font-inter" data-ux-ko="입고 파일을 업로드하거나 수량을 직접 입력하세요. 유통기한이 다르면 같은 품목도 행을 나누어 등록합니다." data-ux-en="Upload a receipt file or enter quantities manually. Use separate rows for different expiry dates.">Upload a receipt file or enter quantities manually. Use separate rows for different expiry dates.</p>
             </header>
 
             <div class="mb-6 flex flex-col md:flex-row gap-4 items-center bg-gray-50 border border-gray-200 p-4 rounded-xl shadow-sm relative z-20">
                 <label class="font-black text-gray-500 uppercase tracking-widest text-[11px] shrink-0">관리할 지역 <span class="text-[#E3000F]">*</span></label>
-                <select id="inboundRegionSelector" class="premium-input bg-white cursor-pointer appearance-none text-[13px] font-bold w-full md:w-64 text-ellipsis pr-8">
+                <select id="inboundRegionSelector" aria-label="Stock region" class="premium-input bg-white cursor-pointer appearance-none text-[13px] font-bold w-full md:w-64 text-ellipsis pr-8">
                     <option value="" disabled selected>지역을 불러오는 중…</option>
                 </select>
             </div>
 
             
             <div class="stock-modes" role="group" aria-label="재고 반영 방식">
-                <button type="button" data-stock-mode="ADD" aria-pressed="true"><strong>입고 추가</strong><span>현재 재고에 더하기</span></button>
-                <button type="button" data-stock-mode="REPLACE" aria-pressed="false"><strong>실사 수량으로 교체</strong><span>파일의 총수량으로 맞추기</span></button>
+                <button type="button" data-stock-mode="ADD" aria-pressed="true"><strong data-ux-ko="입고 추가" data-ux-en="Add receipt">Add receipt</strong><span data-ux-ko="현재 재고에 더하기" data-ux-en="Add to current stock">Add to current stock</span></button>
+                <button type="button" data-stock-mode="REPLACE" aria-pressed="false"><strong data-ux-ko="실사 수량으로 조정" data-ux-en="Adjust to count">Adjust to count</strong><span data-ux-ko="확인한 총수량으로 맞추기" data-ux-en="Set to verified total">Set to verified total</span></button>
             </div>
             <p id="stockModeHelp" class="inventory-help" role="status">이번에 들어온 수량만 올려 주세요. 현재 재고에 더해집니다.</p>
             <label id="stockReplaceOption" class="stock-replace-option" hidden><input type="checkbox" id="stockReplaceAll"> 파일에 없는 담당 품목도 0으로 정리 <small>선택한 지역에만 적용됩니다. 변경 내용을 확인한 뒤 한 번에 저장합니다.</small></label>
                         <details id="stockTools" class="stock-tools">
                 <summary>현재 재고 보기 · 내려받기 · 재고 정리</summary>
                 <div class="stock-tools-body">
-                    <div class="inventory-tools"><button type="button" id="stockRefresh">최신 재고 불러오기</button><button type="button" id="stockExport" disabled>현재 재고 내려받기</button></div>
+                    <div class="inventory-tools"><button type="button" id="stockRefresh" data-ux-ko="재고 새로고침" data-ux-en="Refresh stock">Refresh stock</button><button type="button" id="stockExport" disabled data-ux-ko="재고 내보내기" data-ux-en="Export stock">Export stock</button></div>
                     <p id="stockSummary" role="status"></p>
                     <label for="stockSearch">품목 검색</label><input id="stockSearch" type="search" placeholder="품목명 또는 코드" autocomplete="off">
                     <div class="inventory-tools"><button type="button" id="stockSelectVisible">검색 결과 전체 선택</button><button type="button" id="stockClearSelection">선택 해제</button><span id="stockSelectionCount" aria-live="polite"></span></div>
                     <div class="stock-review-table" tabindex="0" role="region" aria-label="현재 재고"><table><thead><tr><th>선택</th><th>품목</th><th>실물</th><th>예약</th><th>유통기한별 수량</th></tr></thead><tbody id="stockRows"></tbody></table></div>
                     <p id="stockEmpty">표시할 품목이 없습니다.</p>
-                    <div class="stock-tools-footer"><p>예약된 수량은 지울 수 없어요. 변경 내역은 기록으로 남습니다.</p><button type="button" id="stockReset" disabled>선택 재고를 0으로</button></div>
+                    <div class="stock-tools-footer"><p data-ux-ko="예약 수량은 삭제할 수 없습니다. 재고 변경 사항은 이력에 기록됩니다." data-ux-en="Reserved quantities cannot be removed. Stock adjustments are recorded in the activity history.">Reserved quantities cannot be removed. Stock adjustments are recorded in the activity history.</p><button type="button" id="stockReset" disabled>선택 재고를 0으로</button></div>
                 </div>
             </details>
 
             <div id="dropZone" class="drop-zone flex flex-col items-center justify-center py-16 px-4 text-center mb-8 relative overflow-hidden group">
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv,.jpg,.jpeg,.png,.webp" aria-label="엑셀·CSV·이미지 입고 파일 선택" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
                 <div class="w-16 h-16 bg-white shadow-sm border border-gray-200 rounded-full flex items-center justify-center mb-4 text-2xl group-hover:scale-110 transition-transform">📄</div>
-                <h3 class="font-bold text-[15px] text-[var(--premium-charcoal)] mb-1">파일을 놓거나 눌러서 선택하세요</h3>
+                <h3 class="font-bold text-[15px] text-[var(--premium-charcoal)] mb-1" data-ux-ko="파일을 끌어 놓거나 클릭해 업로드하세요." data-ux-en="Drop a file here or click to upload">Drop a file here or click to upload</h3>
                 <p class="text-[12px] font-medium text-gray-400">XLSX · XLS · CSV · JPG · PNG · WEBP / 최대 15 MB · 수량 단위: 박스 · 엑셀은 첫 번째 시트</p>
             </div>
 
-            <p class="inventory-help">벤더는 담당 지역·품목을, 마스터는 모든 지역을 관리할 수 있어요. 사진에서 읽은 수량과 날짜는 저장 전에 한 번 더 확인해 주세요.</p>
+            <p class="inventory-help" data-ux-ko="공급업체는 배정된 지역과 품목을 관리합니다. 사진에서 인식한 수량과 유통기한은 저장 전에 확인해 주세요." data-ux-en="Vendors manage their assigned regions and items. Review quantities and expiry dates extracted from images before saving.">Vendors manage their assigned regions and items. Review quantities and expiry dates extracted from images before saving.</p>
             <div class="inventory-tools">
-                <button type="button" id="inventoryAddRow">직접 입력</button>
-                <button type="button" id="inventoryChooseFile">파일 선택</button>
-                <button type="button" id="inventoryTemplate">양식 받기</button>
+                <button type="button" id="inventoryAddRow" data-ux-ko="수량 직접 입력" data-ux-en="Enter quantities">Enter quantities</button>
+                <button type="button" id="inventoryChooseFile" data-ux-ko="파일 업로드" data-ux-en="Upload file">Upload file</button>
+                <button type="button" id="inventoryTemplate" data-ux-ko="입고 양식 받기" data-ux-en="Download template">Download template</button>
                 <button type="button" id="inventoryCancelScan" hidden>인식 중지</button>
             </div>
             <details id="inventorySource" hidden><summary>사진에서 읽은 내용</summary><pre id="inventorySourceText"></pre></details>
@@ -456,12 +458,12 @@
                     <table class="w-full text-left enterprise-table" id="excelTable">
                         <thead class="sticky top-0 bg-[#f8fafc] z-10" id="excelThead">
                             <tr>
-                                <th class="w-24 text-center border-r border-gray-200">Status</th>
-                                <th class="w-64 border-r border-gray-200">HQ Master Code</th>
+                                <th class="w-24 text-center border-r border-gray-200" data-ux-ko="상태" data-ux-en="Status">Status</th>
+                                <th class="w-64 border-r border-gray-200" data-ux-ko="상품 코드" data-ux-en="Item code">Item code</th>
                                 <th class="w-64" data-ux-ko="상품명" data-ux-en="Product Name">Product Name</th>
-                                <th class="w-32 text-center">Unit Price (CAD)</th>
-                                <th class="w-32 text-center">Exp. Date</th>
-                                <th class="w-24 text-center text-[#E3000F]">Inbound Qty</th>
+                                <th class="w-32 text-center" data-ux-ko="단가 (CAD)" data-ux-en="Unit price (CAD)">Unit price (CAD)</th>
+                                <th class="w-32 text-center" data-ux-ko="유통기한" data-ux-en="Expiry date">Expiry date</th>
+                                <th class="w-24 text-center text-[#E3000F]" data-ux-ko="입고 수량" data-ux-en="Received quantity">Received quantity</th>
                             </tr>
                         </thead>
                         <tbody id="excelTbody" class="divide-y divide-gray-50"></tbody>
@@ -471,29 +473,29 @@
         </section>
 
         <!-- ========================================== -->
-        <p style="padding:12px;color:#475569">한국공장 발주는 벤더가 직접 진행하며 이 화면은 HQ 공유 기록입니다. HQ 승인을 기다릴 필요가 없습니다. 물품 인보이스 발행·수금은 벤더가 별도로 관리합니다.</p>
+        <p class="portal-inline-note" data-ux-ko="공장 발주는 공급업체가 직접 진행하며, 이 화면에서 본사와 진행 현황을 공유합니다. 상품 대금 청구와 수금은 공급업체가 관리합니다." data-ux-en="Vendors place factory orders directly and share their progress with HQ here. Vendors manage product invoices and payment collection.">Vendors place factory orders directly and share their progress with HQ here. Vendors manage product invoices and payment collection.</p>
         <!-- 🌐 SECTION 4: HQ PROCUREMENT & SHIPPING TRACKER -->
         <!-- ========================================== -->
         <section id="tab-procurement" class="tab-section">
             <header class="mb-8 px-4 sm:px-0">
                 <h2 class="font-montserrat text-2xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="opacity-80">🌐</span> Factory Orders / 공장 발주 공유
+                    <span data-ux-ko="공장 발주 공유" data-ux-en="Factory orders">Factory orders</span>
                 </h2>
-                <p class="text-sm font-medium text-gray-500 mt-2 font-inter">Global logistics procurement status, digital cart, and EMS/Ocean freight tracking.</p>
+                <p class="text-sm font-medium text-gray-500 mt-2 font-inter" data-ux-ko="공장 발주 내역과 운송 정보를 등록하고 진행 현황을 공유하세요." data-ux-en="Record factory orders and shipping details to keep HQ informed.">Record factory orders and shipping details to keep HQ informed.</p>
             </header>
 
             <div class="bg-white rounded-[2rem] p-6 sm:p-8 shadow-premium-card border border-gray-100 mb-10 no-print mx-4 sm:mx-0">
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end mb-4">
 
                     <div class="md:col-span-3">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Vendor Name</label>
+                        <label for="procVendorName" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="공급업체" data-ux-en="Vendor">Vendor</label>
                         <input type="text" id="procVendorName" class="premium-input bg-gray-50 text-ellipsis" placeholder="e.g. CJ Foods" autocomplete="off" disabled>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Target Hub</label>
+                        <label for="procHubSelect" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="입고 지역" data-ux-en="Destination">Destination</label>
                         <div class="relative">
-                            <select id="procHubSelect" class="premium-input bg-gray-50 cursor-pointer appearance-none text-[13px] font-bold text-ellipsis pr-8">
+                            <select id="procHubSelect" aria-label="Destination region" class="premium-input bg-gray-50 cursor-pointer appearance-none text-[13px] font-bold text-ellipsis pr-8">
                                 <option value="" disabled selected>Loading...</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg></div>
@@ -501,9 +503,9 @@
                     </div>
 
                     <div class="md:col-span-3">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Shipping Method</label>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="운송 방식" data-ux-en="Shipping method">Shipping method</label>
                         <div class="relative">
-                            <select id="procShippingMethod" class="premium-input bg-white cursor-pointer appearance-none text-[13px] font-bold text-ellipsis pr-8">
+                            <select id="procShippingMethod" aria-label="Shipping method" class="premium-input bg-white cursor-pointer appearance-none text-[13px] font-bold text-ellipsis pr-8">
                                 <option value="NONE" selected>Not Specified</option>
                                 <option value="EMS">EMS (Air Mail)</option>
                                 <option value="OCEAN">Ocean Freight (배편)</option>
@@ -515,17 +517,17 @@
                     </div>
 
                     <div class="md:col-span-4">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Tracking Number</label>
-                        <input type="text" id="procTrackingNo" class="premium-input bg-white text-ellipsis" placeholder="Enter Tracking No..." autocomplete="off">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="운송장 번호" data-ux-en="Tracking number">Tracking number</label>
+                        <input type="text" id="procTrackingNo" aria-label="Tracking number" class="premium-input bg-white text-ellipsis" placeholder="Enter Tracking No..." autocomplete="off">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
                     <div class="md:col-span-10 relative">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Items & Quantities</label>
-                        <div class="relative cursor-pointer group" id="btnOpenItemModal">
+                        <label for="procItemsSummary" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="상품과 수량" data-ux-en="Items and quantities">Items and quantities</label>
+                        <div class="relative cursor-pointer group" id="btnOpenItemModal" role="button" tabindex="0" aria-label="Select items and quantities" data-copy-label-en="Select items and quantities" data-copy-label-ko="상품과 수량 선택" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-hover:text-var(--sinjeon-pink)"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>
-                            <input type="text" id="procItemsSummary" class="premium-input bg-gray-50 pl-11 cursor-pointer pointer-events-none text-ellipsis" placeholder="Click to Select Items & Qty..." readonly>
+                            <input type="text" id="procItemsSummary" tabindex="-1" class="premium-input bg-gray-50 pl-11 cursor-pointer pointer-events-none text-ellipsis" placeholder="Click to Select Items & Qty..." readonly>
                         </div>
                     </div>
 
@@ -539,7 +541,7 @@
 
             <div class="mb-4 flex items-center gap-3 px-6 sm:px-2">
                 <span class="w-2 h-2 rounded-full bg-[#E3000F] animate-pulse"></span>
-                <h3 class="font-montserrat font-black text-[14px] text-[var(--premium-charcoal)] uppercase tracking-widest">Active Global Shipments</h3>
+                <h3 class="font-montserrat font-black text-[14px] text-[var(--premium-charcoal)] uppercase tracking-widest" data-ux-ko="공장 발주 및 운송 현황" data-ux-en="Factory orders and shipments">Factory orders and shipments</h3>
             </div>
 
             <div class="enterprise-table-container bg-white border border-gray-200 rounded-[1.5rem] overflow-hidden shadow-sm relative min-h-[200px] mx-4 sm:mx-0">
@@ -583,7 +585,7 @@
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="itemModalBackdrop"></div>
         <div class="bg-white w-full max-w-4xl max-h-[90dvh] rounded-[2rem] shadow-2xl relative z-10 flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="itemModalPanel" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
             <header class="px-6 py-5 sm:px-8 sm:py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
-                <h3 class="font-montserrat font-black text-lg sm:text-xl text-[var(--premium-charcoal)]">Select Items</h3>
+                <h3 class="font-montserrat font-black text-lg sm:text-xl text-[var(--premium-charcoal)]" data-ux-ko="상품 선택" data-ux-en="Select items">Select items</h3>
                 <button id="btnCloseModal" aria-label="Close dialog" class="text-gray-400 hover:text-[#E3000F] transition-colors focus:outline-none"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </header>
             <div class="p-4 sm:p-8 overflow-y-auto hide-scrollbar flex-grow bg-white relative">
@@ -594,7 +596,7 @@
             </div>
             <footer class="px-6 py-4 sm:px-8 sm:py-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center shrink-0">
                 <span class="text-xs font-bold text-gray-500 font-inter">Total Selected: <span id="modalSelectedCount" class="text-[#E3000F] font-black">0</span></span>
-                <button id="btnConfirmModal" class="btn-solid-red px-6 py-3 sm:px-8 rounded-xl font-black text-xs uppercase tracking-widest focus:outline-none">Confirm Selection</button>
+                <button id="btnConfirmModal" class="btn-solid-red px-6 py-3 sm:px-8 rounded-xl font-black text-xs uppercase tracking-widest focus:outline-none" data-ux-ko="선택 완료" data-ux-en="Confirm selection">Confirm selection</button>
             </footer>
         </div>
     </div>
@@ -604,14 +606,14 @@
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="statusModalBackdrop" onclick="closeStatusUpdateModal()"></div>
         <div class="bg-white w-full max-w-md max-h-[90dvh] overflow-y-auto hide-scrollbar rounded-[2rem] shadow-2xl relative z-10 flex flex-col transform scale-95 opacity-0 transition-all duration-300" id="statusModalPanel">
             <header class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
-                <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)]">Update Logistics Status</h3>
+                <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)]" data-ux-ko="운송 정보 변경" data-ux-en="Update shipment">Update shipment</h3>
                 <button aria-label="Close status dialog" onclick="closeStatusUpdateModal()" class="text-gray-400 hover:text-[#E3000F] transition-colors focus:outline-none"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </header>
             <div class="p-6 bg-white space-y-5 flex-grow">
                 <input type="hidden" id="statusModalOrderId">
 
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Status</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="상태" data-ux-en="Status">Status</label>
                     <select id="statusModalStatus" class="premium-input bg-gray-50 cursor-pointer appearance-none text-[13px] font-bold text-ellipsis pr-8">
                         <option value="PREPARING">PREPARING (준비중)</option>
                         <option value="SHIPPED">SHIPPED (배송출발)</option>
@@ -622,7 +624,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Shipping Method</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="운송 방식" data-ux-en="Shipping method">Shipping method</label>
                     <select id="statusModalMethod" class="premium-input bg-gray-50 cursor-pointer appearance-none text-[13px] font-bold text-ellipsis pr-8">
                         <option value="NONE">Not Specified</option>
                         <option value="EMS">EMS (Air Mail)</option>
@@ -632,12 +634,12 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Tracking Number</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" data-ux-ko="운송장 번호" data-ux-en="Tracking number">Tracking number</label>
                     <input type="text" id="statusModalTracking" class="premium-input bg-gray-50 text-ellipsis" placeholder="e.g. EG123456789KR" autocomplete="off">
                 </div>
             </div>
             <footer class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end shrink-0" style="padding-bottom: max(env(safe-area-inset-bottom), 1rem);">
-                <button id="btnSubmitStatusUpdate" class="btn-solid-red px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest focus:outline-none">Save Update</button>
+                <button id="btnSubmitStatusUpdate" class="btn-solid-red px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest focus:outline-none" data-ux-ko="변경 사항 저장" data-ux-en="Save changes">Save changes</button>
             </footer>
         </div>
     </div>
@@ -655,9 +657,7 @@
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account.">
-                        RESET SESSION
-                    </button>
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account." data-ux-ko="로그아웃" data-ux-en="Sign out">Sign out</button>
                 </div>
             </div>
         </div>
@@ -728,8 +728,8 @@
         // ============================================================================
         const I18N_DICT = {
             en: {
-                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
-                "logout": "LOGOUT"
+                "nav_dashboard": "Dashboard", "nav_catalog": "Items & Orders", "nav_recipes": "Recipes", "nav_admin": "Order Management", "nav_invoice": "Invoices",
+                "logout": "Sign out"
             },
             ko: {
                 "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",
@@ -1481,8 +1481,11 @@
         const btnConfirm = document.getElementById('btnConfirmModal');
 
         document.getElementById('procHubSelect')?.addEventListener('change',()=>{AppState.cart={};document.getElementById('procItemsSummary').value='';document.getElementById('modalSelectedCount').innerText='0';});
-        let procurementModalEpoch=0;
+        let procurementModalEpoch=0, procurementDraft=null;
         function openModal() {
+            if(AppState.isSubmitting||AppState.isBooting)return;
+            procurementDraft={cart:{...AppState.cart},hub:document.getElementById('procHubSelect').value,session:Y2C_AuthEngine.cacheSessionKey()};
+            document.getElementById('modalSelectedCount').innerText=Object.values(procurementDraft.cart).filter(q=>q>0).length;
             const epoch=++procurementModalEpoch;
             document.body.style.overflow = 'hidden';
             modal.classList.remove('hidden'); modal.classList.add('flex');
@@ -1491,6 +1494,9 @@
         }
 
         function closeModal() {
+            // Closing without confirmation discards only the modal's draft.
+            procurementDraft=null;
+            document.getElementById('modalSelectedCount').innerText=Object.values(AppState.cart).filter(q=>q>0).length;
             const epoch=++procurementModalEpoch;
             document.body.style.overflow = '';
             modalPanel.classList.remove('scale-100', 'opacity-100'); modalPanel.classList.add('scale-95', 'opacity-0');
@@ -1510,7 +1516,7 @@
             let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">`;
             AppState.catalogItems.forEach(item => {
                 if(AppState.role==="VENDOR"&&!Object.prototype.hasOwnProperty.call(item.stockBreakdown||{},document.getElementById('procHubSelect').value))return;
-                const qty = AppState.cart[item.code] || 0;
+                const qty = (procurementDraft?.cart||AppState.cart)[item.code] || 0;
                 html += `
                 <div class="flex items-center justify-between p-3 border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
                     <div class="flex flex-col flex-1 min-w-0 mr-2">
@@ -1529,18 +1535,24 @@
         }
 
         window.updateModalCart = function(code, delta) {
+            if(!procurementDraft||procurementDraft.hub!==document.getElementById('procHubSelect').value||procurementDraft.session!==Y2C_AuthEngine.cacheSessionKey())return;
             if(!AppState.catalogItems.some(item=>String(item.code)===String(code)) || ![-1,1].includes(delta))return;
-            const previous=AppState.cart[code]||0;
+            const previous=procurementDraft.cart[code]||0;
             if(!Number.isSafeInteger(previous)||previous<0||!Number.isSafeInteger(previous+delta))return;
-            let cur = AppState.cart[code] || 0; cur += delta; if(cur < 0) cur = 0;
-            AppState.cart[code] = cur;
+            let cur = previous + delta; if(cur < 0) cur = 0;
+            procurementDraft.cart[code] = cur;
             const quantityInput=document.getElementById(`modQty_${code}`);if(quantityInput)quantityInput.value=cur;
-            let typesCount = 0; for(let c in AppState.cart) { if(AppState.cart[c] > 0) typesCount++; }
+            let typesCount = 0; for(let c in procurementDraft.cart) { if(procurementDraft.cart[c] > 0) typesCount++; }
             document.getElementById('modalSelectedCount').innerText = typesCount;
         }
 
         if(btnConfirm) {
             btnConfirm.addEventListener('click', () => {
+                if(!procurementDraft)return;
+                if(procurementDraft.hub!==document.getElementById('procHubSelect').value||procurementDraft.session!==Y2C_AuthEngine.cacheSessionKey()){
+                    closeModal();Y2C_AuthEngine.showToast('계정이나 지역이 변경되었습니다. 상품을 다시 선택해 주세요.','warning');return;
+                }
+                AppState.cart={...procurementDraft.cart};
                 let summaryStr = [];
                 for(let c in AppState.cart) { if(AppState.cart[c] > 0) summaryStr.push(`${c}: ${AppState.cart[c]}`); }
                 const summaryInput = document.getElementById('procItemsSummary');
@@ -1555,28 +1567,35 @@
             btnSubmitProc.addEventListener('click', async () => {
                 if (AppState.isSubmitting || AppState.isBooting) return;
                 
-                const vName = document.getElementById('procVendorName').value;
+                const vName = document.getElementById('procVendorName').value.trim();
                 const hSelect = document.getElementById('procHubSelect');
                 const hub = hSelect ? hSelect.value : "";
-                const itemsStr = document.getElementById('procItemsSummary').value;
+                const lineItems=Object.keys(AppState.cart).filter(code=>AppState.cart[code]>0).map(code=>({code,qty:AppState.cart[code]}));
+                if(lineItems.some(line=>!Number.isSafeInteger(line.qty)||!AppState.catalogItems.some(item=>String(item.code)===line.code&&(AppState.role!=='VENDOR'||Object.prototype.hasOwnProperty.call(item.stockBreakdown||{},hub))))){
+                    Y2C_AuthEngine.showToast('선택한 지역의 품목과 박스 수량을 다시 확인해 주세요.','warning');return;
+                }
+                const itemsStr=lineItems.map(line=>`${line.code}: ${line.qty}`).join(', ');
 
                 const sMethod = document.getElementById('procShippingMethod').value;
                 const tNo = document.getElementById('procTrackingNo').value.trim();
 
                 if(!vName || !hub || !itemsStr) { Y2C_AuthEngine.showToast("업체명, 타겟 허브, 발주 물품은 필수 입력 항목입니다.", "warning"); return; }
+                document.getElementById('procItemsSummary').value=itemsStr;
 
                 AppState.isSubmitting = true;
                 btnSubmitProc.disabled = true; btnSubmitProc.innerHTML = `<span class="animate-pulse">PROCESSING...</span>`;
 
+                const issueParts=new Intl.DateTimeFormat('en-CA',{timeZone:window.SYSTEM_CONFIG?.TIMEZONE||'America/Toronto',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+                const issueDate=['year','month','day'].map(type=>issueParts.find(part=>part.type===type).value).join('-');
                 const payload = {
                     _newOrder: true,
                     order: { 
                         id: "", 
-                        date: new Date().toISOString().split('T')[0], 
+                        date: issueDate,
                         vendor: vName, 
                         region: hub, 
                         items: itemsStr,
-                        lineItems: Object.keys(AppState.cart).filter(code=>AppState.cart[code]>0).map(code=>({code,qty:AppState.cart[code]})), 
+                        lineItems: lineItems,
                         status: "HQ_PENDING", 
                         eta: "-",
                         shippingMethod: sMethod,

@@ -165,8 +165,10 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
     <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <link rel="stylesheet" href="assets/css/portal-refinement.css">
     <script defer src="assets/js/performance.js"></script>
     <script defer src="assets/js/workspace-ui.js"></script>
+    <script defer src="assets/js/portal-copy.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
@@ -231,10 +233,10 @@
 
             <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="items.html" id="navCatalog" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Items &amp; Orders</a>
                 <a href="recipes.html" id="navRecipes" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipes</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Administration</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Order Management</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Invoices</a>
             </nav>
 
             <div data-portal-account class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
@@ -249,7 +251,7 @@
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
                     <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">Sign out</button>
                 </div>
             </div>
         </div>
@@ -258,10 +260,10 @@
     <!-- 🚨 모바일 노치(Home Bar) 가림 보호망 -->
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
-        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
+        <a href="items.html" id="navCatalog_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Items &amp; Orders</a>
         <a href="recipes.html" id="navRecipes_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipes</a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Administration</a>
-        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Order Management</a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Invoices</a>
     </div>
 
     <!-- 🚨 권한 기반 라우팅 동적으로 해제 -->
@@ -286,15 +288,13 @@
     <!-- 📦 메인 컨텐츠 영역 -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 mb-20 app-shell-enter relative no-print">
         
-        <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+        <header id="recipeHeading" class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
             <div>
                 <h2 class="font-montserrat text-2xl sm:text-3xl font-black text-[var(--premium-charcoal)] tracking-tight flex items-center gap-3">
-                    <span class="text-[var(--premium-charcoal)] opacity-90 drop-shadow-sm">👨‍🍳</span> Standard Recipes
-                    <span class="px-2 py-1 bg-red-100 text-[#E3000F] border border-red-200 text-[9px] font-black rounded uppercase tracking-widest align-middle ml-2">Strictly Confidential</span>
+                    <span data-ux-ko="표준 레시피" data-ux-en="Recipe library">Recipe library</span>
+                    <span class="portal-internal-badge" data-ux-ko="파트너 전용" data-ux-en="Partner use only">Partner use only</span>
                 </h2>
-                <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter">
-                    Official culinary guidelines and preparation instructions. Do not distribute.
-                </p>
+                <p class="text-xs sm:text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter" data-ux-ko="매장 운영에 필요한 조리 기준과 제조 과정을 확인하세요. 외부 공유는 제한됩니다." data-ux-en="Follow approved preparation instructions and serving standards. For internal partner use.">Follow approved preparation instructions and serving standards. For internal partner use.</p>
             </div>
             
             <!-- 🌟 Search & Filter Controls -->
@@ -303,7 +303,7 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input type="text" id="recipeSearchInput" class="premium-input bg-white pl-11 !rounded-full" placeholder="Search recipes..." autocomplete="off">
+                    <input type="text" id="recipeSearchInput" class="premium-input bg-white pl-11 !rounded-full" placeholder="Search recipe name" autocomplete="off">
                 </div>
                 <div class="relative w-full sm:w-48">
                     <select id="recipeCategoryFilter" class="premium-input bg-white cursor-pointer appearance-none !rounded-full text-[13px] font-bold">
@@ -327,8 +327,8 @@
 
         <div id="emptyState" class="hidden py-20 text-center border-2 border-dashed border-gray-200 rounded-3xl mt-6">
             <span class="text-4xl block mb-4 opacity-50">🔍</span>
-            <h3 class="font-montserrat font-black text-xl text-gray-400">No Recipes Found</h3>
-            <p class="text-sm font-medium text-gray-400 mt-2">Try adjusting your search or category filter.</p>
+            <h3 class="font-montserrat font-black text-xl text-gray-400" data-ux-ko="검색 결과가 없습니다" data-ux-en="No matching recipes">No matching recipes</h3>
+            <p class="text-sm font-medium text-gray-400 mt-2" data-ux-ko="검색어 또는 카테고리를 변경해 다시 확인하세요." data-ux-en="Try a different search term or category.">Try a different search term or category.</p>
         </div>
 
     </main>
@@ -411,9 +411,7 @@
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Fail-Safe) -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account.">
-                        RESET SESSION
-                    </button>
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account." data-ux-ko="로그아웃" data-ux-en="Sign out">Sign out</button>
                 </div>
             </div>
         </div>
@@ -484,8 +482,8 @@
         // ============================================================================
         const I18N_DICT = {
             en: {
-                "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice",
-                "logout": "LOGOUT"
+                "nav_dashboard": "Dashboard", "nav_catalog": "Items & Orders", "nav_recipes": "Recipes", "nav_admin": "Order Management", "nav_invoice": "Invoices",
+                "logout": "Sign out"
             },
             ko: {
                 "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스",

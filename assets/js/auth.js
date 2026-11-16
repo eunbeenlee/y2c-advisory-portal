@@ -710,7 +710,7 @@ Object.assign(OfflineEngine, {
                 overlay.innerHTML = `
                     <div class="bg-white p-8 rounded-[2rem] shadow-2xl flex flex-col items-center transform scale-95 transition-transform duration-300" id="y2c-loader-box">
                         <div class="w-16 h-16 border-4 border-gray-100 border-t-[#E3000F] rounded-full animate-spin mb-4"></div>
-                        <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight" id="y2c-loader-msg">${message}</h3>
+                        <h3 class="font-montserrat font-black text-lg text-[var(--premium-charcoal)] tracking-tight" id="y2c-loader-msg">${this.escapeHtml(message)}</h3>
                         <p class="text-[10px] font-bold text-gray-400 mt-2 tracking-widest uppercase font-mono">연결을 확인하고 있어요…</p>
                     </div>
                 `;
@@ -740,7 +740,7 @@ Object.assign(OfflineEngine, {
         },
 
         escapeHtml: function(unsafe) {
-            return String(unsafe || "")
+            return String(unsafe == null ? "" : unsafe)
                  .replace(/&/g, "&amp;")
                  .replace(/</g, "&lt;")
                  .replace(/>/g, "&gt;")
@@ -869,7 +869,7 @@ const RegionContext = {
         },
         _dispatch: async function(action, payload = {}, retryCount = 0, context = null, activity = null) {
             if (!CFG.API.BASE_URL || CFG.API.BASE_URL.trim() === "") {
-                throw new Y2CNetworkError("크리티컬 에러: 글로벌 API 엔드포인트(BASE_URL)가 구성되지 않았습니다. 인프라 관리자에게 문의하십시오.");
+                throw new Y2CNetworkError("서버 연결 주소가 설정되어 있지 않습니다. 관리자에게 문의해 주세요.");
             }
 
             payload = { ...payload };
@@ -879,7 +879,7 @@ const RegionContext = {
                 if (!SessionManager.isSessionValid()) {
                     SessionManager.clearSession();
                     window.location.replace('index.html');
-                    throw new Y2CAuthError("보안 세션이 만료되었습니다. 기업 데이터 보호를 위해 재로그인 해주십시오.");
+                    throw new Y2CAuthError("로그인이 만료되었습니다. 다시 로그인해 주세요.");
                 }
                 context=context||RequestPolicy.session();
                 RequestPolicy.assertSession(context);
@@ -920,14 +920,14 @@ const RegionContext = {
                 const response = await fetch(targetUrl, fetchOptions);
                 if (!response.ok) {
                     if (response.status === 401 || response.status === 403) {
-                        const explicitError = new Y2CAuthError(`엔터프라이즈 접근 권한 거부 (HTTP ${response.status}).`);
+                        const explicitError = new Y2CAuthError(`이 작업에 접근할 수 없습니다. 계정 권한을 확인해 주세요. (HTTP ${response.status})`);
                         explicitError.isFatal = true; // 무한루프 재시도 방지
                         throw explicitError;
                     }
                     if (response.status === 404) {
-                        throw new Y2CHttpError(`서버 네트워크 장애 또는 리다이렉트 유실 (HTTP ${response.status})`, 404);
+                        throw new Y2CHttpError(`서버 주소를 찾을 수 없습니다. 관리자에게 문의해 주세요. (HTTP ${response.status})`, 404);
                     }
-                    const httpError = new Y2CHttpError(`서버 네트워크 장애 (HTTP ${response.status})`, response.status);
+                    const httpError = new Y2CHttpError(`서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요. (HTTP ${response.status})`, response.status);
                     throw httpError;
                 }
 
@@ -942,12 +942,12 @@ const RegionContext = {
                 if (jsonResponse.offlineQueued) return jsonResponse;
                 if (jsonResponse.success === false) {
                     if (jsonResponse.errorType === 'SYSTEM' || jsonResponse.ledgerPending) throw new Y2CHttpError(jsonResponse.message || '저장 복구 대기 중', 503);
-                    if (action!=="login" && jsonResponse.message && (jsonResponse.message.includes("만료") || jsonResponse.message.includes("로그인"))) {
+                    if (action!=="login" && (jsonResponse.errorType==='AUTH' || /만료|로그인|Invalid Session|Session Expired/i.test(jsonResponse.message||''))) {
                         RequestPolicy.assertSession(context);
                         SessionManager.clearSession();
                         window.location.replace('index.html');
                     }
-                    const logicErr = new Y2CBackendError(jsonResponse.message || "알 수 없는 서버 논리 결함이 발생했습니다.");
+                    const logicErr = new Y2CBackendError(jsonResponse.message || "서버에서 요청을 처리하지 못했습니다. 입력 내용을 확인해 주세요.");
                     logicErr.isBackendLogicError = true; 
                     throw logicErr;
                 }
@@ -994,20 +994,20 @@ const RegionContext = {
                         success: false,
                         status: "QUEUED",
                         offlineQueued: true,
-                        message: "[네트워크 단절] 기기에 보관했습니다. 서버 저장 대기 중이며 입력 내용은 유지됩니다.",
+                        message: "요청을 이 기기에 보관했습니다. 연결되면 같은 요청으로 저장을 다시 확인합니다.",
                         action: action,
                         batchId: payload.batchId || `OFFLINE-${Date.now()}` 
                     };
                 } else {
-                    throw new Y2CNetworkError("치명적 오류: 통신이 단절되었으며 기기 저장소 접근에 실패했습니다. 디바이스 용량을 비워주십시오.");
+                    throw new Y2CNetworkError("서버 저장 여부를 확인할 수 없고 기기 보관에도 실패했습니다. 입력 내용을 보관한 뒤 처리 내역과 연결 상태를 확인해 주세요.");
                 }
             } else {
                 if (navigator.onLine) {
                     console.error("[Y2C Network Engine] Server/CORS/URL routing collision.", originalError);
-                    throw new Y2CNetworkError("API 노드 연결에 실패했습니다. 글로벌 엔드포인트(URL) 설정이나 네트워크 방화벽을 확인하십시오.");
+                    throw new Y2CNetworkError("서버에 연결하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.");
                 } else {
                     console.error("[Y2C Network Engine] Zero connectivity read-fault.");
-                    throw new Y2CNetworkError("네트워크 연결이 완전히 단절되었습니다. Wi-Fi 또는 셀룰러 데이터 활성화 후 다시 시도하십시오.");
+                    throw new Y2CNetworkError("인터넷 연결이 없습니다. Wi-Fi 또는 모바일 데이터를 연결한 뒤 다시 시도해 주세요.");
                 }
             }
         }
@@ -1260,7 +1260,7 @@ const SyncDaemon = {
                 const btnSpinner = document.getElementById('btnSpinner');
 
                 const id = (userIdInput.value || "").trim();
-                const pw = (userPwInput.value || "").trim();
+                const pw = userPwInput.value || "";
 
                 userIdInput.classList.remove('input-error');
                 userPwInput.classList.remove('input-error');
@@ -1315,7 +1315,7 @@ const SyncDaemon = {
                     let finalMsg = err.message;
                     // 로그인 페이지에서의 404/Abort 재시도마저 실패했을 때 사용자 친화적인 안내 표출
                     if(err.message.includes("초과") || err.message.includes("장애") || err.message.includes("유실") || err.name === 'AbortError' || err.name === 'Y2CNetworkError') {
-                        finalMsg = "서버 우회 응답 지연: 구글 데이터 노드 연결을 재시도합니다. 로그인 버튼을 한 번 더 눌러주십시오.";
+                        finalMsg = "서버 응답이 지연되고 있습니다. 인터넷 연결을 확인한 뒤 다시 로그인해 주세요.";
                     }
                     
                     UIController.showToast(finalMsg, "error");

@@ -227,8 +227,10 @@
     <link rel="stylesheet" href="assets/css/experience.css">
     <link rel="stylesheet" href="assets/css/pwa.css">
     <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <link rel="stylesheet" href="assets/css/portal-refinement.css">
     <script defer src="assets/js/performance.js"></script>
     <script defer src="assets/js/workspace-ui.js"></script>
+    <script defer src="assets/js/portal-copy.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page portal-login selection:bg-[#E3000F] selection:text-white fouc-lock" style="opacity: 0; transition: opacity 0.5s ease-out;">
@@ -290,9 +292,9 @@
         
         <header class="portal-login-intro">
             <span class="portal-eyebrow">SINJEON CANADA · Y2C HOLDINGS</span>
-            <h1>파트너 로그인</h1>
+            <h1 data-ux-ko="파트너 로그인" data-ux-en="Partner sign-in">Partner sign-in</h1>
             <p id="dynamicGreeting">Partner Portal</p>
-            <p>업무 계정으로 로그인해 주문과 운영 현황을 확인하세요.</p>
+            <p data-ux-ko="업무 계정으로 로그인해 발주·재고·정산 현황을 확인하세요." data-ux-en="Sign in to manage orders, inventory and invoices.">Sign in to manage orders, inventory and invoices.</p>
         </header>
 
         <!-- 🌟 엔터 키 렌더 붕괴 방어망 -->
@@ -309,8 +311,8 @@
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         </span>
-                        <input type="text" id="userId" name="userId" autocomplete="username" spellcheck="false" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-wider relative z-0">
-                        <label for="userId" class="floating-label">Partner / Vendor ID</label>
+                        <input type="text" id="userId" name="userId" autocapitalize="none" required autocomplete="username" spellcheck="false" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-wider relative z-0">
+                        <label for="userId" class="floating-label" data-ux-ko="아이디" data-ux-en="Account ID">Account ID</label>
                     </div>
                 </div>
 
@@ -320,8 +322,8 @@
                         <span class="input-icon absolute left-4 pointer-events-none z-10 flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         </span>
-                        <input type="password" id="userPw" name="userPw" autocomplete="current-password" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-[0.3em] text-lg relative z-0">
-                        <label for="userPw" class="floating-label">Passkey</label>
+                        <input type="password" id="userPw" name="userPw" required autocomplete="current-password" placeholder=" " class="premium-input shadow-premium-input focus:shadow-premium-input-focus font-mono tracking-[0.3em] text-lg relative z-0">
+                        <label for="userPw" class="floating-label" data-ux-ko="비밀번호" data-ux-en="Password">Password</label>
                         
                         <button type="button" id="togglePwBtn" aria-label="Show password" aria-pressed="false" class="absolute right-4 text-gray-400 hover:text-[var(--premium-charcoal)] transition-colors focus:outline-none z-10 p-1">
                             <svg id="eyeIconClosed" class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
@@ -336,15 +338,14 @@
                     Caps Lock is ON
                 </div>
 
-                <!-- Biometric UI Hint -->
+                <!-- Account access note -->
                 <div class="flex justify-between items-center px-1 mt-1 mb-2 hidden sm:flex opacity-60">
-                    <span class="text-[9px] text-gray-400 font-bold tracking-widest uppercase">Secure Auth Level 4</span>
-                    <svg class="w-4 h-4 text-gray-400 animate-heartbeat" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+                    <span class="portal-subtle-label" data-ux-ko="발급받은 업무 계정으로 로그인하세요." data-ux-en="Use the account provided for your store or company.">Use the account provided for your store or company.</span>
                 </div>
 
                 <!-- 🌟 3D 마그네틱 SECURE LOGIN 버튼 -->
                 <button type="submit" id="loginBtn" class="btn-hip shadow-premium-btn hover:shadow-premium-btn-hover w-full font-montserrat font-black text-[13.5px] tracking-[0.2em] uppercase py-5 rounded-xl mt-3 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#E3000F] focus:ring-offset-2 focus:ring-offset-[#ffffff]">
-                    <span id="btnText">Secure Login</span>
+                    <span id="btnText" data-ux-ko="로그인" data-ux-en="Sign in">Sign in</span>
                     <div id="btnSpinner" class="hidden flex items-center justify-center gap-3">
                         <svg class="animate-spin h-5 w-5 text-white drop-shadow-md" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -365,9 +366,7 @@
                     </p>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX] 세션 초기화 및 Deep Nuke 강제 실행 버튼 -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="로그인 세션 정리">
-                        RESET SESSION
-                    </button>
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="저장된 로그인 정보를 지우고 다시 로그인합니다" data-ux-ko="로그인 문제 해결" data-ux-en="Reset sign-in">Reset sign-in</button>
                 </div>
             </footer>
         </form>
@@ -402,9 +401,9 @@
         const greetingEl = document.getElementById('dynamicGreeting');
         if (greetingEl) {
             const hour = new Date().getHours();
-            if (hour >= 5 && hour < 12) greetingEl.innerText = "Good Morning, Partner";
-            else if (hour >= 12 && hour < 18) greetingEl.innerText = "Good Afternoon, Partner";
-            else greetingEl.innerText = "Good Evening, Partner";
+            if (hour >= 5 && hour < 12) greetingEl.innerText = "Good morning.";
+            else if (hour >= 12 && hour < 18) greetingEl.innerText = "Good afternoon.";
+            else greetingEl.innerText = "Welcome back.";
         }
 
         // 2. Password Visibility Toggle
@@ -469,7 +468,7 @@
 
                     // 🚨 [CRITICAL FIX] userPwInput ReferenceError Eradicated. Safely parsing values.
                     const id = (userIdInput ? userIdInput.value : "").trim();
-                    const pw = (userPwInput ? userPwInput.value : "").trim();
+                    const pw = userPwInput ? userPwInput.value : "";
 
                     if (userIdInput) userIdInput.classList.remove('input-error');
                     if (userPwInput) userPwInput.classList.remove('input-error');

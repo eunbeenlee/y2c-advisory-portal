@@ -174,8 +174,10 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/pwa.css">
     <link rel="stylesheet" href="assets/css/workspace-ui.css">
+    <link rel="stylesheet" href="assets/css/portal-refinement.css">
     <script defer src="assets/js/performance.js"></script>
     <script defer src="assets/js/workspace-ui.js"></script>
+    <script defer src="assets/js/portal-copy.js"></script>
 </head>
 
 <body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
@@ -245,10 +247,10 @@
 
             <nav aria-label="Primary navigation" data-portal-navigation class="hidden lg:flex items-center justify-center flex-1 h-full gap-5 xl:gap-8 px-4 min-w-0">
                 <a href="dashboard.html" id="navDashboard" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_dashboard">Dashboard</a>
-                <a href="items.html" id="navCatalog" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Item Catalog</a>
+                <a href="items.html" id="navCatalog" aria-current="page" class="nav-link active text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_catalog">Items &amp; Orders</a>
                 <a href="recipes.html" id="navRecipes" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_recipes">Recipes</a>
-                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Administration</a>
-                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Advisory Invoice</a>
+                <a href="admin.html" id="navAdmin" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_admin">Order Management</a>
+                <a href="invoice.html" id="navInvoice" class="nav-link text-[12px] xl:text-[13px] tracking-wide hidden" data-i18n="nav_invoice">Invoices</a>
             </nav>
 
             <div data-portal-account class="hidden lg:flex items-center justify-end gap-3 sm:gap-4 shrink-0 w-auto lg:w-[280px]">
@@ -263,7 +265,7 @@
                     </span>
                     <span id="userNameDisplay" class="text-[10px] sm:text-xs font-extrabold text-[var(--premium-charcoal)] truncate max-w-[70px] sm:max-w-[100px] font-inter">Loading...</span>
                     <span id="userRoleBadge" class="hidden shrink-0 px-2 py-0.5 text-[9px] font-black bg-red-50 text-[#E3000F] rounded border border-red-100 uppercase tracking-widest font-mono"></span>
-                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">LOGOUT</button>
+                    <button type="button" id="logoutBtn" aria-label="Logout" class="shrink-0 text-[10px] font-bold text-gray-500 hover:text-[#E3000F] px-2 py-1 rounded transition-all cursor-pointer tracking-widest uppercase sm:ml-1 focus:outline-none" data-i18n="logout">Sign out</button>
                 </div>
             </div>
         </div>
@@ -272,10 +274,10 @@
     <!-- 🚨 모바일 노치 가림 보호망 -->
     <div data-portal-mobile-navigation role="navigation" aria-label="Compact navigation" class="lg:hidden flex overflow-x-auto hide-scrollbar bg-white border-b border-gray-100 py-2 px-4 gap-2 no-print shrink-0 whitespace-nowrap" style="padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);">
         <a href="dashboard.html" id="navDashboard_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_dashboard">Dashboard</a>
-        <a href="items.html" id="navCatalog_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Item Catalog</a>
+        <a href="items.html" id="navCatalog_mob" aria-current="page" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_catalog">Items &amp; Orders</a>
         <a href="recipes.html" id="navRecipes_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_recipes">Recipes</a>
-        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Administration</a>
-        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Advisory Invoice</a>
+        <a href="admin.html" id="navAdmin_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_admin">Order Management</a>
+        <a href="invoice.html" id="navInvoice_mob" class="hidden px-3 py-1.5 rounded-lg text-[10px] font-black text-gray-500 hover:bg-gray-50 whitespace-nowrap" data-i18n="nav_invoice">Invoices</a>
     </div>
 
     <!-- 🚨 권한 기반 라우팅 동적으로 해제 -->
@@ -306,14 +308,14 @@
                     <span data-ux-ko="상품 · 재고" data-ux-en="Items &amp; stock">Items &amp; stock</span>
                     <span id="regionBadge" class="px-2.5 py-1 bg-red-50 border border-red-100 text-[#E3000F] text-[10px] font-black rounded uppercase tracking-widest translate-y-[-4px]">ON PRICING</span>
                 </h2>
-                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter" data-ux-ko="상품과 수량을 선택하여 발주하거나 재고를 확인하세요." data-ux-en="Select items and quantities to request procurement or view stock.">
-                    Select items and quantities to request procurement or view stock.
+                <p class="text-sm font-bold text-gray-500 mt-2 tracking-wide font-inter" data-ux-ko="가용 재고를 확인하고 필요한 수량을 선택한 뒤 발주 내용을 검토하세요." data-ux-en="Check available stock, choose quantities and review your order.">
+                    Check available stock, choose quantities and review your order.
                 </p>
             </div>
             
             <div id="catalogToolbar" tabindex="-1" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
                 <div id="hubSelectorContainer" class="hidden relative w-full sm:w-auto">
-                    <select id="hubSelector" class="premium-input bg-white cursor-pointer appearance-none pl-10 text-[12px] font-black uppercase tracking-widest text-[#E3000F]">
+                    <select id="hubSelector" aria-label="Stock region" class="premium-input bg-white cursor-pointer appearance-none pl-10 text-[12px] font-black uppercase tracking-widest text-[#E3000F]">
                         <!-- Populated by JS -->
                     </select>
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -325,7 +327,7 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <input enterkeyhint="search" type="search" id="catalogSearchInput" class="premium-input bg-white pl-12 !rounded-full text-[14px]" placeholder="Search SKU or Name..." autocomplete="off">
+                    <input enterkeyhint="search" type="search" id="catalogSearchInput" class="premium-input bg-white pl-12 !rounded-full text-[14px]" placeholder="Search item name or code" autocomplete="off">
                 </div>
             </div>
         </header>
@@ -337,7 +339,7 @@
         <!-- 🌟 4대 KPI 카드 -->
         <div id="catalogKpis" class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <div class="kpi-card bg-[var(--premium-charcoal)] !border-none !text-white flex flex-col justify-center shadow-premium-card">
-                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total SKUs</h3>
+                <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1" data-ux-ko="전체 상품" data-ux-en="Total items">Total items</h3>
                 <div class="text-3xl font-black font-montserrat tracking-tighter mt-1" id="kpiTotalSkus">
                     <span class="animate-pulse">●●●</span>
                 </div>
@@ -368,7 +370,7 @@
             <!-- 🚨 [UX UPGRADE 1] AI Auto-Fill Event Binding to prevent dead click -->
             <button type="button" id="btnAutoFillAI" class="px-6 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 transition-all shadow-md hover:shadow-lg focus:outline-none">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
-                AUTO-FILL AI
+                Order suggestions
             </button>
         </div>
 
@@ -414,7 +416,7 @@
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-red-50 text-[#E3000F] flex items-center justify-center text-lg shadow-sm" id="cartIconBox">🛒</div>
                         <div>
-                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter">Cart Summary</p>
+                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest font-inter" data-ux-ko="발주 요약" data-ux-en="Order summary">Order summary</p>
                             <p class="text-[13px] font-bold text-[#111827] font-inter mt-0.5"><span id="cartItemsCount" class="text-[#E3000F] font-black">0</span> SKUs Selected</p>
                         </div>
                     </div>
@@ -453,9 +455,7 @@
                     </span>
                     <span class="text-gray-300 text-[8px]">|</span>
                     <!-- 🚨 [CRITICAL FIX 3] 세션 초기화 로그아웃 버튼 (모바일 및 에러 대비용 Deep Nuke) -->
-                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account.">
-                        RESET SESSION
-                    </button>
+                    <button type="button" id="indexLogoutBtn" class="font-montserrat text-[8.5px] font-black text-gray-400 tracking-[0.1em] uppercase transition-colors hover:text-[#E3000F] focus:outline-none" title="Sign out of this account." data-ux-ko="로그아웃" data-ux-en="Sign out">Sign out</button>
                 </div>
             </div>
         </div>
@@ -508,7 +508,7 @@
         if(uBadge) { uBadge.innerText = AppState.role; uBadge.classList.remove('hidden'); }
         
         const I18N_DICT = {
-            en: { "nav_dashboard": "Dashboard", "nav_catalog": "Item Catalog", "nav_recipes": "Recipes", "nav_admin": "Administration", "nav_invoice": "Advisory Invoice", "logout": "LOGOUT" },
+            en: { "nav_dashboard": "Dashboard", "nav_catalog": "Items & Orders", "nav_recipes": "Recipes", "nav_admin": "Order Management", "nav_invoice": "Invoices", "logout": "Sign out" },
             ko: { "nav_dashboard": "대시보드", "nav_catalog": "상품·발주", "nav_recipes": "레시피", "nav_admin": "주문·재고 관리", "nav_invoice": "정산 인보이스", "logout": "로그아웃" }
         };
 
@@ -541,7 +541,7 @@
         // 🚨 [UX UPGRADE] AI Auto-Fill Event
         const btnAutoFillAI = document.getElementById('btnAutoFillAI');
         if (btnAutoFillAI) {
-            btnAutoFillAI.disabled=true;btnAutoFillAI.title='자동 추천은 아직 활성화되지 않았습니다.';btnAutoFillAI.textContent='자동 추천 준비 중';if(AppState.role!=='PARTNER')btnAutoFillAI.style.display='none';
+            btnAutoFillAI.disabled=true;btnAutoFillAI.title=currentLang==='ko'?'수량을 직접 입력해 발주하세요.':'Enter quantities to place an order.';btnAutoFillAI.textContent=currentLang==='ko'?'발주 추천 준비 중':'Suggestions unavailable';if(AppState.role!=='PARTNER')btnAutoFillAI.style.display='none';
             btnAutoFillAI.addEventListener('click', () => {
                 Y2C_AuthEngine.showToast("자동 추천은 아직 활성화되지 않았습니다. 수량을 직접 입력해 주세요.", "warning");
             });

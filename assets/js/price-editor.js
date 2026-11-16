@@ -20,9 +20,13 @@
   form.append(message,save,cancel);dialog.append(title,desc,node('p',t('기존 주문 금액은 유지됩니다. 변경 전후 값과 회사 계정이 기록됩니다.','Existing order amounts are retained. Before and after prices and the company account are recorded.')),form);document.body.append(dialog);
   try{dialog.showModal();price.focus();}catch(error){dialog.remove();if(active===dialog)active=null;Y2C_AuthEngine.showToast(t('가격창을 열지 못했습니다. 브라우저 상태를 확인한 뒤 다시 시도하세요.','Unable to open the price dialog. Check the browser and retry.'),'error');return;}
   form.addEventListener('submit',async e=>{
-   e.preventDefault();if(busy)return;if(!current()){expired();return;}if(!form.reportValidity())return;if(!navigator.onLine){message.textContent=t('온라인 연결 후 저장해 주세요.','Connect to the internet before saving.');return;}
+   e.preventDefault();if(busy)return;if(!current()){expired();return;}if(!form.reportValidity())return;
+   const newPrice=Number(price.value),changeReason=reason.value.trim(),priceCents=Math.round(newPrice*100);
+   if(!Number.isFinite(newPrice)||newPrice<0||!Number.isSafeInteger(priceCents)||Math.abs(newPrice*100-priceCents)>1e-6){message.textContent=t('단가는 0 이상의 숫자로 소수점 둘째 자리까지 입력해 주세요.','Enter a nonnegative price with up to two decimal places.');return;}
+   if(changeReason.length<3||changeReason.length>300){message.textContent=t('변경 사유는 앞뒤 공백을 제외하고 3~300자로 입력해 주세요.','Enter a reason with 3–300 characters after trimming surrounding spaces.');return;}
+   if(!navigator.onLine){message.textContent=t('온라인 연결 후 저장해 주세요.','Connect to the internet before saving.');return;}
    busy=true;window.Y2C_UX?.busy(save,true);save.disabled=cancel.disabled=true;price.disabled=reason.disabled=true;message.textContent=t('저장 결과 확인 중…','Checking save result…');
-   try{const r=await Y2C_AuthEngine.request('update_price',{code,clientState:region,price:Number(price.value),expectedPrice,reason:reason.value.trim()});if(!current()){expired();return;}
+   try{const r=await Y2C_AuthEngine.request('update_price',{code,clientState:region,price:newPrice,expectedPrice,reason:changeReason});if(!current()){expired();return;}
     if(r.offlineQueued||r.inFlight){document.dispatchEvent(new Event('y2c-price-pending'));message.textContent=r.message||'기기에 보존했습니다. 서버 확인 대기 중입니다. 같은 내용으로 다시 확인하세요.';return;}
     if(!r.success)throw Error(r.message||t('저장 결과를 확인할 수 없습니다.','Unable to confirm the save result.'));await Y2C_AuthEngine.acknowledgeCommitted(r.requestKey);if(!current()){expired();return;}busy=false;close();document.dispatchEvent(new Event('y2c-operations-updated'));await refresh();
    }catch(error){if(!current()){if(dialog.isConnected)expired();}else if(dialog.isConnected)message.textContent=error.message;else Y2C_AuthEngine.showToast(t('가격 저장 후 목록 조회 실패. 새로고침하세요.','Price saved, but the list could not refresh. Refresh the list.'),'warning');}

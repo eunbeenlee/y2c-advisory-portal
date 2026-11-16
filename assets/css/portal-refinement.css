@@ -1,0 +1,147 @@
+/* Partner Portal refinement. Screen-only: printed invoices retain their layout. */
+@media screen {
+  .portal-page {
+    --workspace-ink: #17263a;
+    --workspace-muted: #526276;
+    --workspace-line: #dce3eb;
+    --workspace-bg: #f4f6f9;
+    --workspace-soft: #fff3f5;
+    --workspace-radius: 14px;
+    --workspace-shadow: 0 2px 8px rgb(22 39 60 / 3%);
+    --premium-charcoal: #17263a;
+    background: var(--workspace-bg) !important;
+    color: var(--workspace-ink);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .portal-page *, .portal-page *::before, .portal-page *::after { box-sizing: border-box; }
+  .portal-page [hidden] { display: none !important; }
+  .portal-page .ux-skip {
+    position: fixed; left: 16px; top: -80px; z-index: 100001;
+    padding: 12px 20px; border-radius: 8px; background: #17263a; color: #fff;
+    font-size: 14px; font-weight: 650; text-decoration: none;
+  }
+  .portal-page .ux-skip:focus { top: 12px; outline: 3px solid #e3000f; outline-offset: 3px; }
+  .portal-page main:focus { outline: none; }
+  .portal-page [data-portal-header] { background: #fff; box-shadow: none; backdrop-filter: none; }
+  .portal-page [data-portal-header-row] { min-height: 76px; }
+  .portal-page [data-portal-navigation] .nav-link { font-size: 13px; font-weight: 600; }
+  .portal-page [data-portal-navigation] .nav-link.active { color: #17263a; }
+  .portal-page [data-portal-navigation] .nav-link.active::after { background: #e3000f; height: 2px; }
+  .portal-page [data-portal-brand] [class*="animate-shimmer"] { display: none; }
+  .portal-page [data-portal-brand] > :first-child > div { transform: none !important; box-shadow: none; }
+  .portal-page [data-portal-brand] > :first-child > div:nth-child(2) { border: 1px solid #dce3eb; border-radius: 9px; }
+  .portal-page [data-portal-brand] > :first-child > div:nth-child(2) span { color: #17263a; text-shadow: none !important; }
+  .portal-page [data-portal-brand] > :first-child > div:nth-child(2) > div { background: #fff; }
+  .portal-page [data-portal-account] #userRoleBadge { font-weight: 650; letter-spacing: .02em; }
+  .portal-page :is(button, a, input, select, textarea, summary):focus-visible {
+    outline: 3px solid #315b8b; outline-offset: 3px;
+  }
+  .portal-page :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):disabled {
+    color: #637083; background: #f1f4f7; border-color: #dce3eb; opacity: 1;
+  }
+  .portal-page :is(input, textarea)::placeholder { color: #6c7a8d; opacity: 1; }
+  .portal-page :is(.premium-input, .ux-filter-bar input, .ux-filter-bar select) {
+    border-color: #c9d3df; border-radius: 9px !important; font-weight: 450; line-height: 1.5;
+  }
+  .portal-page :is(.premium-input, .ux-filter-bar input, .ux-filter-bar select):focus {
+    border-color: #315b8b; box-shadow: 0 0 0 3px rgb(49 91 139 / 10%); transform: none;
+  }
+  .portal-page :is(input, select, textarea)[aria-invalid="true"] { border-color: #b42333 !important; }
+  .portal-page :is(.btn-solid-red, .sub-nav-btn, #loginBtn, #btnSubmitCart, #btnLoadLedger) {
+    letter-spacing: 0; text-transform: none; font-weight: 650; font-size: 14px;
+  }
+  .portal-page :is(.btn-solid-red, .workspace-link, .sub-nav-btn, #loginBtn):not(:disabled):active { transform: none; }
+  .portal-page :is(.btn-solid-red, #loginBtn):not(:disabled):hover { box-shadow: none; transform: none; }
+  .portal-page :is(.premium-card, .solid-panel, .recipe-card, .kpi-card, .tab-section) {
+    border-radius: 14px; box-shadow: var(--workspace-shadow);
+  }
+  .portal-page :is(.premium-card, .recipe-card):hover { transform: none; box-shadow: 0 3px 12px rgb(22 39 60 / 7%); }
+  .portal-page .workspace-bar { padding: 22px 24px; box-shadow: none; }
+  .portal-page .workspace-art { display: none; }
+  .portal-page .workspace-bar h1 { font-size: 26px; font-weight: 720; letter-spacing: -.035em; }
+  .portal-page .workspace-bar p { font-size: 14px; line-height: 1.65; }
+  .portal-page .workspace-eyebrow { font-size: 11px !important; letter-spacing: .09em; color: #526276; }
+  .portal-page .workspace-links { gap: 10px; }
+  .portal-page .workspace-link { border-radius: 10px; min-height: 64px; padding: 13px 15px; }
+  .portal-page .workspace-link:first-child { background: #f8fafc; border-color: #dce3eb; }
+  .portal-page .workspace-link:hover { background: #f8fafc; border-color: #aebdcd; }
+  .portal-page .workspace-link strong { font-size: 14px; font-weight: 650; }
+  .portal-page .workspace-link small { font-size: 12px; }
+  .portal-page .workspace-icon { color: #526276; }
+  .portal-page :is(.workspace-section-head h2, #catalogHeading h2, #recipeHeading h2) { font-weight: 720 !important; }
+  .portal-page :is(#catalogHeading, #recipeHeading) p { font-weight: 450; letter-spacing: 0; line-height: 1.7; }
+  .portal-page #adminSubNav { padding: 6px; border: 1px solid #dce3eb; border-radius: 12px; background: #fff; }
+  .portal-page #adminSubNav .sub-nav-btn { min-height: 44px; border-radius: 8px; }
+  .portal-page :is(.enterprise-table, .ux-data-table) th { padding-block: 14px; color: #526276; background: #f7f9fb; }
+  .portal-page :is(.enterprise-table, .ux-data-table) td { font-weight: 450; }
+  .portal-page :is(.enterprise-table, .ux-data-table) tr:last-child td { border-bottom: 0; }
+  .portal-page :is(.kpi-card, .ux-stat) { padding: 22px; border-color: #dce3eb; }
+  .portal-page :is(.kpi-card, .ux-stat) h3 { font-size: 12px; letter-spacing: 0; text-transform: none; font-weight: 600; }
+  .portal-page :is(#kpiTotalSkus, #kpiLowStock, #kpiInvValue, .ux-stat-value) { font-variant-numeric: tabular-nums; }
+  .portal-page .kpi-card .animate-pulse:not(.skeleton) { animation: none; }
+  .portal-page #btnAutoFillAI { background: #fff; color: #17263a; border: 1px solid #c9d3df; box-shadow: none; font-size: 13px; letter-spacing: 0; text-transform: none; }
+  .portal-page #btnAutoFillAI:hover { background: #f7f9fb; box-shadow: none; }
+  .portal-page .portal-inline-note { font-size: 13px; line-height: 1.7; color: #526276; padding: 14px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; margin: 0 0 20px; }
+  .portal-page .portal-internal-badge { border: 1px solid #dce3eb; background: #f7f9fb; color: #526276; font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 6px; letter-spacing: 0; text-transform: none; white-space: nowrap; }
+  .portal-page .portal-subtle-label { font-size: 12px; font-weight: 500; color: #526276; letter-spacing: 0; text-transform: none; }
+  .portal-page .animate-lock-shake, .portal-page .animate-heartbeat { animation: none; }
+  .portal-page .glass-lock-overlay { backdrop-filter: blur(3px); }
+  .portal-page .glass-lock-overlay h3 { font-size: 21px; font-weight: 650; }
+  .portal-page .glass-lock-overlay p { font-size: 14px; font-weight: 450; letter-spacing: 0; }
+  .portal-page .inventory-entry { background: #fff; border-color: #dce3eb; }
+  .portal-page .inventory-entry button { background: #17263a; border-color: #17263a; font-weight: 600; }
+  .portal-page #dropZone { border: 1px dashed #aebdcd; background: #fafbfd; border-radius: 12px; }
+  .portal-page .drop-zone:hover { background: #f3f6fa; border-color: #6a8199; }
+  .portal-page #recipeModalPanel { border-radius: 16px; }
+  .portal-page #recipeModalPanel > header { background: #fff; }
+  .portal-page #recipeModalPanel :is(h2, h3) { font-weight: 700; }
+  .portal-page #invoiceControls { top: 96px; max-height: calc(100dvh - 130px); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; border-radius: 14px; box-shadow: none; }
+  .portal-page #invoiceCanvasContainer { min-width: 0; overscroll-behavior-x: contain; }
+  .portal-page #invoiceControls label { font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; color: #526276; }
+  .portal-page #invoiceControls :is(input, select) { min-height: 44px; font-size: 14px; }
+  .portal-page .invoice-date-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .portal-page .invoice-date-section { min-width: 0; margin: 2px 0 0; padding: 16px 0 0; border: 0; border-top: 1px solid #dce3eb; }
+  .portal-page .invoice-date-section legend { padding: 0 10px 0 0; color: #17263a; font-size: 14px; font-weight: 650; line-height: 1.5; }
+  .portal-page .invoice-date-full { grid-column: 1 / -1; }
+  .portal-page .invoice-date-field { min-width: 0; display: grid; gap: 6px; }
+  .portal-page .invoice-date-field label { margin: 0; }
+  .portal-page .invoice-date-field :is(input, select) { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid #c9d3df; border-radius: 9px; background: #fff; color: #17263a; font: inherit; font-size: 14px; }
+  .portal-page .invoice-date-hint { color: #526276; font-size: 12px; line-height: 1.65; margin: 0; }
+  .portal-page .invoice-terms-summary { padding: 12px 14px; background: #f3f6fa; border: 1px solid #dce3eb; border-radius: 9px; font-size: 12px; line-height: 1.7; color: #34485f; }
+  .portal-page .invoice-validation-message { padding: 10px 12px; background: #fff4f4; border: 1px solid #efc6cb; color: #9e2532; border-radius: 8px; font-size: 12px; line-height: 1.65; }
+  .portal-page #invoiceResultStatus { line-height: 1.7; }
+  .portal-login { background: #f4f6f9 !important; }
+  .portal-login main { max-width: 440px; }
+  .portal-login .portal-login-intro h1 { font-size: 30px; line-height: 1.3; font-weight: 720; }
+  .portal-login .portal-login-intro > p { font-size: 14px; font-weight: 450; }
+  .portal-login #dynamicGreeting { color: #526276; font-size: 14px; }
+  .portal-login .workspace-login-art { display: none; }
+  .portal-login #loginForm { padding: 30px; border: 1px solid #dce3eb; border-radius: 14px; box-shadow: 0 8px 28px rgb(22 39 60 / 5%); }
+  .portal-login #userId { letter-spacing: 0; }
+  .portal-login #loginBtn { min-height: 52px; padding: 14px; font-size: 15px; }
+  .portal-login #togglePwBtn { min-width: 36px; min-height: 40px; display: flex; align-items: center; justify-content: center; right: 10px; }
+  .portal-login #indexLogoutBtn { font-size: 12px; letter-spacing: 0; text-transform: none; }
+  @media (max-width: 1279px) {
+    .portal-page #invoiceControls { position: static; max-height: none; overflow-y: visible; }
+  }
+  @media (max-width: 767px) {
+    .portal-page [data-portal-header-row] { min-height: 70px; }
+    .portal-page .workspace-bar { padding: 18px 16px; }
+    .portal-page .workspace-bar h1 { font-size: 23px; }
+    .portal-page .workspace-bar p { font-size: 13px; }
+    .portal-page .workspace-link { padding: 11px 10px; gap: 8px; min-height: 52px; }
+    .portal-page .workspace-link strong { font-size: 13px; }
+    .portal-page :is(.kpi-card, .ux-stat) { padding: 16px; }
+    .portal-page .invoice-date-field :is(input, select), .portal-page #invoiceControls :is(input, select) { font-size: 16px; }
+    .portal-page #recipeHeading h2 { flex-wrap: wrap; gap: 10px; font-size: 24px; }
+    .portal-page .portal-inline-note { margin-inline: 0; }
+    .portal-login #loginForm { padding: 24px 20px; }
+    .portal-login .portal-login-intro h1 { font-size: 28px; }
+    .portal-page #invoiceControls { top: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .portal-page, .portal-page *, .portal-page *::before, .portal-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+}
+@media print { .portal-page .ux-skip { display: none !important; } }

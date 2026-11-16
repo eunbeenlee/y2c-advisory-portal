@@ -1,6 +1,6 @@
 {
-  "version": "V88_29_0",
-  "digest": "87e6ea74ada84ec5",
+  "version": "V88_30_0",
+  "digest": "8d4c012654b90eee",
   "files": [
     {
       "path": ".well-known/assetlinks.json",
@@ -16,8 +16,8 @@
     },
     {
       "path": "admin.html",
-      "sha256": "11b148aa0d1b2628916651cb949eedc4beb39ac42183e1e078f69d6a2ec96d6f",
-      "bytes": 154523,
+      "sha256": "a69b0fc0988cff70868dfddc5ccddb457aa8a580258806b0a8361eb124ee662b",
+      "bytes": 161151,
       "category": "web"
     },
     {
@@ -61,6 +61,11 @@
       "sha256": "395836d644bb8b397eb922f47e3240d5306dd65a07c45c7594abf6fd1356365b",
       "bytes": 3977,
       "category": "web"
+    },
+    {
+      "path": "assets/css/portal-refinement.css",
+      "sha256": "0a1f28d73ff47a811c37eb1b9e9f47c24b164313a446fe20ede377bbb05a256e",
+      "bytes": 11422
     },
     {
       "path": "assets/css/portal-shell.css",
@@ -166,14 +171,14 @@
     },
     {
       "path": "assets/js/auth.js",
-      "sha256": "6392493a26c3d5ed1b8800fc0fa13042484333208682f5f464179285585ebce0",
-      "bytes": 79408,
+      "sha256": "bd3611daf78caa62565258f5cd7a51fefb19578d136518d59e9707d4a019e101",
+      "bytes": 79457,
       "category": "web"
     },
     {
       "path": "assets/js/config.js",
-      "sha256": "d106fabb29915958f998d8b5e0076d6612a1cb49f8a30fe134cc91f35d281d0a",
-      "bytes": 12997,
+      "sha256": "e70c1681357432400d1de50081274fc000cddbf442846bd57f649a583bbf9e75",
+      "bytes": 12999,
       "category": "web"
     },
     {
@@ -225,9 +230,14 @@
       "category": "web"
     },
     {
+      "path": "assets/js/invoice-dates.js",
+      "sha256": "f007da658fe1927fec0864444535c1389b7a0b3d0f20a3ce85bc936e9f6d860d",
+      "bytes": 2434
+    },
+    {
       "path": "assets/js/invoice-math.js",
-      "sha256": "510aaef3c5b9de56fe36a4a93e5a5ed909365e0de318d61da406fd3240f9a65e",
-      "bytes": 2483,
+      "sha256": "2248b93632617a04ec61707240e7be9878abb9a00cca8f8a8ba1f570f335a985",
+      "bytes": 5000,
       "category": "web"
     },
     {
@@ -256,8 +266,8 @@
     },
     {
       "path": "assets/js/order-math.js",
-      "sha256": "78b2ef2662f77f650d35a7f11133fbe9c8b9430fed7fb7e7bed4574a5d888750",
-      "bytes": 2136,
+      "sha256": "d040a5d3b4fab5ac38810f096e8c69a5f98dc87573183dc1c13911a119bbe07a",
+      "bytes": 2429,
       "category": "web"
     },
     {
@@ -273,6 +283,11 @@
       "category": "web"
     },
     {
+      "path": "assets/js/portal-copy.js",
+      "sha256": "3e05260cc0b181aef7e3f6412306457096be108b72839e4a578496d633dfa71d",
+      "bytes": 2824
+    },
+    {
       "path": "assets/js/portal-dialog.js",
       "sha256": "3ce70238b0597af1e935996d644e0aed849ee2d2a20b7ea4b53d947615bc8353",
       "bytes": 3072,
@@ -280,8 +295,8 @@
     },
     {
       "path": "assets/js/price-editor.js",
-      "sha256": "7c838069b80a1c79f786bcda29e16b91848d78995a21b704cbf8a4ced1957ced",
-      "bytes": 5219,
+      "sha256": "0c2f5c678fe8fc2ed36fffbf1067f958cdf877a8795bcd275092ce26b10db287",
+      "bytes": 5854,
       "category": "web"
     },
     {
@@ -298,8 +313,8 @@
     },
     {
       "path": "dashboard.html",
-      "sha256": "608ec97cb3f4b5f0d118c041153e58c6adc6d7859c606dd39320808a8e20d76f",
-      "bytes": 83908,
+      "sha256": "b7bc310fa0ad0cde56e4138a6f968870e9781d6789945076513a055a0dcb8ce0",
+      "bytes": 84536,
       "category": "web"
     },
     {
@@ -310,8 +325,8 @@
     },
     {
       "path": "index.html",
-      "sha256": "dfe6e663ce5ef4a4667e88fb84d2990547d373f9cdb9eadf6d2d925ce557fe47",
-      "bytes": 36880,
+      "sha256": "6ba1280434dc5a72df869e20dac578abeedad6304e7951d0dc4bf390fb6d8bd4",
+      "bytes": 37026,
       "category": "web"
     },
     {
@@ -322,14 +337,14 @@
     },
     {
       "path": "invoice.html",
-      "sha256": "170999bae58647846a52dbfc9e0d82232c3c8db270c67f3fa7cb993818e35efd",
-      "bytes": 80136,
+      "sha256": "43016f3f0a3fb2da17e9797ff45d659d8f898b48daec66ce3467589be344b680",
+      "bytes": 91456,
       "category": "web"
     },
     {
       "path": "items.html",
-      "sha256": "7db2eb3b8a2a0671dbc532c67eec9466fcb52ead0d40fae9ac9a6e15b23087e4",
-      "bytes": 88985,
+      "sha256": "8332a78045e8b520eaac3a07e2ef678a28221be0c3dcb4233414b40b77483d32",
+      "bytes": 89358,
       "category": "web"
     },
     {
@@ -340,14 +355,14 @@
     },
     {
       "path": "recipes.html",
-      "sha256": "13943fbc6639e1480e52da716c31ee19f8b39a3a116872c2601af6635dbaf776",
-      "bytes": 53595,
+      "sha256": "59bbd9fdb5b80f8fae53d4dd7936de82431bc0c7aa7ae9503f7dd433eb0f44c5",
+      "bytes": 54073,
       "category": "web"
     },
     {
       "path": "sw.js",
-      "sha256": "731ec54de776d048f877328d316dc046447a874a822b9dc862b035127da872ca",
-      "bytes": 19982,
+      "sha256": "ef38036d9b84939f95fab489cd2955a26a4f8f725f7b543f4c09e57e9542cc9c",
+      "bytes": 20395,
       "category": "web"
     },
     {
