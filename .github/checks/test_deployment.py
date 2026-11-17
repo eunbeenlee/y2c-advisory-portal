@@ -14,14 +14,10 @@ import unittest
 import urllib.error
 import urllib.parse
 
-ROOT = Path(__file__).resolve().parents[1]
-SOURCE = Path(os.environ.get('PORTAL_SOURCE', str(ROOT.parent / 'app-unified/web/frontend')))
-TOOL = Path(os.environ.get('PORTAL_DEPLOY_TOOL', str(ROOT / 'automation/portal-deploy.py')))
-if not TOOL.exists():
-    TOOL = ROOT / 'kit/automation/portal-deploy.py'
-FIXTURE = Path(os.environ.get('PORTAL_DEPLOY_FIXTURE', str(ROOT / 'repo-assetlinks.json')))
-if not FIXTURE.exists():
-    FIXTURE = ROOT / 'verification/repo-assetlinks.json'
+ROOT = Path(__file__).resolve().parents[2]
+SOURCE = Path(os.environ.get('PORTAL_SOURCE', str(ROOT)))
+TOOL = Path(os.environ.get('PORTAL_DEPLOY_TOOL', str(ROOT / 'portal-deploy.py')))
+FIXTURE = Path(os.environ.get('PORTAL_DEPLOY_FIXTURE', str(Path(__file__).resolve().parent / 'repo-assetlinks.json')))
 spec = importlib.util.spec_from_file_location('deploy', TOOL)
 deploy = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(deploy)
@@ -45,10 +41,45 @@ class DeploymentGate(unittest.TestCase):
 
     def test_valid_release_and_compatibility_assets_preserved(self):
         files, report = deploy.prepare(self.source)
-        self.assertEqual(report['verifiedFiles'], 59)
+        # BUILD_FIX_20261117_2: compare with the current manifest, never a
+        # historical literal such as 59, 62, or 64. The deployment gate still
+        # validates every byte hash, required reference, and worker inventory.
+        manifest = json.loads((self.source / 'release-manifest.json').read_text(encoding='utf-8'))
+        expected_paths = {entry['path'] for entry in manifest['files']}
+        self.assertTrue(expected_paths, 'Release inventory must not be empty')
+        self.assertEqual(len(expected_paths), len(manifest['files']))
+        self.assertEqual(report['verifiedFiles'], len(manifest['files']))
+        self.assertTrue(expected_paths.issubset(files), 'A verified file was not staged')
         self.assertIn('apps/SinjeonPortal-1.0.5.apk', files)
         self.assertIn('assets/js/items.js', files)
         self.assertFalse(report['businessDataTouched'])
+
+    def test_verified_count_tracks_an_additional_manifest_asset(self):
+        # A future release may add another verified asset. Keep this valid
+        # inventory-growth case separate from unsigned compatibility assets.
+        original = json.loads((self.source / 'release-manifest.json').read_text(encoding='utf-8'))
+        name = 'apps/SinjeonPortal-count-fixture.apk'
+        data = b'SYNTHETIC_INVENTORY_GROWTH_FIXTURE_NOT_AN_INSTALLABLE_APK'
+        (self.source / name).write_bytes(data)
+        self.edit_manifest(lambda m: m['files'].append({
+            'path': name, 'bytes': len(data),
+            'sha256': hashlib.sha256(data).hexdigest(), 'category': 'android',
+        }))
+        files, report = deploy.prepare(self.source)
+        self.assertEqual(report['verifiedFiles'], len(original['files']) + 1)
+        self.assertEqual(files[name], data)
+        self.assertNotIn(name, [entry['path'] for entry in report['compatibilityAssets']])
+
+    def test_compatibility_assets_do_not_inflate_verified_count(self):
+        manifest = json.loads((self.source / 'release-manifest.json').read_text(encoding='utf-8'))
+        name = 'apps/SinjeonPortal-compatibility-count-fixture.apk'
+        data = b'SYNTHETIC_COMPATIBILITY_FIXTURE_NOT_AN_INSTALLABLE_APK'
+        (self.source / name).write_bytes(data)
+        files, report = deploy.prepare(self.source)
+        self.assertEqual(report['verifiedFiles'], len(manifest['files']))
+        self.assertEqual(files[name], data)
+        self.assertIn(name, [entry['path'] for entry in report['compatibilityAssets']])
+        self.assertGreater(report['stagedFiles'], report['verifiedFiles'])
 
     def test_missing_hidden_files_rebuilt_without_source_mutation(self):
         (self.source / deploy.DAL).unlink()
@@ -343,4 +374,8 @@ class DeploymentGate(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    # Visible in GitHub Actions logs: confirms this exact replacement ran.
+    print('[SINJEON BUILD_FIX_20261117_2] Manifest-based inventory validation', flush=True)
+    print('Source revision: ' + os.environ.get('GITHUB_SHA', 'local') +
+          ' | ref: ' + os.environ.get('GITHUB_REF', 'local'), flush=True)
     unittest.main(verbosity=2)
