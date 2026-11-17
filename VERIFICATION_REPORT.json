@@ -1,38 +1,34 @@
 {
-  "release": "V88_30_0",
-  "source_archive": "Partner-Sinjeon-Canada-main.zip",
-  "source_sha256": "92c041e645a5cbf04578145cda36e154fe4f91fa792e28c7f8c8e714e3318007",
-  "scope": "Uploaded frontend source only; no live business API calls or production deployment",
-  "checks": {
-    "core_and_invoice_regressions": {
-      "passed": 27
-    },
-    "invoice_dom_workflows": {
-      "passed": 11,
-      "parent_container_excluded": true
-    },
-    "five_page_dom_checks": {
-      "passed": 21
-    },
-    "deployment_guard_regressions": {
-      "passed": 42
-    },
-    "javascript_programs_parsed": 63,
-    "release_files_verified": 62,
-    "static_references_verified": 242
-  },
-  "not_verified": [
-    "Real browser pixel layout and mobile overflow",
-    "Actual html2pdf rasterization / pagination",
-    "Live Apps Script schema, role checks and database transactions",
-    "Live email delivery or payment collection"
+  "version": "V88_33_0",
+  "baseline": "Sinjeon_V88_32_0_Upgrade_FULL.zip",
+  "date": "2026-11-17",
+  "functionalTests": 90,
+  "functionalPassed": 90,
+  "deploymentTests": 42,
+  "deploymentPassed": 42,
+  "sourceBrowserAssertions": 113,
+  "nativePdfAssertions": 73,
+  "actualBrowserPdfDownloads": 6,
+  "javascriptPrograms": 65,
+  "releaseFiles": 64,
+  "staticReferences": 244,
+  "serviceWorkerHarnessTestsIncludedInFunctional": 12,
+  "nativePdfRenderer": "actual self-contained Canvas/JPEG/PDF module",
+  "businessApi": "synthetic only",
+  "preservedByteForByte": [
+    "CNAME",
+    "ASSETLINKS_COPY.json",
+    ".well-known/assetlinks.json",
+    "assets/js/auth.js",
+    "assets/js/invoice-math.js",
+    "assets/js/invoice-dates.js",
+    "assets/js/invoice-draft.js",
+    "assets/js/order-math.js",
+    "apps/SinjeonPortal-1.0.6.apk"
   ],
-  "browser_limitation": "System Chromium cannot start in runtime; cloud browser local-file URL rejected by security policy. No workaround attempted after rejection.",
-  "deployment": {
-    "performed": false,
-    "repository_guard": "eunbeenlee/y2c-advisory-portal",
-    "domain_guard": "partner.sinjeoncanada.com",
-    "business_data_changed": false
-  },
-  "release_digest": "8d4c012654b90eee"
+  "configChangedOnlyInVersion": true,
+  "liveApiTested": false,
+  "serviceWorkerBrowserInstallationTested": false,
+  "deployed": false,
+  "sourceDataChanged": false
 }

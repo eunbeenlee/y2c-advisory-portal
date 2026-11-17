@@ -19,7 +19,6 @@
     <!-- 🚀 Resource Hints -->
     <link rel="preconnect" href="https://script.google.com" crossorigin>
     <link rel="dns-prefetch" href="https://script.google.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
     <link rel="preload" href="favicon.png" as="image" type="image/png" fetchpriority="high">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -29,7 +28,7 @@
     <noscript></noscript>
     
     <!-- 🌟 [PDF 렌더링 엔진 탑재] -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- PDF engine is bundled locally; no external renderer/CDN is required. -->
 
     <!-- 🚨 FOUC Preventer & White Screen Death Fix -->
     <style>
@@ -210,6 +209,10 @@
 
         .invoice-payment-note { margin-top: 16px; border-top: 1px solid #e5e7eb; padding-top: 10px; color: #4b5563; font-size: 9px; line-height: 1.6; }
         #docInvoiceNo { overflow-wrap: anywhere; }
+        .invoice-source-note { margin-top: 10px; padding: 9px 11px; border: 1px solid #d6dce3; color: #465366; font-size: 9px; line-height: 1.65; overflow-wrap: anywhere; }
+        .invoice-source-note[hidden] { display: none !important; }
+        #docMemo { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+        #invoiceDocument :is(#docClientName,#docClientAddress,#docClientAttn,#docClientBiz) { overflow-wrap: anywhere; }
         /* Native printing preserves every monthly line, total and remittance block. */
         @media print { 
             @page { size: A4; margin: 10mm 12mm; } 
@@ -230,7 +233,7 @@
             .no-print, header, aside, .lg\:hidden { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; display: block !important; max-width: none !important; }
             .flex-col.lg\:flex-row { display: block !important; }
-            #invoiceCanvasContainer { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible !important; }
+            #invoiceCanvasContainer, .invoice-paper-scroll { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible !important; border: 0 !important; }
             
             .a4-paper { 
                 width: 100% !important;
@@ -252,10 +255,19 @@
                 break-inside: auto !important;
                 position: relative !important;
             }
+            /* Print engines do not run screen entrance animations. Their initial
+               opacity:0 must never turn a valid invoice into a blank PDF. */
+            .app-shell-enter, .animate-slide-up, .animate-flash-update, .fouc-lock {
+                opacity: 1 !important; visibility: visible !important;
+                animation: none !important; transition: none !important; transform: none !important;
+            }
             .invoice-content-wrapper { display: block !important; height: auto !important; }
             .invoice-table thead { display: table-header-group; }
             .invoice-table tr { page-break-inside: avoid; break-inside: avoid; }
-            .invoice-content-wrapper > .avoid-page-break { margin-top: 6mm !important; }
+            .invoice-content-wrapper > .avoid-page-break { margin-top: 3mm !important; }
+            #docScopeNote, #docMemoBlock { margin-top: 2.5mm !important; padding: 7px 9px; }
+            .invoice-payment-note { margin-top: 2.5mm !important; padding-top: 7px; }
+            .invoice-content-wrapper > div:last-child { margin-top: 2.5mm !important; padding-top: 7px; break-before: avoid; page-break-before: avoid; }
             body.invoice-not-ready #invoiceDocument { display: none !important; }
             body.invoice-not-ready #invoicePrintNotice { display: block !important; padding: 20px; font-size: 14px; }
             .a4-paper::before { display: none !important; } /* 워터마크 인쇄 시 제거 */
@@ -274,7 +286,7 @@
     <script defer src="assets/js/workspace-ui.js"></script>
 </head>
 
-<body id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
+<body data-portal-page="invoice.html" id="mainBody" class="portal-page text-gray-800 selection:bg-[#E3000F] selection:text-white flex flex-col min-h-screen relative overflow-x-hidden fouc-lock" style="background-color: #F8F9FA; margin: 0; opacity: 0; transition: opacity 0.4s ease-out;">
     
     <!-- 🚨 1단계: 보안 축출 (Pre-routing - MASTER ONLY 록다운) & 화이트스크린 방어망 -->
     <script>
@@ -399,7 +411,7 @@
         </header>
 
         <!-- 🌟 좌우 레이아웃 컨테이너 (Control Left, Canvas Right) -->
-        <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 items-start">
+        <div class="invoice-workbench-layout flex flex-col lg:flex-row gap-6 sm:gap-8 items-start">
             
             <!-- 🎛️ 좌측 통제 패널 (Control Sidebar) -->
             <aside id="invoiceControls" class="w-full lg:w-[320px] xl:w-[340px] shrink-0 bg-white border border-gray-200 rounded-[1.5rem] p-5 sm:p-6 shadow-sm sticky top-24 no-print flex flex-col gap-4 sm:gap-5">
@@ -439,6 +451,11 @@
                     </div>
                 </div>
 
+                <div class="invoice-quick-actions" role="group" aria-label="Billing period shortcuts">
+                    <button type="button" id="btnInvoicePrevMonth" data-copy-en="Previous month" data-copy-ko="지난달">Previous month</button>
+                    <button type="button" id="btnInvoiceFullYear" data-copy-en="Selected year" data-copy-ko="선택 연도 전체">Selected year</button>
+                </div>
+                <p id="invoicePeriodValidation" class="invoice-validation-message" role="alert" hidden></p>
                 <fieldset class="invoice-date-section">
                     <legend data-copy-en="Issue & payment" data-copy-ko="발행일 · 지급기한">Issue &amp; payment</legend>
                     <div class="invoice-date-grid">
@@ -464,6 +481,7 @@
                     <p id="invoiceDateHint" class="invoice-date-hint" data-copy-en="Dates are printed on the invoice. Set the payment date agreed with your client; editing it does not schedule a bank transfer." data-copy-ko="선택한 날짜가 인보이스에 표시됩니다. 거래처와 합의한 지급기한을 입력하세요. 실제 입금이 예약되는 기능은 아닙니다.">Dates are printed on the invoice. Set the payment date agreed with your client; editing it does not schedule a bank transfer.</p>
                     <p id="invoiceTermsSummary" class="invoice-terms-summary" aria-live="polite"></p>
                     <p id="invoiceDateValidation" class="invoice-validation-message" role="alert" hidden></p>
+                    <p id="invoiceDateAdvisory" class="invoice-advisory" role="status" hidden></p>
                 </fieldset>
 
                 <!-- 🚨 다이내믹 수수료율 셋업 (0.0% ~ 4.0%) -->
@@ -491,6 +509,22 @@
                     <p id="invoiceReferenceHint" class="invoice-date-hint" data-copy-en="Leave blank to create a reference from the client, billing period and issue date." data-copy-ko="비워두면 가맹점·정산기간·발행일을 기준으로 번호가 생성됩니다.">Leave blank to create a reference from the client, billing period and issue date.</p>
                 </div>
 
+                <div class="invoice-date-field invoice-note-field">
+                    <label for="invNote" data-copy-en="Note on invoice · optional" data-copy-ko="인보이스 메모 · 선택">Note on invoice · optional</label>
+                    <textarea id="invNote" rows="3" maxlength="300" aria-describedby="invoiceNoteHint invoiceTextValidation" placeholder=""></textarea>
+                    <p id="invoiceNoteHint" class="invoice-date-hint" data-copy-en="Up to 300 characters / 4 lines. This note is included in the PDF." data-copy-ko="300자·4줄 이내로 입력하세요. 이 메모는 PDF에도 표시됩니다.">Up to 300 characters / 4 lines. This note is included in the PDF.</p>
+                    <p id="invoiceTextValidation" class="invoice-validation-message" role="alert" hidden></p>
+                </div>
+                <details class="invoice-draft-tools">
+                    <summary data-copy-en="Keep these settings" data-copy-ko="작성 설정 보관">Keep these settings</summary>
+                    <p class="invoice-date-hint" data-copy-en="Saved only in this tab for up to 24 hours. Sales and review confirmation are never saved; restore settings and fetch again." data-copy-ko="이 탭에만 최대 24시간 보관합니다. 매출·확인 상태는 저장하지 않으며, 불러온 뒤 다시 조회해야 합니다.">Saved only in this tab for up to 24 hours. Sales and review confirmation are never saved; restore settings and fetch again.</p>
+                    <div class="invoice-quick-actions">
+                        <button type="button" id="btnSaveInvoiceSettings" data-copy-en="Save settings" data-copy-ko="설정 저장">Save settings</button>
+                        <button type="button" id="btnRestoreInvoiceSettings" disabled data-copy-en="Restore" data-copy-ko="불러오기">Restore</button>
+                        <button type="button" id="btnClearInvoiceSettings" data-copy-en="Clear saved" data-copy-ko="저장 삭제">Clear saved</button>
+                    </div>
+                    <p id="invoiceDraftStatus" class="invoice-date-hint" role="status" aria-live="polite"></p>
+                </details>
                 <div class="mt-1 space-y-2.5">
                     <button type="button" id="btnGenerateInvoice" class="bg-[var(--premium-charcoal)] hover:bg-[#E3000F] text-white py-3.5 rounded-xl font-black text-[12px] uppercase tracking-widest transition-colors w-full shadow-sm focus:outline-none" disabled>
                         Loading franchises…
@@ -498,14 +532,45 @@
                     <button type="button" id="btnExportPDF" class="btn-solid-red py-3.5 rounded-xl font-black text-[12px] uppercase tracking-widest transition-all w-full flex items-center justify-center gap-2 focus:outline-none" disabled>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> <span data-copy-en="Download PDF" data-copy-ko="PDF 다운로드">Download PDF</span>
                     </button>
+                    <button type="button" id="btnCancelInvoice" class="invoice-secondary-button" hidden data-copy-en="Cancel this preview" data-copy-ko="이번 조회 취소">Cancel this preview</button>
                 </div>
             </aside>
 
             <!-- 🌟 우측 블랭크 인보이스 A4 렌더링 영역 (PDF Export Target) -->
             <section id="invoiceCanvasContainer" class="flex-1 w-full overflow-x-auto pb-8 animate-slide-up">
                 
-                <!-- 🚨 id="invoiceDocument"는 html2pdf가 스캔할 최상위 타겟입니다. -->
-                <p id="invoiceResultStatus" role="status" class="no-print text-sm text-gray-500 mb-3">Select a franchise and billing period to prepare an invoice.</p>
+                <!-- Read-only source for invoice preview, print and dedicated PDF export. -->
+                <div class="invoice-review-panel no-print" aria-label="Invoice review">
+                    <div class="invoice-review-heading"><h3 data-copy-en="Review before sending" data-copy-ko="발송 전 확인">Review before sending</h3><span id="invoiceStateBadge" class="invoice-state-badge">Draft</span></div>
+                    <p id="invoiceResultStatus" role="status" aria-live="polite" aria-atomic="true">Select a franchise and billing period to prepare an invoice.</p>
+                    <p id="invoiceErrorDetail" class="invoice-validation-message" role="alert" hidden></p>
+                    <dl class="invoice-summary-grid">
+                        <div><dt data-copy-en="Billing period" data-copy-ko="정산기간">Billing period</dt><dd id="reviewPeriod">—</dd></div>
+                        <div><dt data-copy-en="Sales basis · CAD" data-copy-ko="대상 매출 · CAD">Sales basis · CAD</dt><dd id="reviewSales">—</dd></div>
+                        <div><dt data-copy-en="Fees due · CAD" data-copy-ko="청구 수수료 · CAD">Fees due · CAD</dt><dd id="reviewFees">—</dd></div>
+                        <div><dt data-copy-en="Payment due" data-copy-ko="지급기한">Payment due</dt><dd id="reviewDue">—</dd></div>
+                    </dl>
+                    <p id="invoiceCoverageNote" class="invoice-advisory" hidden></p>
+                    <div id="invoiceReviewAckGroup" class="invoice-review-ack" hidden>
+                        <label for="invoiceReviewAck"><input type="checkbox" id="invoiceReviewAck"><span data-copy-en="I reviewed these source-data limitations. Export only the returned, reconciled sales with the scope note shown on the invoice." data-copy-ko="원본 자료의 주의사항을 확인했습니다. 문서의 집계 범위 안내를 유지하고, 반환·대사된 매출만 출력합니다.">I reviewed these source-data limitations. Export only the returned, reconciled sales with the scope note shown on the invoice.</span></label>
+                    </div>
+                    <details id="invoiceAuditPanel" class="invoice-audit" hidden>
+                        <summary data-copy-en="Monthly reconciliation · CAD" data-copy-ko="월별 매출·수수료 대사 · CAD">Monthly reconciliation · CAD</summary>
+                        <div class="invoice-audit-scroll" role="region" tabindex="0" aria-label="Monthly invoice reconciliation">
+                            <table class="invoice-audit-table">
+                                <thead><tr><th scope="col" data-copy-en="Month" data-copy-ko="월">Month</th><th scope="col">POS</th><th scope="col" data-copy-en="Delivery" data-copy-ko="배달">Delivery</th><th scope="col" data-copy-en="Sales" data-copy-ko="매출">Sales</th><th scope="col" data-copy-en="Fees" data-copy-ko="수수료">Fees</th><th scope="col" data-copy-en="Source status" data-copy-ko="자료 상태">Source status</th></tr></thead>
+                                <tbody id="invoiceAuditRows"></tbody>
+                            </table>
+                        </div>
+                    </details>
+                    <p id="invoiceCheckedAt" class="invoice-checked-at" hidden></p>
+                    <p class="invoice-preview-help" data-copy-en="The preview is not a saved invoice register or proof of payment. On a small screen, scroll the paper horizontally to review it." data-copy-ko="미리보기는 서버 발행 대장이나 입금 확인 내역이 아닙니다. 작은 화면에서는 문서를 좌우로 이동해 확인하세요.">The preview is not a saved invoice register or proof of payment. On a small screen, scroll the paper horizontally to review it.</p>
+                </div>
+                <div class="invoice-export-status no-print" aria-live="polite" aria-atomic="true">
+                    <span class="invoice-engine-badge" data-copy-en="Local PDF engine" data-copy-ko="내장 PDF 엔진">Local PDF engine</span>
+                    <p id="invoiceExportStatus" data-copy-en="PDF is prepared in this browser. No external PDF service is used. The PDF uses a dedicated A4 layout; use Print to preserve the preview layout and selectable text." data-copy-ko="이 브라우저에서 PDF를 생성합니다. 외부 PDF 서비스로 보내지 않습니다. PDF는 전용 A4 레이아웃입니다. 화면 문서 그대로 저장하거나 텍스트 선택이 필요하면 인쇄를 이용하세요.">PDF is prepared in this browser. No external PDF service is used. The PDF uses a dedicated A4 layout; use Print to preserve the preview layout and selectable text.</p>
+                </div>
+                <div class="invoice-paper-scroll" role="region" tabindex="0" aria-label="A4 invoice preview">
                 <p id="invoicePrintNotice" data-copy-en="Generate an invoice with the current selections before printing." data-copy-ko="현재 조건으로 인보이스를 다시 생성한 뒤 인쇄해 주세요." style="display:none">Generate an invoice with the current selections before printing.</p>
                 <div class="a4-paper shadow-paper" id="invoiceDocument" aria-label="Invoice preview">
                     
@@ -641,22 +706,17 @@
 
                             <!-- 🚨 Authorized Signature Box with Corporate Seal -->
                             <div class="w-[40%] text-center relative">
-                                <!-- Corporate Seal (Red Stamp) -->
-                                <div class="absolute right-6 top-[-10px] w-[60px] h-[60px] border-[2.5px] border-[#E3000F] rounded-full flex flex-col items-center justify-center transform rotate-[-15deg] opacity-70 pointer-events-none z-0">
-                                    <span class="text-[8px] font-black text-[#E3000F] uppercase tracking-widest leading-none mt-1">APPROVED</span>
-                                    <span class="text-[5px] font-bold text-[#E3000F] border-t border-[#E3000F] mt-1 pt-0.5">Y2C HOLDINGS</span>
-                                </div>
-
-                                <div class="h-16 border-b border-gray-400 mb-2 relative flex items-end justify-center pb-1 z-10">
-                                    <!-- Cursive Signature Font for extreme realism -->
-                                    <span class="font-serif text-[28px] text-gray-300 italic select-none transform -rotate-6">Yoonji Lee</span>
+                                <div class="h-16 border-b border-gray-300 mb-2 flex items-end justify-center pb-2">
+                                    <span class="text-[10px] font-bold text-gray-500">Issued electronically</span>
                                 </div>
                                 <p class="text-[9.5px] font-black text-gray-800 uppercase tracking-[0.1em]" id="sigName">YOONJI, LEE</p>
-                                <p class="text-[7.5px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-0.5">Authorized Signature</p>
+                                <p class="text-[7.5px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-0.5">Issued by</p>
                             </div>
 
                         </div>
                         
+                        <div id="docScopeNote" class="invoice-source-note avoid-page-break" hidden></div>
+                        <div id="docMemoBlock" class="invoice-source-note avoid-page-break" hidden><strong>Note:</strong><p id="docMemo"></p></div>
                         <div class="invoice-payment-note avoid-page-break"><strong>Payment terms:</strong> <span id="docPaymentTerms">Net 14 days</span>. Please include the invoice number with your transfer.</div>
 
                         <!-- Mini Footer -->
@@ -665,6 +725,7 @@
                         </div>
 
                     </div>
+                </div>
                 </div>
             </section>
         </div>
@@ -685,6 +746,7 @@
                 </div>
                 
                 <div class="flex gap-2 w-full sm:w-auto">
+                    <button type="button" id="btnCancelPDF" class="invoice-secondary-button" hidden data-copy-en="Cancel PDF" data-copy-ko="PDF 취소">Cancel PDF</button>
                     <button type="button" id="btnPrintInvoice" disabled onclick="printInvoice()" class="flex-1 sm:flex-none px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-[var(--premium-charcoal)] rounded-xl font-black text-[11px] uppercase tracking-widest transition-colors focus:outline-none flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> <span data-copy-en="Print" data-copy-ko="인쇄">Print</span>
                     </button>
@@ -728,7 +790,9 @@
     <script src="assets/js/accelerator.js"></script>
     <script src="assets/js/invoice-math.js"></script>
     <script src="assets/js/invoice-dates.js"></script>
+    <script src="assets/js/invoice-pdf.js"></script>
     <script src="assets/js/document-io.js"></script>
+    <script src="assets/js/invoice-draft.js"></script>
 
     <!-- 🌟 [PWA 엔진 점화] 모바일 네이티브 앱 설치 지원 -->
     <script>
@@ -772,7 +836,12 @@
             isSubmitting: false,
             invoiceReady: false,
             renderedSelection: null,
-            generatedAt: null
+            renderedRevision: null,
+            generationTicket: 0,
+            generatedAt: null,
+            review: null,
+            reviewAcknowledged: false,
+            queryTimer: null
 
         };
 
@@ -868,6 +937,16 @@
         const dueSel = document.getElementById('invDueDate');
         const termsSel = document.getElementById('invPaymentTerms');
         const referenceInput = document.getElementById('invInvoiceReference');
+        const noteInput = document.getElementById('invNote');
+        const reviewAck = document.getElementById('invoiceReviewAck');
+        // The account identity is persistent across reloads, unlike cacheSessionKey.
+        const draftOwner = () => {
+            const id = Y2C_AuthEngine.getAccountId?.();
+            return id ? JSON.stringify([String(id), AppState.role]) : '';
+        };
+        let draftStorage;
+        try { draftStorage = window.sessionStorage; } catch (_) { draftStorage = null; }
+        const draftStore = Y2C_InvoiceDraft.create(draftStorage);
         const dateError = document.getElementById('invoiceDateValidation');
         const termsSummary = document.getElementById('invoiceTermsSummary');
         const invoiceText = (ko, en) => currentLang === 'ko' ? ko : en;
@@ -897,14 +976,14 @@
         yearSel.value = String(priorMonth.getUTCFullYear());
         startSel.value = prevM; endSel.value = prevM;
 
-        // 🌟 자문료/광고비 0.0% ~ 4.0% 다이내믹 요율 생성 (0.1% 단위 미세조정)
+        // Rates: 0.0% to 4.0% in exact 0.1 percentage-point steps.
         if (advSel && adfSel) {
-            for (let i = 0; i <= 4; i += 0.5) {
-                const valStr = (i / 100).toFixed(3);
-                const txtStr = i.toFixed(1) + "%";
+            for (let i = 0; i <= 40; i++) {
+                const valStr = (i / 1000).toFixed(3);
+                const txtStr = (i / 10).toFixed(1) + "%";
                 
                 let optA = document.createElement('option'); optA.value = valStr; optA.innerText = txtStr;
-                if (i === 2.0) optA.selected = true; // 기본 자문료 2.0%
+                if (i === 20) optA.selected = true; // 기본 자문료 2.0%
                 advSel.appendChild(optA);
 
                 let optB = document.createElement('option'); optB.value = valStr; optB.innerText = txtStr;
@@ -996,8 +1075,8 @@
             });
             if(validClients.some(client=>client.name===selected))clientSel.value=selected;
             else if(AppState.invoiceReady)invalidateInvoice();
-            btnGen.disabled = !clientSel.options.length || clientSel.options.length === 1;
-            btnGen.innerText = invoiceText('인보이스 생성', 'Generate invoice');
+            btnGen.disabled = AppState.isSubmitting || Y2C_DocumentIO.isBusy() || clientSel.options.length <= 1;
+            if (!AppState.isSubmitting) btnGen.innerText = invoiceText('인보이스 생성', 'Generate invoice');
         }
 
         // ==========================================
@@ -1005,12 +1084,30 @@
         // ==========================================
         const printBtn = document.getElementById('btnPrintInvoice');
         const resultStatus = document.getElementById('invoiceResultStatus');
-        const invoiceControls = [clientSel, yearSel, startSel, endSel, advSel, adfSel, issueSel, dueSel, termsSel, referenceInput];
+        const invoiceControls = [clientSel, yearSel, startSel, endSel, advSel, adfSel, issueSel, dueSel, termsSel, referenceInput, noteInput];
         function invoiceSelection() { return invoiceControls.map(element => element.value); }
-        function isCurrentInvoice() {
+        function isCurrentPreview() {
             return AppState.invoiceReady && !AppState.isSubmitting &&
                 AppState.renderedSelection === JSON.stringify(invoiceSelection()) &&
+                AppState.renderedRevision === (Y2C_AuthEngine.getReadRevision?.() || 0) &&
                 AppState.renderedSession === Y2C_AuthEngine.cacheSessionKey();
+        }
+        function isCurrentInvoice() {
+            return isCurrentPreview() && (!AppState.review?.summary.reviewRequired || AppState.reviewAcknowledged);
+        }
+        function refreshOutputAvailability() {
+            const ready = isCurrentInvoice();
+            document.body.classList.toggle('invoice-not-ready', !ready);
+            [btnPdf, btnDownload, printBtn].forEach(button => { if (button) button.disabled = !ready || Y2C_DocumentIO.isBusy(); });
+            if (!AppState.invoiceReady) return;
+            const { summary, params } = AppState.review;
+            if (!ready && summary.reviewRequired && !AppState.reviewAcknowledged) {
+                setInvoiceResult('review', '자료 주의사항을 확인한 뒤 출력할 수 있습니다. 누락·보정 내역을 먼저 검토해 주세요.', 'Review the source-data notes below before exporting. Missing or inferred records need your confirmation.');
+            } else if (ready) {
+                setInvoiceResult(summary.reviewRequired ? 'ready-note' : 'ready',
+                    `인보이스 준비 완료${summary.reviewRequired ? ' · 주의사항 포함' : ''} · 지급기한 ${params.dueDate} · ${formatCurrency(summary.totalFees)} CAD`,
+                    `Invoice ready${summary.reviewRequired ? ' · With source notes' : ''} · Due ${params.dueDate} · ${formatCurrency(summary.totalFees)} CAD`);
+            }
         }
         function setInvoiceResult(state, ko, en) {
             AppState.result = { state, ko, en };
@@ -1019,17 +1116,30 @@
             resultStatus.dataset.state = state;
             const title = document.getElementById('invoiceDockTitle'), detail = document.getElementById('invoiceDockMessage');
             const labels = {
-                ready: ['다운로드 가능', 'Ready to download'], generating: ['인보이스 작성 중', 'Preparing invoice'],
+                ready: ['다운로드 가능', 'Ready to download'], 'ready-note': ['주의사항 포함', 'Ready with notes'], review: ['자료 확인 필요', 'Source review required'], generating: ['인보이스 작성 중', 'Preparing invoice'],
                 changed: ['다시 생성해 주세요', 'Generate invoice again'], failed: ['확인이 필요합니다', 'Review required'],
                 empty: ['인보이스 준비', 'Prepare an invoice']
             };
             const label = labels[state] || labels.empty;
             if (title) title.textContent = invoiceText(label[0], label[1]);
             if (detail) detail.textContent = message;
+            const badge = document.getElementById('invoiceStateBadge');
+            const states = { ready: ['검증 완료', 'Checked'], 'ready-note': ['주의사항 포함', 'Reviewed with notes'], review: ['자료 확인 필요', 'Source review required'], generating: ['조회 중', 'Checking'], changed: ['재생성 필요', 'Out of date'], failed: ['확인 필요', 'Review required'], empty: ['작성 전', 'Draft'], cancelled: ['조회 취소', 'Cancelled'] };
+            badge.textContent = invoiceText(...(states[state] || states.empty));
+            badge.dataset.state = state;
         }
         function invalidateInvoice() {
+            document.getElementById('invoiceErrorDetail').hidden = true;
             AppState.invoiceReady = false;
+            AppState.reviewAcknowledged = false;
+            reviewAck.checked = false;
+            document.getElementById('invoiceReviewAckGroup').hidden = true;
+            document.getElementById('invoiceAuditPanel').hidden = true;
+            document.getElementById('invoiceAuditRows').replaceChildren();
             document.body.classList.add('invoice-not-ready');
+            for (const id of ['reviewPeriod', 'reviewSales', 'reviewFees', 'reviewDue']) document.getElementById(id).textContent = '—';
+            document.getElementById('invoiceCheckedAt').hidden = true;
+            document.getElementById('invoiceCoverageNote').hidden = true;
             [btnPdf, btnDownload, printBtn].forEach(button => { if (button) button.disabled = true; });
             setInvoiceResult('changed', '조건이 변경되었습니다. 확인 후 인보이스를 다시 생성해 주세요.', 'Selections changed. Generate the invoice again to apply them.');
         }
@@ -1051,10 +1161,77 @@
                 ? invoiceText(`입금 요청일 ${dueSel.value} · ${result.days === 0 ? '발행 당일' : '발행일로부터 ' + result.days + '일'}`,
                     `Payment due ${dueSel.value} · ${Y2C_InvoiceDates.paymentTerms(issueSel.value, dueSel.value)}`)
                 : '';
+            const advisory = document.getElementById('invoiceDateAdvisory');
+            const today = Y2C_InvoiceDates.today();
+            const notes = [];
+            if (result.valid && dueSel.value < today) notes.push(invoiceText('선택한 지급기한이 이미 지났습니다. 이 안내는 미입금 판정이 아닙니다.', 'The selected due date has passed. This is not a payment-status check.'));
+            if (result.valid && issueSel.value > today) notes.push(invoiceText('미래 발행일이 선택되었습니다. 자동 예약 발행은 되지 않습니다.', 'The issue date is in the future. This does not schedule automatic issuance.'));
+            advisory.hidden = !notes.length; advisory.textContent = notes.join(' ');
+            updatePeriodValidation();
             return result;
+        }
+        function updatePeriodValidation() {
+            const start = Number(startSel.value), end = Number(endSel.value);
+            const valid = Number.isInteger(start) && Number.isInteger(end) && start >= 1 && end <= 12 && start <= end;
+            const notice = document.getElementById('invoicePeriodValidation');
+            notice.hidden = valid;
+            notice.textContent = valid ? '' : invoiceText('시작 월은 종료 월과 같거나 이전이어야 합니다.', 'The start month must be on or before the end month.');
+            startSel.setAttribute('aria-invalid', String(!valid)); endSel.setAttribute('aria-invalid', String(!valid));
+            return valid;
+        }
+        function showInvoiceReview() {
+            if (!AppState.review || !AppState.invoiceReady) return;
+            const { summary, params, period } = AppState.review;
+            document.getElementById('reviewPeriod').textContent = period;
+            document.getElementById('reviewSales').textContent = formatCurrency(summary.totalSales);
+            document.getElementById('reviewFees').textContent = formatCurrency(summary.totalFees);
+            document.getElementById('reviewDue').textContent = params.dueDate;
+            const note = document.getElementById('invoiceCoverageNote');
+            const missing = summary.coverage?.missingMonths || [];
+            const messages = [];
+            if (missing.length) messages.push(invoiceText('응답에 없는 월: ' + missing.join(', ') + '월. 0원 매출로 확인된 것이 아닙니다.', 'Months absent from the response: ' + missing.join(', ') + '. These are not confirmed zero sales.'));
+            for (const [key, ko, en] of [
+                ['unregisteredMonths', '매출 미등록 월', 'Unregistered months'],
+                ['inferredMonths', 'POS·배달 합계 등으로 보정한 월', 'Months using inferred or component totals'],
+                ['totalOnlyMonths', 'POS·배달 구분 없이 합계만 있는 월', 'Legacy total-only months']
+            ]) {
+                const months = summary.coverage?.[key] || [];
+                if (months.length) messages.push(invoiceText(ko, en) + ': ' + months.join(', ') + '.');
+            }
+            note.hidden = !messages.length; note.textContent = messages.join(' ');
+            document.getElementById('invoiceReviewAckGroup').hidden = !summary.reviewRequired;
+            const audit = document.getElementById('invoiceAuditRows'); audit.replaceChildren();
+            const statuses = { missing: ['응답 없음', 'Missing'], unregistered: ['미등록', 'Unregistered'], inferred: ['보정 확인 필요', 'Inferred'], totalOnly: ['합계만 제공', 'Total only'], zero: ['명시적 0원', 'Explicit zero'], matched: ['대사 일치', 'Matched'] };
+            for (let month = params.startMonth; month <= params.endMonth; month++) {
+                const record = summary.months.find(row => row.month === month);
+                const status = record?.status || 'missing';
+                const financial = record && status !== 'unregistered';
+                const cells = [String(month), financial && !record.totalOnly ? formatCurrency(record.pos) : '—', financial && !record.totalOnly ? formatCurrency(record.delivery) : '—', financial ? formatCurrency(record.gross) : '—', financial ? formatCurrency((record.cents.advFee + record.cents.adfFee) / 100) : '—', invoiceText(...statuses[status])];
+                const row = document.createElement('tr'); row.dataset.state = status;
+                cells.forEach((text, index) => { const cell = document.createElement(index === 0 ? 'th' : 'td'); if (index === 0) cell.scope = 'row'; cell.textContent = text; row.appendChild(cell); });
+                audit.appendChild(row);
+            }
+            document.getElementById('invoiceAuditPanel').hidden = false;
+            const checked = document.getElementById('invoiceCheckedAt');
+            const time = new Intl.DateTimeFormat(currentLang === 'ko' ? 'ko-KR' : 'en-CA', {timeZone: 'America/Toronto', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'}).format(new Date(AppState.generatedAt));
+            checked.hidden = false;
+            checked.textContent = invoiceText('조회·대사 시각 ', 'Fetched and reconciled ') + time + ' · Toronto';
         }
         function applyPreset() {
             if (termsSel.value !== 'custom') dueSel.value = Y2C_InvoiceDates.addDays(issueSel.value, Number(termsSel.value));
+        }
+        reviewAck.addEventListener('change', () => {
+            AppState.reviewAcknowledged = reviewAck.checked;
+            refreshOutputAvailability();
+        });
+        function validateTextInputs() {
+            const message = document.getElementById('invoiceTextValidation');
+            const referenceBad = referenceInput.value.trim().length > 64 || /[\x00-\x1f\x7f]/.test(referenceInput.value);
+            const noteBad = noteInput.value.length > 300 || noteInput.value.split('\n').length > 4 || /[\x00-\x08\x0b-\x1f\x7f]/.test(noteInput.value);
+            referenceInput.setAttribute('aria-invalid', String(referenceBad)); noteInput.setAttribute('aria-invalid', String(noteBad));
+            message.hidden = !referenceBad && !noteBad;
+            message.textContent = referenceBad ? invoiceText('인보이스 번호는 64자 이내의 한 줄로 입력해 주세요.', 'Enter an invoice number on one line, up to 64 characters.') : noteBad ? invoiceText('메모는 300자·4줄 이내로 입력해 주세요.', 'Keep the note within 300 characters and 4 lines.') : '';
+            return { valid: !referenceBad && !noteBad, field: referenceBad ? referenceInput : noteInput };
         }
         issueSel.addEventListener('input', applyPreset);
         issueSel.addEventListener('change', applyPreset);
@@ -1062,7 +1239,40 @@
         dueSel.addEventListener('input', () => { termsSel.value = 'custom'; });
         dueSel.addEventListener('change', () => { termsSel.value = 'custom'; });
         invoiceControls.forEach(element => {
-            for (const event of ['input', 'change']) element.addEventListener(event, () => { updateDateSummary(); invalidateInvoice(); });
+            for (const event of ['input', 'change']) element.addEventListener(event, () => { updateDateSummary(); validateTextInputs(); invalidateInvoice(); });
+        });
+        for (const [id, fullYear] of [['btnInvoicePrevMonth', false], ['btnInvoiceFullYear', true]]) {
+            document.getElementById(id).addEventListener('click', () => {
+                if (Y2C_DocumentIO.isBusy()) return;
+                if (fullYear) { startSel.value = '1'; endSel.value = '12'; }
+                else {
+                    const now = Y2C_InvoiceDates.parse(Y2C_InvoiceDates.today());
+                    const prior = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+                    if (!Array.from(yearSel.options).some(option => option.value === String(prior.getUTCFullYear()))) yearSel.add(new Option(String(prior.getUTCFullYear()), String(prior.getUTCFullYear())));
+                    yearSel.value = String(prior.getUTCFullYear()); startSel.value = endSel.value = String(prior.getUTCMonth() + 1);
+                }
+                updateDateSummary(); invalidateInvoice();
+            });
+        }
+        const cancelQuery = document.getElementById('btnCancelInvoice');
+        cancelQuery.addEventListener('click', () => {
+            if (!AppState.isSubmitting) return;
+            AppState.generationTicket++;
+            clearTimeout(AppState.queryTimer); AppState.queryTimer = null;
+            AppState.isSubmitting = false; cancelQuery.hidden = true;
+            btnGen.disabled = clientSel.options.length <= 1;
+            btnGen.textContent = invoiceText('인보이스 생성', 'Generate invoice');
+            resultStatus.setAttribute('aria-busy', 'false'); invalidateInvoice();
+            setInvoiceResult('cancelled', '이번 조회 결과를 적용하지 않습니다. 조건을 확인하고 다시 생성할 수 있습니다.', 'This preview request was cancelled. Review your selections and generate again.');
+        });
+        document.getElementById('btnCancelPDF').addEventListener('click', () => Y2C_DocumentIO.cancelExport());
+        Y2C_AuthEngine.onReadInvalidated?.(() => {
+            if (!AppState.invoiceReady && !AppState.isSubmitting) return;
+            invalidateInvoice();
+            setInvoiceResult('changed', '원본 데이터 또는 로그인 상태가 변경되었습니다. 최신 내용으로 다시 생성해 주세요.', 'Source data or sign-in state changed. Generate the invoice again with current data.');
+        });
+        window.addEventListener('pageshow', () => {
+            if (AppState.invoiceReady && !isCurrentInvoice()) invalidateInvoice();
         });
         window.printInvoice = function () {
             if (!isCurrentInvoice() || Y2C_DocumentIO.isBusy()) return;
@@ -1072,15 +1282,44 @@
             document.body.classList.toggle('invoice-not-ready', !isCurrentInvoice());
         });
         document.addEventListener('y2c-language-changed', () => {
-            updateDateSummary();
+            updateDateSummary(); validateTextInputs();
             if (!AppState.isSubmitting) btnGen.textContent = invoiceText('인보이스 생성', 'Generate invoice');
             if (clientSel.options[0] && !clientSel.options[0].value) clientSel.options[0].textContent = clientSel.options.length > 1 ? invoiceText('가맹점 선택', 'Select a franchise') : invoiceText('등록된 가맹점이 없습니다', 'No franchises registered');
             referenceInput.placeholder = invoiceText('자동 생성', 'Automatic');
             if (AppState.result) { const result = AppState.result; setInvoiceResult(result.state, result.ko, result.en); }
+            showInvoiceReview(); updateDraftStatus();
         });
         updateDateSummary();
         referenceInput.placeholder = invoiceText('자동 생성', 'Automatic');
         setInvoiceResult('empty', '가맹점과 정산기간을 선택하고 발행일·지급기한을 확인해 주세요.', 'Select a franchise and billing period, then review the issue date and payment due date.');
+
+        const settingNodes = { client: clientSel, year: yearSel, start: startSel, end: endSel, advisory: advSel, advertising: adfSel, issue: issueSel, due: dueSel, terms: termsSel, reference: referenceInput, note: noteInput };
+        function updateDraftStatus(message) {
+            const saved = draftStore.load(draftOwner());
+            document.getElementById('btnRestoreInvoiceSettings').disabled = !saved.ok || AppState.isSubmitting || Y2C_DocumentIO.isBusy();
+            document.getElementById('invoiceDraftStatus').textContent = message || (saved.ok ? invoiceText('이 탭에 보관한 설정이 있습니다. 불러온 뒤 날짜를 확인해 주세요.', 'Settings are saved in this tab. Review the dates after restoring.') : invoiceText('보관된 설정이 없습니다.', 'No settings saved in this tab.'));
+        }
+        document.getElementById('btnSaveInvoiceSettings').addEventListener('click', () => {
+            if (AppState.isSubmitting || Y2C_DocumentIO.isBusy()) return;
+            const saved = draftStore.save(draftOwner(), Object.fromEntries(Object.entries(settingNodes).map(([key, node]) => [key, node.value])));
+            updateDraftStatus(saved.ok ? invoiceText('설정을 이 탭에 저장했습니다. 매출과 발행 문서는 저장되지 않습니다.', 'Settings saved in this tab. Sales and issued documents are not saved.') : saved.reason === 'storage' ? invoiceText('브라우저가 임시 저장을 허용하지 않습니다. 현재 작성 내용은 그대로 유지됩니다.', 'The browser blocked temporary storage. Your current selections are unchanged.') : invoiceText('가맹점·기간·날짜·메모를 확인한 뒤 저장해 주세요.', 'Check the franchise, period, dates and note before saving.'));
+        });
+        document.getElementById('btnRestoreInvoiceSettings').addEventListener('click', () => {
+            if (AppState.isSubmitting || Y2C_DocumentIO.isBusy()) return;
+            const saved = draftStore.load(draftOwner());
+            if (!saved.ok) { updateDraftStatus(invoiceText('불러올 수 있는 설정이 없습니다. 계정 또는 보관 기간을 확인해 주세요.', 'No restorable settings. The account may have changed or the draft expired.')); return; }
+            // Validate every dropdown against the current allowed choices BEFORE changing any input.
+            const valid = Object.entries(settingNodes).every(([key, node]) => node.tagName !== 'SELECT' || Array.from(node.options).some(option => option.value === saved.values[key]));
+            if (!valid) { updateDraftStatus(invoiceText('현재 가맹점·선택 항목과 맞지 않아 설정을 불러오지 않았습니다.', 'Settings were not restored because a franchise or option is no longer available.')); return; }
+            Object.entries(settingNodes).forEach(([key, node]) => { node.value = saved.values[key]; });
+            updateDateSummary(); validateTextInputs(); invalidateInvoice();
+            updateDraftStatus(invoiceText('설정을 불러왔습니다. 날짜를 확인하고 인보이스를 다시 생성해 주세요.', 'Settings restored. Check the dates and generate the invoice again.'));
+        });
+        document.getElementById('btnClearInvoiceSettings').addEventListener('click', () => {
+            if (Y2C_DocumentIO.isBusy()) return;
+            const cleared = draftStore.clear(); updateDraftStatus(invoiceText(cleared ? '보관된 설정을 삭제했습니다. 현재 작성 내용은 유지합니다.' : '브라우저가 저장 삭제를 허용하지 않습니다.', cleared ? 'Saved settings cleared. Current selections are unchanged.' : 'The browser blocked clearing saved settings.'));
+        });
+        updateDraftStatus();
 
         function invoiceReference(params) {
             const manual = referenceInput.value.trim();
@@ -1106,21 +1345,34 @@
             if (sM > eM) { Y2C_AuthEngine.showToast(invoiceText('시작 월은 종료 월보다 늦을 수 없습니다.', 'The start month must be on or before the end month.'), 'warning'); return; }
             const dates = updateDateSummary();
             if (!dates.valid) { (dates.field === 'issue' ? issueSel : dueSel).focus(); return; }
+            const textValidation = validateTextInputs();
+            if (!textValidation.valid) { textValidation.field.focus(); return; }
             if (AppState.isSubmitting || Y2C_DocumentIO.isBusy()) return;
             const submittedSelection = JSON.stringify(invoiceSelection());
             const submittedSession = Y2C_AuthEngine.cacheSessionKey();
+            const submittedRevision = Y2C_AuthEngine.getReadRevision?.() || 0;
             if (!submittedSession) { Y2C_AuthEngine.showToast(invoiceText('로그인 상태를 확인해 주세요.', 'Please check your sign-in session.'), 'warning'); return; }
-            const params = { targetYear: year, clientName: client, startMonth: sM, endMonth: eM, issueDate: issueSel.value, dueDate: dueSel.value };
+            const params = { targetYear: year, clientName: client, startMonth: sM, endMonth: eM, issueDate: issueSel.value, dueDate: dueSel.value, note: noteInput.value.trim() };
             invalidateInvoice();
             AppState.isSubmitting = true;
+            const ticket = ++AppState.generationTicket;
+            cancelQuery.hidden = false;
             setInvoiceResult('generating', '월별 매출과 수수료를 확인하고 있습니다.', 'Checking monthly sales and fee totals.');
             btnGen.textContent = invoiceText('인보이스 작성 중…', 'Preparing invoice…'); btnGen.disabled = true;
             resultStatus.setAttribute('aria-busy', 'true');
+            updateDraftStatus();
+            const expired = new Promise((_, reject) => {
+                AppState.queryTimer = setTimeout(() => reject(new Error(invoiceText('조회 시간이 초과되었습니다. 현재 결과는 적용하지 않았습니다. 연결을 확인한 뒤 다시 생성해 주세요.', 'The lookup timed out. No returned data was applied. Check the connection and generate again.'))), 45000);
+            });
             try {
-                const [invRes, salesRes] = await Promise.all([
+                const [invRes, salesRes] = await Promise.race([Promise.all([
                     Y2C_AuthEngine.request('get_invoice', { targetYear: year, clientName: client, startMonth: sM, endMonth: eM }),
                     Y2C_AuthEngine.request('get_sales_records', { year, clientName: client })
-                ]);
+                ]), expired]);
+                if (ticket !== AppState.generationTicket) return;
+                if (submittedRevision !== (Y2C_AuthEngine.getReadRevision?.() || 0)) {
+                    setInvoiceResult('changed', '조회 중 원본 데이터가 변경되었습니다. 최신 내용으로 다시 생성해 주세요.', 'Source data changed while loading. Generate again with current data.'); return;
+                }
                 if (submittedSession !== Y2C_AuthEngine.cacheSessionKey()) throw new Error(invoiceText('로그인 계정이 변경되었습니다. 다시 조회해 주세요.', 'Your sign-in session changed. Generate the invoice again.'));
                 if (submittedSelection !== JSON.stringify(invoiceSelection())) {
                     setInvoiceResult('changed', '조회 중 조건이 변경되었습니다. 인보이스를 다시 생성해 주세요.', 'Selections changed while loading. Generate the invoice again.'); return;
@@ -1130,21 +1382,28 @@
                 const docEl = document.getElementById('invoiceDocument');
                 docEl.classList.remove('animate-flash-update');
                 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) { void docEl.offsetWidth; docEl.classList.add('animate-flash-update'); }
-                Y2C_AuthEngine.showToast(invoiceText('인보이스가 준비되었습니다. 금액과 지급기한을 확인해 주세요.', 'Invoice ready. Review the amounts and payment due date before sending.'), 'success');
+                Y2C_AuthEngine.showToast(AppState.review.summary.reviewRequired ? invoiceText('자료 주의사항을 검토한 뒤 출력 여부를 확인해 주세요.', 'Review the source-data notes before enabling export.') : invoiceText('인보이스가 준비되었습니다. 금액과 지급기한을 확인해 주세요.', 'Invoice ready. Review the amounts and payment due date before sending.'), AppState.review.summary.reviewRequired ? 'warning' : 'success');
             } catch (error) {
+                if (ticket !== AppState.generationTicket) return;
                 invalidateInvoice();
                 setInvoiceResult('failed', '조회 또는 검증에 실패했습니다. 데이터를 확인하고 다시 생성해 주세요.', 'Unable to verify the invoice. Review the source data and try again.');
-                Y2C_AuthEngine.showToast(error.message || invoiceText('인보이스를 생성하지 못했습니다.', 'Unable to generate invoice.'), 'error');
+                const detail = document.getElementById('invoiceErrorDetail'); detail.hidden = false; detail.textContent = error.message || invoiceText('인보이스를 생성하지 못했습니다.', 'Unable to generate invoice.');
+                Y2C_AuthEngine.showToast(detail.textContent, 'error');
             } finally {
-                AppState.isSubmitting = false;
-                resultStatus.setAttribute('aria-busy', 'false');
-                btnGen.textContent = invoiceText('인보이스 생성', 'Generate invoice');
-                btnGen.disabled = clientSel.options.length <= 1;
+                if (ticket === AppState.generationTicket) {
+                    clearTimeout(AppState.queryTimer); AppState.queryTimer = null;
+                    AppState.isSubmitting = false; cancelQuery.hidden = true;
+                    resultStatus.setAttribute('aria-busy', 'false');
+                    btnGen.textContent = invoiceText('인보이스 생성', 'Generate invoice');
+                    btnGen.disabled = clientSel.options.length <= 1;
+                    refreshOutputAvailability(); updateDraftStatus();
+                }
             }
         });
 
         function renderMonthlyBreakdown(invData, salesRecords, params, advRate, adfRate) {
             const summary=Y2C_InvoiceMath.summarize(invData,salesRecords,params,advRate,adfRate);
+            if (!summary.canIssue) throw new Error(invoiceText('선택한 기간에 등록된 월별 매출 자료가 없습니다. 미등록 자료로 0원 인보이스를 만들 수 없습니다.', 'There are no registered monthly sales records in this period. Unregistered data cannot become a zero-value invoice.'));
             const cli = invData.clientInfo || {};
             
             // 🚨 백엔드가 수직 데이터를 읽지 못해 hqInfo가 비어있을 경우 무조건 FALLBACK_HQ_INFO를 덮어씌웁니다.
@@ -1162,6 +1421,15 @@
             document.getElementById('docDueDate').innerText = dueDateStr;
             document.getElementById('docPaymentTerms').textContent = Y2C_InvoiceDates.paymentTerms(issueDateStr, dueDateStr);
             document.getElementById('docBillingPeriod').innerText = periodStr;
+            document.getElementById('docMemo').textContent = params.note || '';
+            document.getElementById('docMemoBlock').hidden = !params.note;
+            const scope = document.getElementById('docScopeNote');
+            const scopeNotes = [];
+            for (const [key, label] of [['missingMonths', 'No records returned for month(s)'], ['unregisteredMonths', 'Unregistered month(s)'], ['inferredMonths', 'Component-derived totals for month(s)'], ['totalOnlyMonths', 'Total-only legacy records for month(s)']]) {
+                const months = summary.coverage[key]; if (months.length) scopeNotes.push(label + ': ' + months.join(', ') + '.');
+            }
+            scope.hidden = !scopeNotes.length;
+            scope.textContent = scopeNotes.length ? 'Source scope: ' + scopeNotes.join(' ') + ' Only returned, reconciled sales are included; missing or unregistered months are not confirmed zero sales.' : '';
 
             injectHqData(hq);
 
@@ -1223,7 +1491,7 @@
             }
             
             if (validMonthsCount === 0 || !linesHtml) {
-                linesHtml = `<tr><td colspan="4" class="py-10 text-center text-gray-400 font-bold font-inter italic text-[11px]">${validMonthsCount===0?'No sales data found for the selected period.':'No fees apply at the selected rates.'}</td></tr>`;
+                linesHtml = `<tr><td colspan="4" class="py-10 text-center text-gray-400 font-bold font-inter italic text-[11px]">${validMonthsCount===0?'Returned sales records show zero sales for the selected period.':'No fees apply at the selected rates.'}</td></tr>`;
             }
 
             document.getElementById('valInvoiceLines').innerHTML = linesHtml;
@@ -1245,14 +1513,18 @@
             AppState.invoiceReady = true;
             AppState.renderedSelection = JSON.stringify(invoiceSelection());
             AppState.renderedSession = Y2C_AuthEngine.cacheSessionKey();
+            AppState.renderedRevision = Y2C_AuthEngine.getReadRevision?.() || 0;
             AppState.generatedAt = new Date().toISOString();
+            AppState.review = { summary, params: { ...params }, period: periodStr };
+            showInvoiceReview();
             document.body.classList.remove('invoice-not-ready');
             setInvoiceResult('ready', `인보이스 준비 완료 · 지급기한 ${dueDateStr} · ${formatCurrency(grandTotal)} CAD`, `Invoice ready · Due ${dueDateStr} · ${formatCurrency(grandTotal)} CAD`);
-            [btnPdf,btnDownload,printBtn].forEach(button=>{if(button)button.disabled=false;});
+            // The finally block enables output only after the current query completes.
+            refreshOutputAvailability();
         }
 
         // ==========================================
-        // 🖨 [핵심] PDF 추출 엔진 록다운 (html2pdf)
+        // PDF export: immutable snapshot, local engine and guarded download
         // ==========================================
         if (btnPdf) btnPdf.addEventListener('click', generatePDF); 
         if (btnDownload) btnDownload.addEventListener('click', generatePDF); 
@@ -1264,11 +1536,15 @@
             const safe=value=>String(value).replace(/[\\/:*?"<>|\x00-\x1f]/g,'_').slice(0,100);
             const filename = `${safe(document.getElementById('docInvoiceNo').innerText)}_${safe(document.getElementById('docClientName').innerText)}.pdf`;
             const original=btnPdf.innerHTML;btnPdf.textContent=invoiceText('PDF 준비 중…', 'Preparing PDF…');
+            const cancel = document.getElementById('btnCancelPDF'); cancel.hidden = false;
+            const exportStatus = document.getElementById('invoiceExportStatus');
+            const progress = stage => { exportStatus.dataset.state='busy'; exportStatus.textContent = invoiceText(...({resources:['글꼴·이미지를 준비하고 있습니다…','Preparing fonts and images…'],rendering:['PDF 페이지를 만들고 있습니다…','Rendering PDF pages…'],saving:['브라우저에 다운로드를 전달하고 있습니다…','Starting the browser download…']}[stage])); };
+            const shortcuts = ['btnInvoicePrevMonth', 'btnInvoiceFullYear', 'btnSaveInvoiceSettings', 'btnRestoreInvoiceSettings', 'btnClearInvoiceSettings', 'invoiceReviewAck'].map(id => document.getElementById(id));
             try{
-                const saved=await Y2C_DocumentIO.exportPDF(element,[btnPdf,btnDownload,printBtn,btnGen,...invoiceControls],filename);
-                if(saved)Y2C_AuthEngine.showToast(invoiceText('PDF 다운로드가 시작되었습니다.', 'Your PDF download has started.'),'success');
-            }catch(error){Y2C_AuthEngine.showToast(error.message||'PDF 생성 실패. 다시 시도해 주세요.','error');}
-            finally{btnPdf.innerHTML=original;if(!AppState.invoiceReady)[btnPdf,btnDownload,printBtn].forEach(button=>{if(button)button.disabled=true;});}
+                const saved=await Y2C_DocumentIO.exportPDF(element,[btnPdf,btnDownload,printBtn,btnGen,...invoiceControls,...shortcuts],filename,{isCurrent:isCurrentInvoice,onProgress:progress});
+                if(saved) { exportStatus.dataset.state='success'; exportStatus.textContent=invoiceText('다운로드를 브라우저에 전달했습니다. 다운로드 목록에서 파일을 확인해 주세요.', 'Download handed to the browser. Check your downloads list for the file.'); Y2C_AuthEngine.showToast(exportStatus.textContent,'success'); }
+            }catch(error){exportStatus.dataset.state=error.code==='EXPORT_CANCELLED'?'cancelled':'error'; exportStatus.textContent=error.message||invoiceText('PDF 생성에 실패했습니다. 다시 시도하거나 인쇄를 사용해 주세요.', 'PDF export failed. Try again or use Print.'); Y2C_AuthEngine.showToast(exportStatus.textContent,error.code==='EXPORT_CANCELLED'?'info':'error');}
+            finally{cancel.hidden=true;btnPdf.innerHTML=original;if(!isCurrentPreview())invalidateInvoice();else refreshOutputAvailability();updateDraftStatus();}
         }
 
         // 🚀 초기 구동

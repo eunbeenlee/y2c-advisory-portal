@@ -1,26 +1,26 @@
 /**
- * Y2C release-scoped offline shell V88_25_0.
+ * Y2C release-scoped offline shell V88_33_0.
  * Compiled static assets use cache-first; API data and durable writes stay with AuthEngine.
  * Cache cleanup is restricted to this application path. IndexedDB queues are retained.
  */
 
 "use strict";
 
-const CACHE_VERSION = "V88_30_0";
+const CACHE_VERSION = "V88_33_0";
 const SCOPE_URL = new URL(self.registration.scope);
 const CACHE_FAMILY = `Y2C_ENTERPRISE_SCOPE_${encodeURIComponent(SCOPE_URL.pathname)}_`;
 // Generated hashes pin this worker to one complete release, including its cache namespace.
 // BEGIN RELEASE INTEGRITY
-const RELEASE_DIGEST = "8d4c012654b90eee";
+const RELEASE_DIGEST = "4fa094178641ecb3";
 const RELEASE_HASHES = {
   "Sinjeon_Logo_Pink.png": "9e1c774adf9a2a3421d2429ba6b92975ce7014d6de77ae63be5a597bf1820840",
-  "admin.html": "a69b0fc0988cff70868dfddc5ccddb457aa8a580258806b0a8361eb124ee662b",
+  "admin.html": "07281a0be206c2eed36d2aa9006bceed97b8704cedb1983e785e433bf09a202d",
   "assets/css/design-system.css": "bea729f0f8d21f0915355af188201587bd6e494e6d0f2ad22e7e3c2419209158",
   "assets/css/experience.css": "232e4ad9320cf96430bcdb6437cece857e2bf0a5319feb9817d04ea2997f6d4b",
   "assets/css/mobile.css": "d1d6fb2c26e9ce7ab234839f0dfca1d2cd57b217b8f4936307754e31718e5788",
   "assets/css/order-lifecycle.css": "94650791e70752e4cf6b839a7c8cbd3b584226fc1fe1e7f3d228fee878e2d4d7",
   "assets/css/order-review.css": "395836d644bb8b397eb922f47e3240d5306dd65a07c45c7594abf6fd1356365b",
-  "assets/css/portal-refinement.css": "0a1f28d73ff47a811c37eb1b9e9f47c24b164313a446fe20ede377bbb05a256e",
+  "assets/css/portal-refinement.css": "fc46e466b9f91bc8ab65092024bdee16af43f4d420304726de03011b3624c6aa",
   "assets/css/portal-shell.css": "067d9893f62184ae9562336d7fd5c2d8b2483cbf575441d46abd944530463272",
   "assets/css/pwa.css": "a339d72f954d49cf624c445b3ae7f54c248bd1873d13d816a177b2d213054bcd",
   "assets/css/tailwind-admin.css": "70f6a90bed832bfd526e731c7ef7fc48072c43f94d538829aa7bf7e1981734a2",
@@ -38,10 +38,10 @@ const RELEASE_HASHES = {
   "assets/icons/app-maskable-512.png": "009950f64e51709b8651a0a51401ef9a7fdb619c82ea2a997d0cd24f8a3f6f79",
   "assets/js/accelerator.js": "10e2d71c85f685568fe8890b96fd0effdac8f250b7bfd79d8805ece3c2081cf7",
   "assets/js/android-install.js": "fa536168eb9e39347cc103ba8aef99021c68b5f742beaf5c23ecad2f0ce5531d",
-  "assets/js/auth.js": "bd3611daf78caa62565258f5cd7a51fefb19578d136518d59e9707d4a019e101",
-  "assets/js/config.js": "e70c1681357432400d1de50081274fc000cddbf442846bd57f649a583bbf9e75",
+  "assets/js/auth.js": "4e124ef58df5ba1817c86e0cc6c69a6ba29327b68f97250fa74beb8fd3c971cc",
+  "assets/js/config.js": "fd3ba024e7de2518e51214ce505845883eebe5b024f9b768325ada2f7cb72bf7",
   "assets/js/dashboard-session.js": "3c1a2020be7d93638e0ea18160bd31abb8588e7fe0248d0ed98b101ed82d0093",
-  "assets/js/document-io.js": "f60b1370a2acd82ef9b935fc9dc3ad257a38872152c89ad7d7864688f9986143",
+  "assets/js/document-io.js": "aa34fe092b058c6022c520d4d5e37c1f7e33b14bc0794c5ee8fe93e3fd90137a",
   "assets/js/excel-model.js": "4521b345147de0c7ca95a05088fef5a69e676c286a1a534e71847b81146c1420",
   "assets/js/excel-worker.js": "3db9c5d433b9c7c5772919e22c61cd9c1a853ba0213a04d57b8a602ff3b92303",
   "assets/js/experience.js": "f35242d2b6cb3e6de8ed18b61466a7ccc24ef5a5dc03f3fedec1ff0286870fdf",
@@ -49,7 +49,9 @@ const RELEASE_HASHES = {
   "assets/js/inventory-ocr.js": "b0aaf905f88f6c3a472072fc5e61789c115b3c3c3b8e0a252b2b1be9a792760c",
   "assets/js/inventory-workspace.js": "090e6ed61ce8935fe57a98b10fac5427be4eb86651bc56e07d38a2beb24159b8",
   "assets/js/invoice-dates.js": "f007da658fe1927fec0864444535c1389b7a0b3d0f20a3ce85bc936e9f6d860d",
-  "assets/js/invoice-math.js": "2248b93632617a04ec61707240e7be9878abb9a00cca8f8a8ba1f570f335a985",
+  "assets/js/invoice-draft.js": "309d2e0ff510b1e65c40e7d1227905a0aaf0c6ca774d16524a30746ad5436037",
+  "assets/js/invoice-math.js": "b83adb7ede941081fecdf9701b074ef25e03d16ab1be20a62f3e92be497e48be",
+  "assets/js/invoice-pdf.js": "6cab386bf19cafd2ac91dc55f1a56a468f44c7b06026fdd232c9501b576afb27",
   "assets/js/mobile.js": "acde86948b5d226ffd0da405571043fe7b72ba6a5079e962789e3fa00e2ba71b",
   "assets/js/mutation-ui.js": "b7eb24d5d9e972027514439947c80ee5d982dd648162f9e983d95a6325a46478",
   "assets/js/operations-monitor.js": "419ca6717aa17fe474191b2f1220ae219fce703b5c62ca6c6fae3a8cdb91c5b0",
@@ -61,15 +63,15 @@ const RELEASE_HASHES = {
   "assets/js/portal-dialog.js": "3ce70238b0597af1e935996d644e0aed849ee2d2a20b7ea4b53d947615bc8353",
   "assets/js/price-editor.js": "0c2f5c678fe8fc2ed36fffbf1067f958cdf877a8795bcd275092ce26b10db287",
   "assets/js/pwa.js": "854e61da543a183a38aa728752ba5bf541eb324cbf297caf4645ce0159e9b53d",
-  "assets/js/workspace-ui.js": "be3b88f1102ae9259634a5ac112142c1427fb81c5946bcb1e951ba810a6bebbc",
-  "dashboard.html": "b7bc310fa0ad0cde56e4138a6f968870e9781d6789945076513a055a0dcb8ce0",
+  "assets/js/workspace-ui.js": "d767e2762ea57a2e5b9b7bb0c05f7e6623a81c964a5312d99a327a9400212217",
+  "dashboard.html": "77346b452eeccb019fa37f98ccc9ebc99a416beffa037f526fa6f59f47474d31",
   "favicon.png": "493619db1d0e64e0dda864f0111347058325a2da1fdb0924a63d684dff9b03f3",
-  "index.html": "6ba1280434dc5a72df869e20dac578abeedad6304e7951d0dc4bf390fb6d8bd4",
+  "index.html": "81182104b7835f2e3f2bcd292f4fc346ede977316dfe436be4804c963430f883",
   "install.html": "d55860dfddb3d09aa86bf48bcba878731ec2eabea703a0e0dd3f7071582c5ef4",
-  "invoice.html": "43016f3f0a3fb2da17e9797ff45d659d8f898b48daec66ce3467589be344b680",
-  "items.html": "8332a78045e8b520eaac3a07e2ef678a28221be0c3dcb4233414b40b77483d32",
+  "invoice.html": "bd839551e31406b79ce8ec5a93031e4da7a564f661288c4791e21b50b634dc14",
+  "items.html": "2970edd21de0369ac66116277f58c547ba47bb1455b392710ed999f746892c9d",
   "manifest.json": "d8ca5a2034d0eb079d4def2e79af057502dbf5922dfc85258f4d7c5cc2dc3029",
-  "recipes.html": "59bbd9fdb5b80f8fae53d4dd7936de82431bc0c7aa7ae9503f7dd433eb0f44c5",
+  "recipes.html": "b242754cd451717d0879708d82d4119bbadbc3219a93f856b7a9d366694b8d5d",
   "y2c_holdings_logo.png": "0369ebf9bea898e3ad65320da67f1963704da85e2665a36caf6419089d9d6097"
 };
 // END RELEASE INTEGRITY
@@ -117,7 +119,9 @@ const CORE_ASSETS = [
     '/assets/js/inventory-ocr.js',
     '/assets/js/inventory-workspace.js',
     '/assets/js/invoice-dates.js',
+    '/assets/js/invoice-draft.js',
     '/assets/js/invoice-math.js',
+    '/assets/js/invoice-pdf.js',
     '/assets/js/mobile.js',
     '/assets/js/mutation-ui.js',
     '/assets/js/operations-monitor.js',
@@ -238,8 +242,16 @@ async function installRelease() {
             responses[i] = await verifiedAsset(CORE_ASSETS[i]);
         }
     }));
+    // CacheStorage writes are not transactional. Wait for every write to settle
+    // before removing a failed, newly-created candidate; never delete the old shell.
+    const existed = (await caches.keys()).includes(STATIC_CACHE);
     const cache = await caches.open(STATIC_CACHE);
-    await Promise.all(CORE_ASSETS.map((url,i) => cache.put(url,responses[i])));
+    const writes = await Promise.allSettled(CORE_ASSETS.map((url,i) => cache.put(url,responses[i])));
+    const failed = writes.find(result => result.status === 'rejected');
+    if (failed) {
+        if (!existed) { try { await caches.delete(STATIC_CACHE); } catch (_) {} }
+        throw new Error('Y2C_CACHE_WRITE_FAILED');
+    }
     // Intentionally wait for existing tabs/windows to close. Never replace an active order form.
 }
 self.addEventListener('install', event => { event.waitUntil(installRelease()); });

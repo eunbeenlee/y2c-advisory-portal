@@ -1,0 +1,113 @@
+{
+  "base": "V88_32_0",
+  "version": "V88_33_0",
+  "files": [
+    {
+      "path": "CHANGELOG_V88_33_0.md",
+      "change": "added",
+      "sha256": "7600312c9c1c901075d1f16882f60312f426956e42f000ba5a65b50c1529cb42",
+      "bytes": 1029
+    },
+    {
+      "path": "QA_REPORT_KO.md",
+      "change": "modified",
+      "sha256": "4920d44a3b5599058f1e3a0b3fea1edf575988c733b7606c4fc426d84259a30b",
+      "bytes": 4352
+    },
+    {
+      "path": "UPDATE_GUIDE_KO.md",
+      "change": "modified",
+      "sha256": "e48b04945e417ddee5aaf142abaeee51e33e9a74e9775f7ce0f47e6e1ef56cd0",
+      "bytes": 5968
+    },
+    {
+      "path": "VERIFICATION_REPORT.json",
+      "change": "modified",
+      "sha256": "b58c189ba567bde4bbc43dd351fdc0f5e7dad9dcac861cf6c82896bfcffa94a9",
+      "bytes": 1007
+    },
+    {
+      "path": "assets/css/portal-refinement.css",
+      "change": "modified",
+      "sha256": "fc46e466b9f91bc8ab65092024bdee16af43f4d420304726de03011b3624c6aa",
+      "bytes": 19496
+    },
+    {
+      "path": "assets/js/config.js",
+      "change": "modified",
+      "sha256": "fd3ba024e7de2518e51214ce505845883eebe5b024f9b768325ada2f7cb72bf7",
+      "bytes": 12731
+    },
+    {
+      "path": "assets/js/document-io.js",
+      "change": "modified",
+      "sha256": "aa34fe092b058c6022c520d4d5e37c1f7e33b14bc0794c5ee8fe93e3fd90137a",
+      "bytes": 7117
+    },
+    {
+      "path": "assets/js/invoice-pdf.js",
+      "change": "added",
+      "sha256": "6cab386bf19cafd2ac91dc55f1a56a468f44c7b06026fdd232c9501b576afb27",
+      "bytes": 16972
+    },
+    {
+      "path": "invoice.html",
+      "change": "modified",
+      "sha256": "bd839551e31406b79ce8ec5a93031e4da7a564f661288c4791e21b50b634dc14",
+      "bytes": 120921
+    },
+    {
+      "path": "release-manifest.json",
+      "change": "modified",
+      "sha256": "c5bba2a5faca039117ffeae59251b17e5ea05b6b061ad5e0cf32a564eb822174",
+      "bytes": 11729
+    },
+    {
+      "path": "sw.js",
+      "change": "modified",
+      "sha256": "f5909d3c083cbf82dbf300d3cc3ab118f50534c9e4a6233eabc1555d590f53de",
+      "bytes": 21145
+    },
+    {
+      "path": "tests/document-io.test.js",
+      "change": "modified",
+      "sha256": "d4b1bc27279bcf00e4f0e8c0bdb636e9aac3e0bdeb130068f71fc5c51285e1ce",
+      "bytes": 7478
+    },
+    {
+      "path": "tests/invoice-pdf.test.js",
+      "change": "added",
+      "sha256": "bdc27365c885f3580db54a97df57a9b9230b7400f0afbf71a4a5a86919c7c575",
+      "bytes": 3918
+    },
+    {
+      "path": "tests/native-pdf-browser.py",
+      "change": "added",
+      "sha256": "eed36188e98e921a6f3b1b3ac2d56acb09d28daff591da14f04ec1ad2d7e9b13",
+      "bytes": 8976
+    },
+    {
+      "path": "tests/service-worker.test.js",
+      "change": "added",
+      "sha256": "a3a03d51f0893342f302efbe4d5b26decb5367653c63a6c7091869cdb5e47674",
+      "bytes": 7054
+    },
+    {
+      "path": "tests/source-browser.py",
+      "change": "modified",
+      "sha256": "de01ee9c2affef9176aaa8264b3ef797bf9aab8b49f2346c3d256ce7ddba2b4c",
+      "bytes": 26302
+    }
+  ],
+  "preserved": [
+    "CNAME",
+    "ASSETLINKS_COPY.json",
+    ".well-known/assetlinks.json",
+    "assets/js/auth.js",
+    "assets/js/invoice-math.js",
+    "assets/js/invoice-dates.js",
+    "assets/js/invoice-draft.js",
+    "assets/js/order-math.js",
+    "apps/SinjeonPortal-1.0.6.apk"
+  ]
+}
