@@ -1,0 +1,304 @@
+TAP version 13
+# Subtest: order estimates round exact half-cents up for Alberta and Quebec
+ok 1 - order estimates round exact half-cents up for Alberta and Quebec
+  ---
+  duration_ms: 1.123339
+  type: 'test'
+  ...
+# Subtest: mixed tax lines retain cent-exact subtotal, per-line taxes and total
+ok 2 - mixed tax lines retain cent-exact subtotal, per-line taxes and total
+  ---
+  duration_ms: 0.73849
+  type: 'test'
+  ...
+# Subtest: invalid order quantity, price and combined amount never produce a quote
+ok 3 - invalid order quantity, price and combined amount never produce a quote
+  ---
+  duration_ms: 1.10366
+  type: 'test'
+  ...
+# Subtest: a retried queued save reuses its original request and order identity
+ok 4 - a retried queued save reuses its original request and order identity
+  ---
+  duration_ms: 24.355094
+  type: 'test'
+  ...
+# Subtest: a queued save waits until its retry time
+ok 5 - a queued save waits until its retry time
+  ---
+  duration_ms: 1.500286
+  type: 'test'
+  ...
+# Subtest: retry pauses after the fifth queue failure instead of looping indefinitely
+ok 6 - retry pauses after the fifth queue failure instead of looping indefinitely
+  ---
+  duration_ms: 1.680461
+  type: 'test'
+  ...
+# Subtest: queued work cannot submit after logout
+ok 7 - queued work cannot submit after logout
+  ---
+  duration_ms: 2.395837
+  type: 'test'
+  ...
+# Subtest: an explicit AUTH failure signs out even when the message is not Korean
+ok 8 - an explicit AUTH failure signs out even when the message is not Korean
+  ---
+  duration_ms: 3.653846
+  type: 'test'
+  ...
+# Subtest: shared HTML escaping preserves zero values and encodes markup
+ok 9 - shared HTML escaping preserves zero values and encodes markup
+  ---
+  duration_ms: 1.682505
+  type: 'test'
+  ...
+# Subtest: closing the procurement picker discards edits until selection is confirmed
+ok 10 - closing the procurement picker discards edits until selection is confirmed
+  ---
+  duration_ms: 3.517915
+  type: 'test'
+  ...
+# Subtest: procurement payload summary and quantities always describe the same selection
+ok 11 - procurement payload summary and quantities always describe the same selection
+  ---
+  duration_ms: 16.012109
+  type: 'test'
+  ...
+# Subtest: a procurement picker cannot commit a draft after the selected hub changes
+ok 12 - a procurement picker cannot commit a draft after the selected hub changes
+  ---
+  duration_ms: 1.755603
+  type: 'test'
+  ...
+# Subtest: new procurement orders use the Toronto business date, not the next UTC date
+ok 13 - new procurement orders use the Toronto business date, not the next UTC date
+  ---
+  duration_ms: 1.487366
+  type: 'test'
+  ...
+# Subtest: null, array, scalar and ambiguous server responses fail closed
+ok 14 - null, array, scalar and ambiguous server responses fail closed
+  ---
+  duration_ms: 1.604689
+  type: 'test'
+  ...
+# Subtest: unsupported compressed response envelopes fail before being treated as data
+ok 15 - unsupported compressed response envelopes fail before being treated as data
+  ---
+  duration_ms: 1.08369
+  type: 'test'
+  ...
+# Subtest: explicit successful and business-error server objects remain supported
+ok 16 - explicit successful and business-error server objects remain supported
+  ---
+  duration_ms: 2.290433
+  type: 'test'
+  ...
+# Subtest: successful export restores mixed disabled states and removes its temporary clone
+ok 17 - successful export restores mixed disabled states and removes its temporary clone
+  ---
+  duration_ms: 3.737809
+  type: 'test'
+  ...
+# Subtest: snapshot is captured before asynchronous resource preparation
+ok 18 - snapshot is captured before asynchronous resource preparation
+  ---
+  duration_ms: 0.971544
+  type: 'test'
+  ...
+# Subtest: a second click cannot start another renderer while the first is pending
+ok 19 - a second click cannot start another renderer while the first is pending
+  ---
+  duration_ms: 5.638857
+  type: 'test'
+  ...
+# Subtest: explicit cancellation unlocks controls and prevents a late PDF download
+ok 20 - explicit cancellation unlocks controls and prevents a late PDF download
+  ---
+  duration_ms: 3.55557
+  type: 'test'
+  ...
+# Subtest: timeout cannot initiate a delayed download and a subsequent export can succeed
+ok 21 - timeout cannot initiate a delayed download and a subsequent export can succeed
+  ---
+  duration_ms: 17.426042
+  type: 'test'
+  ...
+# Subtest: source revision or account change during rendering prevents saving
+ok 22 - source revision or account change during rendering prevents saving
+  ---
+  duration_ms: 2.008246
+  type: 'test'
+  ...
+# Subtest: pre-existing stale state blocks even the initial snapshot
+ok 23 - pre-existing stale state blocks even the initial snapshot
+  ---
+  duration_ms: 0.830666
+  type: 'test'
+  ...
+# Subtest: missing engine or disconnected document cannot leave the interface locked
+ok 24 - missing engine or disconnected document cannot leave the interface locked
+  ---
+  duration_ms: 0.871196
+  type: 'test'
+  ...
+# Subtest: render failure restores controls and leaves the source preview intact
+ok 25 - render failure restores controls and leaves the source preview intact
+  ---
+  duration_ms: 1.158
+  type: 'test'
+  ...
+# Subtest: invalid engine result is rejected rather than claiming a successful download
+ok 26 - invalid engine result is rejected rather than claiming a successful download
+  ---
+  duration_ms: 1.04302
+  type: 'test'
+  ...
+# Subtest: stalled fonts time out before rendering and restore controls
+ok 27 - stalled fonts time out before rendering and restore controls
+  ---
+  duration_ms: 17.59379
+  type: 'test'
+  ...
+# Subtest: cancellation cannot claim to retract a save that already started
+ok 28 - cancellation cannot claim to retract a save that already started
+  ---
+  duration_ms: 2.611777
+  type: 'test'
+  ...
+# Subtest: timeout removes only its own renderer overlay, including one attached late
+ok 29 - timeout removes only its own renderer overlay, including one attached late
+  ---
+  duration_ms: 18.183561
+  type: 'test'
+  ...
+# Subtest: two independently rounded fee lines reconcile in cents
+ok 30 - two independently rounded fee lines reconcile in cents
+  ---
+  duration_ms: 3.174087
+  type: 'test'
+  ...
+# Subtest: delayed zero total uses the reconciled POS and delivery components
+ok 31 - delayed zero total uses the reconciled POS and delivery components
+  ---
+  duration_ms: 0.327213
+  type: 'test'
+  ...
+# Subtest: mismatch between monthly components and reported total blocks issue
+ok 32 - mismatch between monthly components and reported total blocks issue
+  ---
+  duration_ms: 0.259223
+  type: 'test'
+  ...
+# Subtest: aggregate mismatch blocks issue instead of publishing an incorrect amount
+ok 33 - aggregate mismatch blocks issue instead of publishing an incorrect amount
+  ---
+  duration_ms: 0.153446
+  type: 'test'
+  ...
+# Subtest: missing aggregate fields cannot turn an incomplete response into a zero invoice
+ok 34 - missing aggregate fields cannot turn an incomplete response into a zero invoice
+  ---
+  duration_ms: 0.443925
+  type: 'test'
+  ...
+# Subtest: wrong client, duplicate month and invalid month are rejected
+ok 35 - wrong client, duplicate month and invalid month are rejected
+  ---
+  duration_ms: 0.209189
+  type: 'test'
+  ...
+# Subtest: explicit total-only legacy records are accepted only with matching aggregate
+ok 36 - explicit total-only legacy records are accepted only with matching aggregate
+  ---
+  duration_ms: 0.378389
+  type: 'test'
+  ...
+# Subtest: negative, non-finite and malformed amounts cannot be invoiced
+ok 37 - negative, non-finite and malformed amounts cannot be invoiced
+  ---
+  duration_ms: 0.407812
+  type: 'test'
+  ...
+# Subtest: invalid rates and reversed billing periods are rejected
+ok 38 - invalid rates and reversed billing periods are rejected
+  ---
+  duration_ms: 0.364668
+  type: 'test'
+  ...
+# Subtest: valid zero fee and zero sales invoices remain representable
+ok 39 - valid zero fee and zero sales invoices remain representable
+  ---
+  duration_ms: 0.556141
+  type: 'test'
+  ...
+# Subtest: calendar date math covers leap years, month boundaries and year rollover
+ok 40 - calendar date math covers leap years, month boundaries and year rollover
+  ---
+  duration_ms: 0.468462
+  type: 'test'
+  ...
+# Subtest: business timezone determines today even when the user is in Korea
+ok 41 - business timezone determines today even when the user is in Korea
+  ---
+  duration_ms: 16.569187
+  type: 'test'
+  ...
+# Subtest: impossible dates and due dates before issue are rejected
+ok 42 - impossible dates and due dates before issue are rejected
+  ---
+  duration_ms: 0.287975
+  type: 'test'
+  ...
+# Subtest: payment terms are derived from the dates on the invoice
+ok 43 - payment terms are derived from the dates on the invoice
+  ---
+  duration_ms: 0.268857
+  type: 'test'
+  ...
+# Subtest: missing-month coverage is visible and is not silently described as confirmed zero
+ok 44 - missing-month coverage is visible and is not silently described as confirmed zero
+  ---
+  duration_ms: 1.050672
+  type: 'test'
+  ...
+# Subtest: nonexistent months cannot also contain financial values
+ok 45 - nonexistent months cannot also contain financial values
+  ---
+  duration_ms: 0.232874
+  type: 'test'
+  ...
+# Subtest: boolean and non-scalar months cannot be coerced into valid months
+ok 46 - boolean and non-scalar months cannot be coerced into valid months
+  ---
+  duration_ms: 0.248326
+  type: 'test'
+  ...
+# Subtest: unsorted valid source months are returned in chronological order
+ok 47 - unsorted valid source months are returned in chronological order
+  ---
+  duration_ms: 0.155399
+  type: 'test'
+  ...
+# Subtest: explicit empty monthly records retain complete coverage
+ok 48 - explicit empty monthly records retain complete coverage
+  ---
+  duration_ms: 0.111645
+  type: 'test'
+  ...
+# Subtest: whitespace-padded numeric spreadsheet months retain compatibility
+ok 49 - whitespace-padded numeric spreadsheet months retain compatibility
+  ---
+  duration_ms: 0.948401
+  type: 'test'
+  ...
+1..49
+# tests 49
+# suites 0
+# pass 49
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 134.26981

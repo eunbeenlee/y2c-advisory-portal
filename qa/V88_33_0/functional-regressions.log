@@ -1,0 +1,550 @@
+TAP version 13
+# Subtest: order estimates round exact half-cents up for Alberta and Quebec
+ok 1 - order estimates round exact half-cents up for Alberta and Quebec
+  ---
+  duration_ms: 1.240473
+  type: 'test'
+  ...
+# Subtest: mixed tax lines retain cent-exact subtotal, per-line taxes and total
+ok 2 - mixed tax lines retain cent-exact subtotal, per-line taxes and total
+  ---
+  duration_ms: 0.661768
+  type: 'test'
+  ...
+# Subtest: invalid order quantity, price and combined amount never produce a quote
+ok 3 - invalid order quantity, price and combined amount never produce a quote
+  ---
+  duration_ms: 1.512135
+  type: 'test'
+  ...
+# Subtest: a retried queued save reuses its original request and order identity
+ok 4 - a retried queued save reuses its original request and order identity
+  ---
+  duration_ms: 27.875311
+  type: 'test'
+  ...
+# Subtest: a queued save waits until its retry time
+ok 5 - a queued save waits until its retry time
+  ---
+  duration_ms: 1.454279
+  type: 'test'
+  ...
+# Subtest: retry pauses after the fifth queue failure instead of looping indefinitely
+ok 6 - retry pauses after the fifth queue failure instead of looping indefinitely
+  ---
+  duration_ms: 1.544844
+  type: 'test'
+  ...
+# Subtest: queued work cannot submit after logout
+ok 7 - queued work cannot submit after logout
+  ---
+  duration_ms: 1.606484
+  type: 'test'
+  ...
+# Subtest: an explicit AUTH failure signs out even when the message is not Korean
+ok 8 - an explicit AUTH failure signs out even when the message is not Korean
+  ---
+  duration_ms: 2.048818
+  type: 'test'
+  ...
+# Subtest: shared HTML escaping preserves zero values and encodes markup
+ok 9 - shared HTML escaping preserves zero values and encodes markup
+  ---
+  duration_ms: 1.261825
+  type: 'test'
+  ...
+# Subtest: closing the procurement picker discards edits until selection is confirmed
+ok 10 - closing the procurement picker discards edits until selection is confirmed
+  ---
+  duration_ms: 2.81456
+  type: 'test'
+  ...
+# Subtest: procurement payload summary and quantities always describe the same selection
+ok 11 - procurement payload summary and quantities always describe the same selection
+  ---
+  duration_ms: 13.611789
+  type: 'test'
+  ...
+# Subtest: a procurement picker cannot commit a draft after the selected hub changes
+ok 12 - a procurement picker cannot commit a draft after the selected hub changes
+  ---
+  duration_ms: 1.203759
+  type: 'test'
+  ...
+# Subtest: new procurement orders use the Toronto business date, not the next UTC date
+ok 13 - new procurement orders use the Toronto business date, not the next UTC date
+  ---
+  duration_ms: 1.129599
+  type: 'test'
+  ...
+# Subtest: null, array, scalar and ambiguous server responses fail closed
+ok 14 - null, array, scalar and ambiguous server responses fail closed
+  ---
+  duration_ms: 1.391617
+  type: 'test'
+  ...
+# Subtest: unsupported compressed response envelopes fail before being treated as data
+ok 15 - unsupported compressed response envelopes fail before being treated as data
+  ---
+  duration_ms: 1.08918
+  type: 'test'
+  ...
+# Subtest: explicit successful and business-error server objects remain supported
+ok 16 - explicit successful and business-error server objects remain supported
+  ---
+  duration_ms: 2.074547
+  type: 'test'
+  ...
+# Subtest: successful export restores mixed disabled states and removes its temporary clone
+ok 17 - successful export restores mixed disabled states and removes its temporary clone
+  ---
+  duration_ms: 5.21649
+  type: 'test'
+  ...
+# Subtest: snapshot is captured before asynchronous resource preparation
+ok 18 - snapshot is captured before asynchronous resource preparation
+  ---
+  duration_ms: 1.295254
+  type: 'test'
+  ...
+# Subtest: a second click cannot start another renderer while the first is pending
+ok 19 - a second click cannot start another renderer while the first is pending
+  ---
+  duration_ms: 6.967499
+  type: 'test'
+  ...
+# Subtest: explicit cancellation unlocks controls and prevents a late PDF download
+ok 20 - explicit cancellation unlocks controls and prevents a late PDF download
+  ---
+  duration_ms: 4.497598
+  type: 'test'
+  ...
+# Subtest: timeout cannot initiate a delayed download and a subsequent export can succeed
+ok 21 - timeout cannot initiate a delayed download and a subsequent export can succeed
+  ---
+  duration_ms: 18.96458
+  type: 'test'
+  ...
+# Subtest: source revision or account change during rendering prevents saving
+ok 22 - source revision or account change during rendering prevents saving
+  ---
+  duration_ms: 2.789914
+  type: 'test'
+  ...
+# Subtest: pre-existing stale state blocks even the initial snapshot
+ok 23 - pre-existing stale state blocks even the initial snapshot
+  ---
+  duration_ms: 2.471744
+  type: 'test'
+  ...
+# Subtest: missing engine or disconnected document cannot leave the interface locked
+ok 24 - missing engine or disconnected document cannot leave the interface locked
+  ---
+  duration_ms: 2.396833
+  type: 'test'
+  ...
+# Subtest: render failure restores controls and leaves the source preview intact
+ok 25 - render failure restores controls and leaves the source preview intact
+  ---
+  duration_ms: 2.708974
+  type: 'test'
+  ...
+# Subtest: invalid engine result is rejected rather than claiming a successful download
+ok 26 - invalid engine result is rejected rather than claiming a successful download
+  ---
+  duration_ms: 1.179103
+  type: 'test'
+  ...
+# Subtest: stalled fonts time out before rendering and restore controls
+ok 27 - stalled fonts time out before rendering and restore controls
+  ---
+  duration_ms: 17.322938
+  type: 'test'
+  ...
+# Subtest: cancellation cannot claim to retract a save that already started
+ok 28 - cancellation cannot claim to retract a save that already started
+  ---
+  duration_ms: 2.527706
+  type: 'test'
+  ...
+# Subtest: cooperative renderer guard stops work after cancellation
+ok 29 - cooperative renderer guard stops work after cancellation
+  ---
+  duration_ms: 2.775622
+  type: 'test'
+  ...
+# Subtest: progress callback errors cannot interrupt a successful export
+ok 30 - progress callback errors cannot interrupt a successful export
+  ---
+  duration_ms: 1.050452
+  type: 'test'
+  ...
+# Subtest: PDF writer uses byte-accurate object offsets and xref
+ok 31 - PDF writer uses byte-accurate object offsets and xref
+  ---
+  duration_ms: 1.805008
+  type: 'test'
+  ...
+# Subtest: PDF writer rejects missing, excessive or non-JPEG page input
+ok 32 - PDF writer rejects missing, excessive or non-JPEG page input
+  ---
+  duration_ms: 0.583152
+  type: 'test'
+  ...
+# Subtest: PDF stream length counts JPEG binary bytes exactly
+ok 33 - PDF stream length counts JPEG binary bytes exactly
+  ---
+  duration_ms: 0.32446
+  type: 'test'
+  ...
+# Subtest: download filename removes path, control and bidi characters and keeps Korean
+ok 34 - download filename removes path, control and bidi characters and keeps Korean
+  ---
+  duration_ms: 0.984225
+  type: 'test'
+  ...
+# Subtest: wrapping preserves Korean and long unbroken strings without clipping
+ok 35 - wrapping preserves Korean and long unbroken strings without clipping
+  ---
+  duration_ms: 1.387
+  type: 'test'
+  ...
+# Subtest: input text strips control characters but preserves literal markup
+ok 36 - input text strips control characters but preserves literal markup
+  ---
+  duration_ms: 0.367093
+  type: 'test'
+  ...
+# Subtest: snapshot rejects missing identities and malformed row shape
+ok 37 - snapshot rejects missing identities and malformed row shape
+  ---
+  duration_ms: 1.119895
+  type: 'test'
+  ...
+# Subtest: snapshot keeps scope and memo as text and accepts explicit zero row
+ok 38 - snapshot keeps scope and memo as text and accepts explicit zero row
+  ---
+  duration_ms: 0.333733
+  type: 'test'
+  ...
+# Subtest: download filenames stay below UTF-8 filesystem limits and avoid reserved device names
+ok 39 - download filenames stay below UTF-8 filesystem limits and avoid reserved device names
+  ---
+  duration_ms: 0.754435
+  type: 'test'
+  ...
+# Subtest: two independently rounded fee lines reconcile in cents
+ok 40 - two independently rounded fee lines reconcile in cents
+  ---
+  duration_ms: 2.640844
+  type: 'test'
+  ...
+# Subtest: delayed zero total uses the reconciled POS and delivery components
+ok 41 - delayed zero total uses the reconciled POS and delivery components
+  ---
+  duration_ms: 0.411328
+  type: 'test'
+  ...
+# Subtest: mismatch between monthly components and reported total blocks issue
+ok 42 - mismatch between monthly components and reported total blocks issue
+  ---
+  duration_ms: 0.27047
+  type: 'test'
+  ...
+# Subtest: aggregate mismatch blocks issue instead of publishing an incorrect amount
+ok 43 - aggregate mismatch blocks issue instead of publishing an incorrect amount
+  ---
+  duration_ms: 0.247015
+  type: 'test'
+  ...
+# Subtest: missing aggregate fields cannot turn an incomplete response into a zero invoice
+ok 44 - missing aggregate fields cannot turn an incomplete response into a zero invoice
+  ---
+  duration_ms: 0.201508
+  type: 'test'
+  ...
+# Subtest: wrong client, duplicate month and invalid month are rejected
+ok 45 - wrong client, duplicate month and invalid month are rejected
+  ---
+  duration_ms: 0.212975
+  type: 'test'
+  ...
+# Subtest: explicit total-only legacy records are accepted only with matching aggregate
+ok 46 - explicit total-only legacy records are accepted only with matching aggregate
+  ---
+  duration_ms: 0.414142
+  type: 'test'
+  ...
+# Subtest: negative, non-finite and malformed amounts cannot be invoiced
+ok 47 - negative, non-finite and malformed amounts cannot be invoiced
+  ---
+  duration_ms: 0.337889
+  type: 'test'
+  ...
+# Subtest: invalid rates and reversed billing periods are rejected
+ok 48 - invalid rates and reversed billing periods are rejected
+  ---
+  duration_ms: 0.292322
+  type: 'test'
+  ...
+# Subtest: valid zero fee and zero sales invoices remain representable
+ok 49 - valid zero fee and zero sales invoices remain representable
+  ---
+  duration_ms: 0.649379
+  type: 'test'
+  ...
+# Subtest: calendar date math covers leap years, month boundaries and year rollover
+ok 50 - calendar date math covers leap years, month boundaries and year rollover
+  ---
+  duration_ms: 0.380453
+  type: 'test'
+  ...
+# Subtest: business timezone determines today even when the user is in Korea
+ok 51 - business timezone determines today even when the user is in Korea
+  ---
+  duration_ms: 13.735672
+  type: 'test'
+  ...
+# Subtest: impossible dates and due dates before issue are rejected
+ok 52 - impossible dates and due dates before issue are rejected
+  ---
+  duration_ms: 0.280414
+  type: 'test'
+  ...
+# Subtest: payment terms are derived from the dates on the invoice
+ok 53 - payment terms are derived from the dates on the invoice
+  ---
+  duration_ms: 0.932639
+  type: 'test'
+  ...
+# Subtest: missing-month coverage is visible and is not silently described as confirmed zero
+ok 54 - missing-month coverage is visible and is not silently described as confirmed zero
+  ---
+  duration_ms: 1.307232
+  type: 'test'
+  ...
+# Subtest: nonexistent months cannot also contain financial values
+ok 55 - nonexistent months cannot also contain financial values
+  ---
+  duration_ms: 0.179115
+  type: 'test'
+  ...
+# Subtest: boolean and non-scalar months cannot be coerced into valid months
+ok 56 - boolean and non-scalar months cannot be coerced into valid months
+  ---
+  duration_ms: 4.842407
+  type: 'test'
+  ...
+# Subtest: unsorted valid source months are returned in chronological order
+ok 57 - unsorted valid source months are returned in chronological order
+  ---
+  duration_ms: 0.228127
+  type: 'test'
+  ...
+# Subtest: explicit empty monthly records retain complete coverage
+ok 58 - explicit empty monthly records retain complete coverage
+  ---
+  duration_ms: 0.119517
+  type: 'test'
+  ...
+# Subtest: whitespace-padded numeric spreadsheet months retain compatibility
+ok 59 - whitespace-padded numeric spreadsheet months retain compatibility
+  ---
+  duration_ms: 0.130343
+  type: 'test'
+  ...
+# Subtest: decimal cents round half-up exactly even for large decimal strings
+ok 60 - decimal cents round half-up exactly even for large decimal strings
+  ---
+  duration_ms: 3.109826
+  type: 'test'
+  ...
+# Subtest: 1000 deterministic decimal samples agree with a BigInt cent oracle
+ok 61 - 1000 deterministic decimal samples agree with a BigInt cent oracle
+  ---
+  duration_ms: 32.318147
+  type: 'test'
+  ...
+# Subtest: numeric scientific notation remains supported without accepting ambiguous string exponents
+ok 62 - numeric scientific notation remains supported without accepting ambiguous string exponents
+  ---
+  duration_ms: 2.544961
+  type: 'test'
+  ...
+# Subtest: unsafe integer-cent amounts and nonfinite scalars are rejected
+ok 63 - unsafe integer-cent amounts and nonfinite scalars are rejected
+  ---
+  duration_ms: 0.332542
+  type: 'test'
+  ...
+# Subtest: legacy delayed totals retain compatibility but now require explicit source review
+ok 64 - legacy delayed totals retain compatibility but now require explicit source review
+  ---
+  duration_ms: 2.596608
+  type: 'test'
+  ...
+# Subtest: missing optional components can never be silently called fully matched
+ok 65 - missing optional components can never be silently called fully matched
+  ---
+  duration_ms: 0.215248
+  type: 'test'
+  ...
+# Subtest: explicit zero differs from unregistered and absent monthly records
+ok 66 - explicit zero differs from unregistered and absent monthly records
+  ---
+  duration_ms: 0.198763
+  type: 'test'
+  ...
+# Subtest: partial periods disclose every missing month while preserving reconciled totals
+ok 67 - partial periods disclose every missing month while preserving reconciled totals
+  ---
+  duration_ms: 0.149431
+  type: 'test'
+  ...
+# Subtest: total-only legacy records remain supported and distinctly flagged
+ok 68 - total-only legacy records remain supported and distinctly flagged
+  ---
+  duration_ms: 0.321425
+  type: 'test'
+  ...
+# Subtest: invalid years are rejected in the math layer
+ok 69 - invalid years are rejected in the math layer
+  ---
+  duration_ms: 0.658383
+  type: 'test'
+  ...
+# Subtest: settings drafts save only whitelisted fields, never tokens, sales, or acknowledged state
+ok 70 - settings drafts save only whitelisted fields, never tokens, sales, or acknowledged state
+  ---
+  duration_ms: 1.094738
+  type: 'test'
+  ...
+# Subtest: account changes cannot restore another account draft and remove it
+ok 71 - account changes cannot restore another account draft and remove it
+  ---
+  duration_ms: 0.224682
+  type: 'test'
+  ...
+# Subtest: drafts expire after 24 hours and reject future-dated storage
+ok 72 - drafts expire after 24 hours and reject future-dated storage
+  ---
+  duration_ms: 0.326282
+  type: 'test'
+  ...
+# Subtest: corrupt and oversized stored drafts cannot break the invoice page
+ok 73 - corrupt and oversized stored drafts cannot break the invoice page
+  ---
+  duration_ms: 0.177963
+  type: 'test'
+  ...
+# Subtest: storage denial returns a recoverable result without throwing
+ok 74 - storage denial returns a recoverable result without throwing
+  ---
+  duration_ms: 0.288136
+  type: 'test'
+  ...
+# Subtest: invalid dates, terms, rates, text and reversed periods cannot be saved
+ok 75 - invalid dates, terms, rates, text and reversed periods cannot be saved
+  ---
+  duration_ms: 0.476184
+  type: 'test'
+  ...
+# Subtest: new 0.1 percent rates and custom due dates are valid draft settings
+ok 76 - new 0.1 percent rates and custom due dates are valid draft settings
+  ---
+  duration_ms: 0.261306
+  type: 'test'
+  ...
+# Subtest: clearing saved settings does not mutate the input draft object
+ok 77 - clearing saved settings does not mutate the input draft object
+  ---
+  duration_ms: 0.123162
+  type: 'test'
+  ...
+# Subtest: string status flags and contradictory total-only markers are rejected
+ok 78 - string status flags and contradictory total-only markers are rejected
+  ---
+  duration_ms: 0.255037
+  type: 'test'
+  ...
+# Subtest: worker verifies and installs every release asset without calling APIs
+ok 79 - worker verifies and installs every release asset without calling APIs
+  ---
+  duration_ms: 48.179326
+  type: 'test'
+  ...
+# Subtest: tampered static source rejects installation before a cache is opened
+ok 80 - tampered static source rejects installation before a cache is opened
+  ---
+  duration_ms: 18.855139
+  type: 'test'
+  ...
+# Subtest: cache quota failure rolls back only the new candidate after all writes finish
+ok 81 - cache quota failure rolls back only the new candidate after all writes finish
+  ---
+  duration_ms: 24.002547
+  type: 'test'
+  ...
+# Subtest: quota failure never removes a pre-existing current namespace
+ok 82 - quota failure never removes a pre-existing current namespace
+  ---
+  duration_ms: 13.867177
+  type: 'test'
+  ...
+# Subtest: activation only removes old caches in the exact application family
+ok 83 - activation only removes old caches in the exact application family
+  ---
+  duration_ms: 1.091684
+  type: 'test'
+  ...
+# Subtest: version-pinned shell works offline and ignores cache-busting query strings
+ok 84 - version-pinned shell works offline and ignores cache-busting query strings
+  ---
+  duration_ms: 18.889088
+  type: 'test'
+  ...
+# Subtest: offline diagnostics never pretend a cached manifest is current
+ok 85 - offline diagnostics never pretend a cached manifest is current
+  ---
+  duration_ms: 11.586014
+  type: 'test'
+  ...
+# Subtest: business API GET and every POST bypass worker caches and queues
+ok 86 - business API GET and every POST bypass worker caches and queues
+  ---
+  duration_ms: 1.201205
+  type: 'test'
+  ...
+# Subtest: unavailable storage falls back to verified static network bytes
+ok 87 - unavailable storage falls back to verified static network bytes
+  ---
+  duration_ms: 2.831535
+  type: 'test'
+  ...
+# Subtest: missing cached asset never falls back to a different release
+ok 88 - missing cached asset never falls back to a different release
+  ---
+  duration_ms: 2.414879
+  type: 'test'
+  ...
+# Subtest: release status exposes no account or business data
+ok 89 - release status exposes no account or business data
+  ---
+  duration_ms: 1.397486
+  type: 'test'
+  ...
+# Subtest: background sync only asks in-scope pages to synchronize
+ok 90 - background sync only asks in-scope pages to synchronize
+  ---
+  duration_ms: 1.256948
+  type: 'test'
+  ...
+1..90
+# tests 90
+# suites 0
+# pass 90
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 335.859128

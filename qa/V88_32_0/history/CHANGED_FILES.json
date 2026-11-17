@@ -1,0 +1,164 @@
+{
+  "base_archive": "Sinjeon_V88_31_0_Upgrade_FULL.zip",
+  "base_sha256": "db7696692c9be157ea0c922564494353c13064c0198aaf7b89b544db96653093",
+  "release": "V88_32_0",
+  "self_excluded": true,
+  "files": [
+    {
+      "path": "CHANGELOG_V88_32_0.md",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "9970cc72e30592b134ad9ae8cc98d821c1fea1e8d891aaa73c65a70060b2710b"
+    },
+    {
+      "path": "QA_REPORT_KO.md",
+      "status": "modified",
+      "base_sha256": "3e5ba652384f3d97834327e976682740f484f26ee6c074d8fb7f0800265dc0be",
+      "sha256": "a04741ca359501d1e45c26491962f59bb32aae85ca234da4f83ebd9a379305d3"
+    },
+    {
+      "path": "UPDATE_GUIDE_KO.md",
+      "status": "modified",
+      "base_sha256": "839881f90802f79a7d9392a0af182dbbb91f9c6c0e5d45aa1b5d000d1fa0002f",
+      "sha256": "fd1a75f65e46c501d5ed679eb64f7fb8b5450d0762e7bbce7fcb3ed498891b1f"
+    },
+    {
+      "path": "VERIFICATION_REPORT.json",
+      "status": "modified",
+      "base_sha256": "745f8a7549e45cd2e9c652dfba26674c37fd508b7914d0f363876e8e84f2a149",
+      "sha256": "4330239f188ff88d86f3e9f38f0345d23d2a9e3bc004cb0986e4973c53acabd6"
+    },
+    {
+      "path": "assets/css/portal-refinement.css",
+      "status": "modified",
+      "base_sha256": "2b6ade9481ac052d20e4945d1a65a407ab8084873bbb8ed21f3021dfc8368495",
+      "sha256": "08853f26acb74f88dc2cf38287f2afbd1c9c23db765c6c5ad249ccafb8cc750c"
+    },
+    {
+      "path": "assets/js/config.js",
+      "status": "modified",
+      "base_sha256": "5c04835b1b8b485ab9985b716f93f8500459ac6e7313fdc1daef442490601305",
+      "sha256": "9ab069b3c629f9fe1f10a71efc7c478a5e09a954b4753572217c703e55003022"
+    },
+    {
+      "path": "assets/js/invoice-draft.js",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "309d2e0ff510b1e65c40e7d1227905a0aaf0c6ca774d16524a30746ad5436037"
+    },
+    {
+      "path": "assets/js/invoice-math.js",
+      "status": "modified",
+      "base_sha256": "585a52320e77b8db9ddc0c5c055c6bbbfc167a7c5fdd32e8ce38534f964e671c",
+      "sha256": "b83adb7ede941081fecdf9701b074ef25e03d16ab1be20a62f3e92be497e48be"
+    },
+    {
+      "path": "invoice.html",
+      "status": "modified",
+      "base_sha256": "51677aaa366d61b9f0d19d5a0d00f008aa428e45cb458e0a4062501e62a27d1f",
+      "sha256": "3dbd573399cf81c3015f65106286856fb05a54178f355be43d945cb5ba9150a2"
+    },
+    {
+      "path": "qa/V88_31_0/history/CHANGED_FILES.json",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "bc4f9cf14226f2196f82967a69033eeea30b6cf3a0da9b7c4c1681b9ddbb0e9e"
+    },
+    {
+      "path": "qa/V88_31_0/history/QA_REPORT_KO.md",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "3e5ba652384f3d97834327e976682740f484f26ee6c074d8fb7f0800265dc0be"
+    },
+    {
+      "path": "qa/V88_31_0/history/UPDATE_GUIDE_KO.md",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "839881f90802f79a7d9392a0af182dbbb91f9c6c0e5d45aa1b5d000d1fa0002f"
+    },
+    {
+      "path": "qa/V88_31_0/history/VERIFICATION_REPORT.json",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "745f8a7549e45cd2e9c652dfba26674c37fd508b7914d0f363876e8e84f2a149"
+    },
+    {
+      "path": "qa/V88_32_0/deployment-regressions.log",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "e4424f0f29bedf5c0e4a1da6ad782bc9763be62a0fb657bbc7c2cf0bf428c206"
+    },
+    {
+      "path": "qa/V88_32_0/environment-limitations.json",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "35b98ed73cb9fc2cee65ef023183f072176e4ae1c2c5ea2329d80e4e7698e4b2"
+    },
+    {
+      "path": "qa/V88_32_0/functional-regressions.log",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "b608873fbea03461166c37da0e30f47def3c3f166f8d04087fb8f01fb7b11958"
+    },
+    {
+      "path": "qa/V88_32_0/javascript-syntax.log",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "6f30c88a5ca0a6518155a74bb508d3e9cede0a49f10d9536f7052da41bb9d1db"
+    },
+    {
+      "path": "qa/V88_32_0/release-inventory.log",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "c25ebb165d48edb6c81877e9bf27680103f897d7f2e55be2730c3ccab00fd08f"
+    },
+    {
+      "path": "qa/V88_32_0/source-browser-results.json",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "4f8aa51c2b3a7fd79e7cc4e42dfa4c2fc27e6d602d115c1267f398ee5c846394"
+    },
+    {
+      "path": "qa/V88_32_0/source-browser.log",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "e52fdfbf8679a318700dca33818c3aa92f652731aea5921f777b7a079971a689"
+    },
+    {
+      "path": "qa/V88_32_0/staged-release.log",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "c25ebb165d48edb6c81877e9bf27680103f897d7f2e55be2730c3ccab00fd08f"
+    },
+    {
+      "path": "release-manifest.json",
+      "status": "modified",
+      "base_sha256": "41c328f98c15383ad5b48960a149f338c06b4e41f384d451a56bc402d892a790",
+      "sha256": "1ab3ebc119ffa76c24d34810c21ceabc01fc2d7a03beecd0d515749d1c55f25c"
+    },
+    {
+      "path": "sw.js",
+      "status": "modified",
+      "base_sha256": "1aec7c5cbbffc544748d237f15788dae3ea0f70b81c27eb6aadd0d1479878952",
+      "sha256": "a5672c8f3827821317f8e1667b74fa336b2a0b8f82ff8fd6edcb12e7283ae9a7"
+    },
+    {
+      "path": "tests/invoice-fixture.js",
+      "status": "modified",
+      "base_sha256": "b5f9c5d53c0337497a9e61982e6ae8b1b319a43179503817beab3b3bbccfb75e",
+      "sha256": "9a28a21aa9848d0fd43e3894062c38a743f585fa43c0147849587c81141902db"
+    },
+    {
+      "path": "tests/invoice-v32.test.js",
+      "status": "added",
+      "base_sha256": null,
+      "sha256": "c1250a7b4f207a5b58cb05519d0136bae87c48ea884df15a6b7bfe1bfa3e83d3"
+    },
+    {
+      "path": "tests/source-browser.py",
+      "status": "modified",
+      "base_sha256": "296f5f180b8f6a631adeaddcabd8034d69f66d9e4068fe7af8734e9d9e43e1de",
+      "sha256": "7ab5f79b780f936b49b6b0916ed36189b5a572c197fbff2b76c7550b7b347506"
+    }
+  ]
+}

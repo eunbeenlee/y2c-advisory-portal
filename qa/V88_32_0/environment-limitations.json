@@ -1,0 +1,11 @@
+{
+  "result": "NOT_VERIFIED_ENVIRONMENT_BLOCKED",
+  "attempt": "Real localhost HTTP / service-worker integration in disposable staging tree",
+  "error": "Chromium Page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at localhost app-health.html",
+  "actual_service_worker_checks_completed": 0,
+  "production_accessed": false,
+  "external_pdf_engine_replacement": "Not performed: package download unavailable in this environment",
+  "external_pdf_engine_rendering_tested": false,
+  "native_print_pdf_rendering_tested": true,
+  "note": "This environment limitation is not a passing test and is not an application failure diagnosis. The unexecuted optional integration script is not shipped or added to CI."
+}

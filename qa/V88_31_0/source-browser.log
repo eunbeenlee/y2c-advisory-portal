@@ -1,0 +1,81 @@
+PASS January starts with previous December
+PASS generation completes with current verified data
+PASS chosen issue and due dates are on the real document
+PASS review panel and document reconcile in cents
+PASS custom due date survives issue-date editing
+PASS editing disables PDF and native print
+PASS generation completes with current verified data
+PASS a source-data revision immediately invalidates prior output
+PASS generation completes with current verified data
+PASS reversed payment dates do not call the API
+PASS query cancellation restores inputs and generation
+PASS cancelled late responses cannot publish an invoice
+PASS late cancelled request cannot unlock its replacement
+PASS replacement request alone can publish a ready invoice
+PASS source changes during a query reject the returned preview
+PASS native print blocks a stale invoice and prints an explanatory notice
+PASS invoice rejects failure responses and restores retry
+PASS invoice rejects malformed responses and restores retry
+PASS invoice rejects mismatch responses and restores retry
+PASS generation completes with current verified data
+PASS PDF preparation locks editable financial fields
+PASS PDF cancellation blocks a late save and removes export clone
+PASS PDF control flow saves exactly the selected dates
+PASS native one-month print is not blank and includes the total and due date
+PASS native one-month invoice stays on one page
+PASS generation completes with current verified data
+PASS all 24 annual fee lines survive rendering
+PASS native annual PDF retains all 24 line descriptions
+PASS native annual PDF retains total, bank and payment terms
+PASS every annual print page has invoice content
+PASS generation completes with current verified data
+PASS missing monthly records are clearly flagged
+PASS language switch preserves ready-state and dates
+PASS invoice page has no horizontal overflow at 1440px
+PASS invoice page has no horizontal overflow at 1280px
+PASS invoice page has no horizontal overflow at 1100px
+PASS invoice page has no horizontal overflow at 1024px
+PASS invoice page has no horizontal overflow at 768px
+PASS invoice page has no horizontal overflow at 390px
+PASS invoice page has no horizontal overflow at 360px
+PASS invoice source execution has no uncaught JavaScript errors
+PASS invoice uses only synthetic read actions
+PASS index has no page overflow at 1440px
+PASS index has no uncaught errors at 1440px
+PASS index performs no business writes at 1440px
+PASS index has no page overflow at 390px
+PASS index has no uncaught errors at 390px
+PASS index performs no business writes at 390px
+PASS dashboard has no page overflow at 1440px
+PASS dashboard has no uncaught errors at 1440px
+PASS dashboard performs no business writes at 1440px
+PASS dashboard has no page overflow at 390px
+PASS dashboard has no uncaught errors at 390px
+PASS dashboard performs no business writes at 390px
+PASS admin has no page overflow at 1440px
+PASS admin has no uncaught errors at 1440px
+PASS admin performs no business writes at 1440px
+PASS admin opens tab-sales at 1440
+PASS admin opens tab-excel at 1440
+PASS admin opens tab-procurement at 1440
+PASS admin has no page overflow at 390px
+PASS admin has no uncaught errors at 390px
+PASS admin performs no business writes at 390px
+PASS admin opens tab-sales at 390
+PASS admin opens tab-excel at 390
+PASS admin opens tab-procurement at 390
+PASS items has no page overflow at 1440px
+PASS items has no uncaught errors at 1440px
+PASS items performs no business writes at 1440px
+PASS items has no page overflow at 390px
+PASS items has no uncaught errors at 390px
+PASS items performs no business writes at 390px
+PASS recipes has no page overflow at 1440px
+PASS recipes has no uncaught errors at 1440px
+PASS recipes performs no business writes at 1440px
+PASS recipe detail opens at 1440
+PASS recipes has no page overflow at 390px
+PASS recipes has no uncaught errors at 390px
+PASS recipes performs no business writes at 390px
+PASS recipe detail opens at 390
+{"passed": 80, "output": "/mnt/data/qa_round1/source-browser-final"}

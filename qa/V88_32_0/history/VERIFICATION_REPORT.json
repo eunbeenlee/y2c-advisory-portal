@@ -1,0 +1,92 @@
+{
+  "release": "V88_32_0",
+  "upgrade_round": 2,
+  "date_kst": "2026-11-17",
+  "source_archive": "Sinjeon_V88_31_0_Upgrade_FULL.zip",
+  "source_sha256": "db7696692c9be157ea0c922564494353c13064c0198aaf7b89b544db96653093",
+  "release_digest": "2324206cdd76054f",
+  "scope": "Uploaded frontend source only. Real Chromium source rendering with synthetic business responses and actual native print PDF. No production deployment or API writes.",
+  "checks": {
+    "functional_regressions": {
+      "passed": 68,
+      "failed": 0
+    },
+    "deployment_guard_regressions": {
+      "passed": 42,
+      "failed": 0
+    },
+    "chromium_source_rendering_assertions": {
+      "passed": 113,
+      "failed": 0
+    },
+    "javascript_programs_parsed": 64,
+    "release_files_verified": 63,
+    "static_references_verified": 243,
+    "invoice_viewport_widths_px": [
+      360,
+      390,
+      768,
+      1024,
+      1100,
+      1280,
+      1440
+    ],
+    "other_screen_widths_px": [
+      390,
+      1440
+    ],
+    "screens": [
+      "index",
+      "dashboard",
+      "admin",
+      "items",
+      "recipes",
+      "invoice"
+    ],
+    "native_print_pdf": {
+      "one_month_pages": 1,
+      "twelve_month_pages": 2,
+      "annual_fee_rows": 24,
+      "one_month_with_scope_and_two_line_memo_pages": 1,
+      "nonblank_pages_checked": true,
+      "total_bank_and_terms_checked": true,
+      "stale_print_block_checked": true
+    }
+  },
+  "test_method": {
+    "browser": "Chromium via Python Playwright; in-memory source rendering (set_content)",
+    "auth_responses": "synthetic fixtures; actual transport/auth/math modules separately unit-tested",
+    "external_network": "blocked during source-browser tests",
+    "html2pdf_download_flow": "mock renderer validates clone, controls, cancellation, timeout and save guard",
+    "real_html2pdf_rasterization_tested": false,
+    "original_jsdom_suites_rerun": false
+  },
+  "not_verified": [
+    "Real hosted page navigation and service-worker installation/update (localhost navigation blocked by environment)",
+    "Live Apps Script response schema, role enforcement, inventory and transactional concurrency",
+    "Real external html2pdf/html2canvas/jsPDF rasterization and CDN loading; original dependency retained",
+    "Real external chart-engine rendering",
+    "Actual iOS/Android devices and native app behavior",
+    "Live GitHub Actions execution and published Pages settings",
+    "Server invoice-register uniqueness/persistence, email delivery and payment collection"
+  ],
+  "deployment": {
+    "performed": false,
+    "repository_guard": "eunbeenlee/y2c-advisory-portal",
+    "domain_guard": "partner.sinjeoncanada.com",
+    "business_data_changed": false,
+    "backend_source_included": false
+  },
+  "preserved_from_base": [
+    "CNAME",
+    "Apps Script endpoint configuration",
+    "Android APKs and association fingerprints",
+    "Existing payment/bank details",
+    "Existing order/invoice tax rules",
+    "Dynamic deployment-file-count BuildFix",
+    "Manual Pages publication policy",
+    "Existing external PDF dependency"
+  ],
+  "evidence_directory": "qa/V88_32_0",
+  "packaged_artifact_policy": "Distributed ZIP is separately extracted and the source-verification and source-browser suites are rerun. External delivery receipt records the exact ZIP hash and those results; this internal report records the source-tree run."
+}

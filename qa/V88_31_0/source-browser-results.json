@@ -1,0 +1,330 @@
+{
+  "passed": 80,
+  "results": [
+    {
+      "name": "January starts with previous December",
+      "passed": true
+    },
+    {
+      "name": "generation completes with current verified data",
+      "passed": true
+    },
+    {
+      "name": "chosen issue and due dates are on the real document",
+      "passed": true
+    },
+    {
+      "name": "review panel and document reconcile in cents",
+      "passed": true
+    },
+    {
+      "name": "custom due date survives issue-date editing",
+      "passed": true
+    },
+    {
+      "name": "editing disables PDF and native print",
+      "passed": true
+    },
+    {
+      "name": "generation completes with current verified data",
+      "passed": true
+    },
+    {
+      "name": "a source-data revision immediately invalidates prior output",
+      "passed": true
+    },
+    {
+      "name": "generation completes with current verified data",
+      "passed": true
+    },
+    {
+      "name": "reversed payment dates do not call the API",
+      "passed": true
+    },
+    {
+      "name": "query cancellation restores inputs and generation",
+      "passed": true
+    },
+    {
+      "name": "cancelled late responses cannot publish an invoice",
+      "passed": true
+    },
+    {
+      "name": "late cancelled request cannot unlock its replacement",
+      "passed": true
+    },
+    {
+      "name": "replacement request alone can publish a ready invoice",
+      "passed": true
+    },
+    {
+      "name": "source changes during a query reject the returned preview",
+      "passed": true
+    },
+    {
+      "name": "native print blocks a stale invoice and prints an explanatory notice",
+      "passed": true
+    },
+    {
+      "name": "invoice rejects failure responses and restores retry",
+      "passed": true
+    },
+    {
+      "name": "invoice rejects malformed responses and restores retry",
+      "passed": true
+    },
+    {
+      "name": "invoice rejects mismatch responses and restores retry",
+      "passed": true
+    },
+    {
+      "name": "generation completes with current verified data",
+      "passed": true
+    },
+    {
+      "name": "PDF preparation locks editable financial fields",
+      "passed": true
+    },
+    {
+      "name": "PDF cancellation blocks a late save and removes export clone",
+      "passed": true
+    },
+    {
+      "name": "PDF control flow saves exactly the selected dates",
+      "passed": true
+    },
+    {
+      "name": "native one-month print is not blank and includes the total and due date",
+      "passed": true
+    },
+    {
+      "name": "native one-month invoice stays on one page",
+      "passed": true
+    },
+    {
+      "name": "generation completes with current verified data",
+      "passed": true
+    },
+    {
+      "name": "all 24 annual fee lines survive rendering",
+      "passed": true
+    },
+    {
+      "name": "native annual PDF retains all 24 line descriptions",
+      "passed": true
+    },
+    {
+      "name": "native annual PDF retains total, bank and payment terms",
+      "passed": true
+    },
+    {
+      "name": "every annual print page has invoice content",
+      "passed": true
+    },
+    {
+      "name": "generation completes with current verified data",
+      "passed": true
+    },
+    {
+      "name": "missing monthly records are clearly flagged",
+      "passed": true
+    },
+    {
+      "name": "language switch preserves ready-state and dates",
+      "passed": true
+    },
+    {
+      "name": "invoice page has no horizontal overflow at 1440px",
+      "passed": true
+    },
+    {
+      "name": "invoice page has no horizontal overflow at 1280px",
+      "passed": true
+    },
+    {
+      "name": "invoice page has no horizontal overflow at 1100px",
+      "passed": true
+    },
+    {
+      "name": "invoice page has no horizontal overflow at 1024px",
+      "passed": true
+    },
+    {
+      "name": "invoice page has no horizontal overflow at 768px",
+      "passed": true
+    },
+    {
+      "name": "invoice page has no horizontal overflow at 390px",
+      "passed": true
+    },
+    {
+      "name": "invoice page has no horizontal overflow at 360px",
+      "passed": true
+    },
+    {
+      "name": "invoice source execution has no uncaught JavaScript errors",
+      "passed": true
+    },
+    {
+      "name": "invoice uses only synthetic read actions",
+      "passed": true
+    },
+    {
+      "name": "index has no page overflow at 1440px",
+      "passed": true
+    },
+    {
+      "name": "index has no uncaught errors at 1440px",
+      "passed": true
+    },
+    {
+      "name": "index performs no business writes at 1440px",
+      "passed": true
+    },
+    {
+      "name": "index has no page overflow at 390px",
+      "passed": true
+    },
+    {
+      "name": "index has no uncaught errors at 390px",
+      "passed": true
+    },
+    {
+      "name": "index performs no business writes at 390px",
+      "passed": true
+    },
+    {
+      "name": "dashboard has no page overflow at 1440px",
+      "passed": true
+    },
+    {
+      "name": "dashboard has no uncaught errors at 1440px",
+      "passed": true
+    },
+    {
+      "name": "dashboard performs no business writes at 1440px",
+      "passed": true
+    },
+    {
+      "name": "dashboard has no page overflow at 390px",
+      "passed": true
+    },
+    {
+      "name": "dashboard has no uncaught errors at 390px",
+      "passed": true
+    },
+    {
+      "name": "dashboard performs no business writes at 390px",
+      "passed": true
+    },
+    {
+      "name": "admin has no page overflow at 1440px",
+      "passed": true
+    },
+    {
+      "name": "admin has no uncaught errors at 1440px",
+      "passed": true
+    },
+    {
+      "name": "admin performs no business writes at 1440px",
+      "passed": true
+    },
+    {
+      "name": "admin opens tab-sales at 1440",
+      "passed": true
+    },
+    {
+      "name": "admin opens tab-excel at 1440",
+      "passed": true
+    },
+    {
+      "name": "admin opens tab-procurement at 1440",
+      "passed": true
+    },
+    {
+      "name": "admin has no page overflow at 390px",
+      "passed": true
+    },
+    {
+      "name": "admin has no uncaught errors at 390px",
+      "passed": true
+    },
+    {
+      "name": "admin performs no business writes at 390px",
+      "passed": true
+    },
+    {
+      "name": "admin opens tab-sales at 390",
+      "passed": true
+    },
+    {
+      "name": "admin opens tab-excel at 390",
+      "passed": true
+    },
+    {
+      "name": "admin opens tab-procurement at 390",
+      "passed": true
+    },
+    {
+      "name": "items has no page overflow at 1440px",
+      "passed": true
+    },
+    {
+      "name": "items has no uncaught errors at 1440px",
+      "passed": true
+    },
+    {
+      "name": "items performs no business writes at 1440px",
+      "passed": true
+    },
+    {
+      "name": "items has no page overflow at 390px",
+      "passed": true
+    },
+    {
+      "name": "items has no uncaught errors at 390px",
+      "passed": true
+    },
+    {
+      "name": "items performs no business writes at 390px",
+      "passed": true
+    },
+    {
+      "name": "recipes has no page overflow at 1440px",
+      "passed": true
+    },
+    {
+      "name": "recipes has no uncaught errors at 1440px",
+      "passed": true
+    },
+    {
+      "name": "recipes performs no business writes at 1440px",
+      "passed": true
+    },
+    {
+      "name": "recipe detail opens at 1440",
+      "passed": true
+    },
+    {
+      "name": "recipes has no page overflow at 390px",
+      "passed": true
+    },
+    {
+      "name": "recipes has no uncaught errors at 390px",
+      "passed": true
+    },
+    {
+      "name": "recipes performs no business writes at 390px",
+      "passed": true
+    },
+    {
+      "name": "recipe detail opens at 390",
+      "passed": true
+    }
+  ],
+  "mode": "in-memory source rendering",
+  "nativePrintPdfRendered": true,
+  "html2pdfRendererTested": false,
+  "hostedRoutingTested": false,
+  "liveBusinessApiTested": false
+}

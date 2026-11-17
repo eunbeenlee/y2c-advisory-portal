@@ -1,0 +1,853 @@
+{
+  "result": "PASS",
+  "checksPassed": 73,
+  "checks": [
+    {
+      "name": "generation enables output",
+      "passed": true
+    },
+    {
+      "name": "invoice-single-month is a real browser PDF download",
+      "passed": true
+    },
+    {
+      "name": "invoice-single-month restores inputs",
+      "passed": true
+    },
+    {
+      "name": "invoice-single-month removes temporary snapshot",
+      "passed": true
+    },
+    {
+      "name": "invoice-single-month parses with the declared page count",
+      "passed": true
+    },
+    {
+      "name": "invoice-single-month has expected pagination",
+      "passed": true
+    },
+    {
+      "name": "invoice-single-month page 1 is not blank",
+      "passed": true
+    },
+    {
+      "name": "invoice-single-month page 1 is A4",
+      "passed": true
+    },
+    {
+      "name": "invoice-single-month page 1 keeps content inside margins",
+      "passed": true
+    },
+    {
+      "name": "download uses selected issue and due dates",
+      "passed": true
+    },
+    {
+      "name": "download retains cent-rounded fee amounts",
+      "passed": true
+    },
+    {
+      "name": "generation enables output",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months is a real browser PDF download",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months restores inputs",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months removes temporary snapshot",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months parses with the declared page count",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months has expected pagination",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months page 1 is not blank",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months page 1 is A4",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months page 1 keeps content inside margins",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months page 2 is not blank",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months page 2 is A4",
+      "passed": true
+    },
+    {
+      "name": "invoice-twelve-months page 2 keeps content inside margins",
+      "passed": true
+    },
+    {
+      "name": "annual PDF input retains all 24 lines and $450.12",
+      "passed": true
+    },
+    {
+      "name": "generation enables output",
+      "passed": true
+    },
+    {
+      "name": "invoice-korean-note is a real browser PDF download",
+      "passed": true
+    },
+    {
+      "name": "invoice-korean-note restores inputs",
+      "passed": true
+    },
+    {
+      "name": "invoice-korean-note removes temporary snapshot",
+      "passed": true
+    },
+    {
+      "name": "invoice-korean-note parses with the declared page count",
+      "passed": true
+    },
+    {
+      "name": "invoice-korean-note has expected pagination",
+      "passed": true
+    },
+    {
+      "name": "invoice-korean-note page 1 is not blank",
+      "passed": true
+    },
+    {
+      "name": "invoice-korean-note page 1 is A4",
+      "passed": true
+    },
+    {
+      "name": "invoice-korean-note page 1 keeps content inside margins",
+      "passed": true
+    },
+    {
+      "name": "Korean memo is preserved in render input",
+      "passed": true
+    },
+    {
+      "name": "generation enables output",
+      "passed": true
+    },
+    {
+      "name": "invoice-long-note is a real browser PDF download",
+      "passed": true
+    },
+    {
+      "name": "invoice-long-note restores inputs",
+      "passed": true
+    },
+    {
+      "name": "invoice-long-note removes temporary snapshot",
+      "passed": true
+    },
+    {
+      "name": "invoice-long-note parses with the declared page count",
+      "passed": true
+    },
+    {
+      "name": "invoice-long-note page 1 is not blank",
+      "passed": true
+    },
+    {
+      "name": "invoice-long-note page 1 is A4",
+      "passed": true
+    },
+    {
+      "name": "invoice-long-note page 1 keeps content inside margins",
+      "passed": true
+    },
+    {
+      "name": "long note not truncated",
+      "passed": true
+    },
+    {
+      "name": "generation enables output",
+      "passed": true
+    },
+    {
+      "name": "invoice-zero-sales is a real browser PDF download",
+      "passed": true
+    },
+    {
+      "name": "invoice-zero-sales restores inputs",
+      "passed": true
+    },
+    {
+      "name": "invoice-zero-sales removes temporary snapshot",
+      "passed": true
+    },
+    {
+      "name": "invoice-zero-sales parses with the declared page count",
+      "passed": true
+    },
+    {
+      "name": "invoice-zero-sales has expected pagination",
+      "passed": true
+    },
+    {
+      "name": "invoice-zero-sales page 1 is not blank",
+      "passed": true
+    },
+    {
+      "name": "invoice-zero-sales page 1 is A4",
+      "passed": true
+    },
+    {
+      "name": "invoice-zero-sales page 1 keeps content inside margins",
+      "passed": true
+    },
+    {
+      "name": "zero-sales PDF preserves explicit zero",
+      "passed": true
+    },
+    {
+      "name": "generation enables output",
+      "passed": true
+    },
+    {
+      "name": "actual renderer cooperatively stops between rows",
+      "passed": true
+    },
+    {
+      "name": "actual cancelled export emits no browser download",
+      "passed": true
+    },
+    {
+      "name": "cancelled export restores controls and removes clone",
+      "passed": true
+    },
+    {
+      "name": "persistent cancellation message is visible",
+      "passed": true
+    },
+    {
+      "name": "generation enables output",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual is a real browser PDF download",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual restores inputs",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual removes temporary snapshot",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual parses with the declared page count",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual has expected pagination",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual page 1 is not blank",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual page 1 is A4",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual page 1 keeps content inside margins",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual page 2 is not blank",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual page 2 is A4",
+      "passed": true
+    },
+    {
+      "name": "invoice-mobile-annual page 2 keeps content inside margins",
+      "passed": true
+    },
+    {
+      "name": "mobile actual download has no full-page horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "no uncaught JS exceptions",
+      "passed": true
+    },
+    {
+      "name": "no live business calls or mutations",
+      "passed": true
+    }
+  ],
+  "downloads": [
+    {
+      "label": "invoice-single-month",
+      "pages": 1,
+      "bytes": 257394,
+      "name": "INV-261101-2610-0VZMSGF_Test Toronto.pdf",
+      "input": {
+        "docHqName": "Y2C HOLDINGS\nINC.",
+        "docHqRep": "Y2C Holdings Inc.",
+        "docHqAddress": "Unit 1605, 39, Gwangan-ro 62beon-gil,\nSuyeong-gu, Busan, Republic of Korea\nZIP: 48303",
+        "docHqContact": "+82 10-5088-4494",
+        "docHqRegNo": "216-86-02475",
+        "docHqRepName": "YOONJI, LEE",
+        "docClientName": "Test Toronto",
+        "docClientAddress": "Local test fixture\nToronto, ON",
+        "docClientAttn": "Manager (test@example.invalid)",
+        "docClientBiz": "123456789",
+        "docInvoiceNo": "INV-261101-2610-0VZMSGF",
+        "docIssueDate": "2026-11-01",
+        "docBillingPeriod": "Oct 2026",
+        "docDueDate": "2026-11-08",
+        "valSubtotal": "$37.51",
+        "lblTaxType": "TAX (0%)",
+        "valTaxAmount": "$0.00",
+        "valGrandTotal": "$37.51",
+        "bankName": "BUSAN BANK / Foreign Business Department",
+        "bankAccount": "154-2058-6586-04",
+        "bankAccName": "Y2C Holdings Inc.",
+        "bankSwift": "PUSBKR2P",
+        "bankAddress": "30 MUNHYEONGEMYUNG-RO, NAM-GU, BUSAN, REPUBLIC OF KOREA",
+        "sigName": "YOONJI, LEE",
+        "docPaymentTerms": "Net 7 days",
+        "scope": "",
+        "memo": "",
+        "rows": [
+          [
+            "Oct 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Oct 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ]
+        ]
+      }
+    },
+    {
+      "label": "invoice-twelve-months",
+      "pages": 2,
+      "bytes": 622953,
+      "name": "INV-261101-2601-12-0VZMSGF_Test Toronto.pdf",
+      "input": {
+        "docHqName": "Y2C HOLDINGS\nINC.",
+        "docHqRep": "Y2C Holdings Inc.",
+        "docHqAddress": "Unit 1605, 39, Gwangan-ro 62beon-gil,\nSuyeong-gu, Busan, Republic of Korea\nZIP: 48303",
+        "docHqContact": "+82 10-5088-4494",
+        "docHqRegNo": "216-86-02475",
+        "docHqRepName": "YOONJI, LEE",
+        "docClientName": "Test Toronto",
+        "docClientAddress": "Local test fixture\nToronto, ON",
+        "docClientAttn": "Manager (test@example.invalid)",
+        "docClientBiz": "123456789",
+        "docInvoiceNo": "INV-261101-2601-12-0VZMSGF",
+        "docIssueDate": "2026-11-01",
+        "docBillingPeriod": "Jan - Dec 2026",
+        "docDueDate": "2026-11-08",
+        "valSubtotal": "$450.12",
+        "lblTaxType": "TAX (0%)",
+        "valTaxAmount": "$0.00",
+        "valGrandTotal": "$450.12",
+        "bankName": "BUSAN BANK / Foreign Business Department",
+        "bankAccount": "154-2058-6586-04",
+        "bankAccName": "Y2C Holdings Inc.",
+        "bankSwift": "PUSBKR2P",
+        "bankAddress": "30 MUNHYEONGEMYUNG-RO, NAM-GU, BUSAN, REPUBLIC OF KOREA",
+        "sigName": "YOONJI, LEE",
+        "docPaymentTerms": "Net 7 days",
+        "scope": "",
+        "memo": "",
+        "rows": [
+          [
+            "Jan 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Jan 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Feb 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Feb 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Mar 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Mar 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Apr 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Apr 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "May 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "May 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Jun 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Jun 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Jul 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Jul 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Aug 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Aug 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Sep 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Sep 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Oct 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Oct 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Nov 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Nov 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Dec 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Dec 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ]
+        ]
+      }
+    },
+    {
+      "label": "invoice-korean-note",
+      "pages": 1,
+      "bytes": 273126,
+      "name": "INV-261101-2610-0VZMSGF_Test Toronto.pdf",
+      "input": {
+        "docHqName": "Y2C HOLDINGS\nINC.",
+        "docHqRep": "Y2C Holdings Inc.",
+        "docHqAddress": "Unit 1605, 39, Gwangan-ro 62beon-gil,\nSuyeong-gu, Busan, Republic of Korea\nZIP: 48303",
+        "docHqContact": "+82 10-5088-4494",
+        "docHqRegNo": "216-86-02475",
+        "docHqRepName": "YOONJI, LEE",
+        "docClientName": "Test Toronto",
+        "docClientAddress": "Local test fixture\nToronto, ON",
+        "docClientAttn": "Manager (test@example.invalid)",
+        "docClientBiz": "123456789",
+        "docInvoiceNo": "INV-261101-2610-0VZMSGF",
+        "docIssueDate": "2026-11-01",
+        "docBillingPeriod": "Oct 2026",
+        "docDueDate": "2026-11-08",
+        "valSubtotal": "$37.51",
+        "lblTaxType": "TAX (0%)",
+        "valTaxAmount": "$0.00",
+        "valGrandTotal": "$37.51",
+        "bankName": "BUSAN BANK / Foreign Business Department",
+        "bankAccount": "154-2058-6586-04",
+        "bankAccName": "Y2C Holdings Inc.",
+        "bankSwift": "PUSBKR2P",
+        "bankAddress": "30 MUNHYEONGEMYUNG-RO, NAM-GU, BUSAN, REPUBLIC OF KOREA",
+        "sigName": "YOONJI, LEE",
+        "docPaymentTerms": "Net 7 days",
+        "scope": "",
+        "memo": "입금 시 인보이스 번호를 기재해 주세요.\nPayment reference: 서울 – Toronto • 월별 정산\n감사합니다.",
+        "rows": [
+          [
+            "Oct 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Oct 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ]
+        ]
+      }
+    },
+    {
+      "label": "invoice-long-note",
+      "pages": 1,
+      "bytes": 373899,
+      "name": "INV-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA_Test Toronto.pdf",
+      "input": {
+        "docHqName": "Y2C HOLDINGS\nINC.",
+        "docHqRep": "Y2C Holdings Inc.",
+        "docHqAddress": "Unit 1605, 39, Gwangan-ro 62beon-gil,\nSuyeong-gu, Busan, Republic of Korea\nZIP: 48303",
+        "docHqContact": "+82 10-5088-4494",
+        "docHqRegNo": "216-86-02475",
+        "docHqRepName": "YOONJI, LEE",
+        "docClientName": "Test Toronto",
+        "docClientAddress": "Local test fixture\nToronto, ON",
+        "docClientAttn": "Manager (test@example.invalid)",
+        "docClientBiz": "123456789",
+        "docInvoiceNo": "INV-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "docIssueDate": "2026-11-01",
+        "docBillingPeriod": "Oct 2026",
+        "docDueDate": "2026-11-08",
+        "valSubtotal": "$37.51",
+        "lblTaxType": "TAX (0%)",
+        "valTaxAmount": "$0.00",
+        "valGrandTotal": "$37.51",
+        "bankName": "BUSAN BANK / Foreign Business Department",
+        "bankAccount": "154-2058-6586-04",
+        "bankAccName": "Y2C Holdings Inc.",
+        "bankSwift": "PUSBKR2P",
+        "bankAddress": "30 MUNHYEONGEMYUNG-RO, NAM-GU, BUSAN, REPUBLIC OF KOREA",
+        "sigName": "YOONJI, LEE",
+        "docPaymentTerms": "Net 7 days",
+        "scope": "",
+        "memo": "가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하",
+        "rows": [
+          [
+            "Oct 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Oct 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ]
+        ]
+      }
+    },
+    {
+      "label": "invoice-zero-sales",
+      "pages": 1,
+      "bytes": 239010,
+      "name": "INV-261101-2610-0VZMSGF_Test Toronto.pdf",
+      "input": {
+        "docHqName": "Y2C HOLDINGS\nINC.",
+        "docHqRep": "Y2C Holdings Inc.",
+        "docHqAddress": "Unit 1605, 39, Gwangan-ro 62beon-gil,\nSuyeong-gu, Busan, Republic of Korea\nZIP: 48303",
+        "docHqContact": "+82 10-5088-4494",
+        "docHqRegNo": "216-86-02475",
+        "docHqRepName": "YOONJI, LEE",
+        "docClientName": "Test Toronto",
+        "docClientAddress": "Local test fixture\nToronto, ON",
+        "docClientAttn": "Manager (test@example.invalid)",
+        "docClientBiz": "123456789",
+        "docInvoiceNo": "INV-261101-2610-0VZMSGF",
+        "docIssueDate": "2026-11-01",
+        "docBillingPeriod": "Oct 2026",
+        "docDueDate": "2026-11-08",
+        "valSubtotal": "$0.00",
+        "lblTaxType": "TAX (0%)",
+        "valTaxAmount": "$0.00",
+        "valGrandTotal": "$0.00",
+        "bankName": "BUSAN BANK / Foreign Business Department",
+        "bankAccount": "154-2058-6586-04",
+        "bankAccName": "Y2C Holdings Inc.",
+        "bankSwift": "PUSBKR2P",
+        "bankAddress": "30 MUNHYEONGEMYUNG-RO, NAM-GU, BUSAN, REPUBLIC OF KOREA",
+        "sigName": "YOONJI, LEE",
+        "docPaymentTerms": "Net 7 days",
+        "scope": "",
+        "memo": "",
+        "rows": [
+          [
+            "Returned sales records show zero sales for the selected period."
+          ]
+        ]
+      }
+    },
+    {
+      "label": "invoice-mobile-annual",
+      "pages": 2,
+      "bytes": 622953,
+      "name": "INV-261101-2601-12-0VZMSGF_Test Toronto.pdf",
+      "input": {
+        "docHqName": "Y2C HOLDINGS\nINC.",
+        "docHqRep": "Y2C Holdings Inc.",
+        "docHqAddress": "Unit 1605, 39, Gwangan-ro 62beon-gil,\nSuyeong-gu, Busan, Republic of Korea\nZIP: 48303",
+        "docHqContact": "+82 10-5088-4494",
+        "docHqRegNo": "216-86-02475",
+        "docHqRepName": "YOONJI, LEE",
+        "docClientName": "Test Toronto",
+        "docClientAddress": "Local test fixture\nToronto, ON",
+        "docClientAttn": "Manager (test@example.invalid)",
+        "docClientBiz": "123456789",
+        "docInvoiceNo": "INV-261101-2601-12-0VZMSGF",
+        "docIssueDate": "2026-11-01",
+        "docBillingPeriod": "Jan - Dec 2026",
+        "docDueDate": "2026-11-08",
+        "valSubtotal": "$450.12",
+        "lblTaxType": "TAX (0%)",
+        "valTaxAmount": "$0.00",
+        "valGrandTotal": "$450.12",
+        "bankName": "BUSAN BANK / Foreign Business Department",
+        "bankAccount": "154-2058-6586-04",
+        "bankAccName": "Y2C Holdings Inc.",
+        "bankSwift": "PUSBKR2P",
+        "bankAddress": "30 MUNHYEONGEMYUNG-RO, NAM-GU, BUSAN, REPUBLIC OF KOREA",
+        "sigName": "YOONJI, LEE",
+        "docPaymentTerms": "Net 7 days",
+        "scope": "",
+        "memo": "",
+        "rows": [
+          [
+            "Jan 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Jan 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Feb 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Feb 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Mar 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Mar 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Apr 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Apr 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "May 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "May 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Jun 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Jun 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Jul 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Jul 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Aug 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Aug 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Sep 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Sep 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Oct 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Oct 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Nov 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Nov 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ],
+          [
+            "Dec 2026 - Advisory & Management Fee",
+            "$1,500.40",
+            "2.0%",
+            "$30.01"
+          ],
+          [
+            "Dec 2026 - Local Advertising Contribution",
+            "$1,500.40",
+            "0.5%",
+            "$7.50"
+          ]
+        ]
+      }
+    }
+  ],
+  "renderer": "actual shipped Canvas/JPEG/PDF module",
+  "businessApi": "synthetic",
+  "hostedRoutingTested": false,
+  "serviceWorkerInstalled": false
+}

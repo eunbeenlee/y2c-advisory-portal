@@ -1,0 +1,176 @@
+{
+  "base_sha256": "8b21689958a58c5af12a99dc101edb99a664305f414e3feae0a1905b98cb5201",
+  "release": "V88_31_0",
+  "files": [
+    {
+      "path": ".github/workflows/sinjeon-checks.yml",
+      "status": "added",
+      "sha256": "3c35cbde7848d0530785d82f36d261a4b416d37e80699a35c113bf4de72bed27"
+    },
+    {
+      "path": ".github/workflows/sinjeon-pages.yml",
+      "status": "modified",
+      "sha256": "fa200645a3e12790616787b1b51060bb8c427713d2b9b9795ac9b1348e400d83"
+    },
+    {
+      "path": "CHANGELOG_V88_31_0.md",
+      "status": "added",
+      "sha256": "9e3e9f3de9ddf940ba65608e6f156ac4f9a604ddce1abc75872681e5607d586f"
+    },
+    {
+      "path": "QA_REPORT_KO.md",
+      "status": "added",
+      "sha256": "3e5ba652384f3d97834327e976682740f484f26ee6c074d8fb7f0800265dc0be"
+    },
+    {
+      "path": "UPDATE_GUIDE_KO.md",
+      "status": "modified",
+      "sha256": "839881f90802f79a7d9392a0af182dbbb91f9c6c0e5d45aa1b5d000d1fa0002f"
+    },
+    {
+      "path": "VERIFICATION_REPORT.json",
+      "status": "modified",
+      "sha256": "745f8a7549e45cd2e9c652dfba26674c37fd508b7914d0f363876e8e84f2a149"
+    },
+    {
+      "path": "admin.html",
+      "status": "modified",
+      "sha256": "07281a0be206c2eed36d2aa9006bceed97b8704cedb1983e785e433bf09a202d"
+    },
+    {
+      "path": "assets/css/portal-refinement.css",
+      "status": "modified",
+      "sha256": "2b6ade9481ac052d20e4945d1a65a407ab8084873bbb8ed21f3021dfc8368495"
+    },
+    {
+      "path": "assets/js/auth.js",
+      "status": "modified",
+      "sha256": "4e124ef58df5ba1817c86e0cc6c69a6ba29327b68f97250fa74beb8fd3c971cc"
+    },
+    {
+      "path": "assets/js/config.js",
+      "status": "modified",
+      "sha256": "5c04835b1b8b485ab9985b716f93f8500459ac6e7313fdc1daef442490601305"
+    },
+    {
+      "path": "assets/js/document-io.js",
+      "status": "modified",
+      "sha256": "ded32282013a2b56378bdeea14224dba8060d01184a926e209c526a99b11bb40"
+    },
+    {
+      "path": "assets/js/invoice-math.js",
+      "status": "modified",
+      "sha256": "585a52320e77b8db9ddc0c5c055c6bbbfc167a7c5fdd32e8ce38534f964e671c"
+    },
+    {
+      "path": "assets/js/workspace-ui.js",
+      "status": "modified",
+      "sha256": "d767e2762ea57a2e5b9b7bb0c05f7e6623a81c964a5312d99a327a9400212217"
+    },
+    {
+      "path": "dashboard.html",
+      "status": "modified",
+      "sha256": "77346b452eeccb019fa37f98ccc9ebc99a416beffa037f526fa6f59f47474d31"
+    },
+    {
+      "path": "index.html",
+      "status": "modified",
+      "sha256": "81182104b7835f2e3f2bcd292f4fc346ede977316dfe436be4804c963430f883"
+    },
+    {
+      "path": "invoice.html",
+      "status": "modified",
+      "sha256": "51677aaa366d61b9f0d19d5a0d00f008aa428e45cb458e0a4062501e62a27d1f"
+    },
+    {
+      "path": "items.html",
+      "status": "modified",
+      "sha256": "2970edd21de0369ac66116277f58c547ba47bb1455b392710ed999f746892c9d"
+    },
+    {
+      "path": "qa/V88_31_0/deployment-regressions.log",
+      "status": "added",
+      "sha256": "27dea1272f77311aff8a4189dc7bc0e56901087752d124ea41f7092bc086142d"
+    },
+    {
+      "path": "qa/V88_31_0/functional-regressions.log",
+      "status": "added",
+      "sha256": "43cc845c82c325488698acb18b951ea962ef3dd4b6afb6cc5a6ada14ef6d4468"
+    },
+    {
+      "path": "qa/V88_31_0/javascript-syntax.log",
+      "status": "added",
+      "sha256": "69ef7895b6ec0016464f9d5adaba06cbd2ab9100c79ea948814038484ae84c27"
+    },
+    {
+      "path": "qa/V88_31_0/release-inventory.log",
+      "status": "added",
+      "sha256": "acb8aca18f19542f0ba999f36f05d19c1a96ee7363d3823536b7afe0d421cec4"
+    },
+    {
+      "path": "qa/V88_31_0/source-browser-results.json",
+      "status": "added",
+      "sha256": "5df168271a0c0504afda41fd214ca7284a17cc0b8da371e9ad766b87d0e4fda3"
+    },
+    {
+      "path": "qa/V88_31_0/source-browser.log",
+      "status": "added",
+      "sha256": "9f2eb71d9318b57e23c563f114259955dcca3171c6f0117bc222e6ac3c35f0f8"
+    },
+    {
+      "path": "qa/V88_31_0/staged-release.log",
+      "status": "added",
+      "sha256": "acb8aca18f19542f0ba999f36f05d19c1a96ee7363d3823536b7afe0d421cec4"
+    },
+    {
+      "path": "recipes.html",
+      "status": "modified",
+      "sha256": "b242754cd451717d0879708d82d4119bbadbc3219a93f856b7a9d366694b8d5d"
+    },
+    {
+      "path": "release-manifest.json",
+      "status": "modified",
+      "sha256": "41c328f98c15383ad5b48960a149f338c06b4e41f384d451a56bc402d892a790"
+    },
+    {
+      "path": "sw.js",
+      "status": "modified",
+      "sha256": "1aec7c5cbbffc544748d237f15788dae3ea0f70b81c27eb6aadd0d1479878952"
+    },
+    {
+      "path": "tests/core-regressions.test.js",
+      "status": "modified",
+      "sha256": "12cdec547ae7e623186b322d1852095e93b9837c45682f7ae1f901d6adb7d540"
+    },
+    {
+      "path": "tests/document-io.test.js",
+      "status": "added",
+      "sha256": "924122d622141c3b6a8b78b0d5fb1907352fd918d635698f491c3291b6372a31"
+    },
+    {
+      "path": "tests/invoice-dom.js",
+      "status": "modified",
+      "sha256": "f5165ea8efb1d99e5c1b5d29c61b0bed5373f8cf714d169bc869feffcc0dbb41"
+    },
+    {
+      "path": "tests/invoice-fixture.js",
+      "status": "modified",
+      "sha256": "b5f9c5d53c0337497a9e61982e6ae8b1b319a43179503817beab3b3bbccfb75e"
+    },
+    {
+      "path": "tests/invoice-regression.js",
+      "status": "modified",
+      "sha256": "ad028622081ed06032b24f71171618a3616eb6c18ff11befe8e5bb08bb130206"
+    },
+    {
+      "path": "tests/source-browser.py",
+      "status": "added",
+      "sha256": "296f5f180b8f6a631adeaddcabd8034d69f66d9e4068fe7af8734e9d9e43e1de"
+    },
+    {
+      "path": "tests/verify-release.py",
+      "status": "added",
+      "sha256": "d56617c20225920bbd7ae24bb05cea6630e14979406ea18483bf598d6f22e2dd"
+    }
+  ]
+}

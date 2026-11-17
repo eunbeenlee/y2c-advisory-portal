@@ -1,0 +1,48 @@
+{
+  "release": "V88_33_0",
+  "verifiedFiles": 64,
+  "stagedFiles": 75,
+  "associationGeneratedFromVerifiedCopy": false,
+  "compatibilityAssets": [
+    {
+      "path": "apps/SinjeonPortal-1.0.0.apk",
+      "sha256": "6ad8aff4ac260f4f14673611e68f75c16fd613b5a2e44b4e0d8cf1841ed1309d",
+      "bytes": 3818515
+    },
+    {
+      "path": "apps/SinjeonPortal-1.0.5.apk",
+      "sha256": "812fbcccfa0a5dc9fe43058d518305d6be35e343ede80902b00dbe8d2c715b88",
+      "bytes": 3847175
+    },
+    {
+      "path": "assets/js/admin.js",
+      "sha256": "8813be366aeb7095ebce126094398f24e8db7e8d03c09eea64dc5a5c80de059b",
+      "bytes": 82351
+    },
+    {
+      "path": "assets/js/dashboard.js",
+      "sha256": "1e0adfeb82623ef8e3c3cb8e5227b3787602495f0c6ccb22885c69267542e993",
+      "bytes": 26256
+    },
+    {
+      "path": "assets/js/invoice.js",
+      "sha256": "768c3a9aa00ed2d351808315c7bfd2fd3bf0970764c8638e3fa90b8df7290537",
+      "bytes": 36959
+    },
+    {
+      "path": "assets/js/items.js",
+      "sha256": "294341703078a2664c1746df1ef9e8beac1798d0221351d770c93d3b129d23d3",
+      "bytes": 60054
+    },
+    {
+      "path": "assets/js/recipes.js",
+      "sha256": "d30a4a82c20b8190491974786f0a907340a70209eb90fb746d7c0a20ca193b7c",
+      "bytes": 29893
+    }
+  ],
+  "associationFormattingNormalized": false,
+  "staticReferencesChecked": 244,
+  "workerInventoryVerified": true,
+  "result": "READY_TO_STAGE",
+  "businessDataTouched": false
+}

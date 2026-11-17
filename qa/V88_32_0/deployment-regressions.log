@@ -1,0 +1,47 @@
+test_actual_repository_json_format_normalized (__main__.DeploymentGate.test_actual_repository_json_format_normalized) ... ok
+test_alternate_origin_cannot_be_verified (__main__.DeploymentGate.test_alternate_origin_cannot_be_verified) ... ok
+test_conflicting_identity_not_silently_replaced (__main__.DeploymentGate.test_conflicting_identity_not_silently_replaced) ... ok
+test_css_relative_asset_must_be_published (__main__.DeploymentGate.test_css_relative_asset_must_be_published) ... ok
+test_digest_must_represent_actual_worker_inventory (__main__.DeploymentGate.test_digest_must_represent_actual_worker_inventory) ... ok
+test_duplicate_inventory_rejected (__main__.DeploymentGate.test_duplicate_inventory_rejected) ... ok
+test_duplicate_precache_asset_blocks (__main__.DeploymentGate.test_duplicate_precache_asset_blocks) ... ok
+test_existing_output_is_not_overwritten (__main__.DeploymentGate.test_existing_output_is_not_overwritten) ... ok
+test_http_200_error_page_is_not_success (__main__.DeploymentGate.test_http_200_error_page_is_not_success) ... ok
+test_inline_javascript_syntax_error_blocks_release (__main__.DeploymentGate.test_inline_javascript_syntax_error_blocks_release) ... ok
+test_json_scripts_are_not_js_and_module_syntax_is_checked (__main__.DeploymentGate.test_json_scripts_are_not_js_and_module_syntax_is_checked) ... ok
+test_legacy_apk_is_preserved_without_changing_install_page (__main__.DeploymentGate.test_legacy_apk_is_preserved_without_changing_install_page) ... ok
+test_live_404_detected (__main__.DeploymentGate.test_live_404_detected) ... ok
+test_live_match (__main__.DeploymentGate.test_live_match) ... ok
+test_local_navigation_target_must_be_published (__main__.DeploymentGate.test_local_navigation_target_must_be_published) ... ok
+test_missing_application_file_blocks (__main__.DeploymentGate.test_missing_application_file_blocks) ... ok
+test_missing_hidden_files_rebuilt_without_source_mutation (__main__.DeploymentGate.test_missing_hidden_files_rebuilt_without_source_mutation) ... ok
+test_missing_precache_theme_blocks_even_when_hashes_are_valid (__main__.DeploymentGate.test_missing_precache_theme_blocks_even_when_hashes_are_valid) ... ok
+test_missing_required_inventory_entry_rejected (__main__.DeploymentGate.test_missing_required_inventory_entry_rejected) ... ok
+test_private_files_excluded (__main__.DeploymentGate.test_private_files_excluded) ... ok
+test_pwa_icon_must_be_published (__main__.DeploymentGate.test_pwa_icon_must_be_published) ... ok
+test_pwa_shortcut_must_be_published (__main__.DeploymentGate.test_pwa_shortcut_must_be_published) ... ok
+test_pwa_start_page_must_be_published (__main__.DeploymentGate.test_pwa_start_page_must_be_published) ... ok
+test_queries_anchors_and_external_references_are_supported (__main__.DeploymentGate.test_queries_anchors_and_external_references_are_supported) ... ok
+test_redirect_not_followed_over_real_http (__main__.DeploymentGate.test_redirect_not_followed_over_real_http) ... ok
+test_referenced_css_cannot_be_omitted_from_inventory (__main__.DeploymentGate.test_referenced_css_cannot_be_omitted_from_inventory) ... ok
+test_rehashed_worker_with_wrong_asset_hash_is_rejected (__main__.DeploymentGate.test_rehashed_worker_with_wrong_asset_hash_is_rejected) ... ok
+test_release_mix_blocks_before_writing_output (__main__.DeploymentGate.test_release_mix_blocks_before_writing_output) ... ok
+test_required_script_cannot_hide_in_compatibility_assets (__main__.DeploymentGate.test_required_script_cannot_hide_in_compatibility_assets) ... ok
+test_root_offline_entry_cannot_be_omitted (__main__.DeploymentGate.test_root_offline_entry_cannot_be_omitted) ... ok
+test_server_manifest_cannot_excuse_old_files (__main__.DeploymentGate.test_server_manifest_cannot_excuse_old_files) ... ok
+test_staged_tar_contains_hidden_files (__main__.DeploymentGate.test_staged_tar_contains_hidden_files) ... ok
+test_symlink_in_ancestor_rejected (__main__.DeploymentGate.test_symlink_in_ancestor_rejected) ... ok
+test_test_environment_cannot_be_published (__main__.DeploymentGate.test_test_environment_cannot_be_published) ... ok
+test_traversal_in_inventory_rejected (__main__.DeploymentGate.test_traversal_in_inventory_rejected) ... ok
+test_unsigned_precache_asset_blocks (__main__.DeploymentGate.test_unsigned_precache_asset_blocks) ... ok
+test_valid_release_and_compatibility_assets_preserved (__main__.DeploymentGate.test_valid_release_and_compatibility_assets_preserved) ... ok
+test_worker_and_manifest_digest_must_match (__main__.DeploymentGate.test_worker_and_manifest_digest_must_match) ... ok
+test_worker_version_must_match_manifest (__main__.DeploymentGate.test_worker_version_must_match_manifest) ... ok
+test_wrong_domain_blocks (__main__.DeploymentGate.test_wrong_domain_blocks) ... ok
+test_wrong_json_mime_detected (__main__.DeploymentGate.test_wrong_json_mime_detected) ... ok
+test_wrong_signing_certificate_rejected (__main__.DeploymentGate.test_wrong_signing_certificate_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 5.817s
+
+OK

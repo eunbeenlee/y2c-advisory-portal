@@ -1,0 +1,10 @@
+{
+  "hostedBrowser": "ERR_BLOCKED_BY_ADMINISTRATOR on local navigation",
+  "serviceWorkerBrowserInstallationTested": false,
+  "serviceWorkerCodeHarnessTests": 12,
+  "fetchAndCacheStorageAreMocked": true,
+  "actualPdfDownloads": 6,
+  "businessApi": "synthetic fixtures",
+  "productionDeployed": false,
+  "externalPackageFetch": "not available; no third-party PDF library bundled"
+}
