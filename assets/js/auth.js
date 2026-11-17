@@ -395,6 +395,11 @@ const RequestPolicy = {
     },
     decode: async function(raw) {
         let result = JSON.parse(raw);
+        const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+        if (!object(result)) throw new Y2CDecompressionError('서버 응답 형식을 확인할 수 없습니다.');
+        if (result.isCompressed && (!['gzip', 'lz-string'].includes(result.method) || typeof result.payload !== 'string')) {
+            throw new Y2CDecompressionError('지원되지 않는 압축 응답입니다.');
+        }
         if (result.isCompressed && result.method === 'gzip') {
             if (typeof DecompressionStream !== 'function') throw new Y2CDecompressionError('이 브라우저에서 압축 응답을 해독할 수 없습니다.');
             const bytes = Uint8Array.from(atob(result.payload),c=>c.charCodeAt(0));
@@ -405,6 +410,10 @@ const RequestPolicy = {
             const value = LZDecompressor.decompressFromBase64(result.payload);
             if (!value) throw new Y2CDecompressionError('압축 응답을 해독할 수 없습니다.');
             result = JSON.parse(value);
+        }
+        if (!object(result) || typeof result.success !== 'boolean' ||
+            (result.offlineQueued === true && result.success !== false)) {
+            throw new Y2CDecompressionError('서버의 성공 여부를 확인할 수 없습니다. 입력 내용은 유지됩니다.');
         }
         return result;
     },

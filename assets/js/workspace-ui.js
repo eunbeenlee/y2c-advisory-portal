@@ -10,7 +10,7 @@
  function jump(n){if(!n)return;if(!/^(INPUT|SELECT|TEXTAREA|BUTTON|A)$/.test(n.tagName))n.tabIndex=-1;n.scrollIntoView({block:'start',behavior:'instant'});n.focus({preventScroll:true});}
  function boot(){
   const main=d.querySelector('main');if(!main)return;
-  const page=location.pathname.split('/').pop()||'index.html';
+  const page=d.body?.dataset.portalPage||location.pathname.split('/').pop()||'index.html';
   if(page==='index.html'){
    const intro=d.querySelector('.portal-login-intro');if(intro&&!byId('workspaceLoginArt')){const art=el('div',undefined,'workspace-login-art');art.id='workspaceLoginArt';const text=el('p');const label=()=>text.textContent=t('주문과 재고를 한곳에서 확인하세요.','One workspace for orders, stock and partner operations');label();art.append(text,artwork());intro.append(art);d.addEventListener('y2c-language-changed',label);}
   }

@@ -145,3 +145,83 @@
   }
 }
 @media print { .portal-page .ux-skip { display: none !important; } }
+
+/* V88_31_0: reviewed invoice workspace, compact status hierarchy, stable scrolling. */
+@media screen {
+  .portal-page .invoice-workbench-layout > * { min-width: 0; }
+  .portal-page #invoiceCanvasContainer { overflow: visible; }
+  .portal-page .invoice-paper-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; border: 1px solid #dce3eb; border-radius: 12px; background: #e9edf2; padding: 14px; }
+  .portal-page .invoice-paper-scroll:focus-visible { outline: 3px solid #315b8b; outline-offset: 3px; }
+  .portal-page .invoice-review-panel { background: #fff; border: 1px solid #dce3eb; border-radius: 14px; padding: 20px 22px; margin-bottom: 18px; }
+  .portal-page .invoice-review-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .portal-page .invoice-review-heading h3 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -.02em; }
+  .portal-page .invoice-state-badge { display: inline-flex; font-size: 12px; font-weight: 650; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 6px; background: #f8fafc; color: #475569; }
+  .portal-page .invoice-state-badge[data-state="ready"] { border-color: #b9dac8; background: #eff8f2; color: #246446; }
+  .portal-page .invoice-state-badge[data-state="generating"] { border-color: #b9d0e8; background: #eff5fc; color: #315b8b; }
+  .portal-page .invoice-state-badge:is([data-state="failed"],[data-state="changed"]) { border-color: #e9d2ac; background: #fff8ed; color: #80571d; }
+  .portal-page #invoiceResultStatus { margin: 12px 0 16px; color: #526276; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+  .portal-page .invoice-summary-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); margin: 0; gap: 18px; border-top: 1px solid #e5eaf0; padding-top: 16px; }
+  .portal-page .invoice-summary-grid dt { color: #526276; font-size: 11px; font-weight: 500; }
+  .portal-page .invoice-summary-grid dd { margin: 7px 0 0; color: #17263a; font-size: 17px; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .portal-page #reviewPeriod { font-size: 14px; line-height: 1.7; }
+  .portal-page .invoice-advisory { color: #80571d; background: #fff8ed; border: 1px solid #e9d2ac; padding: 10px 12px; border-radius: 8px; font-size: 12px; line-height: 1.7; margin: 12px 0 0; }
+  .portal-page .invoice-checked-at { font-size: 11px; color: #526276; margin: 14px 0 0; }
+  .portal-page .invoice-preview-help { font-size: 11px; color: #526276; margin: 12px 0 0; line-height: 1.7; }
+  .portal-page .invoice-quick-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .portal-page :is(.invoice-quick-actions button,.invoice-secondary-button) { border: 1px solid #c9d3df; background: #fff; color: #34485f; border-radius: 8px; font: inherit; font-size: 12px; font-weight: 600; padding: 8px 11px; min-height: 40px; }
+  .portal-page :is(.invoice-quick-actions button,.invoice-secondary-button):hover:not(:disabled) { background: #f3f6fa; border-color: #9badc1; }
+  .portal-page :is(button,select,input):disabled { cursor: not-allowed; }
+  .portal-page #btnCancelPDF { min-height: 44px; }
+  .portal-page #invoiceControls { scrollbar-gutter: auto; max-height: calc(100dvh - 210px); scroll-padding-block: 16px; }
+  .portal-page :is(#btnGenerateInvoice,#btnExportPDF) { letter-spacing: 0; text-transform: none; font-size: 13px; font-weight: 650; }
+  .portal-page #pdfActionContainer { transition: none; }
+  .portal-page #invoiceDockMessage { max-width: 52ch; overflow-wrap: anywhere; }
+  .portal-page.invoice-not-ready #invoiceDocument { opacity: .65; }
+  .portal-page.invoice-not-ready #invoiceDocument.pdf-export-mode { opacity: 1; }
+  @media (max-width: 1279px) { .portal-page #invoiceControls { max-height: none; position: static; overflow: visible; } }
+  @media (max-width: 1100px) { .portal-page .invoice-workbench-layout { flex-direction: column; } .portal-page #invoiceControls { width: 100%; } }
+  @media (max-width: 767px) {
+    .portal-page .invoice-review-panel { padding: 16px; }
+    .portal-page .invoice-summary-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+    .portal-page .invoice-summary-grid dd { font-size: 16px; }
+    .portal-page .invoice-paper-scroll { padding: 8px; }
+    .portal-page #pdfActionContainer > div > div { gap: 10px; padding-block: 12px; }
+    .portal-page #pdfActionContainer > div > div > div:first-child { display: none; }
+    .portal-page #pdfActionContainer button { padding-inline: 12px; min-width: 0; font-size: 12px; }
+    .portal-page .invoice-quick-actions button { min-height: 44px; }
+  }
+}
+@media print { .invoice-review-panel, .document-export-host, #btnCancelPDF { display: none !important; } }
+
+/* V88_32_0: source-aware review, explicit settings drafts and printable notes. */
+@media screen {
+  .portal-page .invoice-note-field textarea { width: 100%; min-height: 84px; resize: vertical; border: 1px solid #c9d3df; border-radius: 9px; padding: 10px 12px; color: #17263a; font: inherit; font-size: 14px; line-height: 1.6; }
+  .portal-page .invoice-note-field textarea:focus-visible { outline: 2px solid #315b8b; outline-offset: 2px; }
+  .portal-page .invoice-draft-tools { border: 1px solid #dce3eb; border-radius: 10px; background: #f8fafc; padding: 12px; }
+  .portal-page :is(.invoice-draft-tools,.invoice-audit) summary { cursor: pointer; color: #17263a; font-size: 13px; font-weight: 650; line-height: 1.7; padding: 2px 0; }
+  .portal-page .invoice-draft-tools[open] summary { margin-bottom: 10px; }
+  .portal-page .invoice-draft-tools .invoice-quick-actions { margin-block: 10px; }
+  .portal-page .invoice-review-ack { padding: 12px; margin-top: 12px; border: 1px solid #e9d2ac; border-radius: 8px; background: #fffbf4; }
+  .portal-page .invoice-review-ack label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; color: #654c23; font-size: 12px; line-height: 1.8; }
+  .portal-page .invoice-review-ack input { flex: 0 0 auto; width: 18px; height: 18px; margin: 2px 0 0; accent-color: #17263a; }
+  .portal-page .invoice-state-badge:is([data-state="review"],[data-state="ready-note"]) { border-color: #e9d2ac; background: #fff8ed; color: #80571d; }
+  .portal-page .invoice-audit { border-top: 1px solid #e5eaf0; margin-top: 16px; padding-top: 12px; }
+  .portal-page .invoice-audit-scroll { max-width: 100%; overflow-x: auto; margin-top: 10px; overscroll-behavior-inline: contain; }
+  .portal-page .invoice-audit-table { border-collapse: collapse; width: 100%; min-width: 580px; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .portal-page .invoice-audit-table :is(th,td) { padding: 9px 10px; text-align: right; border-bottom: 1px solid #e5eaf0; white-space: nowrap; font-weight: 450; }
+  .portal-page .invoice-audit-table thead th { font-weight: 600; background: #f7f9fb; color: #526276; }
+  .portal-page .invoice-audit-table :is(th,td):is(:first-child,:last-child) { text-align: left; }
+  .portal-page .invoice-audit-table tr:is([data-state="missing"],[data-state="unregistered"],[data-state="inferred"],[data-state="totalOnly"]) td:last-child { color: #80571d; font-weight: 600; }
+  .portal-page :is(.invoice-review-ack,.invoice-audit)[hidden] { display: none !important; }
+  @media(max-width:767px) { .portal-page .invoice-note-field textarea { font-size: 16px; } }
+}
+
+/* V88_33_0: quiet, persistent export feedback; never part of printed invoices. */
+@media screen {
+ .invoice-export-status { display:flex;align-items:flex-start;gap:12px;margin:0 0 14px;padding:12px 16px;background:#fff;border:1px solid #dce3eb;border-radius:10px; }
+ .invoice-engine-badge { flex:none;border-radius:5px;background:#edf3f9;color:#24476c;padding:3px 7px;font-size:11px;font-weight:650; }
+ #invoiceExportStatus { margin:0;font-size:12px;line-height:1.65;color:#526276;overflow-wrap:anywhere; }
+ #invoiceExportStatus[data-state="error"] { color:#b42333; }
+ #invoiceExportStatus[data-state="success"] { color:#206344; }
+ @media(max-width:540px){.invoice-export-status{flex-direction:column;gap:5px;}}
+}

@@ -57,13 +57,14 @@ test('actual invoice page event workflow with synthetic responses', async t => {
                 return {
                     set(value) { options = value; return this; },
                     from(value) { element = value; return this; },
-                    async save() {
+                    toPdf() { return this; },
+                    async get() { return { save: () => {
                         window.__invoiceTest.pdfExports.push({ filename: options.filename,
                             issue: element.querySelector('#docIssueDate').textContent,
                             due: element.querySelector('#docDueDate').textContent,
                             rows: element.querySelectorAll('#valInvoiceLines tr').length });
                         if (window.__invoiceTest.exportFailure) throw Error('Intentional export failure');
-                    }
+                    } }; }
                 };
             };
         }

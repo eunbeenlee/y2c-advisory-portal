@@ -127,3 +127,20 @@ test('new procurement orders use the Toronto business date, not the next UTC dat
  const a=procurementHarness();await a.node('btnSubmitProcurement').handlers.click();
  assert.equal(a.sent[0].payload.order.date,'2026-11-16');
 });
+
+test('null, array, scalar and ambiguous server responses fail closed',async()=>{
+ const a=authHarness();
+ for(const value of [null,[],1,'ok',{}, {success:'true'}, {success:1}, {success:true,offlineQueued:true}]) {
+  await assert.rejects(a.h.RequestPolicy.decode(JSON.stringify(value)),'must reject '+JSON.stringify(value));
+ }
+});
+test('unsupported compressed response envelopes fail before being treated as data',async()=>{
+ const a=authHarness();
+ for(const value of [{success:true,isCompressed:true,method:'zip',payload:'x'}, {isCompressed:true,method:'gzip',payload:1}])
+  await assert.rejects(a.h.RequestPolicy.decode(JSON.stringify(value)));
+});
+test('explicit successful and business-error server objects remain supported',async()=>{
+ const a=authHarness();
+ assert.equal((await a.h.RequestPolicy.decode('{"success":true,"items":[]}')).success,true);
+ assert.equal((await a.h.RequestPolicy.decode('{"success":false,"message":"Review input"}')).message,'Review input');
+});

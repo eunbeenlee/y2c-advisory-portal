@@ -119,3 +119,27 @@ test('payment terms are derived from the dates on the invoice', () => {
     assert.equal(dates.paymentTerms('2026-11-01', '2026-11-15'), 'Net 14 days');
     assert.equal(dates.paymentTerms('2026-11-01', '2026-12-01'), 'Net 30 days');
 });
+
+test('missing-month coverage is visible and is not silently described as confirmed zero',()=>{
+ const f=fixture();f.params.startMonth=9;f.params.endMonth=11;
+ const r=summarize(f);assert.equal(r.coverage.expected,3);assert.equal(r.coverage.returned,1);
+ assert.deepEqual(Array.from(r.coverage.missingMonths),[9,11]);
+});
+test('nonexistent months cannot also contain financial values',()=>{
+ const f=fixture();f.records[0].exists=false;assert.throws(()=>summarize(f));
+});
+test('boolean and non-scalar months cannot be coerced into valid months',()=>{
+ for(const month of [true,false,null,{},[]]){const f=fixture();f.records[0].month=month;assert.throws(()=>summarize(f));}
+});
+test('unsorted valid source months are returned in chronological order',()=>{
+ const f=fixture();f.params.startMonth=9;f.records.push({month:9,pos:0,delivery:0,total:0});
+ assert.deepEqual(Array.from(summarize(f).months,m=>m.month),[9,10]);
+});
+test('explicit empty monthly records retain complete coverage',()=>{
+ const f=fixture();f.records=[{month:10,exists:false}];f.data.posSales=f.data.deliverySales=f.data.totalSales=0;
+ const r=summarize(f);assert.equal(r.totalFees,0);assert.equal(r.coverage.missingMonths.length,0);
+});
+
+test('whitespace-padded numeric spreadsheet months retain compatibility',()=>{
+ const f=fixture();f.records[0].month=' 10 ';assert.equal(summarize(f).totalFees,37.51);
+});
